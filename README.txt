@@ -1,6 +1,10 @@
 jQuery File Upload Plugin
 =========================
 
+Demo
+----
+http://aquantum-demo.appspot.com/file-upload
+
 Features
 --------
   - Plugin for jQuery + jQuery UI (optional).
@@ -31,3 +35,7 @@ License
 -------
 Released under the MIT license:
 http://creativecommons.org/licenses/MIT/
+
+Source Code & Download
+----------------------
+https://github.com/blueimp/jQuery-File-Upload
