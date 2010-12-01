@@ -1,0 +1,58 @@
+<!DOCTYPE HTML>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<title>jQuery File Upload Example</title>
+<link rel="stylesheet" href="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.5/themes/base/jquery-ui.css" id="theme">
+<link rel="stylesheet" href="../jquery.fileupload-ui.css">
+<style>
+body {
+  font-family: Verdana, Arial, sans-serif;
+  font-size: 13px;
+  margin: 0;
+  padding: 20px;
+}
+</style>
+</head>
+<body>
+<form class="upload" action="upload.php" method="POST" enctype="multipart/form-data">
+    <input type="file" name="file" multiple>
+    <button>Upload</button>
+    <div>Upload files</div>
+</form> 
+<table class="upload_files"></table>
+<table class="download_files"></table>
+<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.4.3/jquery.min.js"></script>
+<script src="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.5/jquery-ui.min.js"></script>
+<script src="../jquery.fileupload.js"></script>
+<script src="../jquery.fileupload-ui.js"></script>
+<script>
+/*global $ */
+$(function () {
+    $('.upload').fileUploadUI({
+        uploadTable: $('.upload_files'),
+        downloadTable: $('.download_files'),
+        buildUploadRow: function (files, index) {
+            var file = files[index];
+            return $(
+                '<tr style="display:none">' +
+                '<td>' + file.name + '<\/td>' +
+                '<td class="file_upload_progress"><div><\/div><\/td>' +
+                '<td class="file_upload_cancel">' +
+                '<div class="ui-state-default ui-corner-all ui-state-hover" title="Cancel">' +
+                '<span class="ui-icon ui-icon-cancel"><\/span>' +
+                '<\/div>' +
+                '<\/td>' +
+                '<\/tr>'
+            );
+        },
+        buildDownloadRow: function (file) {
+            return $(
+                '<tr style="display:none"><td>' + file.name + '<\/td><\/tr>'
+            );
+        }
+    });
+});
+</script> 
+</body> 
+</html>
