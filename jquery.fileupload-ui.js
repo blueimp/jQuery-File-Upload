@@ -1,5 +1,5 @@
 /*
- * jQuery File Upload User Interface Plugin 1.0
+ * jQuery File Upload User Interface Plugin 1.1
  *
  * Copyright 2010, Sebastian Tschan, AQUANTUM
  * Licensed under the MIT license:
@@ -52,57 +52,70 @@
         this.init = function (files, index, xhr, callBack) {
             files = normalizeFiles(files);
             var uploadRow = uploadHandler.buildUploadRow(files, index),
+                progressbar,
+                callBackSettings;
+            if (uploadRow) {
                 progressbar = uploadRow.find(uploadHandler.progressSelector).progressbar({
-                value: (xhr ? 0 : 100)
-            });
-            uploadRow.find(uploadHandler.cancelSelector).click(function () {
-                if (xhr) {
-                    xhr.abort();
-                } else {
-                    // javascript:false as iframe src prevents warning popups on HTTPS in IE6
-                    // concat is used here to prevent the "Script URL" JSLint error:
-                    dropZone.find('iframe').attr('src', 'javascript'.concat(':false;'));
-                    uploadRow.fadeOut(function () {
-                        $(this).remove();
-                    });
-                }
-            });
-            uploadRow.appendTo(uploadHandler.uploadTable).fadeIn();
+                    value: (xhr ? 0 : 100)
+                });
+                uploadRow.find(uploadHandler.cancelSelector).click(function () {
+                    if (xhr) {
+                        xhr.abort();
+                    } else {
+                        // javascript:false as iframe src prevents warning popups on HTTPS in IE6
+                        // concat is used here to prevent the "Script URL" JSLint error:
+                        dropZone.find('iframe').attr('src', 'javascript'.concat(':false;'));
+                        uploadRow.fadeOut(function () {
+                            $(this).remove();
+                        });
+                    }
+                });
+                uploadRow.appendTo(uploadHandler.uploadTable).fadeIn();
+            }
+            callBackSettings = {uploadRow: uploadRow, progressbar: progressbar};
             if (typeof uploadHandler.initCallBack === 'function') {
                 uploadHandler.initCallBack(files, index, xhr, function (settings) {
-                    callBack($.extend(settings, {uploadRow: uploadRow, progressbar: progressbar}));
-                });
+                    callBack($.extend(settings, callBackSettings));
+                }, callBackSettings);
             } else {
-                callBack({uploadRow: uploadRow, progressbar: progressbar});
+                callBack(callBackSettings);
             }
         };
         
         this.abort = function (event, files, index, xhr, settings) {
-            settings.uploadRow.fadeOut(function () {
-                $(this).remove();
-            });
+            if (settings.uploadRow) {
+                settings.uploadRow.fadeOut(function () {
+                    $(this).remove();
+                });
+            }
         };
         
         this.progress = function (event, files, index, xhr, settings) {
-            settings.progressbar.progressbar(
-                'value',
-                parseInt(event.loaded / event.total * 100, 10)
-            );
+            if (settings.progressbar) {
+                settings.progressbar.progressbar(
+                    'value',
+                    parseInt(event.loaded / event.total * 100, 10)
+                );
+            }
         };
         
         this.load = function (event, files, index, xhr, settings) {
-            settings.uploadRow.fadeOut(function () {
-                $(this).remove();
-            });
-            var json;
+            if (settings.uploadRow) {
+                settings.uploadRow.fadeOut(function () {
+                    $(this).remove();
+                });
+            }
+            var json, downloadRow;
             if (xhr) {
                 json = $.parseJSON(xhr.responseText);
             } else {
                 json = $.parseJSON($(event.target).contents().text());
             }
             if (json) {
-                uploadHandler.buildDownloadRow(json)
-                    .appendTo(uploadHandler.downloadTable).fadeIn();
+                downloadRow = uploadHandler.buildDownloadRow(json);
+                if (downloadRow) {
+                    downloadRow.appendTo(uploadHandler.downloadTable).fadeIn();
+                }
             }
         };
         
