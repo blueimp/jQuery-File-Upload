@@ -38,7 +38,7 @@
 
         isXHRUploadCapable = function () {
             return typeof XMLHttpRequest !== undef && typeof File !== undef && (
-                settings.streaming || typeof FormData !== undef || typeof FileReader !== undef
+                settings.streaming || typeof FormData !== undef || typeof FileReader !== undef
             );
         },
 
