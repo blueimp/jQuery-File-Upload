@@ -17,18 +17,15 @@ Features
   - Graceful fallback for browsers not supporting HTML5 features.
   - Basic file upload works without JavaScript enabled.
   - Files are sent as standard "multipart/form-data".
-  - Works on Google App Engine.
+  - Works with all Webhosting platforms including Google App Engine.
 
 Browser Support (tested versions)
 ---------------------------------
-  - Google Chrome - 7.0
+  - Google Chrome - 7.0, 8.0
   - Apple Safari - 5.0
   - Mozilla Firefox - 3.6
-  - Opera - 10.6 -
-  - Microsoft Internet Explorer 6.0 *
-  - Microsoft Internet Explorer 7.0 *
-  - Microsoft Internet Explorer 8.0 *
-  - Microsoft Internet Explorer 9.0 *
+  - Opera - 10.60 *, 11.00 *
+  - Microsoft Internet Explorer 6.0 *, 7.0 *, 8.0 *, 9.0 *
 * No support for multiple file selection or upload progress indication.
 
 License
