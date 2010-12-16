@@ -1,5 +1,5 @@
 /*
- * jQuery File Upload User Interface Plugin 1.1
+ * jQuery File Upload User Interface Plugin 1.2
  *
  * Copyright 2010, Sebastian Tschan, AQUANTUM
  * Licensed under the MIT license:
@@ -30,17 +30,7 @@
         
         var uploadHandler = this,
             dragLeaveTimeout,
-            isDropZoneEnlarged,
-            normalizeFiles = function (files) {
-                var file, i;
-                for (i = 0; i < files.length; i += 1) {
-                    file = files[i];
-                    if (typeof file === 'string') {
-                        files[i] = {name: file, type: null, size: null};
-                    }
-                }
-                return files;
-            };
+            isDropZoneEnlarged;
         
         this.progressSelector = '.file_upload_progress div';
         this.cancelSelector = '.file_upload_cancel div';
@@ -50,7 +40,6 @@
         this.dropEffect = 'highlight';
         
         this.init = function (files, index, xhr, callBack) {
-            files = normalizeFiles(files);
             var uploadRow = uploadHandler.buildUploadRow(files, index),
                 progressbar,
                 callBackSettings;

@@ -213,7 +213,7 @@
             if (typeof settings.load === 'function') {
                 iframe.unbind('load.' + settings.namespace)
                     .bind('load.' + settings.namespace, function (e) {
-                    settings.load(e, [input.value], 0, null, settings);
+                    settings.load(e, [{name: input.value, type: null, size: null}], 0, null, settings);
                 });
             }
             var formData = getFormData(settings);
@@ -234,7 +234,7 @@
 
         handleLegacyUpload = function (input) {
             if (typeof settings.init === 'function') {
-                settings.init([input.value], 0, null, function (options) {
+                settings.init([{name: input.value, type: null, size: null}], 0, null, function (options) {
                     legacyUpload(input, $.extend({}, settings, options));
                 });
             } else {
