@@ -1,5 +1,5 @@
 /*
- * jQuery File Upload Plugin 1.0
+ * jQuery File Upload Plugin 1.1
  *
  * Copyright 2010, Sebastian Tschan, AQUANTUM
  * Licensed under the MIT license:
