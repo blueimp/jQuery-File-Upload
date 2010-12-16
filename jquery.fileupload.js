@@ -216,7 +216,20 @@
                     settings.load(e, [input.value], 0, null, settings);
                 });
             }
+            var formData = getFormData(settings);
+            uploadForm.find(':input[type!=file]').not(':disabled')
+                .attr('disabled', true).addClass(settings.namespace + '_disabled');
+            $.each(formData, function (index, field) {
+                uploadForm.append(
+                    $('<input type="hidden"/>')
+                        .attr('name', field.name).val(field.value)
+                        .addClass(settings.namespace + '_form_data')
+                );
+            });
             uploadForm.get(0).submit();
+            uploadForm.find('.' + settings.namespace + '_disabled')
+                .removeAttr('disabled').removeClass(settings.namespace + '_disabled');
+            uploadForm.find('.' + settings.namespace + '_form_data').remove();
         },
 
         handleLegacyUpload = function (input) {
