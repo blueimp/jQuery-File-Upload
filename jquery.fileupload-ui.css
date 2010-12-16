@@ -43,8 +43,7 @@
   top: 0;
   right: 0;
   margin: 0;
-  border: none;
-  font-size: 600px;
+  border: 300px solid transparent;
   opacity: 0;
   -ms-filter: 'alpha(opacity=0)';
   filter: alpha(opacity=0);
