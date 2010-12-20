@@ -1,5 +1,5 @@
 /*
- * jQuery File Upload Plugin 1.1
+ * jQuery File Upload Plugin 1.2
  *
  * Copyright 2010, Sebastian Tschan, AQUANTUM
  * Licensed under the MIT license:
@@ -27,12 +27,14 @@
             streaming: false,
             formData: function () {
                 return uploadForm.serializeArray();
-            }
+            },
+            withCredentials: false
         },
         documentListeners = {},
         dropZoneListeners = {},
         fileInputListeners = {},
         undef = 'undefined',
+        protocolRegExp = /^http(s)?:\/\//,
         iframe,
         inputChangeCalled,
 
@@ -152,14 +154,36 @@
             return formData;
         },
 
+        isSameDomain = function (url) {
+            if (protocolRegExp.test(url)) {
+                var host = location.host,
+                    indexStart = location.protocol.length + 2,
+                    index = url.indexOf(host, indexStart),
+                    pathIndex = index + host.length;
+                if ((index === indexStart || index === url.indexOf('@', indexStart) + 1) && (
+                    url.length === pathIndex || $.inArray(url.charAt(pathIndex), ['/', '?', '#']))) {
+                    return true;
+                }
+                return false;
+            }
+            return true;
+        },
+
         uploadFile = function (files, index, xhr, settings) {
-            var file = files[index],
+            var sameDomain = isSameDomain(settings.url),
+                file = files[index],
                 formData, fileReader;
             initUploadEventHandlers(files, index, xhr, settings);
             xhr.open(settings.method, settings.url, true);
-            xhr.setRequestHeader('X-Requested-With', 'XMLHttpRequest');
+            if (sameDomain) {
+                xhr.setRequestHeader('X-Requested-With', 'XMLHttpRequest');
+            } else if (settings.withCredentials) {
+                xhr.withCredentials = true;
+            }
             if (settings.streaming) {
-                xhr.setRequestHeader('X-File-Name', unescape(encodeURIComponent(file.name)));
+                if (sameDomain) {
+                    xhr.setRequestHeader('X-File-Name', unescape(encodeURIComponent(file.name)));
+                }
                 xhr.setRequestHeader('Content-Type', file.type);
                 xhr.send(file);
             } else {

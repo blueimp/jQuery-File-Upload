@@ -14,7 +14,8 @@ Features
   - Possibility to cancel uploads.
   - No browser plugins (Adobe Flash, etc.) required.
   - Standard HTML5 file upload form.
-  - Graceful fallback for browsers not supporting HTML5 features.
+  - Graceful iframe fallback for browsers not supporting XMLHttpRequest file uploads.
+  - Supports Cross-site XMLHttpRequests.
   - Basic file upload works without JavaScript enabled.
   - Files are sent as standard "multipart/form-data".
   - Works with all Webhosting platforms including Google App Engine.
