@@ -1,5 +1,5 @@
 /*
- * jQuery File Upload Plugin 1.2
+ * jQuery File Upload Plugin 1.3
  *
  * Copyright 2010, Sebastian Tschan, AQUANTUM
  * Licensed under the MIT license:
@@ -219,7 +219,7 @@
             if (typeof settings.init === 'function') {
                 settings.init(files, index, xhr, function (options) {
                     uploadFile(files, index, xhr, $.extend({}, settings, options));
-                });
+                }, settings);
             } else {
                 uploadFile(files, index, xhr, settings);
             }
@@ -260,7 +260,7 @@
             if (typeof settings.init === 'function') {
                 settings.init([{name: input.value, type: null, size: null}], 0, null, function (options) {
                     legacyUpload(input, $.extend({}, settings, options));
-                });
+                }, settings);
             } else {
                 legacyUpload(input, settings);
             }

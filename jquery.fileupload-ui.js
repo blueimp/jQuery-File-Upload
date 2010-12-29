@@ -1,5 +1,5 @@
 /*
- * jQuery File Upload User Interface Plugin 1.2
+ * jQuery File Upload User Interface Plugin 1.3
  *
  * Copyright 2010, Sebastian Tschan, AQUANTUM
  * Licensed under the MIT license:
@@ -38,44 +38,59 @@
         this.cssClassLarge = 'file_upload_large';
         this.cssClassHighlight = 'file_upload_highlight';
         this.dropEffect = 'highlight';
-        
-        this.init = function (files, index, xhr, callBack) {
-            var uploadRow = uploadHandler.buildUploadRow(files, index),
-                progressbar,
-                callBackSettings;
-            if (uploadRow) {
-                progressbar = uploadRow.find(uploadHandler.progressSelector).progressbar({
-                    value: (xhr ? 0 : 100)
-                });
-                uploadRow.find(uploadHandler.cancelSelector).click(function () {
-                    if (xhr) {
-                        xhr.abort();
-                    } else {
-                        // javascript:false as iframe src prevents warning popups on HTTPS in IE6
-                        // concat is used here to prevent the "Script URL" JSLint error:
-                        dropZone.find('iframe').attr('src', 'javascript'.concat(':false;'));
-                        uploadRow.fadeOut(function () {
-                            $(this).remove();
-                        });
-                    }
-                });
-                uploadRow.appendTo(uploadHandler.uploadTable).fadeIn();
-            }
-            callBackSettings = {uploadRow: uploadRow, progressbar: progressbar};
-            if (typeof uploadHandler.initCallBack === 'function') {
-                uploadHandler.initCallBack(files, index, xhr, function (settings) {
-                    callBack($.extend(settings, callBackSettings));
-                }, callBackSettings);
-            } else {
-                callBack(callBackSettings);
-            }
-        };
-        
-        this.abort = function (event, files, index, xhr, settings) {
+
+        this.abort = this.removeUploadRow = function (event, files, index, xhr, settings) {
             if (settings.uploadRow) {
                 settings.uploadRow.fadeOut(function () {
                     $(this).remove();
                 });
+            }
+        };
+        
+        this.cancelUpload = function (files, index, xhr, settings) {
+            if (xhr && xhr.readyState > 1) {
+                xhr.abort();
+            } else {
+                // javascript:false as iframe src prevents warning popups on HTTPS in IE6
+                // concat is used here to prevent the "Script URL" JSLint error:
+                dropZone.find('iframe').attr('src', 'javascript'.concat(':false;'));
+                uploadHandler.abort(null, files, index, xhr, settings);
+            }
+        };
+        
+        this.initProgressBar = function (node, value) {
+            if (typeof node.progressbar === 'function') {
+                return node.progressbar({
+                    value: value
+                });
+            } else {
+                var progressbar = $('<progress value="' + value + '" max="100"/>').appendTo(node);
+                progressbar.progressbar = function (key, value) {
+                    progressbar.attr('value', value);
+                };
+                return progressbar;
+            }
+        };
+        
+        this.init = function (files, index, xhr, callBack, settings) {
+            var uploadRow = uploadHandler.buildUploadRow(files, index),
+                extraSettings = {uploadRow: uploadRow};
+            if (uploadRow) {
+                extraSettings.progressbar = uploadHandler.initProgressBar(
+                    uploadRow.find(uploadHandler.progressSelector),
+                    (xhr ? 0 : 100)
+                );
+                uploadRow.find(uploadHandler.cancelSelector).click(function () {
+                    uploadHandler.cancelUpload(files, index, xhr, extraSettings);
+                });
+                uploadRow.appendTo(uploadHandler.uploadTable).fadeIn();
+            }
+            if (typeof uploadHandler.initCallBack === 'function') {
+                uploadHandler.initCallBack(files, index, xhr, function (callBackSettings) {
+                    callBack($.extend(extraSettings, callBackSettings));
+                }, $.extend({}, settings, extraSettings));
+            } else {
+                callBack(extraSettings);
             }
         };
         
@@ -89,16 +104,20 @@
         };
         
         this.load = function (event, files, index, xhr, settings) {
-            if (settings.uploadRow) {
-                settings.uploadRow.fadeOut(function () {
-                    $(this).remove();
-                });
-            }
+            uploadHandler.removeUploadRow(event, files, index, xhr, settings);
             var json, downloadRow;
-            if (xhr) {
-                json = $.parseJSON(xhr.responseText);
-            } else {
-                json = $.parseJSON($(event.target).contents().text());
+            try {
+                if (xhr) {
+                    json = $.parseJSON(xhr.responseText);
+                } else {
+                    json = $.parseJSON($(event.target).contents().text());
+                }
+            } catch (e) {
+                if (typeof uploadHandler.error === 'function') {
+                    uploadHandler.error(e, files, index, xhr, $.extend({}, settings, {originalEvent: event}));
+                } else {
+                    throw e;
+                }
             }
             if (json) {
                 downloadRow = uploadHandler.buildDownloadRow(json);
@@ -107,20 +126,42 @@
                 }
             }
         };
+
+        this.dropZoneEnlarge = function () {
+            if (!isDropZoneEnlarged) {
+                if (typeof dropZone.switchClass === 'function') {
+                    dropZone.switchClass(
+                        uploadHandler.cssClassSmall,
+                        uploadHandler.cssClassLarge
+                    );
+                } else {
+                    dropZone.addClass(uploadHandler.cssClassLarge);
+                    dropZone.removeClass(uploadHandler.cssClassSmall);
+                }
+                isDropZoneEnlarged = true;
+            }
+        };
         
+        this.dropZoneReduce = function () {
+            if (typeof dropZone.switchClass === 'function') {
+                dropZone.switchClass(
+                    uploadHandler.cssClassLarge,
+                    uploadHandler.cssClassSmall
+                );
+            } else {
+                dropZone.addClass(uploadHandler.cssClassSmall);
+                dropZone.removeClass(uploadHandler.cssClassLarge);
+            }
+            isDropZoneEnlarged = false;
+        };
+
         this.documentDragEnter = function (event) {
             setTimeout(function () {
                 if (dragLeaveTimeout) {
                     clearTimeout(dragLeaveTimeout);
                 }
             }, 50);
-            if (!isDropZoneEnlarged) {
-                dropZone.switchClass(
-                    uploadHandler.cssClassSmall,
-                    uploadHandler.cssClassLarge
-                );
-                isDropZoneEnlarged = true;
-            }
+            uploadHandler.dropZoneEnlarge();
         };
         
         this.documentDragLeave = function (event) {
@@ -128,11 +169,7 @@
                 clearTimeout(dragLeaveTimeout);
             }
             dragLeaveTimeout = setTimeout(function () {
-                dropZone.switchClass(
-                    uploadHandler.cssClassLarge,
-                    uploadHandler.cssClassSmall
-                );
-                isDropZoneEnlarged = false;
+                uploadHandler.dropZoneReduce();
             }, 100);
         };
         
@@ -141,15 +178,17 @@
         };
         
         this.drop = function (event) {
-            dropZone.effect(uploadHandler.dropEffect, function () {
+            if (typeof dropZone.effect === 'function') {
+                dropZone.effect(uploadHandler.dropEffect, function () {
+                    dropZone.removeClass(uploadHandler.cssClassHighlight);
+                    uploadHandler.dropZoneReduce();
+                });
+            } else {
                 dropZone.removeClass(uploadHandler.cssClassHighlight);
-                dropZone.switchClass(
-                    uploadHandler.cssClassLarge,
-                    uploadHandler.cssClassSmall
-                );
-            });
+                uploadHandler.dropZoneReduce();
+            }
         };
-        
+
         $.extend(this, options);
     },
 
