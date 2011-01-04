@@ -1,5 +1,5 @@
 /*
- * jQuery File Upload User Interface Plugin 1.3
+ * jQuery File Upload User Interface Plugin 2.0
  *
  * Copyright 2010, Sebastian Tschan, AQUANTUM
  * Licensed under the MIT license:
@@ -39,7 +39,7 @@
         this.cssClassHighlight = 'file_upload_highlight';
         this.dropEffect = 'highlight';
 
-        this.abort = this.removeUploadRow = function (event, files, index, xhr, settings) {
+        this.onAbort = this.removeUploadRow = function (event, files, index, xhr, settings) {
             if (settings.uploadRow) {
                 settings.uploadRow.fadeOut(function () {
                     $(this).remove();
@@ -54,7 +54,7 @@
                 // javascript:false as iframe src prevents warning popups on HTTPS in IE6
                 // concat is used here to prevent the "Script URL" JSLint error:
                 dropZone.find('iframe').attr('src', 'javascript'.concat(':false;'));
-                uploadHandler.abort(null, files, index, xhr, settings);
+                uploadHandler.onAbort(null, files, index, xhr, settings);
             }
         };
         
@@ -94,7 +94,7 @@
             }
         };
         
-        this.progress = function (event, files, index, xhr, settings) {
+        this.onProgress = function (event, files, index, xhr, settings) {
             if (settings.progressbar) {
                 settings.progressbar.progressbar(
                     'value',
@@ -103,7 +103,7 @@
             }
         };
         
-        this.load = function (event, files, index, xhr, settings) {
+        this.onLoad = function (event, files, index, xhr, settings) {
             uploadHandler.removeUploadRow(event, files, index, xhr, settings);
             var json, downloadRow;
             try {
@@ -113,8 +113,8 @@
                     json = $.parseJSON($(event.target).contents().text());
                 }
             } catch (e) {
-                if (typeof uploadHandler.error === 'function') {
-                    uploadHandler.error(e, files, index, xhr, $.extend({}, settings, {originalEvent: event}));
+                if (typeof uploadHandler.onError === 'function') {
+                    uploadHandler.onError(e, files, index, xhr, $.extend({}, settings, {originalEvent: event}));
                 } else {
                     throw e;
                 }
@@ -155,7 +155,7 @@
             isDropZoneEnlarged = false;
         };
 
-        this.documentDragEnter = function (event) {
+        this.onDocumentDragEnter = function (event) {
             setTimeout(function () {
                 if (dragLeaveTimeout) {
                     clearTimeout(dragLeaveTimeout);
@@ -164,7 +164,7 @@
             uploadHandler.dropZoneEnlarge();
         };
         
-        this.documentDragLeave = function (event) {
+        this.onDocumentDragLeave = function (event) {
             if (dragLeaveTimeout) {
                 clearTimeout(dragLeaveTimeout);
             }
@@ -173,11 +173,11 @@
             }, 100);
         };
         
-        this.dragEnter = this.dragLeave = function (event) {
+        this.onDragEnter = this.onDragLeave = function (event) {
             dropZone.toggleClass(uploadHandler.cssClassHighlight);
         };
         
-        this.drop = function (event) {
+        this.onDrop = function (event) {
             if (typeof dropZone.effect === 'function') {
                 dropZone.effect(uploadHandler.dropEffect, function () {
                     dropZone.removeClass(uploadHandler.cssClassHighlight);

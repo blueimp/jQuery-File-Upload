@@ -1,5 +1,5 @@
 /*
- * jQuery File Upload Plugin 1.3
+ * jQuery File Upload Plugin 2.0
  *
  * Copyright 2010, Sebastian Tschan, AQUANTUM
  * Licensed under the MIT license:
@@ -24,7 +24,7 @@
             url: uploadForm.attr('action'),
             method: uploadForm.attr('method'),
             fieldName: fileInput.attr('name'),
-            streaming: false,
+            multipart: true,
             formData: function () {
                 return uploadForm.serializeArray();
             },
@@ -36,43 +36,43 @@
         undef = 'undefined',
         protocolRegExp = /^http(s)?:\/\//,
         iframe,
-        inputChangeCalled,
+        onInputChangeCalled,
 
         isXHRUploadCapable = function () {
             return typeof XMLHttpRequest !== undef && typeof File !== undef && (
-                settings.streaming || typeof FormData !== undef || typeof FileReader !== undef
+                !settings.multipart || typeof FormData !== undef || typeof FileReader !== undef
             );
         },
 
         initEventHandlers = function () {
             documentListeners['dragenter.'  + settings.namespace] = function (e) {
-                fileUpload.documentDragEnter(e);
+                fileUpload.onDocumentDragEnter(e);
             };
             documentListeners['dragover.'   + settings.namespace] = function (e) {
-                fileUpload.documentDragOver(e);
+                fileUpload.onDocumentDragOver(e);
             };
             documentListeners['dragleave.'  + settings.namespace] = function (e) {
-                fileUpload.documentDragLeave(e);
+                fileUpload.onDocumentDragLeave(e);
             };
             $(document).bind(documentListeners);
             dropZoneListeners['dragenter.'  + settings.namespace] = function (e) {
-                fileUpload.dragEnter(e);
+                fileUpload.onDragEnter(e);
             };
             dropZoneListeners['dragover.'   + settings.namespace] = function (e) {
-                fileUpload.dragOver(e);
+                fileUpload.onDragOver(e);
             };
             dropZoneListeners['dragleave.'  + settings.namespace] = function (e) {
-                fileUpload.dragLeave(e);
+                fileUpload.onDragLeave(e);
             };
             dropZoneListeners['drop.'       + settings.namespace] = function (e) {
-                fileUpload.drop(e);
+                fileUpload.onDrop(e);
             };
             dropZone.bind(dropZoneListeners);
             fileInputListeners['click.'     + settings.namespace] = function (e) {
-                fileUpload.inputClick(e);
+                fileUpload.onInputClick(e);
             };
             fileInputListeners['change.'    + settings.namespace] = function (e) {
-                fileUpload.inputChange(e);
+                fileUpload.onInputChange(e);
             };
             fileInput.bind(fileInputListeners);
         },
@@ -96,24 +96,24 @@
         },
 
         initUploadEventHandlers = function (files, index, xhr, settings) {
-            if (typeof settings.progress === 'function') {
+            if (typeof settings.onProgress === 'function') {
                 xhr.upload.onprogress = function (e) {
-                    settings.progress(e, files, index, xhr, settings);
+                    settings.onProgress(e, files, index, xhr, settings);
                 };
             }
-            if (typeof settings.load === 'function') {
+            if (typeof settings.onLoad === 'function') {
                 xhr.onload = function (e) {
-                    settings.load(e, files, index, xhr, settings);
+                    settings.onLoad(e, files, index, xhr, settings);
                 };
             }
-            if (typeof settings.abort === 'function') {
+            if (typeof settings.onAbort === 'function') {
                 xhr.onabort = function (e) {
-                    settings.abort(e, files, index, xhr, settings);
+                    settings.onAbort(e, files, index, xhr, settings);
                 };
             }
-            if (typeof settings.error === 'function') {
+            if (typeof settings.onError === 'function') {
                 xhr.onerror = function (e) {
-                    settings.error(e, files, index, xhr, settings);
+                    settings.onError(e, files, index, xhr, settings);
                 };
             }
         },
@@ -180,7 +180,7 @@
             } else if (settings.withCredentials) {
                 xhr.withCredentials = true;
             }
-            if (settings.streaming) {
+            if (!settings.multipart) {
                 if (sameDomain) {
                     xhr.setRequestHeader('X-File-Name', unescape(encodeURIComponent(file.name)));
                 }
@@ -234,10 +234,10 @@
         legacyUpload = function (input, settings) {
             uploadForm.attr('action', settings.url)
                 .attr('target', iframe.attr('name'));
-            if (typeof settings.load === 'function') {
+            if (typeof settings.onLoad === 'function') {
                 iframe.unbind('load.' + settings.namespace)
                     .bind('load.' + settings.namespace, function (e) {
-                    settings.load(e, [{name: input.value, type: null, size: null}], 0, null, settings);
+                    settings.onLoad(e, [{name: input.value, type: null, size: null}], 0, null, settings);
                 });
             }
             var formData = getFormData(settings);
@@ -266,18 +266,18 @@
             }
         };
         
-        this.documentDragEnter = function (e) {
-            if (typeof settings.documentDragEnter === 'function') {
-                if (settings.documentDragEnter(e) === false) {
+        this.onDocumentDragEnter = function (e) {
+            if (typeof settings.onDocumentDragEnter === 'function') {
+                if (settings.onDocumentDragEnter(e) === false) {
                     return;
                 }
             }
             e.preventDefault();
         };
 
-        this.documentDragOver = function (e) {
-            if (typeof settings.documentDragOver === 'function') {
-                if (settings.documentDragOver(e) === false) {
+        this.onDocumentDragOver = function (e) {
+            if (typeof settings.onDocumentDragOver === 'function') {
+                if (settings.onDocumentDragOver(e) === false) {
                     return;
                 }
             }
@@ -289,27 +289,27 @@
             e.preventDefault();
         };
 
-        this.documentDragLeave = function (e) {
-            if (typeof settings.documentDragLeave === 'function') {
-                if (settings.documentDragLeave(e) === false) {
+        this.onDocumentDragLeave = function (e) {
+            if (typeof settings.onDocumentDragLeave === 'function') {
+                if (settings.onDocumentDragLeave(e) === false) {
                     return;
                 }
             }
             e.preventDefault();
         };
 
-        this.dragEnter = function (e) {
-            if (typeof settings.dragEnter === 'function') {
-                if (settings.dragEnter(e) === false) {
+        this.onDragEnter = function (e) {
+            if (typeof settings.onDragEnter === 'function') {
+                if (settings.onDragEnter(e) === false) {
                     return;
                 }
             }
             e.preventDefault();
         };
 
-        this.dragOver = function (e) {
-            if (typeof settings.dragOver === 'function') {
-                if (settings.dragOver(e) === false) {
+        this.onDragOver = function (e) {
+            if (typeof settings.onDragOver === 'function') {
+                if (settings.onDragOver(e) === false) {
                     return;
                 }
             }
@@ -321,18 +321,18 @@
             e.stopPropagation();
         };
 
-        this.dragLeave = function (e) {
-            if (typeof settings.dragLeave === 'function') {
-                if (settings.dragLeave(e) === false) {
+        this.onDragLeave = function (e) {
+            if (typeof settings.onDragLeave === 'function') {
+                if (settings.onDragLeave(e) === false) {
                     return;
                 }
             }
             e.preventDefault();
         };
 
-        this.drop = function (e) {
-            if (typeof settings.drop === 'function') {
-                if (settings.drop(e) === false) {
+        this.onDrop = function (e) {
+            if (typeof settings.onDrop === 'function') {
+                if (settings.onDrop(e) === false) {
                     return;
                 }
             }
@@ -343,23 +343,23 @@
             e.preventDefault();
         };
         
-        this.inputClick = function (e) {
-            if (typeof settings.inputClick === 'function') {
-                if (settings.inputClick(e) === false) {
+        this.onInputClick = function (e) {
+            if (typeof settings.onInputClick === 'function') {
+                if (settings.onInputClick(e) === false) {
                     return;
                 }
             }
             e.target.form.reset();
-            inputChangeCalled = false;
+            onInputChangeCalled = false;
         };
         
-        this.inputChange = function (e) {
-            if (inputChangeCalled) {
+        this.onInputChange = function (e) {
+            if (onInputChangeCalled) {
                 return;
             }
-            inputChangeCalled = true;
-            if (typeof settings.inputChange === 'function') {
-                if (settings.inputChange(e) === false) {
+            onInputChangeCalled = true;
+            if (typeof settings.onInputChange === 'function') {
+                if (settings.onInputChange(e) === false) {
                     return;
                 }
             }
@@ -406,7 +406,7 @@
                 
         destroy : function (namespace) {
             return this.each(function () {
-                namespace = namespace ? namespace : 'fileUpload';
+                namespace = namespace ? namespace : 'file_upload';
                 var fileUpload = $(this).data(namespace);
                 if (fileUpload) {
                     fileUpload.destroy();
