@@ -37,3 +37,7 @@ http://creativecommons.org/licenses/MIT/
 Source Code & Download
 ----------------------
 https://github.com/blueimp/jQuery-File-Upload
+
+Documentation
+-------------
+https://github.com/blueimp/jQuery-File-Upload/wiki
