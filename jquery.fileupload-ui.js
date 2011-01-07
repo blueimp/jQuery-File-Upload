@@ -120,7 +120,7 @@
                 }
                 if (typeof uploadHandler.onComplete === 'function') {
                     uploadHandler.onComplete(
-                        event, files, index, xhr, $.extend({}, settings, {downloadRow: downloadRow})
+                        event, files, index, xhr, $.extend({}, settings, {downloadRow: downloadRow, response: json})
                     );
                 }
             } catch (e) {
