@@ -1,5 +1,5 @@
 /*
- * jQuery File Upload User Interface Plugin 2.0
+ * jQuery File Upload User Interface Plugin 2.1
  *
  * Copyright 2010, Sebastian Tschan, AQUANTUM
  * Licensed under the MIT license:
@@ -112,17 +112,24 @@
                 } else {
                     json = $.parseJSON($(event.target).contents().text());
                 }
+                if (json) {
+                    downloadRow = uploadHandler.buildDownloadRow(json);
+                    if (downloadRow) {
+                        downloadRow.appendTo(uploadHandler.downloadTable).fadeIn();
+                    }
+                }
+                if (typeof uploadHandler.onComplete === 'function') {
+                    uploadHandler.onComplete(
+                        event, files, index, xhr, $.extend({}, settings, {downloadRow: downloadRow})
+                    );
+                }
             } catch (e) {
                 if (typeof uploadHandler.onError === 'function') {
-                    uploadHandler.onError(e, files, index, xhr, $.extend({}, settings, {originalEvent: event}));
+                    uploadHandler.onError(
+                        e, files, index, xhr, $.extend({}, settings, {originalEvent: event})
+                    );
                 } else {
                     throw e;
-                }
-            }
-            if (json) {
-                downloadRow = uploadHandler.buildDownloadRow(json);
-                if (downloadRow) {
-                    downloadRow.appendTo(uploadHandler.downloadTable).fadeIn();
                 }
             }
         };
