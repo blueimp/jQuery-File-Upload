@@ -35,7 +35,6 @@
         fileInputListeners = {},
         undef = 'undefined',
         protocolRegExp = /^http(s)?:\/\//,
-        iframe,
         onInputChangeCalled,
 
         isXHRUploadCapable = function () {
@@ -226,30 +225,40 @@
         },
 
         handleFiles = function (files) {
-            for (var i = 0; i < files.length; i += 1) {
+            var i;
+            for (i = 0; i < files.length; i += 1) {
                 handleFile(files, i);
             }
         },
 
-        legacyUpload = function (input, settings) {
-            uploadForm.attr('action', settings.url)
-                .attr('target', iframe.attr('name'));
-            if (typeof settings.onLoad === 'function') {
-                iframe.unbind('load.' + settings.namespace)
-                    .bind('load.' + settings.namespace, function (e) {
-                    settings.onLoad(e, [{name: input.value, type: null, size: null}], 0, null, settings);
-                });
-            }
-            var formData = getFormData(settings);
+        legacyUpload = function (input, iframe, settings) {
+            iframe.abort = function () {
+                // javascript:false as iframe src prevents warning popups on HTTPS in IE6
+                // concat is used here to prevent the "Script URL" JSLint error:
+                iframe.unbind('load').attr('src', 'javascript'.concat(':false;'));
+                if (typeof settings.onAbort === 'function') {
+                    settings.onAbort(null, [{name: input.value, type: null, size: null}], 0, iframe, settings);
+                }
+                iframe.remove();
+            };
+            uploadForm.attr('action', settings.url).attr('target', iframe.attr('name'));
+            iframe.unbind('load').bind('load', function (e) {
+                iframe.readyState = 4;
+                if (typeof settings.onLoad === 'function') {
+                    settings.onLoad(e, [{name: input.value, type: null, size: null}], 0, iframe, settings);
+                }
+                iframe.remove();
+            });
             uploadForm.find(':input[type!=file]').not(':disabled')
                 .attr('disabled', true).addClass(settings.namespace + '_disabled');
-            $.each(formData, function (index, field) {
+            $.each(getFormData(settings), function (index, field) {
                 uploadForm.append(
                     $('<input type="hidden"/>')
                         .attr('name', field.name).val(field.value)
                         .addClass(settings.namespace + '_form_data')
                 );
             });
+            iframe.readyState = 2;
             uploadForm.get(0).submit();
             uploadForm.find('.' + settings.namespace + '_disabled')
                 .removeAttr('disabled').removeClass(settings.namespace + '_disabled');
@@ -257,13 +266,28 @@
         },
 
         handleLegacyUpload = function (input) {
-            if (typeof settings.init === 'function') {
-                settings.init([{name: input.value, type: null, size: null}], 0, null, function (options) {
-                    legacyUpload(input, $.extend({}, settings, options));
-                }, settings);
-            } else {
-                legacyUpload(input, settings);
-            }
+            var iframeName = 'iframe_' + settings.namespace + (new Date()).getTime(),
+                // javascript:false as iframe src prevents warning popups on HTTPS in IE6:
+                iframe = $('<iframe src="javascript:false;" name="' + iframeName + '"></iframe>');
+            iframe.readyState = 0;
+            iframe.abort = function () {
+                iframe.remove();
+            };
+            iframe.bind('load', function () {
+                if (typeof settings.init === 'function') {
+                    settings.init(
+                        [{name: input.value, type: null, size: null}],
+                        0,
+                        iframe,
+                        function (options) {
+                            legacyUpload(input, iframe, $.extend({}, settings, options));
+                        },
+                        settings
+                    );
+                } else {
+                    legacyUpload(input, iframe, settings);
+                }
+            }).appendTo(dropZone);
         };
         
         this.onDocumentDragEnter = function (e) {
@@ -380,20 +404,13 @@
             }
             dropZone.data(settings.namespace, fileUpload)
                 .addClass(settings.cssClass);
-            if (!isXHRUploadCapable()) {
-                // javascript:false as iframe src prevents warning popups on HTTPS in IE6:
-                iframe = $('<iframe src="javascript:false;" name="iframe_' + settings.namespace + '"></iframe>')
-                    .appendTo(dropZone);
-            }
             initEventHandlers();
         };
         
         this.destroy = function () {
             removeEventHandlers();
             dropZone.removeData(settings.namespace)
-                .removeClass(settings.cssClass)
-                .find('iframe[name=iframe_' + settings.namespace + ']')
-                .unbind('load.' + settings.namespace).remove();
+                .removeClass(settings.cssClass);
         };
     },
 
@@ -421,7 +438,7 @@
     $.fn.fileUpload = function (method) {
         if (methods[method]) {
             return methods[method].apply(this, Array.prototype.slice.call(arguments, 1));
-        } else if (typeof method === 'object' || ! method) {
+        } else if (typeof method === 'object' || !method) {
             return methods.init.apply(this, arguments);
         } else {
             $.error('Method ' + method + ' does not exist on jQuery.fileUpload');

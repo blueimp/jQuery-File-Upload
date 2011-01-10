@@ -47,14 +47,11 @@
             }
         };
         
-        this.cancelUpload = function (files, index, xhr, settings) {
-            if (xhr && xhr.readyState > 1) {
-                xhr.abort();
-            } else {
-                // javascript:false as iframe src prevents warning popups on HTTPS in IE6
-                // concat is used here to prevent the "Script URL" JSLint error:
-                dropZone.find('iframe').attr('src', 'javascript'.concat(':false;'));
-                uploadHandler.onAbort(null, files, index, xhr, settings);
+        this.cancelUpload = function (event, files, index, xhr, settings) {
+            var readyState = xhr.readyState;
+            xhr.abort();
+            if (isNaN(readyState) || readyState < 2) {
+                this.onAbort(event, files, index, xhr, settings);
             }
         };
         
@@ -78,10 +75,12 @@
             if (uploadRow) {
                 extraSettings.progressbar = uploadHandler.initProgressBar(
                     uploadRow.find(uploadHandler.progressSelector),
-                    (xhr ? 0 : 100)
+                    (xhr.upload ? 0 : 100)
                 );
-                uploadRow.find(uploadHandler.cancelSelector).click(function () {
-                    uploadHandler.cancelUpload(files, index, xhr, extraSettings);
+                uploadRow.find(uploadHandler.cancelSelector).click(function (e) {
+                    uploadHandler.cancelUpload(
+                        e, files, index, xhr, $.extend({}, settings, extraSettings)
+                    );
                 });
                 uploadRow.appendTo(uploadHandler.uploadTable).fadeIn();
             }
@@ -107,7 +106,7 @@
             uploadHandler.removeUploadRow(event, files, index, xhr, settings);
             var json, downloadRow;
             try {
-                if (xhr) {
+                if (xhr.responseText) {
                     json = $.parseJSON(xhr.responseText);
                 } else {
                     json = $.parseJSON($(event.target).contents().text());
@@ -205,7 +204,7 @@
                 $(this).fileUpload(new UploadHandler($(this), options));
             });
         },
-                
+        
         destroy : function (namespace) {
             return this.each(function () {
                 $(this).fileUpload('destroy', namespace);
@@ -216,7 +215,7 @@
     $.fn.fileUploadUI = function (method) {
         if (methods[method]) {
             return methods[method].apply(this, Array.prototype.slice.call(arguments, 1));
-        } else if (typeof method === 'object' || ! method) {
+        } else if (typeof method === 'object' || !method) {
             return methods.init.apply(this, arguments);
         } else {
             $.error('Method ' + method + ' does not exist on jQuery.fileUploadUI');
