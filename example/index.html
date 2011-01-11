@@ -35,7 +35,7 @@ $(function () {
         buildUploadRow: function (files, index) {
             var file = files[index];
             return $(
-                '<tr style="display:none">' +
+                '<tr>' +
                 '<td>' + file.name + '<\/td>' +
                 '<td class="file_upload_progress"><div><\/div><\/td>' +
                 '<td class="file_upload_cancel">' +
@@ -48,7 +48,7 @@ $(function () {
         },
         buildDownloadRow: function (file) {
             return $(
-                '<tr style="display:none"><td>' + file.name + '<\/td><\/tr>'
+                '<tr><td>' + file.name + '<\/td><\/tr>'
             );
         }
     });
