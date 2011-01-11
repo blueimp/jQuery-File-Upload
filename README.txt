@@ -23,11 +23,12 @@ Features
 Browser Support (tested versions)
 ---------------------------------
   - Google Chrome - 7.0, 8.0
-  - Apple Safari - 5.0
+  - Apple Safari - 5.0 ¹
   - Mozilla Firefox - 3.6
-  - Opera - 10.60 *, 11.00 *
-  - Microsoft Internet Explorer 6.0 *, 7.0 *, 8.0 *, 9.0 *
-* No support for multiple file selection or upload progress indication.
+  - Opera - 10.60 ², 11.00 ²
+  - Microsoft Internet Explorer 6.0 ², 7.0 ², 8.0 ², 9.0 ²
+¹ Drag & Drop is only supported on the Mac version of Safari.
+² MSIE and Opera have no support for multiple file selection or upload progress indication.
 
 License
 -------
