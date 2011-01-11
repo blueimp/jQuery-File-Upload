@@ -78,7 +78,7 @@
             xhr.abort();
             // If readyState is below 2, abort() has no effect:
             if (isNaN(readyState) || readyState < 2) {
-                this.onAbort(event, files, index, xhr, handler);
+                handler.onAbort(event, files, index, xhr, handler);
             }
         };
         
