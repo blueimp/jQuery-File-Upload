@@ -69,8 +69,8 @@
             }
         };
 
-        this.onAbort = function (event, files, index, xhr, handler, callBack) {
-            uploadHandler.removeNode(handler.uploadRow, callBack);
+        this.onAbort = function (event, files, index, xhr, handler) {
+            uploadHandler.removeNode(handler.uploadRow);
         };
         
         this.cancelUpload = function (event, files, index, xhr, handler) {
