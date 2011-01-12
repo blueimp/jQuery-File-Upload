@@ -1,5 +1,5 @@
 /*
- * jQuery File Upload Plugin 3.0
+ * jQuery File Upload Plugin 3.1
  *
  * Copyright 2010, Sebastian Tschan, AQUANTUM
  * Licensed under the MIT license:
@@ -34,6 +34,7 @@
         dropZoneListeners = {},
         fileInputListeners = {},
         undef = 'undefined',
+        func = 'function',
         protocolRegExp = /^http(s)?:\/\//,
         onInputChangeCalled,
 
@@ -44,73 +45,58 @@
         },
 
         initEventHandlers = function () {
-            documentListeners['dragenter.'  + settings.namespace] = function (e) {
-                fileUpload.onDocumentDragEnter(e);
-            };
-            documentListeners['dragover.'   + settings.namespace] = function (e) {
-                fileUpload.onDocumentDragOver(e);
-            };
-            documentListeners['dragleave.'  + settings.namespace] = function (e) {
-                fileUpload.onDocumentDragLeave(e);
-            };
+            if (typeof settings.onDocumentDragEnter === func) {
+                documentListeners['dragenter.' + settings.namespace] = settings.onDocumentDragEnter;
+            }
+            if (typeof settings.onDocumentDragLeave === func) {
+                documentListeners['dragleave.' + settings.namespace] = settings.onDocumentDragLeave;
+            }
+            documentListeners['dragover.'   + settings.namespace] = fileUpload.onDocumentDragOver;
+            documentListeners['drop.'       + settings.namespace] = fileUpload.onDocumentDrop;
             $(document).bind(documentListeners);
-            dropZoneListeners['dragenter.'  + settings.namespace] = function (e) {
-                fileUpload.onDragEnter(e);
-            };
-            dropZoneListeners['dragover.'   + settings.namespace] = function (e) {
-                fileUpload.onDragOver(e);
-            };
-            dropZoneListeners['dragleave.'  + settings.namespace] = function (e) {
-                fileUpload.onDragLeave(e);
-            };
-            dropZoneListeners['drop.'       + settings.namespace] = function (e) {
-                fileUpload.onDrop(e);
-            };
+            if (typeof settings.onDragEnter === func) {
+                dropZoneListeners['dragenter.' + settings.namespace] = settings.onDragEnter;
+            }
+            if (typeof settings.onDragLeave === func) {
+                dropZoneListeners['dragleave.' + settings.namespace] = settings.onDragLeave;
+            }
+            dropZoneListeners['dragover.'   + settings.namespace] = fileUpload.onDragOver;
+            dropZoneListeners['drop.'       + settings.namespace] = fileUpload.onDrop;
             dropZone.bind(dropZoneListeners);
-            fileInputListeners['click.'     + settings.namespace] = function (e) {
-                fileUpload.onInputClick(e);
-            };
-            fileInputListeners['change.'    + settings.namespace] = function (e) {
-                fileUpload.onInputChange(e);
-            };
+            fileInputListeners['click.'     + settings.namespace] = fileUpload.onInputClick;
+            fileInputListeners['change.'    + settings.namespace] = fileUpload.onInputChange;
             fileInput.bind(fileInputListeners);
         },
 
         removeEventHandlers = function () {
-            $.each(documentListeners, function (i, listener) {
-                if (documentListeners.hasOwnProperty(listener)) {
-                    $(document).unbind(listener);
-                }
+            $.each(documentListeners, function (key, value) {
+                $(document).unbind(key, value);
             });
-            $.each(dropZoneListeners, function (i, listener) {
-                if (dropZoneListeners.hasOwnProperty(listener)) {
-                    dropZone.unbind(listener);
-                }
+            $.each(dropZoneListeners, function (key, value) {
+                dropZone.unbind(key, value);
             });
-            $.each(fileInputListeners, function (i, listener) {
-                if (fileInputListeners.hasOwnProperty(listener)) {
-                    fileInput.unbind(listener);
-                }
+            $.each(fileInputListeners, function (key, value) {
+                fileInput.unbind(key, value);
             });
         },
 
         initUploadEventHandlers = function (files, index, xhr, settings) {
-            if (typeof settings.onProgress === 'function') {
+            if (typeof settings.onProgress === func) {
                 xhr.upload.onprogress = function (e) {
                     settings.onProgress(e, files, index, xhr, settings);
                 };
             }
-            if (typeof settings.onLoad === 'function') {
+            if (typeof settings.onLoad === func) {
                 xhr.onload = function (e) {
                     settings.onLoad(e, files, index, xhr, settings);
                 };
             }
-            if (typeof settings.onAbort === 'function') {
+            if (typeof settings.onAbort === func) {
                 xhr.onabort = function (e) {
                     settings.onAbort(e, files, index, xhr, settings);
                 };
             }
-            if (typeof settings.onError === 'function') {
+            if (typeof settings.onError === func) {
                 xhr.onerror = function (e) {
                     settings.onError(e, files, index, xhr, settings);
                 };
@@ -118,7 +104,7 @@
         },
 
         getFormData = function (settings) {
-            if (typeof settings.formData === 'function') {
+            if (typeof settings.formData === func) {
                 return settings.formData();
             } else if ($.isArray(settings.formData)) {
                 return settings.formData;
@@ -216,7 +202,7 @@
         handleFile = function (event, files, index) {
             var xhr = new XMLHttpRequest(),
                 uploadSettings = $.extend({}, settings);
-            if (typeof settings.initUpload === 'function') {
+            if (typeof settings.initUpload === func) {
                 settings.initUpload(
                     event,
                     files,
@@ -247,14 +233,14 @@
                     // javascript:false as iframe src prevents warning popups on HTTPS in IE6
                     // concat is used here to prevent the "Script URL" JSLint error:
                     iframe.unbind('load').attr('src', 'javascript'.concat(':false;'));
-                    if (typeof settings.onAbort === 'function') {
+                    if (typeof settings.onAbort === func) {
                         settings.onAbort(e, [{name: input.value, type: null, size: null}], 0, iframe, settings);
                     }
                 })
                 .unbind('load')
                 .bind('load', function (e) {
                     iframe.readyState = 4;
-                    if (typeof settings.onLoad === 'function') {
+                    if (typeof settings.onLoad === func) {
                         settings.onLoad(e, [{name: input.value, type: null, size: null}], 0, iframe, settings);
                     }
                 });
@@ -291,7 +277,7 @@
             };
             iframe.bind('load', function () {
                 iframe.unbind('load');
-                if (typeof settings.initUpload === 'function') {
+                if (typeof settings.initUpload === func) {
                     settings.initUpload(
                         event,
                         [{name: input.value, type: null, size: null}],
@@ -307,76 +293,39 @@
                 }
             }).appendTo(dropZone);
         };
-        
-        this.onDocumentDragEnter = function (e) {
-            if (typeof settings.onDocumentDragEnter === 'function') {
-                if (settings.onDocumentDragEnter(e) === false) {
-                    return;
-                }
-            }
-            e.preventDefault();
-        };
 
         this.onDocumentDragOver = function (e) {
-            if (typeof settings.onDocumentDragOver === 'function') {
-                if (settings.onDocumentDragOver(e) === false) {
-                    return;
-                }
-            }
-            var dataTransfer = e.originalEvent.dataTransfer,
-                target = e.originalEvent.target;
-            if (dataTransfer && dropZone.get(0) !== target && !dropZone.has(target).length) {
-                dataTransfer.dropEffect = 'none';
+            if (typeof settings.onDocumentDragOver === func &&
+                settings.onDocumentDragOver(e) === false) {
+                return false;
             }
             e.preventDefault();
         };
-
-        this.onDocumentDragLeave = function (e) {
-            if (typeof settings.onDocumentDragLeave === 'function') {
-                if (settings.onDocumentDragLeave(e) === false) {
-                    return;
-                }
-            }
-            e.preventDefault();
-        };
-
-        this.onDragEnter = function (e) {
-            if (typeof settings.onDragEnter === 'function') {
-                if (settings.onDragEnter(e) === false) {
-                    return;
-                }
+        
+        this.onDocumentDrop = function (e) {
+            if (typeof settings.onDocumentDrop === func &&
+                settings.onDocumentDrop(e) === false) {
+                return false;
             }
             e.preventDefault();
         };
 
         this.onDragOver = function (e) {
-            if (typeof settings.onDragOver === 'function') {
-                if (settings.onDragOver(e) === false) {
-                    return;
-                }
+            if (typeof settings.onDragOver === func &&
+                settings.onDragOver(e) === false) {
+                return false;
             }
             var dataTransfer = e.originalEvent.dataTransfer;
             if (dataTransfer) {
                 dataTransfer.dropEffect = dataTransfer.effectAllowed = 'copy';
             }
             e.preventDefault();
-            e.stopPropagation();
-        };
-
-        this.onDragLeave = function (e) {
-            if (typeof settings.onDragLeave === 'function') {
-                if (settings.onDragLeave(e) === false) {
-                    return;
-                }
-            }
-            e.preventDefault();
         };
 
         this.onDrop = function (e) {
-            if (typeof settings.onDrop === 'function') {
-                if (settings.onDrop(e) === false) {
-                    return;
-                }
+            if (typeof settings.onDrop === func &&
+                settings.onDrop(e) === false) {
+                return false;
             }
             var dataTransfer = e.originalEvent.dataTransfer;
             if (dataTransfer && dataTransfer.files && isXHRUploadCapable()) {
@@ -386,25 +335,23 @@
         };
         
         this.onInputClick = function (e) {
-            if (typeof settings.onInputClick === 'function') {
-                if (settings.onInputClick(e) === false) {
-                    return;
-                }
+            if (typeof settings.onInputClick === func &&
+                settings.onInputClick(e) === false) {
+                return false;
             }
             e.target.form.reset();
             onInputChangeCalled = false;
         };
         
         this.onInputChange = function (e) {
+            if (typeof settings.onInputChange === func &&
+                settings.onInputChange(e) === false) {
+                return false;
+            }
             if (onInputChangeCalled) {
                 return;
             }
             onInputChangeCalled = true;
-            if (typeof settings.onInputChange === 'function') {
-                if (settings.onInputChange(e) === false) {
-                    return;
-                }
-            }
             if (e.target.files && isXHRUploadCapable()) {
                 handleFiles(e, e.target.files);
             } else {
@@ -427,7 +374,8 @@
         
         this.destroy = function () {
             removeEventHandlers();
-            dropZone.removeData(settings.namespace)
+            dropZone
+                .removeData(settings.namespace)
                 .removeClass(settings.cssClass);
         };
     },

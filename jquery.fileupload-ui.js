@@ -1,5 +1,5 @@
 /*
- * jQuery File Upload User Interface Plugin 3.0
+ * jQuery File Upload User Interface Plugin 3.1
  *
  * Copyright 2010, Sebastian Tschan, AQUANTUM
  * Licensed under the MIT license:
@@ -16,7 +16,7 @@
 
     var UploadHandler = function (dropZone, options) {
         var uploadHandler = this,
-            dragLeaveTimeout,
+            dragOverTimeout,
             isDropZoneEnlarged;
         
         this.progressSelector = '.file_upload_progress div';
@@ -193,21 +193,16 @@
         };
 
         this.onDocumentDragEnter = function (event) {
-            setTimeout(function () {
-                if (dragLeaveTimeout) {
-                    clearTimeout(dragLeaveTimeout);
-                }
-            }, 50);
             uploadHandler.dropZoneEnlarge();
         };
         
-        this.onDocumentDragLeave = function (event) {
-            if (dragLeaveTimeout) {
-                clearTimeout(dragLeaveTimeout);
+        this.onDocumentDragOver = function (event) {
+            if (dragOverTimeout) {
+                clearTimeout(dragOverTimeout);
             }
-            dragLeaveTimeout = setTimeout(function () {
+            dragOverTimeout = setTimeout(function () {
                 uploadHandler.dropZoneReduce();
-            }, 100);
+            }, 200);
         };
         
         this.onDragEnter = this.onDragLeave = function (event) {
@@ -215,6 +210,9 @@
         };
         
         this.onDrop = function (event) {
+            if (dragOverTimeout) {
+                clearTimeout(dragOverTimeout);
+            }
             if (typeof dropZone.effect === 'function') {
                 dropZone.effect(uploadHandler.dropEffect, function () {
                     dropZone.removeClass(uploadHandler.cssClassHighlight);
