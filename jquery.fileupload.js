@@ -1,5 +1,5 @@
 /*
- * jQuery File Upload Plugin 3.1
+ * jQuery File Upload Plugin 3.2
  *
  * Copyright 2010, Sebastian Tschan, AQUANTUM
  * Licensed under the MIT license:
@@ -36,7 +36,6 @@
         undef = 'undefined',
         func = 'function',
         protocolRegExp = /^http(s)?:\/\//,
-        onInputChangeCalled,
 
         isXHRUploadCapable = function () {
             return typeof XMLHttpRequest !== undef && typeof File !== undef && (
@@ -63,8 +62,7 @@
             dropZoneListeners['dragover.'   + settings.namespace] = fileUpload.onDragOver;
             dropZoneListeners['drop.'       + settings.namespace] = fileUpload.onDrop;
             dropZone.bind(dropZoneListeners);
-            fileInputListeners['click.'     + settings.namespace] = fileUpload.onInputClick;
-            fileInputListeners['change.'    + settings.namespace] = fileUpload.onInputChange;
+            fileInputListeners['change.'    + settings.namespace] = fileUpload.onChange;
             fileInput.bind(fileInputListeners);
         },
 
@@ -225,6 +223,30 @@
             }
         },
 
+        legacyUploadFormDataInit = function (input, settings) {
+            var formData = getFormData(settings);
+            uploadForm.find(':input').not(':disabled')
+                .attr('disabled', true)
+                .addClass(settings.namespace + '_disabled');
+            $.each(formData, function (index, field) {
+                uploadForm.append(
+                    $('<input type="hidden"/>')
+                        .attr('name', field.name)
+                        .val(field.value)
+                        .addClass(settings.namespace + '_form_data')
+                );
+            });
+            input.insertAfter(fileInput);
+        },
+
+        legacyUploadFormDataReset = function (input, settings) {
+            input.remove();
+            uploadForm.find('.' + settings.namespace + '_disabled')
+                .removeAttr('disabled')
+                .removeClass(settings.namespace + '_disabled');
+            uploadForm.find('.' + settings.namespace + '_form_data').remove();
+        },
+
         legacyUpload = function (input, iframe, settings) {
             iframe
                 .unbind('abort')
@@ -234,42 +256,29 @@
                     // concat is used here to prevent the "Script URL" JSLint error:
                     iframe.unbind('load').attr('src', 'javascript'.concat(':false;'));
                     if (typeof settings.onAbort === func) {
-                        settings.onAbort(e, [{name: input.value, type: null, size: null}], 0, iframe, settings);
+                        settings.onAbort(e, [{name: input.val(), type: null, size: null}], 0, iframe, settings);
                     }
                 })
                 .unbind('load')
                 .bind('load', function (e) {
                     iframe.readyState = 4;
                     if (typeof settings.onLoad === func) {
-                        settings.onLoad(e, [{name: input.value, type: null, size: null}], 0, iframe, settings);
+                        settings.onLoad(e, [{name: input.val(), type: null, size: null}], 0, iframe, settings);
                     }
                 });
-            uploadForm.find(':input[type!=file]').not(':disabled')
-                .attr('disabled', true)
-                .addClass(settings.namespace + '_disabled');
-            $.each(getFormData(settings), function (index, field) {
-                uploadForm.append(
-                    $('<input type="hidden"/>')
-                        .attr('name', field.name)
-                        .val(field.value)
-                        .addClass(settings.namespace + '_form_data')
-                );
-            });
             uploadForm
                 .attr('action', settings.url)
                 .attr('target', iframe.attr('name'));
+            legacyUploadFormDataInit(input, settings);
             iframe.readyState = 2;
             uploadForm.get(0).submit();
-            uploadForm.find('.' + settings.namespace + '_disabled')
-                .removeAttr('disabled')
-                .removeClass(settings.namespace + '_disabled');
-            uploadForm.find('.' + settings.namespace + '_form_data').remove();
+            legacyUploadFormDataReset(input, settings);
         },
 
         handleLegacyUpload = function (event, input) {
-            var iframeName = 'iframe_' + settings.namespace + (new Date()).getTime(),
-                // javascript:false as iframe src prevents warning popups on HTTPS in IE6:
-                iframe = $('<iframe src="javascript:false;" name="' + iframeName + '"></iframe>'),
+            // javascript:false as iframe src prevents warning popups on HTTPS in IE6:
+            var iframe = $('<iframe src="javascript:false;" style="display:none" name="iframe_' +
+                settings.namespace + (new Date()).getTime() + '"></iframe>'),
                 uploadSettings = $.extend({}, settings);
             iframe.readyState = 0;
             iframe.abort = function () {
@@ -280,7 +289,7 @@
                 if (typeof settings.initUpload === func) {
                     settings.initUpload(
                         event,
-                        [{name: input.value, type: null, size: null}],
+                        [{name: input.val(), type: null, size: null}],
                         0,
                         iframe,
                         uploadSettings,
@@ -292,6 +301,13 @@
                     legacyUpload(input, iframe, uploadSettings);
                 }
             }).appendTo(dropZone);
+        },
+
+        resetFileInput = function () {
+            var inputClone = fileInput.clone(true);
+            $('<form/>').append(inputClone).get(0).reset();
+            fileInput.replaceWith(inputClone);
+            fileInput = inputClone;
         };
 
         this.onDocumentDragOver = function (e) {
@@ -334,29 +350,17 @@
             e.preventDefault();
         };
         
-        this.onInputClick = function (e) {
-            if (typeof settings.onInputClick === func &&
-                settings.onInputClick(e) === false) {
+        this.onChange = function (e) {
+            if (typeof settings.onChange === func &&
+                settings.onChange(e) === false) {
                 return false;
             }
-            e.target.form.reset();
-            onInputChangeCalled = false;
-        };
-        
-        this.onInputChange = function (e) {
-            if (typeof settings.onInputChange === func &&
-                settings.onInputChange(e) === false) {
-                return false;
-            }
-            if (onInputChangeCalled) {
-                return;
-            }
-            onInputChangeCalled = true;
             if (e.target.files && isXHRUploadCapable()) {
                 handleFiles(e, e.target.files);
             } else {
-                handleLegacyUpload(e, e.target);
+                handleLegacyUpload(e, $(e.target));
             }
+            resetFileInput();
         };
 
         this.init = function (options) {
