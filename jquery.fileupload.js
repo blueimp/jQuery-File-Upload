@@ -14,13 +14,14 @@
 
 (function ($) {
 
-    var FileUpload = function (dropZone) {
+    var FileUpload = function (container) {
         var fileUpload = this,
-        uploadForm = (dropZone.is('form') ? dropZone : dropZone.find('form')),
-        fileInput = dropZone.find('input:file'),
+        uploadForm = (container.is('form') ? container : container.find('form').first()),
+        fileInput = uploadForm.find('input:file').first(),
         settings = {
             namespace: 'file_upload',
             cssClass: 'file_upload',
+            dropZone: container,
             url: uploadForm.attr('action'),
             method: uploadForm.attr('method'),
             fieldName: fileInput.attr('name'),
@@ -61,7 +62,7 @@
             }
             dropZoneListeners['dragover.'   + settings.namespace] = fileUpload.onDragOver;
             dropZoneListeners['drop.'       + settings.namespace] = fileUpload.onDrop;
-            dropZone.bind(dropZoneListeners);
+            settings.dropZone.bind(dropZoneListeners);
             fileInputListeners['change.'    + settings.namespace] = fileUpload.onChange;
             fileInput.bind(fileInputListeners);
         },
@@ -71,7 +72,7 @@
                 $(document).unbind(key, value);
             });
             $.each(dropZoneListeners, function (key, value) {
-                dropZone.unbind(key, value);
+                settings.dropZone.unbind(key, value);
             });
             $.each(fileInputListeners, function (key, value) {
                 fileInput.unbind(key, value);
@@ -300,7 +301,7 @@
                 } else {
                     legacyUpload(input, iframe, uploadSettings);
                 }
-            }).appendTo(dropZone);
+            }).appendTo(uploadForm);
         },
 
         resetFileInput = function () {
@@ -367,20 +368,23 @@
             if (options) {
                 $.extend(settings, options);
             }
-            if (dropZone.data(settings.namespace)) {
+            if (container.data(settings.namespace)) {
                 $.error('FileUpload with namespace "' + settings.namespace + '" already assigned to this element');
                 return;
             }
-            dropZone.data(settings.namespace, fileUpload)
+            container
+                .data(settings.namespace, fileUpload)
                 .addClass(settings.cssClass);
+            settings.dropZone.addClass(settings.cssClass);
             initEventHandlers();
         };
         
         this.destroy = function () {
             removeEventHandlers();
-            dropZone
+            container
                 .removeData(settings.namespace)
                 .removeClass(settings.cssClass);
+            settings.dropZone.removeClass(settings.cssClass);
         };
     },
 

@@ -1,5 +1,5 @@
 /*
- * jQuery File Upload User Interface Plugin 3.1
+ * jQuery File Upload User Interface Plugin 3.2
  *
  * Copyright 2010, Sebastian Tschan, AQUANTUM
  * Licensed under the MIT license:
@@ -14,18 +14,20 @@
 
 (function ($) {
 
-    var UploadHandler = function (dropZone, options) {
+    var UploadHandler = function (container, options) {
         var uploadHandler = this,
+            undef = 'undefined',
+            func = 'function',
             dragOverTimeout,
             isDropZoneEnlarged;
         
+        this.dropZone = container;
         this.progressSelector = '.file_upload_progress div';
         this.cancelSelector = '.file_upload_cancel div';
         this.cssClassSmall = 'file_upload_small';
         this.cssClassLarge = 'file_upload_large';
         this.cssClassHighlight = 'file_upload_highlight';
         this.dropEffect = 'highlight';
-
         this.uploadTable = this.downloadTable = $();
         
         this.buildUploadRow = this.buildDownloadRow = function () {
@@ -35,7 +37,7 @@
         this.addNode = function (parentNode, node, callBack) {
             if (node) {
                 node.hide().appendTo(parentNode).fadeIn(function () {
-                    if (typeof callBack === 'function') {
+                    if (typeof callBack === func) {
                         try {
                             callBack();
                         } catch (e) {
@@ -45,7 +47,7 @@
                         }
                     }
                 });
-            } else if (typeof callBack === 'function') {
+            } else if (typeof callBack === func) {
                 callBack();
             }
         };
@@ -54,7 +56,7 @@
             if (node) {
                 node.fadeOut(function () {
                     $(this).remove();
-                    if (typeof callBack === 'function') {
+                    if (typeof callBack === func) {
                         try {
                             callBack();
                         } catch (e) {
@@ -64,7 +66,7 @@
                         }
                     }
                 });
-            } else if (typeof callBack === 'function') {
+            } else if (typeof callBack === func) {
                 callBack();
             }
         };
@@ -83,7 +85,7 @@
         };
         
         this.initProgressBar = function (node, value) {
-            if (typeof node.progressbar === 'function') {
+            if (typeof node.progressbar === func) {
                 return node.progressbar({
                     value: value
                 });
@@ -112,7 +114,7 @@
         
         this.initUpload = function (event, files, index, xhr, handler, callBack) {
             uploadHandler.initUploadRow(event, files, index, xhr, handler, function () {
-                if (typeof uploadHandler.beforeSend === 'function') {
+                if (typeof uploadHandler.beforeSend === func) {
                     uploadHandler.beforeSend(event, files, index, xhr, handler, callBack);
                 } else {
                     callBack();
@@ -130,7 +132,7 @@
         };
         
         this.parseResponse = function (xhr) {
-            if (typeof xhr.responseText !== 'undefined') {
+            if (typeof xhr.responseText !== undef) {
                 return $.parseJSON(xhr.responseText);
             } else {
                 // Instead of an XHR object, an iframe is used for legacy browsers:
@@ -145,7 +147,7 @@
                 downloadRow = handler.downloadRow = uploadHandler.buildDownloadRow(json);
                 uploadHandler.addNode(uploadHandler.downloadTable, downloadRow, callBack);
             } catch (e) {
-                if (typeof uploadHandler.onError === 'function') {
+                if (typeof uploadHandler.onError === func) {
                     handler.originalEvent = event;
                     uploadHandler.onError(e, files, index, xhr, handler);
                 } else {
@@ -157,7 +159,7 @@
         this.onLoad = function (event, files, index, xhr, handler) {
             uploadHandler.removeNode(handler.uploadRow, function () {
                 uploadHandler.initDownloadRow(event, files, index, xhr, handler, function () {
-                    if (typeof uploadHandler.onComplete === 'function') {
+                    if (typeof uploadHandler.onComplete === func) {
                         uploadHandler.onComplete(event, files, index, xhr, handler);
                     }
                 });
@@ -166,28 +168,28 @@
 
         this.dropZoneEnlarge = function () {
             if (!isDropZoneEnlarged) {
-                if (typeof dropZone.switchClass === 'function') {
-                    dropZone.switchClass(
+                if (typeof uploadHandler.dropZone.switchClass === func) {
+                    uploadHandler.dropZone.switchClass(
                         uploadHandler.cssClassSmall,
                         uploadHandler.cssClassLarge
                     );
                 } else {
-                    dropZone.addClass(uploadHandler.cssClassLarge);
-                    dropZone.removeClass(uploadHandler.cssClassSmall);
+                    uploadHandler.dropZone.addClass(uploadHandler.cssClassLarge);
+                    uploadHandler.dropZone.removeClass(uploadHandler.cssClassSmall);
                 }
                 isDropZoneEnlarged = true;
             }
         };
         
         this.dropZoneReduce = function () {
-            if (typeof dropZone.switchClass === 'function') {
-                dropZone.switchClass(
+            if (typeof uploadHandler.dropZone.switchClass === func) {
+                uploadHandler.dropZone.switchClass(
                     uploadHandler.cssClassLarge,
                     uploadHandler.cssClassSmall
                 );
             } else {
-                dropZone.addClass(uploadHandler.cssClassSmall);
-                dropZone.removeClass(uploadHandler.cssClassLarge);
+                uploadHandler.dropZone.addClass(uploadHandler.cssClassSmall);
+                uploadHandler.dropZone.removeClass(uploadHandler.cssClassLarge);
             }
             isDropZoneEnlarged = false;
         };
@@ -206,20 +208,20 @@
         };
         
         this.onDragEnter = this.onDragLeave = function (event) {
-            dropZone.toggleClass(uploadHandler.cssClassHighlight);
+            uploadHandler.dropZone.toggleClass(uploadHandler.cssClassHighlight);
         };
         
         this.onDrop = function (event) {
             if (dragOverTimeout) {
                 clearTimeout(dragOverTimeout);
             }
-            if (typeof dropZone.effect === 'function') {
-                dropZone.effect(uploadHandler.dropEffect, function () {
-                    dropZone.removeClass(uploadHandler.cssClassHighlight);
+            if (uploadHandler.dropEffect && typeof uploadHandler.dropZone.effect === func) {
+                uploadHandler.dropZone.effect(uploadHandler.dropEffect, function () {
+                    uploadHandler.dropZone.removeClass(uploadHandler.cssClassHighlight);
                     uploadHandler.dropZoneReduce();
                 });
             } else {
-                dropZone.removeClass(uploadHandler.cssClassHighlight);
+                uploadHandler.dropZone.removeClass(uploadHandler.cssClassHighlight);
                 uploadHandler.dropZoneReduce();
             }
         };
