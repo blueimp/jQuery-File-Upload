@@ -1,5 +1,5 @@
 /*
- * jQuery File Upload Plugin 3.2
+ * jQuery File Upload Plugin 3.2.1
  *
  * Copyright 2010, Sebastian Tschan, AQUANTUM
  * Licensed under the MIT license:
@@ -145,7 +145,7 @@
                     index = url.indexOf(host, indexStart),
                     pathIndex = index + host.length;
                 if ((index === indexStart || index === url.indexOf('@', indexStart) + 1) && (
-                    url.length === pathIndex || $.inArray(url.charAt(pathIndex), ['/', '?', '#']))) {
+                    url.length === pathIndex || $.inArray(url.charAt(pathIndex), ['/', '?', '#']) !== -1)) {
                     return true;
                 }
                 return false;
