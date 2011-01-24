@@ -1,5 +1,5 @@
 /*
- * jQuery File Upload User Interface Plugin 3.2
+ * jQuery File Upload User Interface Plugin 3.2.1
  *
  * Copyright 2010, Sebastian Tschan, AQUANTUM
  * Licensed under the MIT license:
@@ -14,7 +14,10 @@
 
 (function ($) {
 
-    var UploadHandler = function (container, options) {
+    var UploadHandler,
+        methods;
+        
+    UploadHandler = function (container, options) {
         var uploadHandler = this,
             undef = 'undefined',
             func = 'function',
@@ -227,7 +230,7 @@
         };
 
         $.extend(this, options);
-    },
+    };
 
     methods = {
         init : function (options) {
@@ -235,7 +238,7 @@
                 $(this).fileUpload(new UploadHandler($(this), options));
             });
         },
-        
+    
         destroy : function (namespace) {
             return this.each(function () {
                 $(this).fileUpload('destroy', namespace);
