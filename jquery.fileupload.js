@@ -1,5 +1,5 @@
 /*
- * jQuery File Upload Plugin 3.3
+ * jQuery File Upload Plugin 3.4
  *
  * Copyright 2010, Sebastian Tschan, AQUANTUM
  * Licensed under the MIT license:
@@ -30,6 +30,7 @@
                 method: uploadForm.attr('method'),
                 fieldName: fileInput.attr('name'),
                 multipart: true,
+                multiFileRequest: false,
                 formData: function () {
                     return uploadForm.serializeArray();
                 },
@@ -41,7 +42,18 @@
             fileInputListeners = {},
             undef = 'undefined',
             func = 'function',
+            num = 'number',
             protocolRegExp = /^http(s)?:\/\//,
+
+            MultiLoader = function (callBack, numberComplete) {
+                var loaded = 0;
+                this.complete = function () {
+                    loaded += 1;
+                    if (loaded === numberComplete) {
+                        callBack();
+                    }
+                };
+            },
 
             isXHRUploadCapable = function () {
                 return typeof XMLHttpRequest !== undef && typeof File !== undef && (
@@ -124,27 +136,6 @@
                 return [];
             },
 
-            buildMultiPartFormData = function (boundary, file, fileContent, fields) {
-                var doubleDash = '--',
-                    crlf     = '\r\n',
-                    formData = '';
-                $.each(fields, function (index, field) {
-                    formData += doubleDash + boundary + crlf +
-                        'Content-Disposition: form-data; name="' +
-                        unescape(encodeURIComponent(field.name)) +
-                        '"' + crlf + crlf +
-                        unescape(encodeURIComponent(field.value)) + crlf;
-                });
-                formData += doubleDash + boundary + crlf +
-                    'Content-Disposition: form-data; name="' +
-                    unescape(encodeURIComponent(settings.fieldName)) +
-                    '"; filename="' + unescape(encodeURIComponent(file.name)) + '"' + crlf +
-                    'Content-Type: ' + file.type + crlf + crlf +
-                    fileContent + crlf +
-                    doubleDash + boundary + doubleDash + crlf;
-                return formData;
-            },
-
             isSameDomain = function (url) {
                 if (protocolRegExp.test(url)) {
                     var host = location.host,
@@ -160,11 +151,78 @@
                 return true;
             },
 
-            uploadFile = function (files, index, xhr, settings) {
+            nonMultipartUpload = function (file, xhr, sameDomain) {
+                if (sameDomain) {
+                    xhr.setRequestHeader('X-File-Name', unescape(encodeURIComponent(file.name)));
+                }
+                xhr.setRequestHeader('Content-Type', file.type);
+                xhr.send(file);
+            },
+
+            formDataUpload = function (files, xhr, settings) {
+                var formData = new FormData(),
+                    i;
+                $.each(getFormData(settings), function (index, field) {
+                    formData.append(field.name, field.value);
+                });
+                for (i = 0; i < files.length; i += 1) {
+                    formData.append(settings.fieldName, files[i]);
+                }
+                xhr.send(formData);
+            },
+
+            loadFileContent = function (file, callBack) {
+                var fileReader = new FileReader();
+                fileReader.onload = function (e) {
+                    file.content = e.target.result;
+                    callBack();
+                };
+                fileReader.readAsBinaryString(file);
+            },
+
+            buildMultiPartFormData = function (boundary, files, fields) {
+                var doubleDash = '--',
+                    crlf     = '\r\n',
+                    formData = '';
+                $.each(fields, function (index, field) {
+                    formData += doubleDash + boundary + crlf +
+                        'Content-Disposition: form-data; name="' +
+                        unescape(encodeURIComponent(field.name)) +
+                        '"' + crlf + crlf +
+                        unescape(encodeURIComponent(field.value)) + crlf;
+                });
+                $.each(files, function (index, file) {
+                    formData += doubleDash + boundary + crlf +
+                        'Content-Disposition: form-data; name="' +
+                        unescape(encodeURIComponent(settings.fieldName)) +
+                        '"; filename="' + unescape(encodeURIComponent(file.name)) + '"' + crlf +
+                        'Content-Type: ' + file.type + crlf + crlf +
+                        file.content + crlf;
+                });
+                formData += doubleDash + boundary + doubleDash + crlf;
+                return formData;
+            },
+            
+            fileReaderUpload = function (files, xhr, settings) {
+                var boundary = '----MultiPartFormBoundary' + (new Date()).getTime(),
+                    loader,
+                    i;
+                xhr.setRequestHeader('Content-Type', 'multipart/form-data; boundary=' + boundary);
+                loader = new MultiLoader(function () {
+                    xhr.sendAsBinary(buildMultiPartFormData(
+                        boundary,
+                        files,
+                        getFormData(settings)
+                    ));
+                }, files.length);
+                for (i = 0; i < files.length; i += 1) {
+                    loadFileContent(files[i], loader.complete);
+                }
+            },
+
+            upload = function (files, index, xhr, settings) {
                 var sameDomain = isSameDomain(settings.url),
-                    file = files[index],
-                    formData,
-                    fileReader;
+                    filesToUpload;
                 initUploadEventHandlers(files, index, xhr, settings);
                 xhr.open(settings.method, settings.url, true);
                 if (sameDomain) {
@@ -173,40 +231,24 @@
                     xhr.withCredentials = true;
                 }
                 if (!settings.multipart) {
-                    if (sameDomain) {
-                        xhr.setRequestHeader('X-File-Name', unescape(encodeURIComponent(file.name)));
-                    }
-                    xhr.setRequestHeader('Content-Type', file.type);
-                    xhr.send(file);
+                    nonMultipartUpload(files[index], xhr, sameDomain);
                 } else {
+                    if (typeof index === num) {
+                        filesToUpload = [files[index]];
+                    } else {
+                        filesToUpload = files;
+                    }
                     if (typeof FormData !== undef) {
-                        formData = new FormData();
-                        $.each(getFormData(settings), function (index, field) {
-                            formData.append(field.name, field.value);
-                        });
-                        formData.append(settings.fieldName, file);
-                        xhr.send(formData);
+                        formDataUpload(filesToUpload, xhr, settings);
                     } else if (typeof FileReader !== undef) {
-                        fileReader = new FileReader();
-                        fileReader.onload = function (e) {
-                            var fileContent = e.target.result,
-                                boundary = '----MultiPartFormBoundary' + (new Date()).getTime();
-                            xhr.setRequestHeader('Content-Type', 'multipart/form-data; boundary=' + boundary);
-                            xhr.sendAsBinary(buildMultiPartFormData(
-                                boundary,
-                                file,
-                                fileContent,
-                                getFormData(settings)
-                            ));
-                        };
-                        fileReader.readAsBinaryString(file);
+                        fileReaderUpload(filesToUpload, xhr, settings);
                     } else {
                         $.error('Browser does neither support FormData nor FileReader interface');
                     }
                 }
             },
 
-            handleFile = function (event, files, index) {
+            handleUpload = function (event, files, index) {
                 var xhr = new XMLHttpRequest(),
                     uploadSettings = $.extend({}, settings);
                 if (typeof settings.initUpload === func) {
@@ -217,18 +259,22 @@
                         xhr,
                         uploadSettings,
                         function () {
-                            uploadFile(files, index, xhr, uploadSettings);
+                            upload(files, index, xhr, uploadSettings);
                         }
                     );
                 } else {
-                    uploadFile(files, index, xhr, uploadSettings);
+                    upload(files, index, xhr, uploadSettings);
                 }
             },
 
             handleFiles = function (event, files) {
                 var i;
-                for (i = 0; i < files.length; i += 1) {
-                    handleFile(event, files, i);
+                if (settings.multiFileRequest) {
+                    handleUpload(event, files);
+                } else {
+                    for (i = 0; i < files.length; i += 1) {
+                        handleUpload(event, files, i);
+                    }
                 }
             },
 
