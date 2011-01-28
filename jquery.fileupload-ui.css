@@ -47,8 +47,8 @@
   opacity: 0;
   -ms-filter: 'alpha(opacity=0)';
   filter: alpha(opacity=0);
-  -o-transform: translate(0, -300px) scale(6);
-  -moz-transform: translate(-300px, 0) scale(6);
+  -o-transform: translate(-300px, -300px) scale(10);
+  -moz-transform: translate(-800px, 0) scale(10);
   cursor: pointer;
   z-index: 2;
 }
