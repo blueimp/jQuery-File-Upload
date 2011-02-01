@@ -50,7 +50,6 @@
   -o-transform: translate(-300px, -300px) scale(10);
   -moz-transform: translate(-800px, 0) scale(10);
   cursor: pointer;
-  z-index: 2;
 }
 
 .file_upload iframe, .file_upload button {
