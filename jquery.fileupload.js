@@ -284,12 +284,11 @@
                     .attr('disabled', true)
                     .addClass(settings.namespace + '_disabled');
                 $.each(formData, function (index, field) {
-                    uploadForm.append(
-                        $('<input type="hidden"/>')
-                            .attr('name', field.name)
-                            .val(field.value)
-                            .addClass(settings.namespace + '_form_data')
-                    );
+                    $('<input type="hidden"/>')
+                        .attr('name', field.name)
+                        .val(field.value)
+                        .addClass(settings.namespace + '_form_data')
+                        .insertBefore(fileInput);
                 });
                 input.insertAfter(fileInput);
             },
