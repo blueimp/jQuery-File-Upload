@@ -39,7 +39,7 @@ Requirements
 
 Browser Support (tested versions)
 ---------------------------------
-  - Google Chrome - 7.0, 8.0
+  - Google Chrome - 7.0, 8.0, 9.0
   - Apple Safari - 5.0 ¹
   - Mozilla Firefox - 3.6
   - Opera - 10.60 ², 11.00 ²
