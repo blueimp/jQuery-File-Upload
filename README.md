@@ -32,6 +32,42 @@ Features
   - Compatible with any server-side application platform:
     Works with Google App Engine (Python, Java), Ruby on Rails, PHP and any other platform that supports HTTP file uploads.
 
+Example
+-------
+    <form class="upload" action="upload.php" method="POST" enctype="multipart/form-data">
+        <input type="file" name="file" multiple>
+        <button>Upload</button>
+        <div>Upload files</div>
+    </form>
+    <table class="upload_files"></table>
+    <table class="download_files"></table>
+    <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.5.0/jquery.min.js"></script>
+    <script src="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.9/jquery-ui.min.js"></script>
+    <script src="../jquery.fileupload.js"></script>
+    <script src="../jquery.fileupload-ui.js"></script>
+    <script>
+    /*global $ */
+    $(function () {
+        $('.upload').fileUploadUI({
+            uploadTable: $('.upload_files'),
+            downloadTable: $('.download_files'),
+            buildUploadRow: function (files, index) {
+                var file = files[index];
+                return $('<tr><td>' + file.name + '<\/td>' +
+                        '<td class="file_upload_progress"><div><\/div><\/td>' +
+                        '<td class="file_upload_cancel">' +
+                        '<div class="ui-state-default ui-corner-all ui-state-hover" title="Cancel">' +
+                        '<span class="ui-icon ui-icon-cancel">Cancel<\/span>' +
+                        '<\/div><\/td><\/tr>');
+            },
+            buildDownloadRow: function (file) {
+                return $('<tr><td>' + file.name + '<\/td><\/tr>');
+            }
+        });
+    });
+    </script>
+
+
 Requirements
 ------------
   - jQuery v. 1.4+
