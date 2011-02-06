@@ -1,5 +1,5 @@
 /*
- * jQuery File Upload User Interface Plugin 3.2.1
+ * jQuery File Upload User Interface Plugin 3.2.2
  *
  * Copyright 2010, Sebastian Tschan, AQUANTUM
  * Licensed under the MIT license:
@@ -39,7 +39,7 @@
 
         this.addNode = function (parentNode, node, callBack) {
             if (node) {
-                node.hide().appendTo(parentNode).fadeIn(function () {
+                node.css('display', 'none').appendTo(parentNode).fadeIn(function () {
                     if (typeof callBack === func) {
                         try {
                             callBack();
