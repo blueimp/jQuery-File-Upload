@@ -52,7 +52,7 @@
             isDropZoneEnlarged;
         
         this.dropZone = container;
-        this.previewSelector = '.file_preview';
+        this.previewSelector = '.file_upload_preview';
         this.progressSelector = '.file_upload_progress div';
         this.cancelSelector = '.file_upload_cancel button';
         this.cssClassSmall = 'file_upload_small';
