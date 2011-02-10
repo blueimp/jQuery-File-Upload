@@ -1,5 +1,5 @@
 /*
- * jQuery File Upload Plugin 3.4
+ * jQuery File Upload Plugin 3.5
  *
  * Copyright 2010, Sebastian Tschan, AQUANTUM
  * Licensed under the MIT license:
@@ -14,7 +14,11 @@
 
 (function ($) {
 
-    var FileUpload,
+    var defaultNamespace = 'file_upload',
+        undef = 'undefined',
+        func = 'function',
+        num = 'number',
+        FileUpload,
         methods;
         
     FileUpload = function (container) {
@@ -22,8 +26,8 @@
             uploadForm = (container.is('form') ? container : container.find('form').first()),
             fileInput = uploadForm.find('input:file').first(),
             settings = {
-                namespace: 'file_upload',
-                cssClass: 'file_upload',
+                namespace: defaultNamespace,
+                cssClass: defaultNamespace,
                 dragDropSupport: true,
                 dropZone: container,
                 url: uploadForm.attr('action'),
@@ -39,11 +43,8 @@
             },
             documentListeners = {},
             dropZoneListeners = {},
-            fileInputListeners = {},
-            undef = 'undefined',
-            func = 'function',
-            num = 'number',
             protocolRegExp = /^http(s)?:\/\//,
+            optionsReference,
 
             MultiLoader = function (callBack, numberComplete) {
                 var loaded = 0;
@@ -82,8 +83,7 @@
                     dropZoneListeners['drop.'       + settings.namespace] = fileUpload.onDrop;
                     settings.dropZone.bind(dropZoneListeners);
                 }
-                fileInputListeners['change.'    + settings.namespace] = fileUpload.onChange;
-                fileInput.bind(fileInputListeners);
+                fileInput.bind('change.' + settings.namespace, fileUpload.onChange);
             },
 
             removeEventHandlers = function () {
@@ -93,9 +93,7 @@
                 $.each(dropZoneListeners, function (key, value) {
                     settings.dropZone.unbind(key, value);
                 });
-                $.each(fileInputListeners, function (key, value) {
-                    fileInput.unbind(key, value);
-                });
+                fileInput.unbind('change.' + settings.namespace);
             },
 
             initUploadEventHandlers = function (files, index, xhr, settings) {
@@ -358,10 +356,12 @@
             },
 
             resetFileInput = function () {
+                fileInput.unbind('change.' + settings.namespace);
                 var inputClone = fileInput.clone(true);
                 $('<form/>').append(inputClone).get(0).reset();
                 fileInput.replaceWith(inputClone);
                 fileInput = inputClone;
+                fileInput.bind('change.' + settings.namespace, fileUpload.onChange);
             };
 
         this.onDocumentDragOver = function (e) {
@@ -420,6 +420,7 @@
         this.init = function (options) {
             if (options) {
                 $.extend(settings, options);
+                optionsReference = options;
             }
             if (container.data(settings.namespace)) {
                 $.error('FileUpload with namespace "' + settings.namespace + '" already assigned to this element');
@@ -428,8 +429,56 @@
             container
                 .data(settings.namespace, fileUpload)
                 .addClass(settings.cssClass);
-            settings.dropZone.addClass(settings.cssClass);
+            settings.dropZone.not(container).addClass(settings.cssClass);
             initEventHandlers();
+        };
+
+        this.options = function (options) {
+            var oldCssClass,
+                oldDropZone;
+            if (typeof options === undef) {
+                return $.extend({}, settings);
+            }
+            if (optionsReference) {
+                $.extend(optionsReference, options);
+            }
+            removeEventHandlers();
+            $.each(options, function (name, value) {
+                switch (name) {
+                case 'namespace':
+                    $.error('The FileUpload namespace cannot be updated.');
+                    return;
+                case 'cssClass':
+                    oldCssClass = settings.cssClass;
+                    break;
+                case 'dropZone':
+                    oldDropZone = settings.dropZone;
+                    break;
+                }
+                settings[name] = value;
+            });
+            if (typeof oldCssClass !== undef) {
+                container
+                    .removeClass(oldCssClass)
+                    .addClass(settings.cssClass);
+                (oldDropZone ? oldDropZone : settings.dropZone).not(container)
+                    .removeClass(oldCssClass);
+                settings.dropZone.not(container).addClass(settings.cssClass);
+            } else if (oldDropZone) {
+                oldDropZone.not(container).removeClass(settings.cssClass);
+                settings.dropZone.not(container).addClass(settings.cssClass);
+            }
+            initEventHandlers();
+        };
+        
+        this.option = function (name, value) {
+            var options;
+            if (typeof value === undef) {
+                return settings[name];
+            }
+            options = {};
+            options[name] = value;
+            fileUpload.options(options);
         };
         
         this.destroy = function () {
@@ -437,7 +486,7 @@
             container
                 .removeData(settings.namespace)
                 .removeClass(settings.cssClass);
-            settings.dropZone.removeClass(settings.cssClass);
+            settings.dropZone.not(container).removeClass(settings.cssClass);
         };
     };
 
@@ -447,10 +496,23 @@
                 (new FileUpload($(this))).init(options);
             });
         },
+        
+        option: function (option, value, namespace) {
+            namespace = namespace ? namespace : defaultNamespace;
+            var fileUpload = $(this).data(namespace);
+            if (fileUpload) {
+                if (typeof option === 'string') {
+                    return fileUpload.option(option, value);
+                }
+                return fileUpload.options(option);
+            } else {
+                $.error('No FileUpload with namespace "' + namespace + '" assigned to this element');
+            }
+        },
                 
         destroy : function (namespace) {
+            namespace = namespace ? namespace : defaultNamespace;
             return this.each(function () {
-                namespace = namespace ? namespace : 'file_upload';
                 var fileUpload = $(this).data(namespace);
                 if (fileUpload) {
                     fileUpload.destroy();
