@@ -15,13 +15,12 @@ body {
 </style>
 </head>
 <body>
-<form class="upload" action="upload.php" method="POST" enctype="multipart/form-data">
+<form id="file_upload" action="upload.php" method="POST" enctype="multipart/form-data">
     <input type="file" name="file" multiple>
     <button>Upload</button>
     <div>Upload files</div>
 </form>
-<table class="upload_files"></table>
-<table class="download_files"></table>
+<table id="files"></table>
 <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.5.0/jquery.min.js"></script>
 <script src="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.9/jquery-ui.min.js"></script>
 <script src="../jquery.fileupload.js"></script>
@@ -29,17 +28,16 @@ body {
 <script>
 /*global $ */
 $(function () {
-    $('.upload').fileUploadUI({
-        uploadTable: $('.upload_files'),
-        downloadTable: $('.download_files'),
+    $('#file_upload').fileUploadUI({
+        uploadTable: $('#files'),
+        downloadTable: $('#files'),
         buildUploadRow: function (files, index) {
-            var file = files[index];
-            return $('<tr><td>' + file.name + '<\/td>' +
+            return $('<tr><td>' + files[index].name + '<\/td>' +
                     '<td class="file_upload_progress"><div><\/div><\/td>' +
                     '<td class="file_upload_cancel">' +
-                    '<div class="ui-state-default ui-corner-all ui-state-hover" title="Cancel">' +
+                    '<button class="ui-state-default ui-corner-all" title="Cancel">' +
                     '<span class="ui-icon ui-icon-cancel">Cancel<\/span>' +
-                    '<\/div><\/td><\/tr>');
+                    '<\/button><\/td><\/tr>');
         },
         buildDownloadRow: function (file) {
             return $('<tr><td>' + file.name + '<\/td><\/tr>');
