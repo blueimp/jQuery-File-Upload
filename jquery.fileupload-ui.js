@@ -10,14 +10,41 @@
  */
 
 /*jslint browser: true */
-/*global jQuery */
+/*global jQuery, FileReader, URL */
 
 (function ($) {
 
     var undef = 'undefined',
         func = 'function',
         UploadHandler,
-        methods;
+        methods,
+
+        LocalImage = function (file) {
+            var img,
+                fileReader;
+            if (!/^image\/\w+/.test(file.type)) {
+                return null;
+            }
+            img = document.createElement('img');
+            if (typeof URL !== undef && typeof URL.createObjectURL === func) {
+                img.src = URL.createObjectURL(file);
+                img.onload = function () {
+                    URL.revokeObjectURL(this.src);
+                };
+                return img;
+            }
+            if (typeof FileReader !== undef) {
+                fileReader = new FileReader();
+                if (typeof fileReader.readAsDataURL === func) {
+                    fileReader.onload = function (e) {
+                        img.src = e.target.result;
+                    };
+                    fileReader.readAsDataURL(file);
+                    return img;
+                }
+            }
+            return null;
+        };
         
     UploadHandler = function (container, options) {
         var uploadHandler = this,
@@ -25,8 +52,9 @@
             isDropZoneEnlarged;
         
         this.dropZone = container;
+        this.previewSelector = '.file_preview';
         this.progressSelector = '.file_upload_progress div';
-        this.cancelSelector = '.file_upload_cancel div';
+        this.cancelSelector = '.file_upload_cancel button';
         this.cssClassSmall = 'file_upload_small';
         this.cssClassLarge = 'file_upload_large';
         this.cssClassHighlight = 'file_upload_highlight';
@@ -110,6 +138,9 @@
                 );
                 uploadRow.find(handler.cancelSelector).click(function (e) {
                     handler.cancelUpload(e, files, index, xhr, handler);
+                });
+                uploadRow.find(handler.previewSelector).each(function () {
+                    $(this).append(new LocalImage(files[index]));
                 });
             }
             handler.addNode(handler.uploadTable, uploadRow, callBack);
@@ -240,7 +271,7 @@
         },
         
         option: function (option, value, namespace) {
-            if (typeof option === undef || typeof option === 'string' && typeof value === undef) {
+            if (typeof option === undef || (typeof option === 'string' && typeof value === undef)) {
                 return $(this).fileUpload('option', option, value, namespace);
             }
             return this.each(function () {
