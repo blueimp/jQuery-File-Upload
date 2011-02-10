@@ -17,41 +17,42 @@
     var undef = 'undefined',
         func = 'function',
         UploadHandler,
-        methods,
-
-        LocalImage = function (file) {
-            var img,
-                fileReader;
-            if (!/^image\/\w+/.test(file.type)) {
-                return null;
-            }
-            img = document.createElement('img');
-            if (typeof URL !== undef && typeof URL.createObjectURL === func) {
-                img.src = URL.createObjectURL(file);
-                img.onload = function () {
-                    URL.revokeObjectURL(this.src);
-                };
-                return img;
-            }
-            if (typeof FileReader !== undef) {
-                fileReader = new FileReader();
-                if (typeof fileReader.readAsDataURL === func) {
-                    fileReader.onload = function (e) {
-                        img.src = e.target.result;
-                    };
-                    fileReader.readAsDataURL(file);
-                    return img;
-                }
-            }
-            return null;
-        };
+        methods;
         
     UploadHandler = function (container, options) {
         var uploadHandler = this,
             dragOverTimeout,
-            isDropZoneEnlarged;
+            isDropZoneEnlarged,
+            
+            LocalImage = function (file) {
+                var img,
+                    fileReader;
+                if (!uploadHandler.imageTypes.test(file.type)) {
+                    return null;
+                }
+                img = document.createElement('img');
+                if (typeof URL !== undef && typeof URL.createObjectURL === func) {
+                    img.src = URL.createObjectURL(file);
+                    img.onload = function () {
+                        URL.revokeObjectURL(this.src);
+                    };
+                    return img;
+                }
+                if (typeof FileReader !== undef) {
+                    fileReader = new FileReader();
+                    if (typeof fileReader.readAsDataURL === func) {
+                        fileReader.onload = function (e) {
+                            img.src = e.target.result;
+                        };
+                        fileReader.readAsDataURL(file);
+                        return img;
+                    }
+                }
+                return null;
+            };
         
         this.dropZone = container;
+        this.imageTypes = /^image\/(gif|jpeg|png)$/;
         this.previewSelector = '.file_upload_preview';
         this.progressSelector = '.file_upload_progress div';
         this.cancelSelector = '.file_upload_cancel button';
