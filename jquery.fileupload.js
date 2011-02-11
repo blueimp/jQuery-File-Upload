@@ -1,5 +1,5 @@
 /*
- * jQuery File Upload Plugin 3.6
+ * jQuery File Upload Plugin 3.6.1
  *
  * Copyright 2010, Sebastian Tschan, AQUANTUM
  * Licensed under the MIT license:
@@ -276,14 +276,11 @@
                 }
             },
 
-            handleUpload = function (event, files, index) {
+            handleUpload = function (event, files, input, form, index) {
                 var xhr = new XMLHttpRequest(),
-                    uploadSettings = $.extend({}, settings),
-                    target = $(event.target);
-                if (target.is('input:file')) {
-                    uploadSettings.fileInput = target;
-                    uploadSettings.uploadForm = target.closest('form');
-                }
+                    uploadSettings = $.extend({}, settings);
+                uploadSettings.fileInput = input;
+                uploadSettings.uploadForm = form;
                 if (typeof settings.initUpload === func) {
                     settings.initUpload(
                         event,
@@ -300,13 +297,13 @@
                 }
             },
 
-            handleFiles = function (event, files) {
+            handleFiles = function (event, files, input, form) {
                 var i;
                 if (settings.multiFileRequest) {
-                    handleUpload(event, files);
+                    handleUpload(event, files, input, form);
                 } else {
                     for (i = 0; i < files.length; i += 1) {
-                        handleUpload(event, files, i);
+                        handleUpload(event, files, input, form, i);
                     }
                 }
             },
@@ -357,6 +354,8 @@
                         if (typeof settings.onLoad === func) {
                             settings.onLoad(e, [{name: input.val(), type: null, size: null}], 0, iframe, settings);
                         }
+                        // Fix for IE endless progress bar activity bug (happens on form submits to iframe targets):
+                        $('<iframe src="javascript:false;" style="display:none"></iframe>').appendTo(form).remove();
                     });
                 form
                     .attr('action', getUrl(settings))
@@ -372,11 +371,10 @@
                     .attr('target', originalTarget);
             },
 
-            handleLegacyUpload = function (event, input) {
+            handleLegacyUpload = function (event, input, form) {
                 // javascript:false as iframe src prevents warning popups on HTTPS in IE6:
                 var iframe = $('<iframe src="javascript:false;" style="display:none" name="iframe_' +
                     settings.namespace + '_' + (new Date()).getTime() + '"></iframe>'),
-                    form = input.closest('form'),
                     uploadSettings = $.extend({}, settings);
                 uploadSettings.fileInput = input;
                 uploadSettings.uploadForm = form;
@@ -400,10 +398,10 @@
                     } else {
                         legacyUpload(input, form, iframe, uploadSettings);
                     }
-                }).insertAfter(input);
+                }).appendTo(form);
             },
 
-            resetFileInput = function (input) {
+            replaceFileInput = function (input) {
                 fileInput.unbind('change.' + settings.namespace);
                 var inputClone = input.clone(true);
                 $('<form/>').append(inputClone).get(0).reset();
@@ -457,12 +455,14 @@
                     settings.onChange(e) === false) {
                 return false;
             }
+            var input = $(e.target),
+                form = $(e.target.form);
+            replaceFileInput(input);
             if (!settings.forceIframeUpload && e.target.files && isXHRUploadCapable()) {
-                handleFiles(e, e.target.files);
+                handleFiles(e, e.target.files, input, form);
             } else {
-                handleLegacyUpload(e, $(e.target));
+                handleLegacyUpload(e, input, form);
             }
-            resetFileInput($(e.target));
         };
 
         this.init = function (options) {
