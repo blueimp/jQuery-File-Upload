@@ -1,5 +1,5 @@
 /*
- * jQuery File Upload Plugin 3.6.1
+ * jQuery File Upload Plugin 3.7
  *
  * Copyright 2010, Sebastian Tschan, AQUANTUM
  * Licensed under the MIT license:
@@ -23,10 +23,16 @@
         
     FileUpload = function (container) {
         var fileUpload = this,
-            uploadForm = container.is('form') ? container : container.find('form'),
-            fileInput = uploadForm.find('input:file'),
+            uploadForm,
+            fileInput,
             settings = {
                 namespace: defaultNamespace,
+                uploadFormFilter: function (index) {
+                    return true;
+                },
+                fileInputFilter: function (index) {
+                    return true;
+                },
                 cssClass: defaultNamespace,
                 dragDropSupport: true,
                 dropZone: container,
@@ -326,7 +332,7 @@
             },
 
             legacyUploadFormDataReset = function (input, form, settings) {
-                input.remove();
+                input.detach();
                 form.find('.' + settings.namespace + '_disabled')
                     .removeAttr('disabled')
                     .removeClass(settings.namespace + '_disabled');
@@ -400,14 +406,22 @@
                     }
                 }).appendTo(form);
             },
-
+            
+            initUploadForm = function () {
+                uploadForm = (container.is('form') ? container : container.find('form'))
+                    .filter(settings.uploadFormFilter);
+            },
+            
+            initFileInput = function () {
+                fileInput = uploadForm.find('input:file')
+                    .filter(settings.fileInputFilter);
+            },
+            
             replaceFileInput = function (input) {
-                fileInput.unbind('change.' + settings.namespace);
                 var inputClone = input.clone(true);
                 $('<form/>').append(inputClone).get(0).reset();
-                input.replaceWith(inputClone);
-                fileInput = uploadForm.find('input:file');
-                fileInput.bind('change.' + settings.namespace, fileUpload.onChange);
+                input.after(inputClone).detach();
+                initFileInput();
             };
 
         this.onDocumentDragOver = function (e) {
@@ -457,7 +471,12 @@
             }
             var input = $(e.target),
                 form = $(e.target.form);
-            replaceFileInput(input);
+            if (form.length === 1) {
+                input.data(defaultNamespace + '_form', form);
+                replaceFileInput(input);
+            } else {
+                form = input.data(defaultNamespace + '_form');
+            }
             if (!settings.forceIframeUpload && e.target.files && isXHRUploadCapable()) {
                 handleFiles(e, e.target.files, input, form);
             } else {
@@ -470,6 +489,8 @@
                 $.extend(settings, options);
                 optionsReference = options;
             }
+            initUploadForm();
+            initFileInput();
             if (container.data(settings.namespace)) {
                 $.error('FileUpload with namespace "' + settings.namespace + '" already assigned to this element');
                 return;
@@ -483,7 +504,9 @@
 
         this.options = function (options) {
             var oldCssClass,
-                oldDropZone;
+                oldDropZone,
+                uploadFormFilterUpdate,
+                fileInputFilterUpdate;
             if (typeof options === undef) {
                 return $.extend({}, settings);
             }
@@ -496,6 +519,13 @@
                 case 'namespace':
                     $.error('The FileUpload namespace cannot be updated.');
                     return;
+                case 'uploadFormFilter':
+                    uploadFormFilterUpdate = true;
+                    fileInputFilterUpdate = true;
+                    break;
+                case 'fileInputFilter':
+                    fileInputFilterUpdate = true;
+                    break;
                 case 'cssClass':
                     oldCssClass = settings.cssClass;
                     break;
@@ -505,6 +535,12 @@
                 }
                 settings[name] = value;
             });
+            if (uploadFormFilterUpdate) {
+                initUploadForm();
+            }
+            if (fileInputFilterUpdate) {
+                initFileInput();
+            }
             if (typeof oldCssClass !== undef) {
                 container
                     .removeClass(oldCssClass)
