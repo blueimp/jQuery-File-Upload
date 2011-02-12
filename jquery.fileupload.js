@@ -1,5 +1,5 @@
 /*
- * jQuery File Upload Plugin 3.7
+ * jQuery File Upload Plugin 3.7.1
  *
  * Copyright 2010, Sebastian Tschan, AQUANTUM
  * Licensed under the MIT license:
@@ -19,7 +19,17 @@
         func = 'function',
         num = 'number',
         FileUpload,
-        methods;
+        methods,
+
+        MultiLoader = function (callBack, numberComplete) {
+            var loaded = 0;
+            this.complete = function () {
+                loaded += 1;
+                if (loaded === numberComplete) {
+                    callBack();
+                }
+            };
+        };
         
     FileUpload = function (container) {
         var fileUpload = this,
@@ -58,16 +68,6 @@
             protocolRegExp = /^http(s)?:\/\//,
             optionsReference,
 
-            MultiLoader = function (callBack, numberComplete) {
-                var loaded = 0;
-                this.complete = function () {
-                    loaded += 1;
-                    if (loaded === numberComplete) {
-                        callBack();
-                    }
-                };
-            },
-
             isXHRUploadCapable = function () {
                 return typeof XMLHttpRequest !== undef && typeof File !== undef && (
                     !settings.multipart || typeof FormData !== undef || typeof FileReader !== undef
@@ -77,19 +77,27 @@
             initEventHandlers = function () {
                 if (settings.dragDropSupport) {
                     if (typeof settings.onDocumentDragEnter === func) {
-                        documentListeners['dragenter.' + settings.namespace] = settings.onDocumentDragEnter;
+                        documentListeners['dragenter.' + settings.namespace] = function (e) {
+                            settings.onDocumentDragEnter(e);
+                        };
                     }
                     if (typeof settings.onDocumentDragLeave === func) {
-                        documentListeners['dragleave.' + settings.namespace] = settings.onDocumentDragLeave;
+                        documentListeners['dragleave.' + settings.namespace] = function (e) {
+                            settings.onDocumentDragLeave(e);
+                        };
                     }
                     documentListeners['dragover.'   + settings.namespace] = fileUpload.onDocumentDragOver;
                     documentListeners['drop.'       + settings.namespace] = fileUpload.onDocumentDrop;
                     $(document).bind(documentListeners);
                     if (typeof settings.onDragEnter === func) {
-                        dropZoneListeners['dragenter.' + settings.namespace] = settings.onDragEnter;
+                        dropZoneListeners['dragenter.' + settings.namespace] = function (e) {
+                            settings.onDragEnter(e);
+                        };
                     }
                     if (typeof settings.onDragLeave === func) {
-                        dropZoneListeners['dragleave.' + settings.namespace] = settings.onDragLeave;
+                        dropZoneListeners['dragleave.' + settings.namespace] = function (e) {
+                            settings.onDragLeave(e);
+                        };
                     }
                     dropZoneListeners['dragover.'   + settings.namespace] = fileUpload.onDragOver;
                     dropZoneListeners['drop.'       + settings.namespace] = fileUpload.onDrop;
@@ -287,8 +295,8 @@
                     uploadSettings = $.extend({}, settings);
                 uploadSettings.fileInput = input;
                 uploadSettings.uploadForm = form;
-                if (typeof settings.initUpload === func) {
-                    settings.initUpload(
+                if (typeof uploadSettings.initUpload === func) {
+                    uploadSettings.initUpload(
                         event,
                         files,
                         index,
@@ -390,8 +398,8 @@
                 };
                 iframe.bind('load', function () {
                     iframe.unbind('load');
-                    if (typeof settings.initUpload === func) {
-                        settings.initUpload(
+                    if (typeof uploadSettings.initUpload === func) {
+                        uploadSettings.initUpload(
                             event,
                             [{name: input.val(), type: null, size: null}],
                             0,
