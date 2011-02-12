@@ -1,5 +1,5 @@
 /*
- * jQuery File Upload User Interface Plugin 3.5
+ * jQuery File Upload User Interface Plugin 3.6
  *
  * Copyright 2010, Sebastian Tschan, AQUANTUM
  * Licensed under the MIT license:
@@ -17,39 +17,39 @@
     var undef = 'undefined',
         func = 'function',
         UploadHandler,
-        methods;
+        methods,
+
+        LocalImage = function (file, imageTypes) {
+            var img,
+                fileReader;
+            if (!imageTypes.test(file.type)) {
+                return null;
+            }
+            img = document.createElement('img');
+            if (typeof URL !== undef && typeof URL.createObjectURL === func) {
+                img.src = URL.createObjectURL(file);
+                img.onload = function () {
+                    URL.revokeObjectURL(this.src);
+                };
+                return img;
+            }
+            if (typeof FileReader !== undef) {
+                fileReader = new FileReader();
+                if (typeof fileReader.readAsDataURL === func) {
+                    fileReader.onload = function (e) {
+                        img.src = e.target.result;
+                    };
+                    fileReader.readAsDataURL(file);
+                    return img;
+                }
+            }
+            return null;
+        };
         
     UploadHandler = function (container, options) {
         var uploadHandler = this,
             dragOverTimeout,
-            isDropZoneEnlarged,
-            
-            LocalImage = function (file) {
-                var img,
-                    fileReader;
-                if (!uploadHandler.imageTypes.test(file.type)) {
-                    return null;
-                }
-                img = document.createElement('img');
-                if (typeof URL !== undef && typeof URL.createObjectURL === func) {
-                    img.src = URL.createObjectURL(file);
-                    img.onload = function () {
-                        URL.revokeObjectURL(this.src);
-                    };
-                    return img;
-                }
-                if (typeof FileReader !== undef) {
-                    fileReader = new FileReader();
-                    if (typeof fileReader.readAsDataURL === func) {
-                        fileReader.onload = function (e) {
-                            img.src = e.target.result;
-                        };
-                        fileReader.readAsDataURL(file);
-                        return img;
-                    }
-                }
-                return null;
-            };
+            isDropZoneEnlarged;
         
         this.dropZone = container;
         this.imageTypes = /^image\/(gif|jpeg|png)$/;
@@ -60,7 +60,7 @@
         this.cssClassLarge = 'file_upload_large';
         this.cssClassHighlight = 'file_upload_highlight';
         this.dropEffect = 'highlight';
-        this.uploadTable = this.downloadTable = $();
+        this.uploadTable = this.downloadTable = null;
         
         this.buildUploadRow = this.buildDownloadRow = function () {
             return null;
@@ -131,7 +131,7 @@
         };
         
         this.initUploadRow = function (event, files, index, xhr, handler, callBack) {
-            var uploadRow = handler.uploadRow = handler.buildUploadRow(files, index);
+            var uploadRow = handler.uploadRow = handler.buildUploadRow(files, index, handler);
             if (uploadRow) {
                 handler.progressbar = handler.initProgressBar(
                     uploadRow.find(handler.progressSelector),
@@ -141,10 +141,14 @@
                     handler.cancelUpload(e, files, index, xhr, handler);
                 });
                 uploadRow.find(handler.previewSelector).each(function () {
-                    $(this).append(new LocalImage(files[index]));
+                    $(this).append(new LocalImage(files[index], handler.imageTypes));
                 });
             }
-            handler.addNode(handler.uploadTable, uploadRow, callBack);
+            handler.addNode(
+                (typeof handler.uploadTable === func ? handler.uploadTable(handler) : handler.uploadTable),
+                uploadRow,
+                callBack
+            );
         };
         
         this.initUpload = function (event, files, index, xhr, handler, callBack) {
@@ -179,8 +183,12 @@
             var json, downloadRow;
             try {
                 json = handler.response = handler.parseResponse(xhr);
-                downloadRow = handler.downloadRow = handler.buildDownloadRow(json);
-                handler.addNode(handler.downloadTable, downloadRow, callBack);
+                downloadRow = handler.downloadRow = handler.buildDownloadRow(json, handler);
+                handler.addNode(
+                    (typeof handler.downloadTable === func ? handler.downloadTable(handler) : handler.downloadTable),
+                    downloadRow,
+                    callBack
+                );
             } catch (e) {
                 if (typeof handler.onError === func) {
                     handler.originalEvent = event;
