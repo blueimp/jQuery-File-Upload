@@ -302,7 +302,8 @@
                         index,
                         xhr,
                         uploadSettings,
-                        function () {
+                        function (newSettings) {
+                            $.extend(uploadSettings, newSettings);
                             upload(files, index, xhr, uploadSettings);
                         }
                     );
