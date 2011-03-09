@@ -39,10 +39,10 @@ Requirements
 
 Browser Support (tested versions)
 ---------------------------------
-  - Google Chrome - 7.0, 8.0, 9.0
+  - Google Chrome - 7.0, 8.0, 9.0, 10.0
   - Apple Safari - 5.0 ¹
-  - Mozilla Firefox - 3.6
-  - Opera - 10.60 ², 11.00 ²
+  - Mozilla Firefox - 3.6, 4.0
+  - Opera - 10.6 ², 11.0 ²
   - Microsoft Internet Explorer 6.0 ², 7.0 ², 8.0 ², 9.0 ²
 ¹ Drag & Drop is not supported on the Windows version of Safari.
 ² MSIE and Opera have no support for Drag & Drop, multiple file selection or upload progress indication.
