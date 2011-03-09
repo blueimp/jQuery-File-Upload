@@ -1,5 +1,5 @@
 /*
- * jQuery File Upload Plugin 3.7.1
+ * jQuery File Upload Plugin 3.8
  *
  * Copyright 2010, Sebastian Tschan, AQUANTUM
  * Licensed under the MIT license:
@@ -191,6 +191,23 @@
                 return true;
             },
 
+            setRequestHeaders = function (xhr, settings, sameDomain) {
+                if (sameDomain) {
+                    xhr.setRequestHeader('X-Requested-With', 'XMLHttpRequest');
+                } else if (settings.withCredentials) {
+                    xhr.withCredentials = true;
+                }
+                if ($.isArray(settings.requestHeaders)) {
+                    $.each(settings.requestHeaders, function (index, header) {
+                        xhr.setRequestHeader(header[0], header[1]);
+                    });
+                } else if (settings.requestHeaders) {
+                    $.each(settings.requestHeaders, function (name, value) {
+                        xhr.setRequestHeader(name, value);
+                    });
+                }
+            },
+
             nonMultipartUpload = function (file, xhr, sameDomain) {
                 if (sameDomain) {
                     xhr.setRequestHeader('X-File-Name', unescape(encodeURIComponent(file.name)));
@@ -267,11 +284,7 @@
                     filesToUpload;
                 initUploadEventHandlers(files, index, xhr, settings);
                 xhr.open(getMethod(settings), url, true);
-                if (sameDomain) {
-                    xhr.setRequestHeader('X-Requested-With', 'XMLHttpRequest');
-                } else if (settings.withCredentials) {
-                    xhr.withCredentials = true;
-                }
+                setRequestHeaders(xhr, settings, sameDomain);
                 if (!settings.multipart) {
                     nonMultipartUpload(files[index], xhr, sameDomain);
                 } else {

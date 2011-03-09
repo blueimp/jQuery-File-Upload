@@ -1,5 +1,5 @@
 /*
- * jQuery File Upload User Interface Plugin 3.6
+ * jQuery File Upload User Interface Plugin 3.7
  *
  * Copyright 2010, Sebastian Tschan, AQUANTUM
  * Licensed under the MIT license:
@@ -51,6 +51,7 @@
             dragOverTimeout,
             isDropZoneEnlarged;
         
+        this.requestHeaders = {'Accept': 'application/json, text/javascript, */*; q=0.01'};
         this.dropZone = container;
         this.imageTypes = /^image\/(gif|jpeg|png)$/;
         this.previewSelector = '.file_upload_preview';
