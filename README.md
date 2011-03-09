@@ -30,8 +30,8 @@
   Works with Google App Engine (Python, Java), Ruby on Rails, PHP and any other platform that supports HTTP file uploads.
 
 ## Requirements
-* jQuery v. 1.4+
-* jQuery UI v. 1.8+ (optional)
+* [jQuery](http://jquery.com/) v. 1.4+
+* [jQuery UI](http://jqueryui.com/) v. 1.8+ (optional)
 
 ## Browser Support (tested versions)
 * Google Chrome - 7.0, 8.0, 9.0, 10.0
