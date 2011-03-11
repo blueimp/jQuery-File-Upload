@@ -7,6 +7,7 @@
  *
  * https://blueimp.net
  * http://www.aquantum.de
+ * GitHub: https://github.com/blueimp/jQuery-File-Upload/wiki
  */
 
 /*jslint browser: true */
@@ -467,10 +468,10 @@
                 return false;
             }
             var dataTransfer = e.originalEvent.dataTransfer;
-            if (dataTransfer) {
+            if (dataTransfer && dataTransfer.files) {
                 dataTransfer.dropEffect = dataTransfer.effectAllowed = 'copy';
+                e.preventDefault();
             }
-            e.preventDefault();
         };
 
         this.onDrop = function (e) {
