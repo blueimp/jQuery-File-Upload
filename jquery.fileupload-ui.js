@@ -1,12 +1,12 @@
 /*
  * jQuery File Upload User Interface Plugin 3.7
+ * https://github.com/blueimp/jQuery-File-Upload
  *
- * Copyright 2010, Sebastian Tschan, AQUANTUM
+ * Copyright 2010, Sebastian Tschan
+ * https://blueimp.net
+ *
  * Licensed under the MIT license:
  * http://creativecommons.org/licenses/MIT/
- *
- * https://blueimp.net
- * http://www.aquantum.de
  */
 
 /*jslint browser: true */
