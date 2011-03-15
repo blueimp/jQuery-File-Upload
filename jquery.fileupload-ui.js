@@ -1,5 +1,5 @@
 /*
- * jQuery File Upload User Interface Plugin 3.7
+ * jQuery File Upload User Interface Plugin 3.7.1
  * https://github.com/blueimp/jQuery-File-Upload
  *
  * Copyright 2010, Sebastian Tschan
@@ -136,7 +136,7 @@
             if (uploadRow) {
                 handler.progressbar = handler.initProgressBar(
                     uploadRow.find(handler.progressSelector),
-                    (xhr.upload ? 0 : 100)
+                    0
                 );
                 uploadRow.find(handler.cancelSelector).click(function (e) {
                     handler.cancelUpload(e, files, index, xhr, handler);
@@ -152,11 +152,24 @@
             );
         };
         
+        this.initUploadProgress = function (xhr, handler) {
+            if (!xhr.upload) {
+                handler.progressbar.progressbar(
+                    'value',
+                    100 // indeterminate progress displayed by a full animated progress bar
+                );
+            }
+        };
+        
         this.initUpload = function (event, files, index, xhr, handler, callBack) {
             handler.initUploadRow(event, files, index, xhr, handler, function () {
                 if (typeof handler.beforeSend === func) {
-                    handler.beforeSend(event, files, index, xhr, handler, callBack);
+                    handler.beforeSend(event, files, index, xhr, handler, function () {
+                        handler.initUploadProgress(xhr, handler);
+                        callBack();
+                    });
                 } else {
+                    handler.initUploadProgress(xhr, handler);
                     callBack();
                 }
             });
