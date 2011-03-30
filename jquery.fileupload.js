@@ -431,6 +431,9 @@
             initUploadForm = function () {
                 uploadForm = (container.is('form') ? container : container.find('form'))
                     .filter(settings.uploadFormFilter);
+                if (!uploadForm.is('form')) {
+                    uploadForm = container;
+                }
             },
             
             initFileInput = function () {
