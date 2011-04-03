@@ -1,5 +1,5 @@
 /*
- * jQuery File Upload Plugin 3.8.1
+ * jQuery File Upload Plugin 3.8.2
  * https://github.com/blueimp/jQuery-File-Upload
  *
  * Copyright 2010, Sebastian Tschan
@@ -434,7 +434,7 @@
             },
             
             initFileInput = function () {
-                fileInput = uploadForm.find('input:file')
+                fileInput = (uploadForm.length ? uploadForm : container).find('input:file')
                     .filter(settings.fileInputFilter);
             },
             
