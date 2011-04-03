@@ -1,3 +1,5 @@
+@charset 'UTF-8';
+
 .file_upload {
   position: relative;
   overflow: hidden;
@@ -20,7 +22,7 @@
   width: 200px;
   height: 30px;
   line-height: 30px;
-  font-size: auto;
+  font-size: 100%;
   background: palegreen;
   border: 1px solid limegreen;
 }
@@ -50,6 +52,11 @@
   -o-transform: translate(-300px, -300px) scale(10);
   -moz-transform: translate(-800px, 0) scale(10);
   cursor: pointer;
+  height: 100%;
+}
+
+:root .file_upload input {
+  height: auto;
 }
 
 .file_upload iframe, .file_upload button {
