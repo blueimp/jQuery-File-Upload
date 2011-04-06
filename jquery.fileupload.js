@@ -1,5 +1,5 @@
 /*
- * jQuery File Upload Plugin 3.8.2
+ * jQuery File Upload Plugin 3.8.3
  * https://github.com/blueimp/jQuery-File-Upload
  *
  * Copyright 2010, Sebastian Tschan
@@ -199,7 +199,7 @@
                 }
                 if ($.isArray(settings.requestHeaders)) {
                     $.each(settings.requestHeaders, function (index, header) {
-                        xhr.setRequestHeader(header[0], header[1]);
+                        xhr.setRequestHeader(header.name, header.value);
                     });
                 } else if (settings.requestHeaders) {
                     $.each(settings.requestHeaders, function (name, value) {
