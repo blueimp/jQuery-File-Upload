@@ -192,6 +192,9 @@
             },
 
             setRequestHeaders = function (xhr, settings, sameDomain) {
+                var token = $('meta[name="csrf-token"]').attr('content');
+                if (token) xhr.setRequestHeader('X-CSRF-Token', token);
+
                 if (sameDomain) {
                     xhr.setRequestHeader('X-Requested-With', 'XMLHttpRequest');
                 } else if (settings.withCredentials) {
