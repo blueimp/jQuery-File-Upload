@@ -1,5 +1,5 @@
 /*
- * jQuery File Upload User Interface Plugin 3.7.1
+ * jQuery File Upload User Interface Plugin 3.7.2
  * https://github.com/blueimp/jQuery-File-Upload
  *
  * Copyright 2010, Sebastian Tschan
@@ -140,6 +140,7 @@
                 );
                 uploadRow.find(handler.cancelSelector).click(function (e) {
                     handler.cancelUpload(e, files, index, xhr, handler);
+                    return false;
                 });
                 uploadRow.find(handler.previewSelector).each(function () {
                     $(this).append(new LocalImage(files[index], handler.imageTypes));
