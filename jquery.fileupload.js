@@ -1,5 +1,5 @@
 /*
- * jQuery File Upload Plugin 3.8.3
+ * jQuery File Upload Plugin 3.9
  * https://github.com/blueimp/jQuery-File-Upload
  *
  * Copyright 2010, Sebastian Tschan
@@ -278,27 +278,29 @@
                 }
             },
 
-            upload = function (files, index, xhr, settings) {
+            upload = function (event, files, index, xhr, settings) {
                 var url = getUrl(settings),
                     sameDomain = isSameDomain(url),
                     filesToUpload;
                 initUploadEventHandlers(files, index, xhr, settings);
                 xhr.open(getMethod(settings), url, true);
                 setRequestHeaders(xhr, settings, sameDomain);
-                if (!settings.multipart) {
-                    nonMultipartUpload(files[index], xhr, sameDomain);
-                } else {
-                    if (typeof index === num) {
-                        filesToUpload = [files[index]];
+                if (typeof settings.onSend !== func || settings.onSend(event, files, index, xhr, settings) !== false) {
+                    if (!settings.multipart) {
+                        nonMultipartUpload(files[index], xhr, sameDomain);
                     } else {
-                        filesToUpload = files;
-                    }
-                    if (typeof FormData !== undef) {
-                        formDataUpload(filesToUpload, xhr, settings);
-                    } else if (typeof FileReader !== undef) {
-                        fileReaderUpload(filesToUpload, xhr, settings);
-                    } else {
-                        $.error('Browser does neither support FormData nor FileReader interface');
+                        if (typeof index === num) {
+                            filesToUpload = [files[index]];
+                        } else {
+                            filesToUpload = files;
+                        }
+                        if (typeof FormData !== undef) {
+                            formDataUpload(filesToUpload, xhr, settings);
+                        } else if (typeof FileReader !== undef) {
+                            fileReaderUpload(filesToUpload, xhr, settings);
+                        } else {
+                            $.error('Browser does neither support FormData nor FileReader interface');
+                        }
                     }
                 }
             },
@@ -316,11 +318,11 @@
                         xhr,
                         uploadSettings,
                         function () {
-                            upload(files, index, xhr, uploadSettings);
+                            upload(event, files, index, xhr, uploadSettings);
                         }
                     );
                 } else {
-                    upload(files, index, xhr, uploadSettings);
+                    upload(event, files, index, xhr, uploadSettings);
                 }
             },
 
@@ -360,10 +362,11 @@
                 form.find('.' + settings.namespace + '_form_data').remove();
             },
 
-            legacyUpload = function (input, form, iframe, settings) {
+            legacyUpload = function (event, input, form, iframe, settings) {
                 var originalAction = form.attr('action'),
                     originalMethod = form.attr('method'),
-                    originalTarget = form.attr('target');
+                    originalTarget = form.attr('target'),
+                    files = [{name: input.val(), type: null, size: null}];
                 iframe
                     .unbind('abort')
                     .bind('abort', function (e) {
@@ -372,14 +375,14 @@
                         // concat is used here to prevent the "Script URL" JSLint error:
                         iframe.unbind('load').attr('src', 'javascript'.concat(':false;'));
                         if (typeof settings.onAbort === func) {
-                            settings.onAbort(e, [{name: input.val(), type: null, size: null}], 0, iframe, settings);
+                            settings.onAbort(e, files, 0, iframe, settings);
                         }
                     })
                     .unbind('load')
                     .bind('load', function (e) {
                         iframe.readyState = 4;
                         if (typeof settings.onLoad === func) {
-                            settings.onLoad(e, [{name: input.val(), type: null, size: null}], 0, iframe, settings);
+                            settings.onLoad(e, files, 0, iframe, settings);
                         }
                         // Fix for IE endless progress bar activity bug (happens on form submits to iframe targets):
                         $('<iframe src="javascript:false;" style="display:none"></iframe>').appendTo(form).remove();
@@ -389,8 +392,10 @@
                     .attr('method', getMethod(settings))
                     .attr('target', iframe.attr('name'));
                 legacyUploadFormDataInit(input, form, settings);
-                iframe.readyState = 2;
-                form.get(0).submit();
+                if (typeof settings.onSend !== func || settings.onSend(event, files, 0, iframe, settings) !== false) {
+                    iframe.readyState = 2;
+                    form.get(0).submit();
+                }
                 legacyUploadFormDataReset(input, form, settings);
                 form
                     .attr('action', originalAction)
@@ -419,11 +424,11 @@
                             iframe,
                             uploadSettings,
                             function () {
-                                legacyUpload(input, form, iframe, uploadSettings);
+                                legacyUpload(event, input, form, iframe, uploadSettings);
                             }
                         );
                     } else {
-                        legacyUpload(input, form, iframe, uploadSettings);
+                        legacyUpload(event, input, form, iframe, uploadSettings);
                     }
                 }).appendTo(form);
             },

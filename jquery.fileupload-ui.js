@@ -1,5 +1,5 @@
 /*
- * jQuery File Upload User Interface Plugin 3.7.3
+ * jQuery File Upload User Interface Plugin 3.9
  * https://github.com/blueimp/jQuery-File-Upload
  *
  * Copyright 2010, Sebastian Tschan
@@ -162,15 +162,15 @@
             }
         };
         
+        this.onSend = function (event, files, index, xhr, handler) {
+            handler.initUploadProgress(xhr, handler);
+        };
+        
         this.initUpload = function (event, files, index, xhr, handler, callBack) {
             handler.initUploadRow(event, files, index, xhr, handler, function () {
                 if (typeof handler.beforeSend === func) {
-                    handler.beforeSend(event, files, index, xhr, handler, function () {
-                        handler.initUploadProgress(xhr, handler);
-                        callBack();
-                    });
+                    handler.beforeSend(event, files, index, xhr, handler, callBack);
                 } else {
-                    handler.initUploadProgress(xhr, handler);
                     callBack();
                 }
             });
