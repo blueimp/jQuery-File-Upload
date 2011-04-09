@@ -1,5 +1,5 @@
 /*
- * jQuery File Upload Plugin 3.9
+ * jQuery File Upload Plugin 3.9.1
  * https://github.com/blueimp/jQuery-File-Upload
  *
  * Copyright 2010, Sebastian Tschan
@@ -366,7 +366,7 @@
                 var originalAction = form.attr('action'),
                     originalMethod = form.attr('method'),
                     originalTarget = form.attr('target'),
-                    files = [{name: input.val(), type: null, size: null}];
+                    files = event.target.files || [{name: input.val(), type: null, size: null}];
                 iframe
                     .unbind('abort')
                     .bind('abort', function (e) {
