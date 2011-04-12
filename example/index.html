@@ -1,49 +1,75 @@
 <!DOCTYPE HTML>
-<html lang="en">
+<!--
+/*
+ * jQuery File Upload Plugin HTML Example 4.0
+ * https://github.com/blueimp/jQuery-File-Upload
+ *
+ * Copyright 2010, Sebastian Tschan
+ * https://blueimp.net
+ *
+ * Licensed under the MIT license:
+ * http://creativecommons.org/licenses/MIT/
+ */
+-->
+<html lang="en" class="no_js">
 <head>
 <meta charset="utf-8">
 <title>jQuery File Upload Example</title>
-<link rel="stylesheet" href="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.10/themes/base/jquery-ui.css" id="theme">
+<link rel="stylesheet" href="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.11/themes/base/jquery-ui.css" id="theme">
 <link rel="stylesheet" href="../jquery.fileupload-ui.css">
-<style>
-body {
-  font-family: Verdana, Arial, sans-serif;
-  font-size: 13px;
-  margin: 0;
-  padding: 20px;
-}
-</style>
+<link rel="stylesheet" href="style.css">
 </head>
 <body>
-<form id="file_upload" action="upload.php" method="POST" enctype="multipart/form-data">
+<form id="file_upload" action="." method="POST" enctype="multipart/form-data">
     <input type="file" name="file" multiple>
-    <button>Upload</button>
-    <div>Upload files</div>
+    <button type="submit">Upload</button>
+    <div class="js">Upload files</div>
 </form>
-<table id="files"></table>
-<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.5.1/jquery.min.js"></script>
-<script src="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.10/jquery-ui.min.js"></script>
+<table id="files">
+    <tr id="template_upload" style="display:none;">
+        <td class="file_upload_preview"></td>
+        <td class="file_upload_name"></td>
+        <td class="file_upload_progress"><div></div></td>
+        <td class="file_upload_start">
+            <button class="ui-button ui-widget ui-state-default ui-corner-all" title="Start">
+                <span class="ui-icon ui-icon-circle-arrow-e">Start</span>
+            </button>
+        </td>
+        <td class="file_upload_cancel">
+            <button class="ui-button ui-widget ui-state-default ui-corner-all" title="Cancel">
+                <span class="ui-icon ui-icon-cancel">Cancel</span>
+            </button>
+        </td>
+    </tr>
+    <tr id="template_download" style="display:none;">
+        <td class="file_upload_preview"></td>
+        <td class="file_upload_name"><a></a></td>
+        <td class="file_upload_delete" colspan="3">
+            <button class="ui-button ui-widget ui-state-default ui-corner-all" title="Delete">
+                <span class="ui-icon ui-icon-trash">Delete</span>
+            </button>
+        </td>
+    </tr>
+</table>
+<div id="file_upload_progress" class="js file_upload_progress"><div style="display:none;"></div></div>
+<div class="js">
+    <button id="file_upload_start" class="ui-button ui-state-default ui-corner-all ui-button-text-icon-primary">
+        <span class="ui-button-icon-primary ui-icon ui-icon-circle-arrow-e"></span>
+        <span class="ui-button-text">Start All</span>
+    </button>
+    <button id="file_upload_cancel" class="ui-button ui-state-default ui-corner-all ui-button-text-icon-primary">
+        <span class="ui-button-icon-primary ui-icon ui-icon-cancel"></span>
+        <span class="ui-button-text">Cancel All</span>
+    </button>
+    <button id="file_upload_delete" class="ui-button ui-state-default ui-corner-all ui-button-text-icon-primary">
+        <span class="ui-button-icon-primary ui-icon ui-icon-trash"></span>
+        <span class="ui-button-text">Delete All</span>
+    </button>
+</div>
+<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.5.2/jquery.min.js"></script>
+<script src="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.11/jquery-ui.min.js"></script>
 <script src="../jquery.fileupload.js"></script>
 <script src="../jquery.fileupload-ui.js"></script>
-<script>
-/*global $ */
-$(function () {
-    $('#file_upload').fileUploadUI({
-        uploadTable: $('#files'),
-        downloadTable: $('#files'),
-        buildUploadRow: function (files, index) {
-            return $('<tr><td>' + files[index].name + '<\/td>' +
-                    '<td class="file_upload_progress"><div><\/div><\/td>' +
-                    '<td class="file_upload_cancel">' +
-                    '<button class="ui-state-default ui-corner-all" title="Cancel">' +
-                    '<span class="ui-icon ui-icon-cancel">Cancel<\/span>' +
-                    '<\/button><\/td><\/tr>');
-        },
-        buildDownloadRow: function (file) {
-            return $('<tr><td>' + file.name + '<\/td><\/tr>');
-        }
-    });
-});
-</script> 
+<script src="application.js"></script>
 </body> 
 </html>

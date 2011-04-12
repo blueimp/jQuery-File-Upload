@@ -1,4 +1,14 @@
 @charset 'UTF-8';
+/*
+ * jQuery File Upload Plugin CSS 4.0
+ * https://github.com/blueimp/jQuery-File-Upload
+ *
+ * Copyright 2010, Sebastian Tschan
+ * https://blueimp.net
+ *
+ * Licensed under the MIT license:
+ * http://creativecommons.org/licenses/MIT/
+ */
 
 .file_upload {
   position: relative;
@@ -59,12 +69,8 @@
   height: auto;
 }
 
-.file_upload iframe, .file_upload button {
+.file_upload button {
   display: none;
-}
-
-.file_upload_preview img {
-  width: 80px;
 }
 
 .file_upload_progress .ui-progressbar-value {
@@ -74,8 +80,4 @@
 .file_upload_progress div {
   width: 150px;
   height: 15px;
-}
-
-.file_upload_cancel button {
-  cursor: pointer;
 }

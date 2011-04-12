@@ -9,9 +9,15 @@
 * **Drag & Drop support:**  
   Allows to upload files by dragging them from your desktop or filemanager and dropping them on your browser window.
 * **Upload progress bar:**  
-  Shows a progress bar indicating the upload progress for individual files.
+  Shows a progress bar indicating the upload progress for individual files and for all uploads combined.
 * **Cancelable uploads:**  
   Individual file uploads can be canceled to stop the upload progress.
+* **Resumable uploads:**  
+  Aborted uploads can be resumed with browsers supporting the Blob API.
+* **Chunked uploads:**  
+  Large files can be uploaded in smaller chunks with browsers supporting the Blob API.
+* **Preview images:**  
+  A preview of image files can be displayed before uploading with browsers supporting the required HTML5 APIs.
 * **No browser plugins (e.g. Adobe Flash) required:**  
   The implementation is based on open standards like HTML5 and JavaScript and requires no additional browser plugins.
 * **Graceful fallback for legacy browsers:**  
@@ -37,11 +43,11 @@
 * Google Chrome - 7.0, 8.0, 9.0, 10.0
 * Apple Safari - 5.0 ¹
 * Mozilla Firefox - 3.6, 4.0
-* Opera - 10.6 ², 11.0 ²
+* Opera - 10.6 ², 11.0 ², 11.1 ²
 * Microsoft Internet Explorer 6.0 ², 7.0 ², 8.0 ², 9.0 ²
 
 ¹ Drag & Drop is not supported on the Windows version of Safari.  
-² MSIE and Opera have no support for Drag & Drop, multiple file selection or upload progress indication.
+² MSIE and Opera have no support for Drag & Drop, multiple file selection or individual upload progress indication.
 
 ## License
 Released under the [MIT license](http://creativecommons.org/licenses/MIT/).

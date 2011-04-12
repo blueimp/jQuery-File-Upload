@@ -1,5 +1,5 @@
 /*
- * jQuery File Upload Plugin 3.9.1
+ * jQuery File Upload Plugin 4.0
  * https://github.com/blueimp/jQuery-File-Upload
  *
  * Copyright 2010, Sebastian Tschan
@@ -10,7 +10,7 @@
  */
 
 /*jslint browser: true */
-/*global File, FileReader, FormData, unescape, jQuery */
+/*global File, FileReader, FormData, ProgressEvent, unescape, jQuery, upload */
 
 (function ($) {
 
@@ -21,13 +21,29 @@
         FileUpload,
         methods,
 
-        MultiLoader = function (callBack, numberComplete) {
-            var loaded = 0;
+        MultiLoader = function (callBack, numOrList) {
+            var loaded = 0,
+                list = [];
+            if (numOrList) {
+                if (numOrList.length) {
+                    list = numOrList;
+                } else {
+                    list[numOrList - 1] = null;
+                }
+            }
             this.complete = function () {
                 loaded += 1;
-                if (loaded === numberComplete) {
-                    callBack();
+                if (loaded === list.length) {
+                    callBack(list);
+                    loaded = 0;
+                    list = [];
                 }
+            };
+            this.push = function (item) {
+                list.push(item);
+            };
+            this.getList = function () {
+                return list;
             };
         };
         
@@ -58,11 +74,18 @@
                 formData: function (form) {
                     return form.serializeArray();
                 },
+                requestHeaders: null,
                 multipart: true,
                 multiFileRequest: false,
                 withCredentials: false,
-                forceIframeUpload: false
+                forceIframeUpload: false,
+                maxChunkSize: null
             },
+            multiLoader = new MultiLoader(function (list) {
+                if (typeof settings.onLoadAll === func) {
+                    settings.onLoadAll(list);
+                }
+            }),
             documentListeners = {},
             dropZoneListeners = {},
             protocolRegExp = /^http(s)?:\/\//,
@@ -70,7 +93,8 @@
 
             isXHRUploadCapable = function () {
                 return typeof XMLHttpRequest !== undef && typeof File !== undef && (
-                    !settings.multipart || typeof FormData !== undef || typeof FileReader !== undef
+                    !settings.multipart || typeof FormData !== undef ||
+                    (typeof FileReader !== undef && typeof XMLHttpRequest.prototype.sendAsBinary === func)
                 );
             },
 
@@ -116,27 +140,149 @@
                 fileInput.unbind('change.' + settings.namespace);
             },
 
-            initUploadEventHandlers = function (files, index, xhr, settings) {
-                if (typeof settings.onProgress === func) {
-                    xhr.upload.onprogress = function (e) {
-                        settings.onProgress(e, files, index, xhr, settings);
+            isChunkedUpload = function (settings) {
+                return typeof settings.uploadedBytes !== undef;
+            },
+
+            createProgressEvent = function (lengthComputable, loaded, total) {
+                var event;
+                if (typeof document.createEvent === func && typeof ProgressEvent !== undef) {
+                    event = document.createEvent('ProgressEvent');
+                    event.initProgressEvent(
+                        'progress',
+                        false,
+                        false,
+                        lengthComputable,
+                        loaded,
+                        total
+                    );
+                } else {
+                    event = {
+                        lengthComputable: true,
+                        loaded: loaded,
+                        total: total
                     };
                 }
+                return event;
+            },
+
+            getProgressTotal = function (files, index, settings) {
+                var i,
+                    total;
+                if (typeof settings.progressTotal === undef) {
+                    if (files[index]) {
+                        total = files[index].size;
+                        settings.progressTotal = total ? total : 1;
+                    } else {
+                        total = 0;
+                        for (i = 0; i < files.length; i += 1) {
+                            total += files[i].size;
+                        }
+                        settings.progressTotal = total;
+                    }
+                }
+                return settings.progressTotal;
+            },
+
+            handleGlobalProgress = function (event, files, index, xhr, settings) {
+                var progressEvent,
+                    loaderList,
+                    globalLoaded = 0,
+                    globalTotal = 0;
+                if (event.lengthComputable && typeof settings.onProgressAll === func) {
+                    settings.progressLoaded = parseInt(
+                        event.loaded / event.total * getProgressTotal(files, index, settings),
+                        10
+                    );
+                    loaderList = multiLoader.getList();
+                    $.each(loaderList, function (index, item) {
+                        // item is an array with [files, index, xhr, settings]
+                        globalLoaded += item[3].progressLoaded || 0;
+                        globalTotal += getProgressTotal(item[0], item[1], item[3]);
+                    });
+                    progressEvent = createProgressEvent(
+                        true,
+                        globalLoaded,
+                        globalTotal
+                    );
+                    settings.onProgressAll(progressEvent, loaderList);
+                }
+            },
+            
+            handleLoadEvent = function (event, files, index, xhr, settings) {
+                var progressEvent;
+                if (isChunkedUpload(settings)) {
+                    settings.uploadedBytes = settings.uploadedBytes + settings.chunkSize;
+                    progressEvent = createProgressEvent(
+                        true,
+                        settings.uploadedBytes,
+                        files[index].size
+                    );
+                    if (typeof settings.onProgress === func) {
+                        settings.onProgress(progressEvent, files, index, xhr, settings);
+                    }
+                    handleGlobalProgress(progressEvent, files, index, xhr, settings);
+                    if (settings.uploadedBytes < files[index].size) {
+                        if (typeof settings.resumeUpload === func) {
+                            settings.resumeUpload(
+                                event,
+                                files,
+                                index,
+                                xhr,
+                                settings,
+                                function () {
+                                    upload(event, files, index, xhr, settings);
+                                }
+                            );
+                        } else {
+                            upload(event, files, index, xhr, settings);
+                        }
+                        return;
+                    }
+                }
+                settings.progressLoaded = getProgressTotal(files, index, settings);
                 if (typeof settings.onLoad === func) {
-                    xhr.onload = function (e) {
-                        settings.onLoad(e, files, index, xhr, settings);
-                    };
+                    settings.onLoad(event, files, index, xhr, settings);
                 }
-                if (typeof settings.onAbort === func) {
-                    xhr.onabort = function (e) {
+            },
+            
+            handleProgressEvent = function (event, files, index, xhr, settings) {
+                var progressEvent = event;
+                if (isChunkedUpload(settings) && event.lengthComputable) {
+                    progressEvent = createProgressEvent(
+                        true,
+                        settings.uploadedBytes + parseInt(event.loaded / event.total * settings.chunkSize, 10),
+                        files[index].size
+                    );
+                }
+                if (typeof settings.onProgress === func) {
+                    settings.onProgress(progressEvent, files, index, xhr, settings);
+                }
+                handleGlobalProgress(progressEvent, files, index, xhr, settings);
+            },
+            
+            initUploadEventHandlers = function (files, index, xhr, settings) {
+                xhr.upload.onprogress = function (e) {
+                    handleProgressEvent(e, files, index, xhr, settings);
+                };
+                xhr.onload = function (e) {
+                    handleLoadEvent(e, files, index, xhr, settings);
+                    multiLoader.complete();
+                };
+                xhr.onabort = function (e) {
+                    settings.progressTotal = settings.progressLoaded;
+                    if (typeof settings.onAbort === func) {
                         settings.onAbort(e, files, index, xhr, settings);
-                    };
-                }
-                if (typeof settings.onError === func) {
-                    xhr.onerror = function (e) {
+                    }
+                    multiLoader.complete();
+                };
+                xhr.onerror = function (e) {
+                    settings.progressTotal = settings.progressLoaded;
+                    if (typeof settings.onError === func) {
                         settings.onError(e, files, index, xhr, settings);
-                    };
-                }
+                    }
+                    multiLoader.complete();
+                };
             },
 
             getUrl = function (settings) {
@@ -191,9 +337,23 @@
                 return true;
             },
 
-            setRequestHeaders = function (xhr, settings, sameDomain) {
+            initUploadRequest = function (files, index, xhr, settings) {
+                var file = files[index],
+                    url = getUrl(settings),
+                    sameDomain = isSameDomain(url);
+                xhr.open(getMethod(settings), url, true);
                 if (sameDomain) {
                     xhr.setRequestHeader('X-Requested-With', 'XMLHttpRequest');
+                    if (!settings.multipart || isChunkedUpload(settings)) {
+                        xhr.setRequestHeader('X-File-Name', file.name);
+                        xhr.setRequestHeader('X-File-Type', file.type);
+                        xhr.setRequestHeader('X-File-Size', file.size);
+                        if (!isChunkedUpload(settings)) {
+                            xhr.setRequestHeader('Content-Type', file.type);
+                        } else if (!settings.multipart) {
+                            xhr.setRequestHeader('Content-Type', 'application/octet-stream');
+                        }
+                    }
                 } else if (settings.withCredentials) {
                     xhr.withCredentials = true;
                 }
@@ -206,14 +366,6 @@
                         xhr.setRequestHeader(name, value);
                     });
                 }
-            },
-
-            nonMultipartUpload = function (file, xhr, sameDomain) {
-                if (sameDomain) {
-                    xhr.setRequestHeader('X-File-Name', unescape(encodeURIComponent(file.name)));
-                }
-                xhr.setRequestHeader('Content-Type', file.type);
-                xhr.send(file);
             },
 
             formDataUpload = function (files, xhr, settings) {
@@ -237,6 +389,10 @@
                 fileReader.readAsBinaryString(file);
             },
 
+            utf8encode = function (str) {
+                return unescape(encodeURIComponent(str));
+            },
+
             buildMultiPartFormData = function (boundary, files, filesFieldName, fields) {
                 var doubleDash = '--',
                     crlf     = '\r\n',
@@ -244,16 +400,16 @@
                 $.each(fields, function (index, field) {
                     formData += doubleDash + boundary + crlf +
                         'Content-Disposition: form-data; name="' +
-                        unescape(encodeURIComponent(field.name)) +
+                        utf8encode(field.name) +
                         '"' + crlf + crlf +
-                        unescape(encodeURIComponent(field.value)) + crlf;
+                        utf8encode(field.value) + crlf;
                 });
                 $.each(files, function (index, file) {
                     formData += doubleDash + boundary + crlf +
                         'Content-Disposition: form-data; name="' +
-                        unescape(encodeURIComponent(filesFieldName)) +
-                        '"; filename="' + unescape(encodeURIComponent(file.name)) + '"' + crlf +
-                        'Content-Type: ' + file.type + crlf + crlf +
+                        utf8encode(filesFieldName) +
+                        '"; filename="' + utf8encode(file.name) + '"' + crlf +
+                        'Content-Type: ' + utf8encode(file.type) + crlf + crlf +
                         file.content + crlf;
                 });
                 formData += doubleDash + boundary + doubleDash + crlf;
@@ -278,29 +434,39 @@
                 }
             },
 
+            getBlob = function (file, settings) {
+                var blob,
+                    ub = settings.uploadedBytes,
+                    mcs = settings.maxChunkSize;
+                if (file && typeof file.slice === func && (ub || (mcs && mcs < file.size))) {
+                    settings.uploadedBytes = ub = ub || 0;
+                    blob = file.slice(ub, mcs || file.size - ub);
+                    settings.chunkSize = blob.size;
+                    return blob;
+                }
+                return file;
+            },
+
             upload = function (event, files, index, xhr, settings) {
-                var url = getUrl(settings),
-                    sameDomain = isSameDomain(url),
+                var blob = getBlob(files[index], settings),
                     filesToUpload;
                 initUploadEventHandlers(files, index, xhr, settings);
-                xhr.open(getMethod(settings), url, true);
-                setRequestHeaders(xhr, settings, sameDomain);
-                if (typeof settings.onSend !== func || settings.onSend(event, files, index, xhr, settings) !== false) {
-                    if (!settings.multipart) {
-                        nonMultipartUpload(files[index], xhr, sameDomain);
+                initUploadRequest(files, index, xhr, settings);
+                if (typeof settings.onSend === func && !settings.uploadedBytes &&
+                        settings.onSend(event, files, index, xhr, settings) === false) {
+                    return;
+                }
+                multiLoader.push(Array.prototype.slice.call(arguments, 1));
+                if (!settings.multipart) {
+                    xhr.send(blob);
+                } else {
+                    filesToUpload = (typeof index === num) ? [blob] : files;
+                    if (typeof FormData !== undef) {
+                        formDataUpload(filesToUpload, xhr, settings);
+                    } else if (typeof FileReader !== undef && typeof xhr.sendAsBinary === func) {
+                        fileReaderUpload(filesToUpload, xhr, settings);
                     } else {
-                        if (typeof index === num) {
-                            filesToUpload = [files[index]];
-                        } else {
-                            filesToUpload = files;
-                        }
-                        if (typeof FormData !== undef) {
-                            formDataUpload(filesToUpload, xhr, settings);
-                        } else if (typeof FileReader !== undef) {
-                            fileReaderUpload(filesToUpload, xhr, settings);
-                        } else {
-                            $.error('Browser does neither support FormData nor FileReader interface');
-                        }
+                        $.error('Browser does not support multipart XHR file uploads');
                     }
                 }
             },
@@ -328,13 +494,21 @@
 
             handleFiles = function (event, files, input, form) {
                 var i;
-                if (settings.multiFileRequest) {
+                files = Array.prototype.slice.call(files, 0);
+                if (settings.multiFileRequest && settings.multipart) {
                     handleUpload(event, files, input, form);
                 } else {
                     for (i = 0; i < files.length; i += 1) {
                         handleUpload(event, files, input, form, i);
                     }
                 }
+            },
+
+            handleLegacyGlobalProgress = function (event, files, index, iframe, settings) {
+                var total = files[index].size ? files[index].size : 1,
+                    progressEvent = createProgressEvent(true, total, total);
+                settings.progressLoaded = total;
+                handleGlobalProgress(progressEvent, files, index, iframe, settings);
             },
 
             legacyUploadFormDataInit = function (input, form, settings) {
@@ -362,11 +536,10 @@
                 form.find('.' + settings.namespace + '_form_data').remove();
             },
 
-            legacyUpload = function (event, input, form, iframe, settings) {
+            legacyUpload = function (event, files, input, form, iframe, settings) {
                 var originalAction = form.attr('action'),
                     originalMethod = form.attr('method'),
-                    originalTarget = form.attr('target'),
-                    files = event.target.files || [{name: input.val(), type: null, size: null}];
+                    originalTarget = form.attr('target');
                 iframe
                     .unbind('abort')
                     .bind('abort', function (e) {
@@ -374,16 +547,20 @@
                         // javascript:false as iframe src prevents warning popups on HTTPS in IE6
                         // concat is used here to prevent the "Script URL" JSLint error:
                         iframe.unbind('load').attr('src', 'javascript'.concat(':false;'));
+                        handleLegacyGlobalProgress(e, files, 0, iframe, settings);
                         if (typeof settings.onAbort === func) {
                             settings.onAbort(e, files, 0, iframe, settings);
                         }
+                        multiLoader.complete();
                     })
                     .unbind('load')
                     .bind('load', function (e) {
                         iframe.readyState = 4;
+                        handleLegacyGlobalProgress(e, files, 0, iframe, settings);
                         if (typeof settings.onLoad === func) {
                             settings.onLoad(e, files, 0, iframe, settings);
                         }
+                        multiLoader.complete();
                         // Fix for IE endless progress bar activity bug (happens on form submits to iframe targets):
                         $('<iframe src="javascript:false;" style="display:none"></iframe>').appendTo(form).remove();
                     });
@@ -393,6 +570,7 @@
                     .attr('target', iframe.attr('name'));
                 legacyUploadFormDataInit(input, form, settings);
                 if (typeof settings.onSend !== func || settings.onSend(event, files, 0, iframe, settings) !== false) {
+                    multiLoader.push([files, 0, iframe, settings]);
                     iframe.readyState = 2;
                     form.get(0).submit();
                 }
@@ -407,7 +585,9 @@
                 // javascript:false as iframe src prevents warning popups on HTTPS in IE6:
                 var iframe = $('<iframe src="javascript:false;" style="display:none" name="iframe_' +
                     settings.namespace + '_' + (new Date()).getTime() + '"></iframe>'),
-                    uploadSettings = $.extend({}, settings);
+                    uploadSettings = $.extend({}, settings),
+                    files = event.target.files;
+                files = files ? Array.prototype.slice.call(files, 0) : [{name: input.val(), type: null, size: null}];
                 uploadSettings.fileInput = input;
                 uploadSettings.uploadForm = form;
                 iframe.readyState = 0;
@@ -424,11 +604,11 @@
                             iframe,
                             uploadSettings,
                             function () {
-                                legacyUpload(event, input, form, iframe, uploadSettings);
+                                legacyUpload(event, files, input, form, iframe, uploadSettings);
                             }
                         );
                     } else {
-                        legacyUpload(event, input, form, iframe, uploadSettings);
+                        legacyUpload(event, files, input, form, iframe, uploadSettings);
                     }
                 }).appendTo(form);
             },

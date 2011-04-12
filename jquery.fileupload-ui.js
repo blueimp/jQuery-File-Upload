@@ -1,5 +1,5 @@
 /*
- * jQuery File Upload User Interface Plugin 3.9
+ * jQuery File Upload User Interface Plugin 4.0
  * https://github.com/blueimp/jQuery-File-Upload
  *
  * Copyright 2010, Sebastian Tschan
@@ -19,41 +19,41 @@
         UploadHandler,
         methods,
 
-        LocalImage = function (file, imageTypes) {
-            var img,
-                fileReader;
-            if (!imageTypes.test(file.type)) {
-                return null;
-            }
-            img = document.createElement('img');
-            if (typeof URL !== undef && typeof URL.createObjectURL === func) {
-                img.src = URL.createObjectURL(file);
-                img.onload = function () {
-                    URL.revokeObjectURL(this.src);
-                };
-                return img;
-            }
-            if (typeof FileReader !== undef) {
-                fileReader = new FileReader();
-                if (typeof fileReader.readAsDataURL === func) {
-                    fileReader.onload = function (e) {
-                        img.src = e.target.result;
-                    };
-                    fileReader.readAsDataURL(file);
-                    return img;
+        MultiLoader = function (callBack) {
+            var loaded = 0,
+                list = [];
+            this.complete = function () {
+                loaded += 1;
+                if (loaded === list.length + 1) {
+                    // list.length * onComplete + 1 * onLoadAll
+                    callBack(list);
+                    loaded = 0;
+                    list = [];
                 }
-            }
-            return null;
+            };
+            this.push = function (item) {
+                list.push(item);
+            };
+            this.getList = function () {
+                return list;
+            };
         };
         
     UploadHandler = function (container, options) {
         var uploadHandler = this,
             dragOverTimeout,
-            isDropZoneEnlarged;
+            isDropZoneEnlarged,
+            multiLoader = new MultiLoader(function (list) {
+                if (typeof uploadHandler.onCompleteAll === func) {
+                    uploadHandler.onCompleteAll(list);
+                }
+            });
         
         this.requestHeaders = {'Accept': 'application/json, text/javascript, */*; q=0.01'};
         this.dropZone = container;
         this.imageTypes = /^image\/(gif|jpeg|png)$/;
+        this.previewMaxWidth = this.previewMaxHeight = 80;
+        this.previewLoadDelay = 100;
         this.previewSelector = '.file_upload_preview';
         this.progressSelector = '.file_upload_progress div';
         this.cancelSelector = '.file_upload_cancel button';
@@ -62,9 +62,55 @@
         this.cssClassHighlight = 'file_upload_highlight';
         this.dropEffect = 'highlight';
         this.uploadTable = this.downloadTable = null;
-        
-        this.buildUploadRow = this.buildDownloadRow = function () {
-            return null;
+        this.buildUploadRow = this.buildDownloadRow = null;
+        this.progressAllNode = null;
+
+        this.loadImage = function (file, callBack, maxWidth, maxHeight, imageTypes, noCanvas) {
+            var img,
+                getImage,
+                fileReader;
+            if (imageTypes && !imageTypes.test(file.type)) {
+                return null;
+            }
+            getImage = function (img) {
+                var canvas = document.createElement('canvas'),
+                    scale = Math.min(
+                        (maxWidth || img.width) / img.width,
+                        (maxHeight || img.height) / img.height
+                    );
+                if (scale > 1) {
+                    scale = 1;
+                }
+                img.width = parseInt(img.width * scale, 10);
+                img.height = parseInt(img.height * scale, 10);
+                if (noCanvas || typeof canvas.getContext !== func) {
+                    return img;
+                }
+                canvas.width = img.width;
+                canvas.height = img.height;
+                canvas.getContext('2d').drawImage(img, 0, 0, img.width, img.height);
+                return canvas;
+            };
+            img = document.createElement('img');
+            if (typeof URL !== undef && typeof URL.createObjectURL === func) {
+                img.onload = function () {
+                    URL.revokeObjectURL(this.src);
+                    callBack(getImage(img));
+                };
+                img.src = URL.createObjectURL(file);
+            } else if (typeof FileReader !== undef &&
+                    typeof FileReader.prototype.readAsDataURL === func) {
+                img.onload = function () {
+                    callBack(getImage(img));
+                };
+                fileReader = new FileReader();
+                fileReader.onload = function (e) {
+                    img.src = e.target.result;
+                };
+                fileReader.readAsDataURL(file);
+            } else {
+                callBack(null);
+            }
         };
 
         this.addNode = function (parentNode, node, callBack) {
@@ -118,6 +164,9 @@
         };
         
         this.initProgressBar = function (node, value) {
+            if (!node || !node.length) {
+                return null;
+            }
             if (typeof node.progressbar === func) {
                 return node.progressbar({
                     value: value
@@ -132,7 +181,8 @@
         };
         
         this.initUploadRow = function (event, files, index, xhr, handler, callBack) {
-            var uploadRow = handler.uploadRow = handler.buildUploadRow(files, index, handler);
+            var uploadRow = handler.uploadRow = (typeof handler.buildUploadRow === func ?
+                handler.buildUploadRow(files, index, handler) : null);
             if (uploadRow) {
                 handler.progressbar = handler.initProgressBar(
                     uploadRow.find(handler.progressSelector),
@@ -143,7 +193,24 @@
                     return false;
                 });
                 uploadRow.find(handler.previewSelector).each(function () {
-                    $(this).append(new LocalImage(files[index], handler.imageTypes));
+                    var previewNode = $(this),
+                        file = files[index];
+                    if (file) {
+                        setTimeout(function () {
+                            handler.loadImage(
+                                files[index],
+                                function (img) {
+                                    handler.addNode(
+                                        previewNode,
+                                        $(img)
+                                    );
+                                },
+                                handler.previewMaxWidth,
+                                handler.previewMaxHeight,
+                                handler.imageTypes
+                            );
+                        }, handler.previewLoadDelay);
+                    }
                 });
             }
             handler.addNode(
@@ -162,8 +229,52 @@
             }
         };
         
+        this.initProgressbarAll = function () {
+            if (!uploadHandler.progressbarAll) {
+                uploadHandler.progressbarAll = uploadHandler.initProgressBar(
+                    (typeof uploadHandler.progressAllNode === func ?
+                    uploadHandler.progressAllNode(uploadHandler) : uploadHandler.progressAllNode),
+                    0
+                );
+            }
+            if (uploadHandler.progressbarAll && uploadHandler.progressbarAll.is(':hidden')) {
+                uploadHandler.progressbarAll.fadeIn();
+            }
+        };
+
         this.onSend = function (event, files, index, xhr, handler) {
             handler.initUploadProgress(xhr, handler);
+            handler.initProgressbarAll();
+        };
+
+        this.onProgressAll = function (event, list) {
+            if (uploadHandler.progressbarAll && event.lengthComputable) {
+                uploadHandler.progressbarAll.progressbar(
+                    'value',
+                    parseInt(event.loaded / event.total * 100, 10)
+                );
+            }
+        };
+
+        this.onProgress = function (event, files, index, xhr, handler) {
+            if (handler.progressbar && event.lengthComputable) {
+                handler.progressbar.progressbar(
+                    'value',
+                    parseInt(event.loaded / event.total * 100, 10)
+                );
+            }
+        };
+
+        this.onLoadAll = function (list) {
+            multiLoader.complete();
+            if (uploadHandler.progressbarAll) {
+                uploadHandler.progressbarAll.fadeOut(function () {
+                    uploadHandler.progressbarAll.progressbar(
+                        'value',
+                        0
+                    );
+                });
+            }
         };
         
         this.initUpload = function (event, files, index, xhr, handler, callBack) {
@@ -174,15 +285,7 @@
                     callBack();
                 }
             });
-        };
-        
-        this.onProgress = function (event, files, index, xhr, handler) {
-            if (handler.progressbar) {
-                handler.progressbar.progressbar(
-                    'value',
-                    parseInt(event.loaded / event.total * 100, 10)
-                );
-            }
+            handler.initProgressbarAll();
         };
         
         this.parseResponse = function (xhr) {
@@ -198,7 +301,8 @@
             var json, downloadRow;
             try {
                 json = handler.response = handler.parseResponse(xhr);
-                downloadRow = handler.downloadRow = handler.buildDownloadRow(json, handler);
+                downloadRow = handler.downloadRow = (typeof handler.buildDownloadRow === func ?
+                    handler.buildDownloadRow(json, handler) : null);
                 handler.addNode(
                     (typeof handler.downloadTable === func ? handler.downloadTable(handler) : handler.downloadTable),
                     downloadRow,
@@ -215,11 +319,13 @@
         };
         
         this.onLoad = function (event, files, index, xhr, handler) {
+            multiLoader.push(Array.prototype.slice.call(arguments, 1));
             handler.removeNode(handler.uploadRow, function () {
                 handler.initDownloadRow(event, files, index, xhr, handler, function () {
                     if (typeof handler.onComplete === func) {
                         handler.onComplete(event, files, index, xhr, handler);
                     }
+                    multiLoader.complete();
                 });
             });
         };
