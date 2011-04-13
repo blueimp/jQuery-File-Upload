@@ -1,5 +1,5 @@
 /*
- * jQuery File Upload User Interface Plugin 4.1
+ * jQuery File Upload User Interface Plugin 4.1.1
  * https://github.com/blueimp/jQuery-File-Upload
  *
  * Copyright 2010, Sebastian Tschan
@@ -10,7 +10,7 @@
  */
 
 /*jslint browser: true */
-/*global jQuery, FileReader, URL */
+/*global jQuery, FileReader, URL, webkitURL */
 
 (function ($) {
 
@@ -44,9 +44,12 @@
             dragOverTimeout,
             isDropZoneEnlarged,
             multiLoader = new MultiLoader(function (list) {
-                if (typeof uploadHandler.onCompleteAll === func) {
-                    uploadHandler.onCompleteAll(list);
-                }
+                uploadHandler.hideProgressBarAll(function () {
+                    uploadHandler.resetProgressBarAll();
+                    if (typeof uploadHandler.onCompleteAll === func) {
+                        uploadHandler.onCompleteAll(list);
+                    }
+                });
             });
         
         this.requestHeaders = {'Accept': 'application/json, text/javascript, */*; q=0.01'};
@@ -69,6 +72,7 @@
         this.loadImage = function (file, callBack, maxWidth, maxHeight, imageTypes, noCanvas) {
             var img,
                 scaleImage,
+                urlAPI,
                 fileReader;
             if (imageTypes && !imageTypes.test(file.type)) {
                 return null;
@@ -93,12 +97,13 @@
                 return canvas;
             };
             img = document.createElement('img');
-            if (typeof URL !== undef && typeof URL.createObjectURL === func) {
+            urlAPI = typeof URL !== undef ? URL : typeof webkitURL !== undef ? webkitURL : null;
+            if (urlAPI && typeof urlAPI.createObjectURL === func) {
                 img.onload = function () {
-                    URL.revokeObjectURL(this.src);
+                    urlAPI.revokeObjectURL(this.src);
                     callBack(scaleImage(img));
                 };
-                img.src = URL.createObjectURL(file);
+                img.src = urlAPI.createObjectURL(file);
             } else if (typeof FileReader !== undef &&
                     typeof FileReader.prototype.readAsDataURL === func) {
                 img.onload = function () {
@@ -151,15 +156,34 @@
             }
         };
 
+        this.resetProgressBarAll = function () {
+            if (uploadHandler.progressbarAll) {
+                uploadHandler.progressbarAll.progressbar(
+                    'value',
+                    0
+                );
+            }
+        };
+
+        this.hideProgressBarAll = function (callBack) {
+            if (uploadHandler.progressbarAll && !$(typeof uploadHandler.uploadTable === func ?
+                    uploadHandler.uploadTable(uploadHandler) : uploadHandler.uploadTable)
+                    .find(uploadHandler.progressSelector + ':visible:first').length) {
+                uploadHandler.progressbarAll.fadeOut(callBack);
+            } else if (typeof callBack === func) {
+                callBack();
+            }
+        };
+
         this.onAbort = function (event, files, index, xhr, handler) {
-            handler.removeNode(handler.uploadRow);
+            handler.removeNode(handler.uploadRow, handler.hideProgressBarAll);
         };
         
         this.cancelUpload = function (event, files, index, xhr, handler) {
             var readyState = xhr.readyState;
             xhr.abort();
             // If readyState is below 2, abort() has no effect:
-            if (isNaN(readyState) || readyState < 2) {
+            if (typeof readyState !== 'number' || readyState < 2) {
                 handler.onAbort(event, files, index, xhr, handler);
             }
         };
@@ -230,23 +254,9 @@
                 );
             }
         };
-        
-        this.initProgressbarAll = function () {
-            if (!uploadHandler.progressbarAll) {
-                uploadHandler.progressbarAll = uploadHandler.initProgressBar(
-                    (typeof uploadHandler.progressAllNode === func ?
-                    uploadHandler.progressAllNode(uploadHandler) : uploadHandler.progressAllNode),
-                    0
-                );
-            }
-            if (uploadHandler.progressbarAll && uploadHandler.progressbarAll.is(':hidden')) {
-                uploadHandler.progressbarAll.fadeIn();
-            }
-        };
 
         this.onSend = function (event, files, index, xhr, handler) {
             handler.initUploadProgress(xhr, handler);
-            handler.initProgressbarAll();
         };
 
         this.onProgressAll = function (event, list) {
@@ -269,13 +279,18 @@
 
         this.onLoadAll = function (list) {
             multiLoader.complete();
-            if (uploadHandler.progressbarAll) {
-                uploadHandler.progressbarAll.fadeOut(function () {
-                    uploadHandler.progressbarAll.progressbar(
-                        'value',
-                        0
-                    );
-                });
+        };
+
+        this.initProgressBarAll = function () {
+            if (!uploadHandler.progressbarAll) {
+                uploadHandler.progressbarAll = uploadHandler.initProgressBar(
+                    (typeof uploadHandler.progressAllNode === func ?
+                    uploadHandler.progressAllNode(uploadHandler) : uploadHandler.progressAllNode),
+                    0
+                );
+            }
+            if (uploadHandler.progressbarAll && uploadHandler.progressbarAll.is(':hidden')) {
+                uploadHandler.progressbarAll.fadeIn();
             }
         };
         
@@ -287,7 +302,7 @@
                     callBack();
                 }
             });
-            handler.initProgressbarAll();
+            handler.initProgressBarAll();
         };
         
         this.parseResponse = function (xhr) {

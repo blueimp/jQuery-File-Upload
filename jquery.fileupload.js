@@ -1,5 +1,5 @@
 /*
- * jQuery File Upload Plugin 4.1.1
+ * jQuery File Upload Plugin 4.2
  * https://github.com/blueimp/jQuery-File-Upload
  *
  * Copyright 2010, Sebastian Tschan
@@ -17,7 +17,6 @@
     var defaultNamespace = 'file_upload',
         undef = 'undefined',
         func = 'function',
-        num = 'number',
         FileUpload,
         methods,
 
@@ -490,7 +489,7 @@
                             $.error('Browser does not support XHR file uploads');
                         }
                     } else {
-                        filesToUpload = (typeof index === num) ? [blob] : files;
+                        filesToUpload = (typeof index === 'number') ? [blob] : files;
                         if (typeof FormData !== undef) {
                             formDataUpload(filesToUpload, xhr, settings);
                         } else if (typeof FileReader !== undef && typeof xhr.sendAsBinary === func) {
@@ -531,7 +530,7 @@
             handleFiles = function (event, files, input, form) {
                 var i;
                 files = Array.prototype.slice.call(files, 0);
-                if (settings.multiFileRequest && settings.multipart) {
+                if (settings.multiFileRequest && settings.multipart && files.length) {
                     handleUpload(event, files, input, form);
                 } else {
                     for (i = 0; i < files.length; i += 1) {
@@ -827,6 +826,13 @@
                 .removeClass(settings.cssClass);
             settings.dropZone.not(container).removeClass(settings.cssClass);
         };
+        
+        this.upload = function (files) {
+            if (!$.isArray(files)) {
+                files = [files];
+            }
+            handleFiles(null, files);
+        };
     };
 
     methods = {
@@ -849,7 +855,7 @@
             }
         },
                 
-        destroy : function (namespace) {
+        destroy: function (namespace) {
             namespace = namespace ? namespace : defaultNamespace;
             return this.each(function () {
                 var fileUpload = $(this).data(namespace);
@@ -860,6 +866,16 @@
                 }
             });
 
+        },
+        
+        upload: function (files, namespace) {
+            namespace = namespace ? namespace : defaultNamespace;
+            var fileUpload = $(this).data(namespace);
+            if (fileUpload) {
+                fileUpload.upload(files);
+            } else {
+                $.error('No FileUpload with namespace "' + namespace + '" assigned to this element');
+            }
         }
     };
     
