@@ -1,5 +1,5 @@
 /*
- * jQuery File Upload User Interface Plugin 4.0
+ * jQuery File Upload User Interface Plugin 4.1
  * https://github.com/blueimp/jQuery-File-Upload
  *
  * Copyright 2010, Sebastian Tschan
@@ -54,6 +54,7 @@
         this.imageTypes = /^image\/(gif|jpeg|png)$/;
         this.previewMaxWidth = this.previewMaxHeight = 80;
         this.previewLoadDelay = 100;
+        this.previewAsCanvas = true;
         this.previewSelector = '.file_upload_preview';
         this.progressSelector = '.file_upload_progress div';
         this.cancelSelector = '.file_upload_cancel button';
@@ -67,12 +68,12 @@
 
         this.loadImage = function (file, callBack, maxWidth, maxHeight, imageTypes, noCanvas) {
             var img,
-                getImage,
+                scaleImage,
                 fileReader;
             if (imageTypes && !imageTypes.test(file.type)) {
                 return null;
             }
-            getImage = function (img) {
+            scaleImage = function (img) {
                 var canvas = document.createElement('canvas'),
                     scale = Math.min(
                         (maxWidth || img.width) / img.width,
@@ -95,13 +96,13 @@
             if (typeof URL !== undef && typeof URL.createObjectURL === func) {
                 img.onload = function () {
                     URL.revokeObjectURL(this.src);
-                    callBack(getImage(img));
+                    callBack(scaleImage(img));
                 };
                 img.src = URL.createObjectURL(file);
             } else if (typeof FileReader !== undef &&
                     typeof FileReader.prototype.readAsDataURL === func) {
                 img.onload = function () {
-                    callBack(getImage(img));
+                    callBack(scaleImage(img));
                 };
                 fileReader = new FileReader();
                 fileReader.onload = function (e) {
@@ -198,7 +199,7 @@
                     if (file) {
                         setTimeout(function () {
                             handler.loadImage(
-                                files[index],
+                                file,
                                 function (img) {
                                     handler.addNode(
                                         previewNode,
@@ -207,7 +208,8 @@
                                 },
                                 handler.previewMaxWidth,
                                 handler.previewMaxHeight,
-                                handler.imageTypes
+                                handler.imageTypes,
+                                !handler.previewAsCanvas
                             );
                         }, handler.previewLoadDelay);
                     }
