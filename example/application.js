@@ -35,7 +35,7 @@ $(function () {
                     .closest('tr');
             },
             beforeSend: function (event, files, index, xhr, handler, callBack) {
-                handler.uploadRow.find('.file_upload_start button').click(function () {
+                handler.uploadRow.find('.file_upload_start button').click(function (e) {
                     $(this).remove();
                     $.getJSON(
                         'upload.php?file=' + handler.uploadRow.attr('data-file-id'),
@@ -60,7 +60,7 @@ $(function () {
         });
     });
     
-    $('#files .file_upload_delete button').live('click', function () {
+    $('#files .file_upload_delete button').live('click', function (e) {
         var row = $(this).closest('tr');
         $.ajax('upload.php?file=' + row.attr('data-file-id'), {
             type: 'DELETE',
@@ -73,7 +73,7 @@ $(function () {
         e.preventDefault();
     });
     
-    $('#file_upload_start, #file_upload_cancel, #file_upload_delete').click(function () {
+    $('#file_upload_start, #file_upload_cancel, #file_upload_delete').click(function (e) {
         $('#files .' + $(this).attr('id') + ' button:visible').click();
         e.preventDefault();
     });
