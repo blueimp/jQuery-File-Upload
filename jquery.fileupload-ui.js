@@ -1,5 +1,5 @@
 /*
- * jQuery File Upload User Interface Plugin 4.1.1
+ * jQuery File Upload User Interface Plugin 4.2
  * https://github.com/blueimp/jQuery-File-Upload
  *
  * Copyright 2010, Sebastian Tschan
@@ -50,7 +50,15 @@
                         uploadHandler.onCompleteAll(list);
                     }
                 });
-            });
+            }),
+            getUploadTable = function (handler) {
+                return typeof handler.uploadTable === func ?
+                    handler.uploadTable(handler) : handler.uploadTable;
+            },
+            getDownloadTable = function (handler) {
+                return typeof handler.downloadTable === func ?
+                    handler.downloadTable(handler) : handler.downloadTable;
+            };
         
         this.requestHeaders = {'Accept': 'application/json, text/javascript, */*; q=0.01'};
         this.dropZone = container;
@@ -120,14 +128,14 @@
         };
 
         this.addNode = function (parentNode, node, callBack) {
-            if (node) {
+            if (parentNode && node) {
                 node.css('display', 'none').appendTo(parentNode).fadeIn(function () {
                     if (typeof callBack === func) {
                         try {
                             callBack();
                         } catch (e) {
                             // Fix endless exception loop:
-                            $(this).stop();
+                            node.stop();
                             throw e;
                         }
                     }
@@ -140,16 +148,39 @@
         this.removeNode = function (node, callBack) {
             if (node) {
                 node.fadeOut(function () {
-                    $(this).remove();
+                    node.remove();
                     if (typeof callBack === func) {
                         try {
                             callBack();
                         } catch (e) {
                             // Fix endless exception loop:
-                            $(this).stop();
+                            node.stop();
                             throw e;
                         }
                     }
+                });
+            } else if (typeof callBack === func) {
+                callBack();
+            }
+        };
+        
+        this.replaceNode = function (oldNode, newNode, callBack) {
+            if (oldNode && newNode) {
+                oldNode.fadeOut(function () {
+                    newNode.css('display', 'none');
+                    oldNode.replaceWith(newNode);
+                    newNode.fadeIn(function () {
+                        if (typeof callBack === func) {
+                            try {
+                                callBack();
+                            } catch (e) {
+                                // Fix endless exception loop:
+                                oldNode.stop();
+                                newNode.stop();
+                                throw e;
+                            }
+                        }
+                    });
                 });
             } else if (typeof callBack === func) {
                 callBack();
@@ -166,8 +197,7 @@
         };
 
         this.hideProgressBarAll = function (callBack) {
-            if (uploadHandler.progressbarAll && !$(typeof uploadHandler.uploadTable === func ?
-                    uploadHandler.uploadTable(uploadHandler) : uploadHandler.uploadTable)
+            if (uploadHandler.progressbarAll && !$(getUploadTable(uploadHandler))
                     .find(uploadHandler.progressSelector + ':visible:first').length) {
                 uploadHandler.progressbarAll.fadeOut(callBack);
             } else if (typeof callBack === func) {
@@ -203,47 +233,6 @@
                 };
                 return progressbar;
             }
-        };
-        
-        this.initUploadRow = function (event, files, index, xhr, handler, callBack) {
-            var uploadRow = handler.uploadRow = (typeof handler.buildUploadRow === func ?
-                handler.buildUploadRow(files, index, handler) : null);
-            if (uploadRow) {
-                handler.progressbar = handler.initProgressBar(
-                    uploadRow.find(handler.progressSelector),
-                    0
-                );
-                uploadRow.find(handler.cancelSelector).click(function (e) {
-                    handler.cancelUpload(e, files, index, xhr, handler);
-                    return false;
-                });
-                uploadRow.find(handler.previewSelector).each(function () {
-                    var previewNode = $(this),
-                        file = files[index];
-                    if (file) {
-                        setTimeout(function () {
-                            handler.loadImage(
-                                file,
-                                function (img) {
-                                    handler.addNode(
-                                        previewNode,
-                                        $(img)
-                                    );
-                                },
-                                handler.previewMaxWidth,
-                                handler.previewMaxHeight,
-                                handler.imageTypes,
-                                !handler.previewAsCanvas
-                            );
-                        }, handler.previewLoadDelay);
-                    }
-                });
-            }
-            handler.addNode(
-                (typeof handler.uploadTable === func ? handler.uploadTable(handler) : handler.uploadTable),
-                uploadRow,
-                callBack
-            );
         };
         
         this.initUploadProgress = function (xhr, handler) {
@@ -293,15 +282,56 @@
                 uploadHandler.progressbarAll.fadeIn();
             }
         };
+
+        this.initUploadRow = function (event, files, index, xhr, handler) {
+            var uploadRow = handler.uploadRow = (typeof handler.buildUploadRow === func ?
+                handler.buildUploadRow(files, index, handler) : null);
+            if (uploadRow) {
+                handler.progressbar = handler.initProgressBar(
+                    uploadRow.find(handler.progressSelector),
+                    0
+                );
+                uploadRow.find(handler.cancelSelector).click(function (e) {
+                    handler.cancelUpload(e, files, index, xhr, handler);
+                    return false;
+                });
+                uploadRow.find(handler.previewSelector).each(function () {
+                    var previewNode = $(this),
+                        file = files[index];
+                    if (file) {
+                        setTimeout(function () {
+                            handler.loadImage(
+                                file,
+                                function (img) {
+                                    handler.addNode(
+                                        previewNode,
+                                        $(img)
+                                    );
+                                },
+                                handler.previewMaxWidth,
+                                handler.previewMaxHeight,
+                                handler.imageTypes,
+                                !handler.previewAsCanvas
+                            );
+                        }, handler.previewLoadDelay);
+                    }
+                });
+            }
+        };
         
         this.initUpload = function (event, files, index, xhr, handler, callBack) {
-            handler.initUploadRow(event, files, index, xhr, handler, function () {
-                if (typeof handler.beforeSend === func) {
-                    handler.beforeSend(event, files, index, xhr, handler, callBack);
-                } else {
-                    callBack();
+            handler.initUploadRow(event, files, index, xhr, handler);
+            handler.addNode(
+                getUploadTable(handler),
+                handler.uploadRow,
+                function () {
+                    if (typeof handler.beforeSend === func) {
+                        handler.beforeSend(event, files, index, xhr, handler, callBack);
+                    } else {
+                        callBack();
+                    }
                 }
-            });
+            );
             handler.initProgressBarAll();
         };
         
@@ -314,17 +344,12 @@
             }
         };
         
-        this.initDownloadRow = function (event, files, index, xhr, handler, callBack) {
+        this.initDownloadRow = function (event, files, index, xhr, handler) {
             var json, downloadRow;
             try {
                 json = handler.response = handler.parseResponse(xhr);
                 downloadRow = handler.downloadRow = (typeof handler.buildDownloadRow === func ?
                     handler.buildDownloadRow(json, handler) : null);
-                handler.addNode(
-                    (typeof handler.downloadTable === func ? handler.downloadTable(handler) : handler.downloadTable),
-                    downloadRow,
-                    callBack
-                );
             } catch (e) {
                 if (typeof handler.onError === func) {
                     handler.originalEvent = event;
@@ -336,15 +361,27 @@
         };
         
         this.onLoad = function (event, files, index, xhr, handler) {
-            multiLoader.push(Array.prototype.slice.call(arguments, 1));
-            handler.removeNode(handler.uploadRow, function () {
-                handler.initDownloadRow(event, files, index, xhr, handler, function () {
+            var uploadTable = getUploadTable(handler),
+                downloadTable = getDownloadTable(handler),
+                callBack = function () {
                     if (typeof handler.onComplete === func) {
                         handler.onComplete(event, files, index, xhr, handler);
                     }
                     multiLoader.complete();
+                };
+            multiLoader.push(Array.prototype.slice.call(arguments, 1));
+            handler.initDownloadRow(event, files, index, xhr, handler);
+            if (uploadTable && (!downloadTable || uploadTable.get(0) === downloadTable.get(0))) {
+                handler.replaceNode(handler.uploadRow, handler.downloadRow, callBack);
+            } else {
+                handler.removeNode(handler.uploadRow, function () {
+                    handler.addNode(
+                        downloadTable,
+                        handler.downloadRow,
+                        callBack
+                    );
                 });
-            });
+            }
         };
 
         this.dropZoneEnlarge = function () {

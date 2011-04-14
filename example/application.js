@@ -15,10 +15,9 @@
 $(function () {
     $('html').removeClass('no_js');
     
-    var filesTable = $('#files'),
-        fileUploadOptions = {
-            uploadTable: filesTable,
-            downloadTable: filesTable,
+    var fileUploadOptions = {
+            uploadTable: $('#files'),
+            progressAllNode: $('#file_upload_progress div'),
             buildUploadRow: function (files, index) {
                 var baseFileName = files[index].name.replace(/^.*[\/\\]/, ''),
                     encodedFileName = encodeURIComponent(baseFileName);
@@ -35,7 +34,6 @@ $(function () {
                     .attr('href', 'upload/' + encodedFileName)
                     .closest('tr');
             },
-            progressAllNode: $('#file_upload_progress div'),
             beforeSend: function (event, files, index, xhr, handler, callBack) {
                 handler.uploadRow.find('.file_upload_start button').click(function () {
                     $(this).remove();
@@ -55,6 +53,7 @@ $(function () {
         };
         
     $.getJSON('upload.php', function (files) {
+        var filesTable = $('#files');
         $.each(files, function (index, file) {
             fileUploadOptions.buildDownloadRow(file)
                 .appendTo(filesTable).fadeIn();
