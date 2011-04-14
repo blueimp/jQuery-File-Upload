@@ -1,5 +1,5 @@
 /*
- * jQuery File Upload Plugin 4.2
+ * jQuery File Upload Plugin 4.2.1
  * https://github.com/blueimp/jQuery-File-Upload
  *
  * Copyright 2010, Sebastian Tschan
@@ -828,7 +828,7 @@
         };
         
         this.upload = function (files) {
-            if (!$.isArray(files)) {
+            if (typeof files.length === undef) {
                 files = [files];
             }
             handleFiles(null, files);
@@ -846,13 +846,26 @@
             namespace = namespace ? namespace : defaultNamespace;
             var fileUpload = $(this).data(namespace);
             if (fileUpload) {
-                if (typeof option === 'string') {
-                    return fileUpload.option(option, value);
+                if (!option) {
+                    return fileUpload.options();
+                } else if (typeof option === 'string' && typeof value === undef) {
+                    return fileUpload.option(option);
                 }
-                return fileUpload.options(option);
             } else {
                 $.error('No FileUpload with namespace "' + namespace + '" assigned to this element');
             }
+            return this.each(function () {
+                var fu = $(this).data(namespace);
+                if (fu) {
+                    if (typeof option === 'string') {
+                        fu.option(option, value);
+                    } else {
+                        fu.options(option);
+                    }
+                } else {
+                    $.error('No FileUpload with namespace "' + namespace + '" assigned to this element');
+                }
+            });
         },
                 
         destroy: function (namespace) {
@@ -865,17 +878,18 @@
                     $.error('No FileUpload with namespace "' + namespace + '" assigned to this element');
                 }
             });
-
         },
         
         upload: function (files, namespace) {
             namespace = namespace ? namespace : defaultNamespace;
-            var fileUpload = $(this).data(namespace);
-            if (fileUpload) {
-                fileUpload.upload(files);
-            } else {
-                $.error('No FileUpload with namespace "' + namespace + '" assigned to this element');
-            }
+            return this.each(function () {
+                var fileUpload = $(this).data(namespace);
+                if (fileUpload) {
+                    fileUpload.upload(files);
+                } else {
+                    $.error('No FileUpload with namespace "' + namespace + '" assigned to this element');
+                }
+            });
         }
     };
     
@@ -885,7 +899,7 @@
         } else if (typeof method === 'object' || !method) {
             return methods.init.apply(this, arguments);
         } else {
-            $.error('Method ' + method + ' does not exist on jQuery.fileUpload');
+            $.error('Method "' + method + '" does not exist on jQuery.fileUpload');
         }
     };
     

@@ -1,5 +1,5 @@
 /*
- * jQuery File Upload User Interface Plugin 4.2
+ * jQuery File Upload User Interface Plugin 4.2.1
  * https://github.com/blueimp/jQuery-File-Upload
  *
  * Copyright 2010, Sebastian Tschan
@@ -455,7 +455,7 @@
         },
         
         option: function (option, value, namespace) {
-            if (typeof option === undef || (typeof option === 'string' && typeof value === undef)) {
+            if (!option || (typeof option === 'string' && typeof value === undef)) {
                 return $(this).fileUpload('option', option, value, namespace);
             }
             return this.each(function () {
@@ -467,6 +467,12 @@
             return this.each(function () {
                 $(this).fileUpload('destroy', namespace);
             });
+        },
+        
+        upload: function (files, namespace) {
+            return this.each(function () {
+                $(this).fileUpload('upload', files, namespace);
+            });
         }
     };
     
@@ -476,7 +482,7 @@
         } else if (typeof method === 'object' || !method) {
             return methods.init.apply(this, arguments);
         } else {
-            $.error('Method ' + method + ' does not exist on jQuery.fileUploadUI');
+            $.error('Method "' + method + '" does not exist on jQuery.fileUploadUI');
         }
     };
     
