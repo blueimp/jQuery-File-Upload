@@ -1,6 +1,6 @@
 @charset 'UTF-8';
 /*
- * jQuery File Upload Plugin CSS 4.0
+ * jQuery File Upload Plugin CSS 4.1
  * https://github.com/blueimp/jQuery-File-Upload
  *
  * Copyright 2010, Sebastian Tschan
@@ -10,7 +10,7 @@
  * http://creativecommons.org/licenses/MIT/
  */
 
-.file_upload {
+form.file_upload {
   position: relative;
   overflow: hidden;
   direction: ltr;
@@ -21,36 +21,37 @@
   -moz-border-radius: 10px;
   -webkit-border-radius: 10px;
   border-radius: 10px;
-  width: 200px;
-  height: 30px;
-  line-height: 30px;
+  width: 15em;
+  height: 2.5em;
+  line-height: 2.5em;
   background: palegreen;
   border: 1px solid limegreen;
 }
 
-.file_upload_small {
-  width: 200px;
-  height: 30px;
-  line-height: 30px;
+form.file_upload_small {
+  width: 15em;
+  height: 2.5em;
+  line-height: 2.5em;
   font-size: 100%;
   background: palegreen;
   border: 1px solid limegreen;
 }
 
-.file_upload_large {
+form.file_upload_large {
   width: 100%;
-  height: 150px;
-  line-height: 150px;
-  font-size: 20px;
+  height: 7em;
+  line-height: 7em;
+  font-size: 2em;
   background: palegreen;
   border: 1px solid limegreen;
 }
 
-.file_upload_highlight {
+form.file_upload_highlight,
+form.file_upload:hover {
   background: lawngreen;
 }
 
-.file_upload input {
+form.file_upload input {
   position: absolute;
   top: 0;
   right: 0;
@@ -65,19 +66,72 @@
   height: 100%;
 }
 
-:root .file_upload input {
+:root form.file_upload input {
   height: auto;
 }
 
-.file_upload button {
+form.file_upload button,
+.no-js .file_upload_label,
+.no-js .file_upload_overall_progress,
+.no-js .file_upload_buttons {
   display: none;
 }
 
-.file_upload_progress .ui-progressbar-value {
+.file_upload .file_upload_label,
+.file_upload .file_upload_overall_progress,
+.file_upload .file_upload_buttons {
+  display: block;
+}
+
+.file_upload img {
+  border: none;
+}
+
+.progressbar, .progressbar div {
+  border: 1px solid #aaa;
+  -moz-border-radius: 4px;
+  -webkit-border-radius: 4px;
+  border-radius: 4px;
+}
+
+.progressbar div {
+  width: 100%;
+  height: 100%;
+  margin: -1px;
+}
+
+.file_upload_progress .ui-progressbar-value,
+.file_upload_overall_progress .ui-progressbar-value,
+.progressbar div {
   background: url(pbar-ani.gif);
 }
 
 .file_upload_progress div {
   width: 150px;
-  height: 15px;
+  height: 17px;
+}
+
+.file_upload_overall_progress div {
+  width: 350px;
+  height: 17px;
+}
+
+.file_upload .file_name {
+  padding: 0 10px;
+  font-size: 1.1em;
+}
+
+.file_upload .file_size {
+  padding: 0 10px 0 0;
+  text-align: right;
+  font-size: 1.1em;
+}
+
+.file_upload .files,
+.file_upload_overall_progress {
+  margin: 10px 0;
+}
+
+.file_upload .ui-widget {
+  font-size: 1em;
 }

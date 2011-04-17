@@ -1,7 +1,7 @@
 <!DOCTYPE HTML>
 <!--
 /*
- * jQuery File Upload Plugin HTML Example 4.0
+ * jQuery File Upload Plugin HTML Example 4.1
  * https://github.com/blueimp/jQuery-File-Upload
  *
  * Copyright 2010, Sebastian Tschan
@@ -11,7 +11,7 @@
  * http://creativecommons.org/licenses/MIT/
  */
 -->
-<html lang="en" class="no_js">
+<html lang="en" class="no-js">
 <head>
 <meta charset="utf-8">
 <title>jQuery File Upload Example</title>
@@ -20,56 +20,40 @@
 <link rel="stylesheet" href="style.css">
 </head>
 <body>
-<form id="file_upload" action="." method="POST" enctype="multipart/form-data">
-    <input type="file" name="file" multiple>
-    <button type="submit">Upload</button>
-    <div class="js">Upload files</div>
-</form>
-<table id="files">
-    <tr id="template_upload" style="display:none;">
-        <td class="file_upload_preview"></td>
-        <td class="file_upload_name"></td>
-        <td class="file_upload_progress"><div></div></td>
-        <td class="file_upload_start">
-            <button class="ui-button ui-widget ui-state-default ui-corner-all" title="Start">
-                <span class="ui-icon ui-icon-circle-arrow-e">Start</span>
-            </button>
-        </td>
-        <td class="file_upload_cancel">
-            <button class="ui-button ui-widget ui-state-default ui-corner-all" title="Cancel">
-                <span class="ui-icon ui-icon-cancel">Cancel</span>
-            </button>
-        </td>
-    </tr>
-    <tr id="template_download" style="display:none;">
-        <td class="file_upload_preview"></td>
-        <td class="file_upload_name"><a></a></td>
-        <td class="file_upload_delete" colspan="3">
-            <button class="ui-button ui-widget ui-state-default ui-corner-all" title="Delete">
-                <span class="ui-icon ui-icon-trash">Delete</span>
-            </button>
-        </td>
-    </tr>
-</table>
-<div id="file_upload_progress" class="js file_upload_progress"><div style="display:none;"></div></div>
-<div class="js">
-    <button id="file_upload_start" class="ui-button ui-state-default ui-corner-all ui-button-text-icon-primary">
-        <span class="ui-button-icon-primary ui-icon ui-icon-circle-arrow-e"></span>
-        <span class="ui-button-text">Start All</span>
-    </button>
-    <button id="file_upload_cancel" class="ui-button ui-state-default ui-corner-all ui-button-text-icon-primary">
-        <span class="ui-button-icon-primary ui-icon ui-icon-cancel"></span>
-        <span class="ui-button-text">Cancel All</span>
-    </button>
-    <button id="file_upload_delete" class="ui-button ui-state-default ui-corner-all ui-button-text-icon-primary">
-        <span class="ui-button-icon-primary ui-icon ui-icon-trash"></span>
-        <span class="ui-button-text">Delete All</span>
-    </button>
+<div id="file_upload">
+    <form action="." method="POST" enctype="multipart/form-data">
+        <input type="file" name="file" multiple>
+        <button type="submit">Upload</button>
+        <div class="file_upload_label">Upload files</div>
+    </form>
+    <table class="files">
+        <tr class="file_upload_template" style="display:none;">
+            <td class="file_upload_preview"></td>
+            <td class="file_name"></td>
+            <td class="file_size"></td>
+            <td class="file_upload_progress"><div></div></td>
+            <td class="file_upload_start"><button>Start</button></td>
+            <td class="file_upload_cancel"><button>Cancel</button></td>
+        </tr>
+        <tr class="file_download_template" style="display:none;">
+            <td class="file_download_preview"></td>
+            <td class="file_name"><a></a></td>
+            <td class="file_size"></td>
+            <td class="file_download_delete" colspan="3"><button>Delete</button></td>
+        </tr>
+    </table>
+    <div class="file_upload_overall_progress"><div style="display:none;"></div></div>
+    <div class="file_upload_buttons">
+        <button class="file_upload_start">Start All</button> 
+        <button class="file_upload_cancel">Cancel All</button> 
+        <button class="file_download_delete">Delete All</button>
+    </div>
 </div>
 <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.5.2/jquery.min.js"></script>
 <script src="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.11/jquery-ui.min.js"></script>
 <script src="../jquery.fileupload.js"></script>
 <script src="../jquery.fileupload-ui.js"></script>
+<script src="jquery.fileupload-uix.js"></script>
 <script src="application.js"></script>
 </body> 
 </html>

@@ -1,5 +1,5 @@
 /*
- * jQuery File Upload User Interface Plugin 4.2.2
+ * jQuery File Upload User Interface Plugin 4.3
  * https://github.com/blueimp/jQuery-File-Upload
  *
  * Copyright 2010, Sebastian Tschan
@@ -227,12 +227,26 @@
                     value: value
                 });
             } else {
-                var progressbar = $('<progress value="' + value + '" max="100"/>').appendTo(node);
-                progressbar.progressbar = function (key, value) {
-                    progressbar.attr('value', value);
-                };
-                return progressbar;
+                node.addClass('progressbar')
+                    .append($('<div/>').css('width', value + '%'))
+                    .progressbar = function (key, value) {
+                        return this.each(function () {
+                            if (key === 'destroy') {
+                                $(this).removeClass('progressbar').empty();
+                            } else {
+                                $(this).children().css('width', value + '%');
+                            }
+                        });
+                    };
+                return node;
             }
+        };
+        
+        this.destroyProgressBar = function (node) {
+            if (!node || !node.length) {
+                return null;
+            }
+            return node.progressbar('destroy');
         };
         
         this.initUploadProgress = function (xhr, handler) {
@@ -244,22 +258,28 @@
             }
         };
 
+        this.initUploadProgressAll = function () {
+            if (uploadHandler.progressbarAll && uploadHandler.progressbarAll.is(':hidden')) {
+                uploadHandler.progressbarAll.fadeIn();
+            }
+        };
+
         this.onSend = function (event, files, index, xhr, handler) {
             handler.initUploadProgress(xhr, handler);
         };
 
-        this.onProgressAll = function (event, list) {
-            if (uploadHandler.progressbarAll && event.lengthComputable) {
-                uploadHandler.progressbarAll.progressbar(
+        this.onProgress = function (event, files, index, xhr, handler) {
+            if (handler.progressbar && event.lengthComputable) {
+                handler.progressbar.progressbar(
                     'value',
                     parseInt(event.loaded / event.total * 100, 10)
                 );
             }
         };
 
-        this.onProgress = function (event, files, index, xhr, handler) {
-            if (handler.progressbar && event.lengthComputable) {
-                handler.progressbar.progressbar(
+        this.onProgressAll = function (event, list) {
+            if (uploadHandler.progressbarAll && event.lengthComputable) {
+                uploadHandler.progressbarAll.progressbar(
                     'value',
                     parseInt(event.loaded / event.total * 100, 10)
                 );
@@ -278,9 +298,10 @@
                     0
                 );
             }
-            if (uploadHandler.progressbarAll && uploadHandler.progressbarAll.is(':hidden')) {
-                uploadHandler.progressbarAll.fadeIn();
-            }
+        };
+        
+        this.destroyProgressBarAll = function () {
+            uploadHandler.destroyProgressBar(uploadHandler.progressbarAll);
         };
 
         this.initUploadRow = function (event, files, index, xhr, handler) {
@@ -332,7 +353,7 @@
                     }
                 }
             );
-            handler.initProgressBarAll();
+            handler.initUploadProgressAll();
         };
         
         this.parseResponse = function (xhr) {
@@ -444,13 +465,22 @@
             }
         };
 
+        this.init = function () {
+            uploadHandler.initProgressBarAll();
+        };
+        
+        this.destroy = function () {
+            uploadHandler.destroyProgressBarAll();
+        };
+
         $.extend(this, options);
     };
 
     methods = {
         init : function (options) {
             return this.each(function () {
-                $(this).fileUpload(new UploadHandler($(this), options));
+                $(this).fileUpload(new UploadHandler($(this), options))
+                    .fileUploadUI('option', 'init', undefined, options.namespace)();
             });
         },
         
@@ -465,6 +495,7 @@
             
         destroy : function (namespace) {
             return this.each(function () {
+                $(this).fileUploadUI('option', 'destroy', undefined, namespace)();
                 $(this).fileUpload('destroy', namespace);
             });
         },
