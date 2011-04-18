@@ -1,5 +1,5 @@
 /*
- * jQuery File Upload User Interface Extended Plugin 4.3.1
+ * jQuery File Upload User Interface Extended Plugin 4.3.2
  * https://github.com/blueimp/jQuery-File-Upload
  *
  * Copyright 2010, Sebastian Tschan
@@ -178,22 +178,34 @@
             }
         };
 
-        this.initDeleteHandler = function () {
-            container.find('.file_download_delete button').live('click', function (e) {
-                var row = $(this).closest('tr');
-                $.ajax({
-                    url: uploadHandler.url + '?file=' + encodeURIComponent(
-                        row.attr('data-id') || row.attr('data-name')
-                    ),
-                    type: 'DELETE',
-                    success: function () {
-                        row.fadeOut(function () {
-                            row.remove();
-                        });
-                    }
+        this.initDownloadHandler = function () {
+            // Open download dialogs via iframes, to prevent aborting current uploads:
+            uploadHandler.downloadTable.find('a:not([target="_blank"])')
+                .live('click', function () {
+                    $('<iframe style="display:none;"/>')
+                        .attr('src', this.href)
+                        .appendTo(container);
+                    return false;
                 });
-                e.preventDefault();
-            });
+        };
+
+        this.initDeleteHandler = function () {
+            uploadHandler.downloadTable.find('.file_download_delete button')
+                .live('click', function (e) {
+                    var row = $(this).closest('tr');
+                    $.ajax({
+                        url: uploadHandler.url + '?file=' + encodeURIComponent(
+                            row.attr('data-id') || row.attr('data-name')
+                        ),
+                        type: 'DELETE',
+                        success: function () {
+                            row.fadeOut(function () {
+                                row.remove();
+                            });
+                        }
+                    });
+                    e.preventDefault();
+                });
         };
         
         this.initMultiButtons = function () {
@@ -231,6 +243,7 @@
         };
 
         this.initExtended = function () {
+            uploadHandler.initDownloadHandler();
             uploadHandler.initDeleteHandler();
             uploadHandler.initMultiButtons();
             if (uploadHandler.loadFiles) {
@@ -239,7 +252,7 @@
         };
 
         this.destroyExtended = function () {
-            container.find('.file_download_delete button').die('click');
+            uploadHandler.downloadTable.find('.file_download_delete button').die('click');
             uploadHandler.multiButtons.find('.file_upload_start:first').button('destroy').show();
             uploadHandler.multiButtons.find('.file_upload_cancel:first').button('destroy');
             uploadHandler.multiButtons.find('.file_download_delete:first').button('destroy');
