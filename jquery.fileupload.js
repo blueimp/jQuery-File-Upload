@@ -1,5 +1,5 @@
 /*
- * jQuery File Upload Plugin 4.2.1
+ * jQuery File Upload Plugin 4.2.2
  * https://github.com/blueimp/jQuery-File-Upload
  *
  * Copyright 2010, Sebastian Tschan
@@ -95,7 +95,8 @@
                 withCredentials: false,
                 forceIframeUpload: false,
                 sequentialUploads: false,
-                maxChunkSize: null
+                maxChunkSize: null,
+                maxFileReaderSize: 50000000
             },
             multiLoader = new MultiLoader(function (list) {
                 if (typeof settings.onLoadAll === func) {
@@ -228,7 +229,7 @@
             handleLoadEvent = function (event, files, index, xhr, settings) {
                 var progressEvent;
                 if (isChunkedUpload(settings)) {
-                    settings.uploadedBytes = settings.uploadedBytes + settings.chunkSize;
+                    settings.uploadedBytes += settings.chunkSize;
                     progressEvent = createProgressEvent(
                         true,
                         settings.uploadedBytes,
@@ -402,12 +403,9 @@
             },
 
             loadFileContent = function (file, callBack) {
-                var fileReader = new FileReader();
-                fileReader.onload = function (e) {
-                    file.content = e.target.result;
-                    callBack();
-                };
-                fileReader.readAsBinaryString(file);
+                file.reader = new FileReader();
+                file.reader.onload = callBack;
+                file.reader.readAsBinaryString(file);
             },
 
             utf8encode = function (str) {
@@ -417,7 +415,8 @@
             buildMultiPartFormData = function (boundary, files, filesFieldName, fields) {
                 var doubleDash = '--',
                     crlf     = '\r\n',
-                    formData = '';
+                    formData = '',
+                    buffer = [];
                 $.each(fields, function (index, field) {
                     formData += doubleDash + boundary + crlf +
                         'Content-Disposition: form-data; name="' +
@@ -430,11 +429,15 @@
                         'Content-Disposition: form-data; name="' +
                         utf8encode(filesFieldName) +
                         '"; filename="' + utf8encode(file.name) + '"' + crlf +
-                        'Content-Type: ' + utf8encode(file.type) + crlf + crlf +
-                        file.content + crlf;
+                        'Content-Type: ' + utf8encode(file.type) + crlf + crlf;
+                    buffer.push(formData);
+                    buffer.push(file.reader.result);
+                    delete file.reader;
+                    formData = crlf;
                 });
                 formData += doubleDash + boundary + doubleDash + crlf;
-                return formData;
+                buffer.push(formData);
+                return buffer.join('');
             },
             
             fileReaderUpload = function (files, xhr, settings) {
@@ -527,18 +530,6 @@
                 }
             },
 
-            handleFiles = function (event, files, input, form) {
-                var i;
-                files = Array.prototype.slice.call(files, 0);
-                if (settings.multiFileRequest && settings.multipart && files.length) {
-                    handleUpload(event, files, input, form);
-                } else {
-                    for (i = 0; i < files.length; i += 1) {
-                        handleUpload(event, files, input, form, i);
-                    }
-                }
-            },
-
             handleLegacyGlobalProgress = function (event, files, index, iframe, settings) {
                 var total = files[index].size ? files[index].size : 1,
                     progressEvent = createProgressEvent(true, total, total);
@@ -606,7 +597,7 @@
                             sequenceHandler.next();
                             // Fix for IE endless progress bar activity bug
                             // (happens on form submits to iframe targets):
-                            $('<iframe src="javascript:false;" style="display:none"></iframe>')
+                            $('<iframe src="javascript:false;" style="display:none;"></iframe>')
                                 .appendTo(form).remove();
                         });
                     form
@@ -631,7 +622,7 @@
 
             handleLegacyUpload = function (event, input, form) {
                 // javascript:false as iframe src prevents warning popups on HTTPS in IE6:
-                var iframe = $('<iframe src="javascript:false;" style="display:none" name="iframe_' +
+                var iframe = $('<iframe src="javascript:false;" style="display:none;" name="iframe_' +
                     settings.namespace + '_' + (new Date()).getTime() + '"></iframe>'),
                     uploadSettings = $.extend({}, settings),
                     files = event.target.files;
@@ -659,6 +650,41 @@
                         legacyUpload(event, files, input, form, iframe, uploadSettings);
                     }
                 }).appendTo(form);
+            },
+
+            canHandleXHRUploadSize = function (files) {
+                var bytes = 0,
+                    totalBytes = 0,
+                    i;
+                if (settings.multipart && typeof FormData === undef) {
+                    for (i = 0; i < files.length; i += 1) {
+                        bytes = files[i].size;
+                        if (bytes > settings.maxFileReaderSize) {
+                            return false;
+                        }
+                        totalBytes += bytes;
+                    }
+                    if (settings.multiFileRequest && totalBytes > settings.maxFileReaderSize) {
+                        return false;
+                    }
+                }
+                return true;
+            },
+
+            handleFiles = function (event, files, input, form) {
+                if (!canHandleXHRUploadSize(files)) {
+                    handleLegacyUpload(event, input, form);
+                    return;
+                }
+                var i;
+                files = Array.prototype.slice.call(files, 0);
+                if (settings.multiFileRequest && settings.multipart && files.length) {
+                    handleUpload(event, files, input, form);
+                } else {
+                    for (i = 0; i < files.length; i += 1) {
+                        handleUpload(event, files, input, form, i);
+                    }
+                }
             },
             
             initUploadForm = function () {
