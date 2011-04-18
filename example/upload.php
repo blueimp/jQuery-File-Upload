@@ -1,6 +1,6 @@
 <?php
 /*
- * jQuery File Upload Plugin PHP Example 4.1
+ * jQuery File Upload Plugin PHP Example 4.1.1
  * https://github.com/blueimp/jQuery-File-Upload
  *
  * Copyright 2010, Sebastian Tschan
@@ -108,12 +108,13 @@ class UploadHandler
     }
     
     public function post () {
-        $headers = getallheaders();
         $file_request = isset($_FILES['file']) ? $_FILES['file'] : null;
         $uploaded_file = $file_request ? $file_request['tmp_name'] : null;
         $file = new stdClass();
-        $file->name = basename(isset($headers['X-File-Name']) ? $headers['X-File-Name'] : $file_request['name']);
-        $file->size = intval(isset($headers['X-File-Size']) ? $headers['X-File-Size'] : $file_request['size']);
+        $file->name = basename(isset($_SERVER['HTTP_X_FILE_NAME']) ?
+            $_SERVER['HTTP_X_FILE_NAME'] : $file_request['name']);
+        $file->size = intval(isset($_SERVER['HTTP_X_FILE_SIZE']) ?
+            $_SERVER['HTTP_X_FILE_SIZE'] : $file_request['size']);
         if ($file->name[0] === '.') {
             $file->name = substr($file->name, 1);
         }
@@ -146,7 +147,8 @@ class UploadHandler
             }
             $file->size = $file_size;
         }
-        if (isset($headers['X-Requested-With']) && $headers['X-Requested-With'] === 'XMLHttpRequest') {
+        if (isset($_SERVER['HTTP_X_REQUESTED_WITH']) &&
+                $_SERVER['HTTP_X_REQUESTED_WITH'] === 'XMLHttpRequest') {
             header('Content-type: application/json');
         }
         echo json_encode($file);
