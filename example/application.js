@@ -1,5 +1,5 @@
 /*
- * jQuery File Upload Plugin JS Example 4.3
+ * jQuery File Upload Plugin JS Example 4.3.1
  * https://github.com/blueimp/jQuery-File-Upload
  *
  * Copyright 2010, Sebastian Tschan
@@ -16,6 +16,8 @@ $(function () {
         url: 'upload.php',
         uploadDir: 'files/',
         thumbnailsDir: 'thumbnails/',
-        autoUpload: false
+        autoUpload: false,
+        maxChunkSize: 10000000,
+        continueAbortedUploads: true
     });
 });
