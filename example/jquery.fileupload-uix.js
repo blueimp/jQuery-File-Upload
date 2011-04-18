@@ -21,16 +21,24 @@
     if (typeof $().button !== 'function') {
         $.fn.button = function (options) {
             return this.each(function () {
-                $(this)
-                    .addClass('ui-button ui-widget ui-state-default ui-corner-all')
-                    .addClass(
-                        options.text === false ? 'ui-button-icon-only' : 'ui-button-text-icon-primary'
-                    )
-                    .html($('<span class="ui-button-text"/>').text($(this).text()))
-                    .prepend(
-                        $('<span class="ui-button-icon-primary ui-icon"/>')
-                            .addClass(options.icons.primary)
-                    );
+                if (options === 'destroy') {
+                    $(this).removeClass(
+                        'ui-button ui-widget ui-state-default ui-corner-all' +
+                            ' ui-button-icon-only ui-button-text-icon-primary'
+                    ).html($(this).children('.ui-button-text').text());
+                } else {
+                    $(this)
+                        .addClass('ui-button ui-widget ui-state-default ui-corner-all')
+                        .addClass(
+                            options.text === false ? 'ui-button-icon-only' :
+                                'ui-button-text-icon-primary'
+                        )
+                        .html($('<span class="ui-button-text"/>').text($(this).text()))
+                        .prepend(
+                            $('<span class="ui-button-icon-primary ui-icon"/>')
+                                .addClass(options.icons.primary)
+                        );
+                }
             });
         };
     }
