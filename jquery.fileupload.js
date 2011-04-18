@@ -1,5 +1,5 @@
 /*
- * jQuery File Upload Plugin 4.2.2
+ * jQuery File Upload Plugin 4.3
  * https://github.com/blueimp/jQuery-File-Upload
  *
  * Copyright 2010, Sebastian Tschan
@@ -13,6 +13,7 @@
 /*global XMLHttpRequestUpload, File, FileReader, FormData, ProgressEvent, unescape, jQuery, upload */
 
 (function ($) {
+    'use strict';
 
     var defaultNamespace = 'file_upload',
         undef = 'undefined',

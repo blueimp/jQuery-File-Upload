@@ -13,6 +13,7 @@
 /*global jQuery, FileReader, URL, webkitURL */
 
 (function ($) {
+    'use strict';
 
     var undef = 'undefined',
         func = 'function',

@@ -13,6 +13,7 @@
 /*global jQuery */
 
 (function ($) {
+    'use strict';
 
     var UploadHandler,
         methods;
