@@ -49,6 +49,7 @@
         this.uploadDir = this.thumbnailsDir = null;
         this.autoUpload = true;
         this.continueAbortedUploads = false;
+        this.forceIframeDownload = false;
         this.dropZone = container.find('form:first');
         this.uploadTable = container.find('.files:first');
         this.downloadTable = this.uploadTable;
@@ -179,14 +180,16 @@
         };
 
         this.initDownloadHandler = function () {
-            // Open download dialogs via iframes, to prevent aborting current uploads:
-            uploadHandler.downloadTable.find('a:not([target="_blank"])')
-                .live('click', function () {
-                    $('<iframe style="display:none;"/>')
-                        .attr('src', this.href)
-                        .appendTo(container);
-                    return false;
-                });
+            if (uploadHandler.forceIframeDownload) {
+                // Open download dialogs via iframes, to prevent aborting current uploads:
+                uploadHandler.downloadTable.find('a:not([target="_blank"])')
+                    .live('click', function (e) {
+                        $('<iframe style="display:none;"/>')
+                            .attr('src', this.href)
+                            .appendTo(container);
+                        e.preventDefault();
+                    });
+            }
         };
 
         this.initDeleteHandler = function () {
