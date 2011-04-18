@@ -20,6 +20,9 @@ $thumbnail_max_width = $thumbnail_max_height = 80;
 class UploadHandler
 {
     private $upload_dir;
+    private $thumbnails_dir;
+    private $thumbnail_max_width;
+    private $thumbnail_max_height;
     
     function __construct($upload_dir, $thumbnails_dir, $thumbnail_max_width, $thumbnail_max_height) {
         $this->upload_dir = $upload_dir;
