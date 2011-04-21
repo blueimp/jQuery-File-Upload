@@ -1,6 +1,6 @@
 <?php
 /*
- * jQuery File Upload Plugin PHP Example 4.2
+ * jQuery File Upload Plugin PHP Example 4.2.1
  * https://github.com/blueimp/jQuery-File-Upload
  *
  * Copyright 2010, Sebastian Tschan
@@ -27,7 +27,9 @@ $options = array(
 class UploadHandler
 {
     private $upload_dir;
+    private $upload_url;
     private $thumbnails_dir;
+    private $thumbnails_url;
     private $thumbnail_max_width;
     private $thumbnail_max_height;
     private $field_name;
@@ -147,7 +149,8 @@ class UploadHandler
     }
     
     public function get() {
-        $file_name = isset($_REQUEST['file']) ? basename(stripslashes($_REQUEST['file'])) : null; 
+        $file_name = isset($_REQUEST['file']) ?
+            basename(stripslashes($_REQUEST['file'])) : null; 
         if ($file_name) {
             $info = $this->get_file_object($file_name);
         } else {
@@ -180,12 +183,12 @@ class UploadHandler
             } else {
                 $info = $this->handle_file_upload(
                     $upload['tmp_name'],
-                    isset($_SERVER['HTTP_X_FILE_NAME']) ? $_SERVER['HTTP_X_FILE_NAME'] :
-                        $upload['name'],
-                    isset($_SERVER['HTTP_X_FILE_SIZE']) ? $_SERVER['HTTP_X_FILE_SIZE'] :
-                        $upload['size'],
-                    isset($_SERVER['HTTP_X_FILE_TYPE']) ? $_SERVER['HTTP_X_FILE_TYPE'] :
-                        $upload['type']
+                    isset($_SERVER['HTTP_X_FILE_NAME']) ?
+                        $_SERVER['HTTP_X_FILE_NAME'] : $upload['name'],
+                    isset($_SERVER['HTTP_X_FILE_SIZE']) ?
+                        $_SERVER['HTTP_X_FILE_SIZE'] : $upload['size'],
+                    isset($_SERVER['HTTP_X_FILE_TYPE']) ?
+                        $_SERVER['HTTP_X_FILE_TYPE'] : $upload['type']
                 );
             }
         } else {
@@ -201,7 +204,8 @@ class UploadHandler
     }
     
     public function delete() {
-        $file_name = isset($_REQUEST['file']) ? basename(stripslashes($_REQUEST['file'])) : null;
+        $file_name = isset($_REQUEST['file']) ?
+            basename(stripslashes($_REQUEST['file'])) : null;
         $file_path = $this->upload_dir.$file_name;
         $thumbnail_path = $this->thumbnails_dir.$file_name;
         $success = is_file($file_path) && $file_name[0] !== '.' && unlink($file_path);
