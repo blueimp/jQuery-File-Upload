@@ -1,7 +1,7 @@
 <!DOCTYPE HTML>
 <!--
 /*
- * jQuery File Upload Plugin HTML Example 4.1
+ * jQuery File Upload Plugin HTML Example 4.1.1
  * https://github.com/blueimp/jQuery-File-Upload
  *
  * Copyright 2010, Sebastian Tschan
@@ -21,8 +21,8 @@
 </head>
 <body>
 <div id="file_upload">
-    <form action="." method="POST" enctype="multipart/form-data">
-        <input type="file" name="file" multiple>
+    <form action="upload.php" method="POST" enctype="multipart/form-data">
+        <input type="file" name="file[]" multiple>
         <button type="submit">Upload</button>
         <div class="file_upload_label">Upload files</div>
     </form>

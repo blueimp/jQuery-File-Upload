@@ -1,6 +1,6 @@
 <?php
 /*
- * jQuery File Upload Plugin PHP Example 4.1.1
+ * jQuery File Upload Plugin PHP Example 4.2
  * https://github.com/blueimp/jQuery-File-Upload
  *
  * Copyright 2010, Sebastian Tschan
@@ -13,9 +13,16 @@
 error_reporting(E_ALL | E_STRICT);
 
 $script_dir = dirname(__FILE__);
-$upload_dir = $script_dir.'/files/';
-$thumbnails_dir = $script_dir.'/thumbnails/';
-$thumbnail_max_width = $thumbnail_max_height = 80;
+$script_dir_url = dirname($_SERVER['PHP_SELF']);
+$options = array(
+    'upload_dir' => $script_dir.'/files/',
+    'upload_url' => $script_dir_url.'/files/',
+    'thumbnails_dir' => $script_dir.'/thumbnails/',
+    'thumbnails_url' => $script_dir_url.'/thumbnails/',
+    'thumbnail_max_width' => 80,
+    'thumbnail_max_height' => 80,
+    'field_name' => 'file'
+);
 
 class UploadHandler
 {
@@ -23,27 +30,33 @@ class UploadHandler
     private $thumbnails_dir;
     private $thumbnail_max_width;
     private $thumbnail_max_height;
+    private $field_name;
     
-    function __construct($upload_dir, $thumbnails_dir, $thumbnail_max_width, $thumbnail_max_height) {
-        $this->upload_dir = $upload_dir;
-        $this->thumbnails_dir = $thumbnails_dir;
-        $this->thumbnail_max_width = $thumbnail_max_width;
-        $this->thumbnail_max_height = $thumbnail_max_height;
+    function __construct($options) {
+        $this->upload_dir = $options['upload_dir'];
+        $this->upload_url = $options['upload_url'];
+        $this->thumbnails_dir = $options['thumbnails_dir'];
+        $this->thumbnails_url = $options['thumbnails_url'];
+        $this->thumbnail_max_width = $options['thumbnail_max_width'];
+        $this->thumbnail_max_height = $options['thumbnail_max_height'];
+        $this->field_name = $options['field_name'];
     }
     
-    private function get_file_object ($file_name) {
+    private function get_file_object($file_name) {
         $file_path = $this->upload_dir.$file_name;
         if (is_file($file_path) && $file_name[0] !== '.') {
             $file = new stdClass();
             $file->name = $file_name;
             $file->size = filesize($file_path);
-            $file->thumbnail = is_file($this->thumbnails_dir.$file_name);
+            $file->url = $this->upload_url.rawurlencode($file->name);
+            $file->thumbnail = is_file($this->thumbnails_dir.$file_name) ?
+                $this->thumbnails_url.rawurlencode($file->name) : null;
             return $file;
         }
         return null;
     }
 
-    private function create_thumbnail ($file_name) {
+    private function create_thumbnail($file_name) {
         $file_path = $this->upload_dir.$file_name;
         $thumbnail_path = $this->thumbnails_dir.$file_name;
         list($img_width, $img_height) = @getimagesize($file_path);
@@ -92,29 +105,10 @@ class UploadHandler
         return $success;
     }
     
-    public function get () {
-        $file_name = isset($_REQUEST['file']) ? basename(stripslashes($_REQUEST['file'])) : null; 
-        if ($file_name) {
-            $info = $this->get_file_object($file_name);
-        } else {
-            $info = array_values(array_filter(array_map(
-                array($this, 'get_file_object'),
-                scandir($this->upload_dir)
-            )));
-        }
-        header('Cache-Control: no-cache, must-revalidate');
-        header('Content-type: application/json');
-        echo json_encode($info);
-    }
-    
-    public function post () {
-        $file_request = isset($_FILES['file']) ? $_FILES['file'] : null;
-        $uploaded_file = $file_request ? $file_request['tmp_name'] : null;
+    private function handle_file_upload($uploaded_file, $name, $size, $type) {
         $file = new stdClass();
-        $file->name = basename(isset($_SERVER['HTTP_X_FILE_NAME']) ?
-            $_SERVER['HTTP_X_FILE_NAME'] : $file_request['name']);
-        $file->size = intval(isset($_SERVER['HTTP_X_FILE_SIZE']) ?
-            $_SERVER['HTTP_X_FILE_SIZE'] : $file_request['size']);
+        $file->name = basename($name);
+        $file->size = intval($size);
         if ($file->name[0] === '.') {
             $file->name = substr($file->name, 1);
         }
@@ -143,18 +137,70 @@ class UploadHandler
             }
             $file_size = filesize($file_path);
             if ($file_size === $file->size) {
-                $file->thumbnail = $this->create_thumbnail($file->name);
+                $file->url = $this->upload_url.rawurlencode($file->name);
+                $file->thumbnail = $this->create_thumbnail($file->name) ?
+                    $this->thumbnails_url.rawurlencode($file->name) : null;
             }
             $file->size = $file_size;
+        }
+        return $file;
+    }
+    
+    public function get() {
+        $file_name = isset($_REQUEST['file']) ? basename(stripslashes($_REQUEST['file'])) : null; 
+        if ($file_name) {
+            $info = $this->get_file_object($file_name);
+        } else {
+            $info = array_values(array_filter(array_map(
+                array($this, 'get_file_object'),
+                scandir($this->upload_dir)
+            )));
+        }
+        header('Cache-Control: no-cache, must-revalidate');
+        header('Content-type: application/json');
+        echo json_encode($info);
+    }
+    
+    public function post() {
+        if (isset($_FILES[$this->field_name])) {
+            $upload = $_FILES[$this->field_name];
+            if (is_array($upload['name'])) {
+                $info = array();
+                foreach ($upload['name'] as $index => $value) {
+                    $info[] = $this->handle_file_upload(
+                        $upload['tmp_name'][$index],
+                        $upload['name'][$index],
+                        $upload['size'][$index],
+                        $upload['type'][$index]
+                    );
+                }
+                if (count($info) === 1) {
+                    $info = $info[0];
+                }
+            } else {
+                $info = $this->handle_file_upload(
+                    $upload['tmp_name'],
+                    isset($_SERVER['HTTP_X_FILE_NAME']) ? $_SERVER['HTTP_X_FILE_NAME'] :
+                        $upload['name'],
+                    isset($_SERVER['HTTP_X_FILE_SIZE']) ? $_SERVER['HTTP_X_FILE_SIZE'] :
+                        $upload['size'],
+                    isset($_SERVER['HTTP_X_FILE_TYPE']) ? $_SERVER['HTTP_X_FILE_TYPE'] :
+                        $upload['type']
+                );
+            }
+        } else {
+            $info = null;
         }
         if (isset($_SERVER['HTTP_X_REQUESTED_WITH']) &&
                 $_SERVER['HTTP_X_REQUESTED_WITH'] === 'XMLHttpRequest') {
             header('Content-type: application/json');
+        } else {
+            header('Content-type: text/plain');
         }
-        echo json_encode($file);
+        echo json_encode($info);
     }
     
-    public function delete () {
+    public function delete() {
         $file_name = isset($_REQUEST['file']) ? basename(stripslashes($_REQUEST['file'])) : null;
         $file_path = $this->upload_dir.$file_name;
         $thumbnail_path = $this->thumbnails_dir.$file_name;
@@ -167,7 +213,7 @@ class UploadHandler
     }
 }
 
-$upload_handler = new UploadHandler($upload_dir, $thumbnails_dir, $thumbnail_max_width, $thumbnail_max_height);
+$upload_handler = new UploadHandler($options);
 
 switch ($_SERVER['REQUEST_METHOD']) {
     case 'HEAD':

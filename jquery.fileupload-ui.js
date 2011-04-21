@@ -1,5 +1,5 @@
 /*
- * jQuery File Upload User Interface Plugin 4.3
+ * jQuery File Upload User Interface Plugin 4.3.1
  * https://github.com/blueimp/jQuery-File-Upload
  *
  * Copyright 2010, Sebastian Tschan
@@ -129,7 +129,7 @@
         };
 
         this.addNode = function (parentNode, node, callBack) {
-            if (parentNode && node) {
+            if (parentNode && parentNode.length && node && node.length) {
                 node.css('display', 'none').appendTo(parentNode).fadeIn(function () {
                     if (typeof callBack === func) {
                         try {
@@ -147,7 +147,7 @@
         };
 
         this.removeNode = function (node, callBack) {
-            if (node) {
+            if (node && node.length) {
                 node.fadeOut(function () {
                     node.remove();
                     if (typeof callBack === func) {
@@ -305,6 +305,30 @@
             uploadHandler.destroyProgressBar(uploadHandler.progressbarAll);
         };
 
+        this.loadPreviewImage = function (files, index, handler) {
+            index = index || 0;
+            handler.uploadRow.find(handler.previewSelector).each(function () {
+                var previewNode = $(this),
+                    file = files[index];
+                setTimeout(function () {
+                    handler.loadImage(
+                        file,
+                        function (img) {
+                            handler.addNode(
+                                previewNode,
+                                $(img)
+                            );
+                        },
+                        handler.previewMaxWidth,
+                        handler.previewMaxHeight,
+                        handler.imageTypes,
+                        !handler.previewAsCanvas
+                    );
+                }, handler.previewLoadDelay);
+                index += 1;
+            });
+        };
+
         this.initUploadRow = function (event, files, index, xhr, handler) {
             var uploadRow = handler.uploadRow = (typeof handler.buildUploadRow === func ?
                 handler.buildUploadRow(files, index, handler) : null);
@@ -317,27 +341,7 @@
                     handler.cancelUpload(e, files, index, xhr, handler);
                     e.preventDefault();
                 });
-                uploadRow.find(handler.previewSelector).each(function () {
-                    var previewNode = $(this),
-                        file = files[index];
-                    if (file) {
-                        setTimeout(function () {
-                            handler.loadImage(
-                                file,
-                                function (img) {
-                                    handler.addNode(
-                                        previewNode,
-                                        $(img)
-                                    );
-                                },
-                                handler.previewMaxWidth,
-                                handler.previewMaxHeight,
-                                handler.imageTypes,
-                                !handler.previewAsCanvas
-                            );
-                        }, handler.previewLoadDelay);
-                    }
-                });
+                handler.loadPreviewImage(files, index, handler);
             }
         };
         
@@ -357,7 +361,7 @@
             handler.initUploadProgressAll();
         };
         
-        this.parseResponse = function (xhr) {
+        this.parseResponse = function (xhr, handler) {
             if (typeof xhr.responseText !== undef) {
                 return $.parseJSON(xhr.responseText);
             } else {
@@ -369,9 +373,7 @@
         this.initDownloadRow = function (event, files, index, xhr, handler) {
             var json, downloadRow;
             try {
-                json = handler.response = handler.parseResponse(xhr);
-                downloadRow = handler.downloadRow = (typeof handler.buildDownloadRow === func ?
-                    handler.buildDownloadRow(json, handler) : null);
+                json = handler.response = handler.parseResponse(xhr, handler);
             } catch (e) {
                 if (typeof handler.onError === func) {
                     handler.originalEvent = event;
@@ -380,6 +382,8 @@
                     throw e;
                 }
             }
+            downloadRow = handler.downloadRow = (typeof handler.buildDownloadRow === func ?
+                handler.buildDownloadRow(json, handler) : null);
         };
         
         this.onLoad = function (event, files, index, xhr, handler) {

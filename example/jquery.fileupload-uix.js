@@ -1,5 +1,5 @@
 /*
- * jQuery File Upload User Interface Extended Plugin 4.3.2
+ * jQuery File Upload User Interface Extended Plugin 4.4
  * https://github.com/blueimp/jQuery-File-Upload
  *
  * Copyright 2010, Sebastian Tschan
@@ -47,7 +47,7 @@
     UploadHandler = function (container, options) {
         var uploadHandler = this;
 
-        this.uploadDir = this.thumbnailsDir = null;
+        this.url = container.find('form:first').attr('action');
         this.autoUpload = true;
         this.continueAbortedUploads = false;
         this.forceIframeDownload = false;
@@ -89,14 +89,31 @@
             });
         };
 
+        this.buildMultiUploadRow = function (files, handler) {
+            var rows = $('<tbody style="display:none;"/>');
+            $.each(files, function (index, file) {
+                var row = handler.buildUploadRow(files, index, handler).show(),
+                    cells = row.find(
+                        '.file_upload_progress, .file_upload_start, .file_upload_cancel'
+                    );
+                if (index) {
+                    cells.remove();
+                } else {
+                    cells.attr('rowspan', files.length);
+                }
+                rows.append(row);
+            });
+            return rows;
+        };
+
         this.buildUploadRow = function (files, index, handler) {
+            if (typeof index !== 'number') {
+                return handler.buildMultiUploadRow(files, handler);
+            }
             var file = files[index],
                 fileName = handler.formatFileName(file.name),
                 uploadRow = handler.uploadTemplate
                     .clone().removeAttr('id');
-            uploadRow.attr('data-name', file.name);
-            uploadRow.attr('data-size', file.size);
-            uploadRow.attr('data-type', file.type);
             uploadRow.find('.file_name')
                 .text(fileName);
             uploadRow.find('.file_size')
@@ -113,34 +130,43 @@
         };
 
         this.getFileUrl = function (file, handler) {
-            return handler.uploadDir + encodeURIComponent(file.name);
+            return file.url;
         };
         
         this.getThumbnailUrl = function (file, handler) {
-            return handler.thumbnailsDir + encodeURIComponent(file.name);
+            return file.thumbnail;
+        };
+
+        this.buildMultiDownloadRow = function (files, handler) {
+            var rows = $('<tbody style="display:none;"/>');
+            $.each(files, function (index, file) {
+                rows.append(handler.buildDownloadRow(file, handler).show());
+            });
+            return rows;
         };
 
         this.buildDownloadRow = function (file, handler) {
+            if ($.isArray(file)) {
+                return handler.buildMultiDownloadRow(file, handler);
+            }
             var fileName = handler.formatFileName(file.name),
                 fileUrl = handler.getFileUrl(file, handler),
+                thumbnailUrl = handler.getThumbnailUrl(file, handler),
                 downloadRow = handler.downloadTemplate
                     .clone().removeAttr('id');
-            $.each(file, function (name, value) {
-                downloadRow.attr('data-' + name, value);
-            });
+            downloadRow.attr('data-id', file.id || file.name);
             downloadRow.find('.file_name a')
-                .attr('href', fileUrl)
                 .text(fileName);
             downloadRow.find('.file_size')
                 .text(handler.formatFileSize(file.size));
-            if (file.thumbnail) {
+            if (thumbnailUrl) {
                 downloadRow.find('.file_download_preview').append(
-                    $('<a href="' + fileUrl + '"><img src="' +
-                        handler.getThumbnailUrl(file, handler) + '"/></a>')
+                    $('<a/>').append($('<img/>').attr('src', thumbnailUrl || null))
                 );
                 downloadRow.find('a').attr('target', '_blank');
             }
             downloadRow.find('a')
+                .attr('href', fileUrl || null)
                 .each(handler.enableDragToDesktop);
             downloadRow.find('.file_download_delete button')
                 .button({icons: {primary: 'ui-icon-trash'}, text: false});
@@ -160,16 +186,20 @@
         };
 
         this.continueUploadCallBack = function (event, files, index, xhr, handler, callBack) {
-            $.getJSON(
-                handler.url,
-                {file: handler.uploadRow.attr('data-name')},
-                function (file) {
-                    if (file && file.size !== files[index].size) {
-                        handler.uploadedBytes = file.size;
+            if (typeof index !== 'undefined') {
+                $.getJSON(
+                    handler.url,
+                    {file: files[index].name},
+                    function (file) {
+                        if (file && file.size !== files[index].size) {
+                            handler.uploadedBytes = file.size;
+                        }
+                        handler.uploadCallBack(event, files, index, xhr, handler, callBack);
                     }
-                    handler.uploadCallBack(event, files, index, xhr, handler, callBack);
-                }
-            );
+                );
+            } else {
+                handler.uploadCallBack(event, files, index, xhr, handler, callBack);
+            }
         };
         
         this.beforeSend = function (event, files, index, xhr, handler, callBack) {
@@ -199,7 +229,7 @@
                     var row = $(this).closest('tr');
                     $.ajax({
                         url: uploadHandler.url + '?file=' + encodeURIComponent(
-                            row.attr('data-id') || row.attr('data-name')
+                            row.attr('data-id')
                         ),
                         type: 'DELETE',
                         success: function () {
@@ -237,22 +267,10 @@
                 });
         };
 
-        this.loadFiles = function () {
-            $.getJSON(uploadHandler.url, function (files) {
-                $.each(files, function (index, file) {
-                    uploadHandler.buildDownloadRow(file, uploadHandler)
-                        .appendTo(uploadHandler.downloadTable).fadeIn();
-                });
-            });
-        };
-
         this.initExtended = function () {
             uploadHandler.initDownloadHandler();
             uploadHandler.initDeleteHandler();
             uploadHandler.initMultiButtons();
-            if (uploadHandler.loadFiles) {
-                uploadHandler.loadFiles();
-            }
         };
 
         this.destroyExtended = function () {

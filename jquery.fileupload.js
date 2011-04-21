@@ -1,5 +1,5 @@
 /*
- * jQuery File Upload Plugin 4.3
+ * jQuery File Upload Plugin 4.3.1
  * https://github.com/blueimp/jQuery-File-Upload
  *
  * Copyright 2010, Sebastian Tschan
@@ -532,8 +532,16 @@
             },
 
             handleLegacyGlobalProgress = function (event, files, index, iframe, settings) {
-                var total = files[index].size ? files[index].size : 1,
-                    progressEvent = createProgressEvent(true, total, total);
+                var total = 0,
+                    progressEvent;
+                if (typeof index === undef) {
+                    $.each(files, function (index, file) {
+                        total += file.size ? file.size : 1;
+                    });
+                } else {
+                    total = files[index].size ? files[index].size : 1;
+                }
+                progressEvent = createProgressEvent(true, total, total);
                 settings.progressLoaded = total;
                 handleGlobalProgress(progressEvent, files, index, iframe, settings);
             },
@@ -563,12 +571,12 @@
                 form.find('.' + settings.namespace + '_form_data').remove();
             },
 
-            legacyUpload = function (event, files, input, form, iframe, settings) {
+            legacyUpload = function (event, files, input, form, iframe, settings, index) {
                 var send;
-                if (typeof settings.onSend === func && settings.onSend(event, files, 0, iframe, settings) === false) {
+                if (typeof settings.onSend === func && settings.onSend(event, files, index, iframe, settings) === false) {
                     return;
                 }
-                multiLoader.push([files, 0, iframe, settings]);
+                multiLoader.push([files, index, iframe, settings]);
                 send = function () {
                     var originalAction = form.attr('action'),
                         originalMethod = form.attr('method'),
@@ -580,9 +588,9 @@
                             // javascript:false as iframe src prevents warning popups on HTTPS in IE6
                             // concat is used here to prevent the "Script URL" JSLint error:
                             iframe.unbind('load').attr('src', 'javascript'.concat(':false;'));
-                            handleLegacyGlobalProgress(e, files, 0, iframe, settings);
+                            handleLegacyGlobalProgress(e, files, index, iframe, settings);
                             if (typeof settings.onAbort === func) {
-                                settings.onAbort(e, files, 0, iframe, settings);
+                                settings.onAbort(e, files, index, iframe, settings);
                             }
                             multiLoader.complete();
                             sequenceHandler.next();
@@ -590,9 +598,9 @@
                         .unbind('load')
                         .bind('load', function (e) {
                             iframe.readyState = 4;
-                            handleLegacyGlobalProgress(e, files, 0, iframe, settings);
+                            handleLegacyGlobalProgress(e, files, index, iframe, settings);
                             if (typeof settings.onLoad === func) {
-                                settings.onLoad(e, files, 0, iframe, settings);
+                                settings.onLoad(e, files, index, iframe, settings);
                             }
                             multiLoader.complete();
                             sequenceHandler.next();
@@ -621,13 +629,14 @@
                 }
             },
 
-            handleLegacyUpload = function (event, input, form) {
+            handleLegacyUpload = function (event, input, form, index) {
                 // javascript:false as iframe src prevents warning popups on HTTPS in IE6:
                 var iframe = $('<iframe src="javascript:false;" style="display:none;" name="iframe_' +
                     settings.namespace + '_' + (new Date()).getTime() + '"></iframe>'),
                     uploadSettings = $.extend({}, settings),
                     files = event.target.files;
                 files = files ? Array.prototype.slice.call(files, 0) : [{name: input.val(), type: null, size: null}];
+                index = files.length === 1 ? 0 : index;
                 uploadSettings.fileInput = input;
                 uploadSettings.uploadForm = form;
                 iframe.readyState = 0;
@@ -640,15 +649,15 @@
                         uploadSettings.initUpload(
                             event,
                             files,
-                            0,
+                            index,
                             iframe,
                             uploadSettings,
                             function () {
-                                legacyUpload(event, files, input, form, iframe, uploadSettings);
+                                legacyUpload(event, files, input, form, iframe, uploadSettings, index);
                             }
                         );
                     } else {
-                        legacyUpload(event, files, input, form, iframe, uploadSettings);
+                        legacyUpload(event, files, input, form, iframe, uploadSettings, index);
                     }
                 }).appendTo(form);
             },
