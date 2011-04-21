@@ -46,8 +46,8 @@
 * Opera - 10.6, 11.0, 11.1 ²
 * Microsoft Internet Explorer 6.0, 7.0, 8.0, 9.0 ³
 
-¹ Drag & Drop is not supported on the Windows version of Safari.
-² Opera has no suppport for Drag & Drop or upload progress, but support for multiple file selection since version 11.1.
+¹ Drag & Drop is not supported on the Windows version of Safari.  
+² Opera has no suppport for Drag & Drop or upload progress, but support for multiple file selection since version 11.1.  
 ³ MSIE has no support for Drag & Drop, multiple file selection or upload progress.
 
 ## License
