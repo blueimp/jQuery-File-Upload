@@ -3,6 +3,9 @@
 ## Demo
 [Demo File Upload](http://aquantum-demo.appspot.com/file-upload)
 
+## Setup instructions
+[How to setup the plugin on your website](https://github.com/blueimp/jQuery-File-Upload/wiki/Setup)
+
 ## Features
 * **Multiple file upload:**  
   Allows to select multiple files at once and upload them simultaneously.

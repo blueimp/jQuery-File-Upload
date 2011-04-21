@@ -5,6 +5,10 @@ Demo
 ----
 http://aquantum-demo.appspot.com/file-upload
 
+Setup instructions
+------------------
+https://github.com/blueimp/jQuery-File-Upload/wiki/Setup
+
 Features
 --------
   - Multiple file upload:
@@ -16,7 +20,7 @@ Features
   - Cancelable uploads:
     Individual file uploads can be canceled to stop the upload progress.
   - Resumable uploads:
-     Aborted uploads can be resumed with browsers supporting the Blob API.
+    Aborted uploads can be resumed with browsers supporting the Blob API.
   - Chunked uploads:
     Large files can be uploaded in smaller chunks with browsers supporting the Blob API.
   - Preview images:
@@ -50,6 +54,7 @@ Browser Support (tested versions)
   - Mozilla Firefox - 3.6, 4.0
   - Opera - 10.6, 11.0, 11.1 ²
   - Microsoft Internet Explorer 6.0, 7.0, 8.0, 9.0 ³
+
 ¹ Drag & Drop is not supported on the Windows version of Safari.
 ² Opera has no suppport for Drag & Drop or upload progress, but support for multiple file selection since version 11.1.
 ³ MSIE has no support for Drag & Drop, multiple file selection or upload progress.
