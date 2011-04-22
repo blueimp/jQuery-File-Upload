@@ -1,6 +1,6 @@
 <?php
 /*
- * jQuery File Upload Plugin PHP Example 4.2.1
+ * jQuery File Upload Plugin PHP Example 4.2.2
  * https://github.com/blueimp/jQuery-File-Upload
  *
  * Copyright 2010, Sebastian Tschan
@@ -165,34 +165,36 @@ class UploadHandler
     }
     
     public function post() {
-        if (isset($_FILES[$this->field_name])) {
-            $upload = $_FILES[$this->field_name];
-            if (is_array($upload['name'])) {
-                $info = array();
-                foreach ($upload['name'] as $index => $value) {
-                    $info[] = $this->handle_file_upload(
-                        $upload['tmp_name'][$index],
-                        $upload['name'][$index],
-                        $upload['size'][$index],
-                        $upload['type'][$index]
-                    );
-                }
-                if (count($info) === 1) {
-                    $info = $info[0];
-                }
-            } else {
-                $info = $this->handle_file_upload(
-                    $upload['tmp_name'],
-                    isset($_SERVER['HTTP_X_FILE_NAME']) ?
-                        $_SERVER['HTTP_X_FILE_NAME'] : $upload['name'],
-                    isset($_SERVER['HTTP_X_FILE_SIZE']) ?
-                        $_SERVER['HTTP_X_FILE_SIZE'] : $upload['size'],
-                    isset($_SERVER['HTTP_X_FILE_TYPE']) ?
-                        $_SERVER['HTTP_X_FILE_TYPE'] : $upload['type']
+        $upload = isset($_FILES[$this->field_name]) ?
+            $_FILES[$this->field_name] : array(
+                'tmp_name' => null,
+                'name' => null,
+                'size' => null,
+                'type' => null
+            );
+        if (is_array($upload['tmp_name'])) {
+            $info = array();
+            foreach ($upload['tmp_name'] as $index => $value) {
+                $info[] = $this->handle_file_upload(
+                    $upload['tmp_name'][$index],
+                    $upload['name'][$index],
+                    $upload['size'][$index],
+                    $upload['type'][$index]
                 );
             }
+            if (count($info) === 1) {
+                $info = $info[0];
+            }
         } else {
-            $info = null;
+            $info = $this->handle_file_upload(
+                $upload['tmp_name'],
+                isset($_SERVER['HTTP_X_FILE_NAME']) ?
+                    $_SERVER['HTTP_X_FILE_NAME'] : $upload['name'],
+                isset($_SERVER['HTTP_X_FILE_SIZE']) ?
+                    $_SERVER['HTTP_X_FILE_SIZE'] : $upload['size'],
+                isset($_SERVER['HTTP_X_FILE_TYPE']) ?
+                    $_SERVER['HTTP_X_FILE_TYPE'] : $upload['type']
+            );
         }
         if (isset($_SERVER['HTTP_X_REQUESTED_WITH']) &&
                 $_SERVER['HTTP_X_REQUESTED_WITH'] === 'XMLHttpRequest') {
