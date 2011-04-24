@@ -1,5 +1,5 @@
 /*
- * jQuery File Upload User Interface Extended Plugin 4.4
+ * jQuery File Upload User Interface Extended Plugin 4.4.1
  * https://github.com/blueimp/jQuery-File-Upload
  *
  * Copyright 2010, Sebastian Tschan
@@ -48,9 +48,8 @@
         var uploadHandler = this;
 
         this.url = container.find('form:first').attr('action');
-        this.autoUpload = true;
-        this.continueAbortedUploads = false;
-        this.forceIframeDownload = false;
+        this.autoUpload = false;
+        this.forceIframeDownload = true;
         this.dropZone = container.find('form:first');
         this.uploadTable = container.find('.files:first');
         this.downloadTable = this.uploadTable;
@@ -173,7 +172,7 @@
             return downloadRow;
         };
         
-        this.uploadCallBack = function (event, files, index, xhr, handler, callBack) {
+        this.beforeSend = function (event, files, index, xhr, handler, callBack) {
             if (handler.autoUpload) {
                 callBack();
             } else {
@@ -185,61 +184,49 @@
             }
         };
 
-        this.continueUploadCallBack = function (event, files, index, xhr, handler, callBack) {
-            if (typeof index !== 'undefined') {
-                $.getJSON(
-                    handler.url,
-                    {file: files[index].name},
-                    function (file) {
-                        if (file && file.size !== files[index].size) {
-                            handler.uploadedBytes = file.size;
-                        }
-                        handler.uploadCallBack(event, files, index, xhr, handler, callBack);
-                    }
-                );
-            } else {
-                handler.uploadCallBack(event, files, index, xhr, handler, callBack);
-            }
-        };
-        
-        this.beforeSend = function (event, files, index, xhr, handler, callBack) {
-            if (handler.continueAbortedUploads) {
-                handler.continueUploadCallBack(event, files, index, xhr, handler, callBack);
-            } else {
-                handler.uploadCallBack(event, files, index, xhr, handler, callBack);
-            }
-        };
-
-        this.initDownloadHandler = function () {
+        this.downloadHandler = function (e) {
             if (uploadHandler.forceIframeDownload) {
                 // Open download dialogs via iframes, to prevent aborting current uploads:
-                uploadHandler.downloadTable.find('a:not([target="_blank"])')
-                    .live('click', function (e) {
-                        $('<iframe style="display:none;"/>')
-                            .attr('src', this.href)
-                            .appendTo(container);
-                        e.preventDefault();
-                    });
+                $('<iframe style="display:none;"/>')
+                    .attr('src', this.href)
+                    .appendTo(container);
+                e.preventDefault();
             }
         };
 
-        this.initDeleteHandler = function () {
-            uploadHandler.downloadTable.find('.file_download_delete button')
-                .live('click', function (e) {
-                    var row = $(this).closest('tr');
-                    $.ajax({
-                        url: uploadHandler.url + '?file=' + encodeURIComponent(
-                            row.attr('data-id')
-                        ),
-                        type: 'DELETE',
-                        success: function () {
-                            row.fadeOut(function () {
-                                row.remove();
-                            });
-                        }
+        this.deleteHandler = function (e) {
+            var row = $(this).closest('tr');
+            $.ajax({
+                url: uploadHandler.url + '?file=' + encodeURIComponent(
+                    row.attr('data-id')
+                ),
+                type: 'DELETE',
+                success: function () {
+                    row.fadeOut(function () {
+                        row.remove();
                     });
-                    e.preventDefault();
-                });
+                }
+            });
+            e.preventDefault();
+        };
+        
+        this.initEventHandlers = function () {
+            uploadHandler.downloadTable.find('a:not([target="_blank"])')
+                .live('click', uploadHandler.downloadHandler);
+            uploadHandler.downloadTable.find('.file_download_delete button')
+                .live('click', uploadHandler.deleteHandler);
+        };
+
+        this.destroyEventHandlers = function () {
+            uploadHandler.downloadTable.find('a:not([target="_blank"])')
+                .die('click', uploadHandler.downloadHandler);
+            uploadHandler.downloadTable.find('.file_download_delete button')
+                .die('click', uploadHandler.deleteHandler);
+        };
+        
+        this.multiButtonHandler = function (e) {
+            uploadHandler.uploadTable.find(e.data.selector + ' button:visible').click();
+            e.preventDefault();
         };
         
         this.initMultiButtons = function () {
@@ -248,36 +235,30 @@
             } else {
                 uploadHandler.multiButtons.find('.file_upload_start:first')
                     .button({icons: {primary: 'ui-icon-circle-arrow-e'}})
-                    .click(function (e) {
-                        uploadHandler.uploadTable.find('.file_upload_start button:visible').click();
-                        e.preventDefault();
-                    });
+                    .bind('click', {selector: '.file_upload_start'}, uploadHandler.multiButtonHandler);
             }
             uploadHandler.multiButtons.find('.file_upload_cancel:first')
                 .button({icons: {primary: 'ui-icon-cancel'}})
-                .click(function (e) {
-                    uploadHandler.uploadTable.find('.file_upload_cancel button:visible').click();
-                    e.preventDefault();
-                });
+                .bind('click', {selector: '.file_upload_cancel'}, uploadHandler.multiButtonHandler);
             uploadHandler.multiButtons.find('.file_download_delete:first')
                 .button({icons: {primary: 'ui-icon-trash'}})
-                .click(function (e) {
-                    uploadHandler.downloadTable.find('.file_download_delete button:visible').click();
-                    e.preventDefault();
-                });
+                .bind('click', {selector: '.file_download_delete'}, uploadHandler.multiButtonHandler);
+        };
+        
+        this.destroyMultiButtons = function () {
+            uploadHandler.multiButtons.find(
+                '.file_upload_start:first, .file_upload_cancel:first, .file_download_delete:first'
+            ).unbind('click', uploadHandler.multiButtonHandler).button('destroy').show();
         };
 
         this.initExtended = function () {
-            uploadHandler.initDownloadHandler();
-            uploadHandler.initDeleteHandler();
+            uploadHandler.initEventHandlers();
             uploadHandler.initMultiButtons();
         };
 
         this.destroyExtended = function () {
-            uploadHandler.downloadTable.find('.file_download_delete button').die('click');
-            uploadHandler.multiButtons.find('.file_upload_start:first').button('destroy').show();
-            uploadHandler.multiButtons.find('.file_upload_cancel:first').button('destroy');
-            uploadHandler.multiButtons.find('.file_download_delete:first').button('destroy');
+            uploadHandler.destroyEventHandlers();
+            uploadHandler.destroyMultiButtons();
         };
 
         $.extend(this, options);
@@ -286,8 +267,7 @@
     methods = {
         init : function (options) {
             return this.each(function () {
-                $(this).fileUploadUI(new UploadHandler($(this), options))
-                    .fileUploadUI('option', 'initExtended', undefined, options.namespace)();
+                $(this).fileUploadUI(new UploadHandler($(this), options));
             });
         },
         
@@ -302,7 +282,6 @@
             
         destroy : function (namespace) {
             return this.each(function () {
-                $(this).fileUploadUI('option', 'destroyExtended', undefined, namespace)();
                 $(this).fileUploadUI('destroy', namespace);
             });
         },

@@ -1,5 +1,5 @@
 /*
- * jQuery File Upload Plugin JS Example 4.4
+ * jQuery File Upload Plugin JS Example 4.4.1
  * https://github.com/blueimp/jQuery-File-Upload
  *
  * Copyright 2010, Sebastian Tschan
@@ -13,16 +13,7 @@
 
 $(function () {
     // Initialize jQuery File Upload (Extended User Interface Version):
-    $('#file_upload').fileUploadUIX({
-        // Wait for user interaction before starting uploads:
-        autoUpload: false,
-        // Upload bigger files in chunks of 10 MB (remove or set to null to disable):
-        maxChunkSize: 10000000,
-        // Request uploaded filesize prior upload and upload remaining bytes:
-        continueAbortedUploads: true,
-        // Open download dialogs via iframes, to prevent aborting current uploads:
-        forceIframeDownload: true
-    });
+    $('#file_upload').fileUploadUIX();
     
     // Load existing files:
     $.getJSON($('#file_upload').fileUploadUIX('option', 'url'), function (files) {
