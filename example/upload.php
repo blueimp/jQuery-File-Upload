@@ -1,6 +1,6 @@
 <?php
 /*
- * jQuery File Upload Plugin PHP Example 4.2.3
+ * jQuery File Upload Plugin PHP Example 4.2.4
  * https://github.com/blueimp/jQuery-File-Upload
  *
  * Copyright 2010, Sebastian Tschan
@@ -109,7 +109,7 @@ class UploadHandler
     
     private function handle_file_upload($uploaded_file, $name, $size, $type, $error) {
         $file = new stdClass();
-        $file->name = basename($name);
+        $file->name = basename(stripslashes($name));
         $file->size = intval($size);
         $file->type = $type;
         if (!$error && $file->name) {
