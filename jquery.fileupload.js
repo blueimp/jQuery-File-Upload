@@ -1,5 +1,5 @@
 /*
- * jQuery File Upload Plugin 4.4.1
+ * jQuery File Upload Plugin 4.4.2
  * https://github.com/blueimp/jQuery-File-Upload
  *
  * Copyright 2010, Sebastian Tschan
@@ -505,12 +505,14 @@
                         }
                     }
                 };
-                multiLoader.push(Array.prototype.slice.call(arguments, 1));
-                if (!nextChunk && settings.sequentialUploads) {
-                    sequenceHandler.push(send);
-                } else {
-                    send();
+                if (!nextChunk) {
+                    multiLoader.push(Array.prototype.slice.call(arguments, 1));
+                    if (settings.sequentialUploads) {
+                        sequenceHandler.push(send);
+                        return;
+                    }
                 }
+                send();
             },
 
             handleUpload = function (event, files, input, form, index) {
@@ -632,11 +634,15 @@
             },
 
             handleLegacyUpload = function (event, input, form, index) {
+                if (!(event && input && form)) {
+                    $.error('Iframe based File Upload requires a file input change event');
+                    return;
+                }
                 // javascript:false as iframe src prevents warning popups on HTTPS in IE6:
                 var iframe = $('<iframe src="javascript:false;" style="display:none;" name="iframe_' +
                     settings.namespace + '_' + (new Date()).getTime() + '"></iframe>'),
                     uploadSettings = $.extend({}, settings),
-                    files = event.target.files;
+                    files = event.target && event.target.files;
                 files = files ? Array.prototype.slice.call(files, 0) : [{name: input.val(), type: null, size: null}];
                 index = files.length === 1 ? 0 : index;
                 uploadSettings.fileInput = input;
