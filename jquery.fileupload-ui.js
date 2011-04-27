@@ -1,5 +1,5 @@
 /*
- * jQuery File Upload User Interface Plugin 4.4
+ * jQuery File Upload User Interface Plugin 4.4.1
  * https://github.com/blueimp/jQuery-File-Upload
  *
  * Copyright 2010, Sebastian Tschan
@@ -166,7 +166,10 @@
         };
         
         this.replaceNode = function (oldNode, newNode, callBack) {
-            if (oldNode && newNode) {
+            if (!(newNode && newNode.length)) {
+                return uploadHandler.removeNode(oldNode, callBack);
+            }
+            if (oldNode && oldNode.length) {
                 oldNode.fadeOut(function () {
                     newNode.css('display', 'none');
                     oldNode.replaceWith(newNode);
@@ -397,7 +400,8 @@
                 };
             multiLoader.push(Array.prototype.slice.call(arguments, 1));
             handler.initDownloadRow(event, files, index, xhr, handler);
-            if (uploadTable && (!downloadTable || uploadTable.get(0) === downloadTable.get(0))) {
+            if (uploadTable && handler.uploadRow && handler.uploadRow.length &&
+                    (!downloadTable || uploadTable.get(0) === downloadTable.get(0))) {
                 handler.replaceNode(handler.uploadRow, handler.downloadRow, callBack);
             } else {
                 handler.removeNode(handler.uploadRow, function () {
