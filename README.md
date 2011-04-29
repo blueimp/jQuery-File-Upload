@@ -44,8 +44,8 @@
 
 ## Browser Support (tested versions)
 * Google Chrome - 7.0, 8.0, 9.0, 10.0, 11.0
-* Apple Safari - 5.0 ¹
-* Mozilla Firefox - 3.6, 4.0
+* Apple Safari - 4.0, 5.0 ¹
+* Mozilla Firefox - 3.5, 3.6, 4.0
 * Opera - 10.6, 11.0, 11.1 ²
 * Microsoft Internet Explorer 6.0, 7.0, 8.0, 9.0 ³
 
