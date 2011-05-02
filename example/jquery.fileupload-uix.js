@@ -1,5 +1,5 @@
 /*
- * jQuery File Upload User Interface Extended Plugin 4.4.1
+ * jQuery File Upload User Interface Extended Plugin 4.5
  * https://github.com/blueimp/jQuery-File-Upload
  *
  * Copyright 2010, Sebastian Tschan
@@ -9,7 +9,7 @@
  * http://creativecommons.org/licenses/MIT/
  */
 
-/*jslint regexp: false */
+/*jslint regexp: false, unparam: true */
 /*global jQuery */
 
 (function ($) {
@@ -47,9 +47,13 @@
     UploadHandler = function (container, options) {
         var uploadHandler = this;
 
-        this.url = container.find('form:first').attr('action');
+        this.locale = {};
+        this.maxFileSize = 0;
+        this.minFileSize = 1;
+        this.acceptFileTypes = /.+$/i;
         this.autoUpload = false;
         this.forceIframeDownload = true;
+        this.url = container.find('form:first').attr('action');
         this.dropZone = container.find('form:first');
         this.uploadTable = container.find('.files:first');
         this.downloadTable = this.uploadTable;
@@ -160,7 +164,7 @@
                 .text(handler.formatFileSize(file.size));
             if (thumbnailUrl) {
                 downloadRow.find('.file_download_preview').append(
-                    $('<a/>').append($('<img/>').attr('src', thumbnailUrl || null))
+                    $('<a/>').append($('<img/>').attr('src', thumbnailUrl))
                 );
                 downloadRow.find('a').attr('target', '_blank');
             }
@@ -172,13 +176,53 @@
             return downloadRow;
         };
         
+        this.uploadCallBack = function (event, files, index, xhr, handler, callBack) {
+            callBack();
+        };
+        
+        this.onError = function (event, files, index, xhr, handler) {
+            handler.uploadRow.addClass('file_upload_error')
+                .find('.file_upload_progress').append($('<div class="error"/>').append(
+                    handler.locale[event] || event
+                ));
+        };
+        
+        this.validate = function (event, files, index, xhr, handler) {
+            var isValid = true,
+                file;
+            if (typeof index !== 'number') {
+                $.each(files, function (index, file) {
+                    isValid = handler.validate(event, files, index, xhr, handler);
+                    return isValid;
+                });
+            } else {
+                file = files[index];
+                if (handler.maxFileSize && file.size > handler.maxFileSize) {
+                    handler.onError('File is too big', files, index, xhr, handler);
+                    isValid = false;
+                } else if (typeof file.size === 'number' && file.size < handler.minFileSize) {
+                    handler.onError('File is too small', files, index, xhr, handler);
+                    isValid = false;
+                }
+                if (!(handler.acceptFileTypes.test(file.type) ||
+                        handler.acceptFileTypes.test(file.name))) {
+                    handler.onError('Filetype not allowed', files, index, xhr, handler);
+                    isValid = false;
+                }
+            }
+            return isValid;
+        };
+        
         this.beforeSend = function (event, files, index, xhr, handler, callBack) {
+            if (!handler.validate(event, files, index, xhr, handler)) {
+                return;
+            }
             if (handler.autoUpload) {
-                callBack();
+                handler.uploadCallBack(event, files, index, xhr, handler, callBack);
             } else {
                 handler.uploadRow.find('.file_upload_start button').click(function (e) {
                     $(this).fadeOut();
-                    callBack();
+                    handler.uploadCallBack(event, files, index, xhr, handler, callBack);
                     e.preventDefault();
                 });
             }

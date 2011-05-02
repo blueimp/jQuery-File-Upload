@@ -1,6 +1,6 @@
 @charset 'UTF-8';
 /*
- * jQuery File Upload Plugin CSS 4.1
+ * jQuery File Upload Plugin CSS 4.2
  * https://github.com/blueimp/jQuery-File-Upload
  *
  * Copyright 2010, Sebastian Tschan
@@ -124,12 +124,26 @@ form.file_upload button,
 .file_upload .file_size {
   padding: 0 10px 0 0;
   text-align: right;
+  white-space: nowrap;
   font-size: 1.1em;
 }
 
 .file_upload .files,
 .file_upload_overall_progress {
   margin: 10px 0;
+}
+
+.file_upload_error .ui-progressbar,
+.file_upload_error .progressbar,
+.file_upload_error .file_upload_start button {
+  display: none;
+}
+
+.file_upload_error .error {
+  width: 100%;
+  height: 100%;
+  color: #CD0A0A;
+  font-size: 1.1em;
 }
 
 .file_upload .ui-widget {
