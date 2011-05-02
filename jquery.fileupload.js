@@ -9,7 +9,7 @@
  * http://creativecommons.org/licenses/MIT/
  */
 
-/*jslint browser: true */
+/*jslint browser: true, unparam: true */
 /*global XMLHttpRequestUpload, File, FileReader, FormData, ProgressEvent, unescape, jQuery, upload */
 
 (function ($) {

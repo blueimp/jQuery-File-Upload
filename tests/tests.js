@@ -9,6 +9,7 @@
  * http://creativecommons.org/licenses/MIT/
  */
 
+/*jslint unparam: true */
 /*global $, module, test, asyncTest, start, ok, strictEqual */
 
 $(function () {

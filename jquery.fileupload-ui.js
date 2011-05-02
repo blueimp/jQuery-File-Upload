@@ -9,7 +9,7 @@
  * http://creativecommons.org/licenses/MIT/
  */
 
-/*jslint browser: true */
+/*jslint browser: true, unparam: true */
 /*global jQuery, FileReader, URL, webkitURL */
 
 (function ($) {
