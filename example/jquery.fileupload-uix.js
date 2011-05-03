@@ -1,5 +1,5 @@
 /*
- * jQuery File Upload User Interface Extended Plugin 4.5
+ * jQuery File Upload User Interface Extended Plugin 4.6
  * https://github.com/blueimp/jQuery-File-Upload
  *
  * Copyright 2010, Sebastian Tschan
@@ -48,8 +48,9 @@
         var uploadHandler = this;
 
         this.locale = {};
-        this.maxFileSize = 0;
+        this.maxFileSize = null;
         this.minFileSize = 1;
+        this.maxNumberOfFiles = null;
         this.acceptFileTypes = /.+$/i;
         this.autoUpload = false;
         this.forceIframeDownload = true;
@@ -61,6 +62,13 @@
         this.uploadTemplate = this.uploadTable.find('.file_upload_template:first');
         this.downloadTemplate = this.uploadTable.find('.file_download_template:first');
         this.multiButtons = container.find('.file_upload_buttons:first');
+        
+        this.adjustMaxNumberOfFiles = function (operand) {
+            var number = container.fileUploadUIX('option', 'maxNumberOfFiles');
+            if (typeof number === 'number') {
+                container.fileUploadUIX('option', 'maxNumberOfFiles', number + operand);
+            }
+        };
         
         this.formatFileSize = function (bytes) {
             if (typeof bytes !== 'number' || bytes === null) {
@@ -176,10 +184,6 @@
             return downloadRow;
         };
         
-        this.uploadCallBack = function (event, files, index, xhr, handler, callBack) {
-            callBack();
-        };
-        
         this.onError = function (event, files, index, xhr, handler) {
             handler.uploadRow.addClass('file_upload_error')
                 .find('.file_upload_progress').append($('<div class="error"/>').append(
@@ -193,7 +197,6 @@
             if (typeof index !== 'number') {
                 $.each(files, function (index, file) {
                     isValid = handler.validate(event, files, index, xhr, handler);
-                    return isValid;
                 });
             } else {
                 file = files[index];
@@ -209,14 +212,28 @@
                     handler.onError('Filetype not allowed', files, index, xhr, handler);
                     isValid = false;
                 }
+                if (typeof handler.maxNumberOfFiles === 'number' &&
+                        handler.maxNumberOfFiles < index + 1) {
+                    handler.onError('Max number exceeded', files, index, xhr, handler);
+                    isValid = false;
+                }
             }
             return isValid;
+        };
+
+        this.uploadCallBack = function (event, files, index, xhr, handler, callBack) {
+            callBack();
         };
         
         this.beforeSend = function (event, files, index, xhr, handler, callBack) {
             if (!handler.validate(event, files, index, xhr, handler)) {
                 return;
             }
+            var number = typeof index === 'number' ? 1 : files.length;
+            handler.adjustMaxNumberOfFiles(-number);
+            handler.uploadRow.find(handler.cancelSelector).click(function (e) {
+                handler.adjustMaxNumberOfFiles(number);
+            });
             if (handler.autoUpload) {
                 handler.uploadCallBack(event, files, index, xhr, handler, callBack);
             } else {
@@ -246,6 +263,7 @@
                 ),
                 type: 'DELETE',
                 success: function () {
+                    uploadHandler.adjustMaxNumberOfFiles(1);
                     row.fadeOut(function () {
                         row.remove();
                     });
