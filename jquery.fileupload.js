@@ -1,5 +1,5 @@
 /*
- * jQuery File Upload Plugin 4.4.3
+ * jQuery File Upload Plugin 4.5
  * https://github.com/blueimp/jQuery-File-Upload
  *
  * Copyright 2010, Sebastian Tschan
@@ -97,7 +97,8 @@
                 forceIframeUpload: false,
                 sequentialUploads: false,
                 maxChunkSize: null,
-                maxFileReaderSize: 50000000
+                maxFileReaderSize: 50000000,
+                replaceFileInput: true
             },
             documentListeners = {},
             dropZoneListeners = {},
@@ -779,8 +780,10 @@
             var input = $(e.target),
                 form = $(e.target.form);
             if (form.length === 1) {
-                input.data(defaultNamespace + '_form', form);
-                replaceFileInput(input);
+                if (settings.replaceFileInput) {
+                    input.data(defaultNamespace + '_form', form);
+                    replaceFileInput(input);
+                }
             } else {
                 form = input.data(defaultNamespace + '_form');
             }
