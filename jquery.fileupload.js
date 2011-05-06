@@ -1,5 +1,5 @@
 /*
- * jQuery File Upload Plugin 4.5
+ * jQuery File Upload Plugin 4.5.1
  * https://github.com/blueimp/jQuery-File-Upload
  *
  * Copyright 2010, Sebastian Tschan
@@ -584,9 +584,12 @@
                         completeNext();
                         return;
                     }
-                    var originalAction = form.attr('action'),
-                        originalMethod = form.attr('method'),
-                        originalTarget = form.attr('target');
+                    var originalAttributes = {
+                        'action': form.attr('action'),
+                        'method': form.attr('method'),
+                        'target': form.attr('target'),
+                        'enctype': form.attr('enctype')
+                    };
                     iframe
                         .unbind('abort')
                         .bind('abort', function (e) {
@@ -616,15 +619,19 @@
                     form
                         .attr('action', getUrl(settings))
                         .attr('method', getMethod(settings))
-                        .attr('target', iframe.attr('name'));
+                        .attr('target', iframe.attr('name'))
+                        .attr('enctype', 'multipart/form-data');
                     legacyUploadFormDataInit(input, form, settings);
                     iframe.readyState = 2;
                     form.get(0).submit();
                     legacyUploadFormDataReset(input, form, settings);
-                    form
-                        .attr('action', originalAction)
-                        .attr('method', originalMethod)
-                        .attr('target', originalTarget);
+                    $.each(originalAttributes, function (name, value) {
+                        if (value) {
+                            form.attr(name, value);
+                        } else {
+                            form.removeAttr(name);
+                        }
+                    });
                 };
                 multiLoader.push([files, index, iframe, settings]);
                 if (settings.sequentialUploads) {
