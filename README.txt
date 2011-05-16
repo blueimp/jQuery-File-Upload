@@ -44,8 +44,9 @@ Features
 
 Requirements
 ------------
-  - jQuery v. 1.4+
-  - jQuery UI v. 1.8+ (optional)
+  - jQuery v. 1.6+
+  - jQuery UI v. 1.8+ (Required: Widget, Optional: Progressbar, Button, Dialog)
+  - jQuery Templates plugin v. 1.0+ (Optional)
 
 Browser Support (tested versions)
 ---------------------------------

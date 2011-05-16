@@ -1,6 +1,6 @@
 @charset 'UTF-8';
 /*
- * jQuery File Upload Plugin CSS 4.2
+ * jQuery File Upload UI Plugin CSS 5.0
  * https://github.com/blueimp/jQuery-File-Upload
  *
  * Copyright 2010, Sebastian Tschan
@@ -10,142 +10,92 @@
  * http://creativecommons.org/licenses/MIT/
  */
 
-form.file_upload {
-  position: relative;
-  overflow: hidden;
-  direction: ltr;
-  cursor: pointer;
-  text-align: center;
-  color: #333;
-  font-weight: bold;
-  -moz-border-radius: 10px;
-  -webkit-border-radius: 10px;
-  border-radius: 10px;
-  width: 15em;
-  height: 2.5em;
-  line-height: 2.5em;
-  background: palegreen;
-  border: 1px solid limegreen;
-}
-
-form.file_upload_small {
-  width: 15em;
-  height: 2.5em;
-  line-height: 2.5em;
-  font-size: 100%;
-  background: palegreen;
-  border: 1px solid limegreen;
-}
-
-form.file_upload_large {
-  width: 100%;
-  height: 7em;
-  line-height: 7em;
-  font-size: 2em;
-  background: palegreen;
-  border: 1px solid limegreen;
-}
-
-form.file_upload_highlight,
-form.file_upload:hover {
-  background: lawngreen;
-}
-
-form.file_upload input {
+.ui-button input {
   position: absolute;
   top: 0;
   right: 0;
   margin: 0;
-  border: 300px solid transparent;
+  border: solid transparent;
+  border-width: 0 0 100px 200px;
   opacity: 0;
-  -ms-filter: 'alpha(opacity=0)';
   filter: alpha(opacity=0);
-  -o-transform: translate(-300px, -300px) scale(10);
-  -moz-transform: translate(-800px, 0) scale(10);
+  -o-transform: translate(250px, -50px) scale(1);
+  -moz-transform: translate(-300px, 0) scale(4);
+  direction: ltr;
   cursor: pointer;
-  height: 100%;
 }
 
-:root form.file_upload input {
-  height: auto;
+.fileinput-button {
+  overflow: hidden;
 }
 
-form.file_upload button,
-.no-js .file_upload_label,
-.no-js .file_upload_overall_progress,
-.no-js .file_upload_buttons {
-  display: none;
+/* Fix for IE 6: */
+*html .fileinput-button {
+  padding: 2px 0;
+}
+/* Fix for IE 7: */
+*+html .fileinput-button {
+  padding: 2px 0;
 }
 
-.file_upload .file_upload_label,
-.file_upload .file_upload_overall_progress,
-.file_upload .file_upload_buttons {
-  display: block;
+.fileupload-buttonbar .ui-button {
+  vertical-align: middle;
 }
 
-.file_upload img {
-  border: none;
+.ui-progressbar {
+  width: 200px;
+  height: 20px;
 }
 
-.progressbar, .progressbar div {
-  border: 1px solid #aaa;
-  -moz-border-radius: 4px;
-  -webkit-border-radius: 4px;
-  border-radius: 4px;
-}
-
-.progressbar div {
-  width: 100%;
-  height: 100%;
-  margin: -1px;
-}
-
-.file_upload_progress .ui-progressbar-value,
-.file_upload_overall_progress .ui-progressbar-value,
-.progressbar div {
+.ui-progressbar-value {
   background: url(pbar-ani.gif);
 }
 
-.file_upload_progress div {
-  width: 150px;
-  height: 17px;
-}
-
-.file_upload_overall_progress div {
-  width: 350px;
-  height: 17px;
-}
-
-.file_upload .file_name {
-  padding: 0 10px;
-  font-size: 1.1em;
-}
-
-.file_upload .file_size {
-  padding: 0 10px 0 0;
-  text-align: right;
-  white-space: nowrap;
-  font-size: 1.1em;
-}
-
-.file_upload .files,
-.file_upload_overall_progress {
+.fileupload-progressbar {
+  width: 400px;
   margin: 10px 0;
 }
 
-.file_upload_error .ui-progressbar,
-.file_upload_error .progressbar,
-.file_upload_error .file_upload_start button {
-  display: none;
+.files {
+  margin: 10px 0;
+  border-collapse: collapse;
 }
 
-.file_upload_error .error {
-  width: 100%;
-  height: 100%;
-  color: #CD0A0A;
-  font-size: 1.1em;
+.files td {
+  padding: 5px;
+  border-spacing: 5px;
 }
 
-.file_upload .ui-widget {
-  font-size: 1em;
+.files img {
+  border: none;
+}
+
+.files .name {
+  padding: 0 10px;
+}
+
+.files .size {
+  padding: 0 10px 0 0;
+  text-align: right;
+  white-space: nowrap;
+}
+
+.gallery-dialog {
+  text-align: center;
+}
+
+.loading {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  width: 32px;
+  height: 32px;
+  margin: -16px 0 0 -16px;
+  background: url(loading.gif);
+  z-index: 9999;
+}
+
+/* IE 6: */
+*html .loading {
+  position: absolute;
 }

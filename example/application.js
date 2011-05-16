@@ -1,5 +1,5 @@
 /*
- * jQuery File Upload Plugin JS Example 4.6
+ * jQuery File Upload Plugin JS Example 5.0
  * https://github.com/blueimp/jQuery-File-Upload
  *
  * Copyright 2010, Sebastian Tschan
@@ -9,20 +9,33 @@
  * http://creativecommons.org/licenses/MIT/
  */
 
-/*jslint unparam: true */
+/*jslint nomen: false */
 /*global $ */
 
 $(function () {
-    // Initialize jQuery File Upload (Extended User Interface Version):
-    $('#file_upload').fileUploadUIX();
-    
+
+    // Initialize the jQuery File Upload widget:
+    $('#fileupload').fileupload();
+
     // Load existing files:
-    $.getJSON($('#file_upload').fileUploadUIX('option', 'url'), function (files) {
-        var options = $('#file_upload').fileUploadUIX('option');
-        options.adjustMaxNumberOfFiles(-files.length);
-        $.each(files, function (index, file) {
-            options.buildDownloadRow(file, options)
-                .appendTo(options.downloadTable).fadeIn();
-        });
+    $.getJSON($('#fileupload form').prop('action'), function (files) {
+        var fu = $('#fileupload').data('fileupload');
+        fu._adjustMaxNumberOfFiles(-files.length);
+        fu._renderDownload(files)
+            .appendTo($('#fileupload .files'))
+            .fadeIn(function () {
+                // Fix for IE7 and lower:
+                $(this).show();
+            });
     });
+
+    // Open download dialogs via iframes,
+    // to prevent aborting current uploads:
+    $('#fileupload .files a:not([rel^=gallery])').live('click', function (e) {
+        e.preventDefault();
+        $('<iframe style="display:none;"></iframe>')
+            .prop('src', this.href)
+            .appendTo('body');
+    });
+
 });

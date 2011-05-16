@@ -1,6 +1,6 @@
 @charset 'UTF-8';
 /*
- * jQuery File Upload Plugin CSS Example 4.1
+ * jQuery File Upload Plugin CSS Example 5.0
  * https://github.com/blueimp/jQuery-File-Upload
  *
  * Copyright 2010, Sebastian Tschan
@@ -18,5 +18,5 @@ body {
 }
 
 a {
-  color: gray;
+  color: #222;
 }

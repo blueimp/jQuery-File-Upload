@@ -39,8 +39,9 @@
   Works with Google App Engine (Python, Java), Ruby on Rails, PHP and any other platform that supports HTTP file uploads.
 
 ## Requirements
-* [jQuery](http://jquery.com/) v. 1.4+
-* [jQuery UI](http://jqueryui.com/) v. 1.8+ (optional)
+* [jQuery](http://jquery.com/) v. 1.6+
+* [jQuery UI](http://jqueryui.com/) v. 1.8+ (Required: Widget, Optional: Progressbar, Button, Dialog)
+* [jQuery Templates plugin](http://api.jquery.com/category/plugins/templates/) v. 1.0+ (Optional)
 
 ## Browser Support (tested versions)
 * Google Chrome - 7.0, 8.0, 9.0, 10.0, 11.0
