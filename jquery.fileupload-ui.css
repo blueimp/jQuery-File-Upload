@@ -1,6 +1,6 @@
 @charset 'UTF-8';
 /*
- * jQuery File Upload UI Plugin CSS 5.0
+ * jQuery File Upload UI Plugin CSS 5.0.1
  * https://github.com/blueimp/jQuery-File-Upload
  *
  * Copyright 2010, Sebastian Tschan
@@ -98,4 +98,13 @@
 /* IE 6: */
 *html .loading {
   position: absolute;
+}
+
+.ui-state-disabled .ui-state-disabled {
+  opacity: 1;
+  filter: alpha(opacity=100);
+}
+
+.ui-state-disabled input {
+  cursor: default;
 }

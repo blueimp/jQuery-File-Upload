@@ -1,5 +1,5 @@
 /*
- * jQuery File Upload User Interface Plugin 5.0
+ * jQuery File Upload User Interface Plugin 5.0.1
  * https://github.com/blueimp/jQuery-File-Upload
  *
  * Copyright 2010, Sebastian Tschan
@@ -358,6 +358,11 @@
         _adjustMaxNumberOfFiles: function (operand) {
             if (typeof this.options.maxNumberOfFiles === 'number') {
                 this.options.maxNumberOfFiles += operand;
+                if (this.options.maxNumberOfFiles < 1) {
+                    this._disableFileInputButton();
+                } else {
+                    this._enableFileInputButton();
+                }
             }
         },
 
@@ -556,7 +561,7 @@
             var fileUploadButtonBar = this.element.find('.fileupload-buttonbar'),
                 filesList = this.element.find('.files'),
                 ns = this.options.namespace;
-            $('.fileinput-button').each(function () {
+            this.element.find('.fileinput-button').each(function () {
                 var fileInput = $(this).find('input:file').detach();
                 $(this).button({icons: {primary: 'ui-icon-plusthick'}})
                     .append(fileInput);
@@ -582,14 +587,34 @@
         },
         
         _destroyFileUploadButtonBar: function () {
-            $('.fileinput-button').each(function () {
+            this.element.find('.fileinput-button').each(function () {
                 var fileInput = $(this).find('input:file').detach();
                 $(this).button('destroy')
                     .append(fileInput);
             });
-            this.element.find('.fileupload-buttonbar').find('button')
+            this.element.find('.fileupload-buttonbar button')
                 .unbind('click.' + this.options.namespace)
                 .button('destroy');
+        },
+
+        _enableFileInputButton: function () {
+            this.element.find('.fileinput-button input:file:disabled')
+                .each(function () {
+                    var fileInput = $(this),
+                        button = fileInput.parent();
+                    fileInput.detach().prop('disabled', false);
+                    button.button('enable').append(fileInput);
+                });
+        },
+
+        _disableFileInputButton: function () {
+            this.element.find('.fileinput-button input:file:enabled')
+                .each(function () {
+                    var fileInput = $(this),
+                        button = fileInput.parent();
+                    fileInput.detach().prop('disabled', true);
+                    button.button('disable').append(fileInput);
+                });
         },
 
         _create: function () {
@@ -606,6 +631,20 @@
             this._destroyFileUploadButtonBar();
             this.element.removeClass('ui-widget');
             $.blueimp.fileupload.prototype.destroy.call(this);
+        },
+        
+        enable: function () {
+            $.blueimp.fileupload.prototype.enable.call(this);
+            this.element.find(':ui-button').not('.fileinput-button')
+                .button('enable');
+            this._enableFileInputButton();
+        },
+        
+        disable: function () {
+            this.element.find(':ui-button').not('.fileinput-button')
+                .button('disable');
+            this._disableFileInputButton();
+            $.blueimp.fileupload.prototype.disable.call(this);
         }
 
     });
