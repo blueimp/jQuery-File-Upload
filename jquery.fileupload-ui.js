@@ -1,5 +1,5 @@
 /*
- * jQuery File Upload User Interface Plugin 5.0.2
+ * jQuery File Upload User Interface Plugin 5.0.3
  * https://github.com/blueimp/jQuery-File-Upload
  *
  * Copyright 2010, Sebastian Tschan
@@ -47,10 +47,10 @@
             // to alwqys display preview images as img elements:
             previewAsCanvas: true,
             // Image links with a "rel" attribute starting with "gallery"
-            // (e.g. rel="gallery" or rel="gallery[name]") are opened in a
-            // jQuery UI dialog. If the following option is true and the browser
-            // supports it, the image is displayed as canvas elements:
-            openImageAsCanvas: true,
+            // (e.g. rel="gallery" or rel="gallery[name]") are opened with the
+            // Image Gallery plugin. The Image Gallery is initialized with the
+            // following options object:
+            imageGalleryOptions: undefined,
             // The file upload template that is given as first argument to the
             // jQuery.tmpl method to render the file uploads:
             uploadTemplate: $('#template-upload'),
@@ -209,30 +209,13 @@
             }
         },
 
-        _scaleImage: function (img, maxWidth, maxHeight, noCanvas) {
-            var canvas = document.createElement('canvas'),
-                scale = Math.min(
-                    (maxWidth || img.width) / img.width,
-                    (maxHeight || img.height) / img.height
-                );
-            if (scale > 1) {
-                scale = 1;
-            }
-            img.width = parseInt(img.width * scale, 10);
-            img.height = parseInt(img.height * scale, 10);
-            if (noCanvas || !canvas.getContext) {
-                return img;
-            }
-            canvas.width = img.width;
-            canvas.height = img.height;
-            canvas.getContext('2d')
-                .drawImage(img, 0, 0, img.width, img.height);
-            return canvas;
+        _scaleImage: function (img, maxWidth, maxHeight, useCanvas) {
+            return $.fn.imagegallery.scale(img, maxWidth, maxHeight, useCanvas);
         },
 
         // Loads an image for a given File object,
         // invokes the callback with an img or canvas element as parameter:
-        _loadImage: function (file, callBack, maxWidth, maxHeight, imageTypes, noCanvas) {
+        _loadImage: function (file, callBack, maxWidth, maxHeight, imageTypes, useCanvas) {
             var that = this,
                 undef = 'undefined',
                 img,
@@ -245,7 +228,7 @@
                 if (urlAPI && urlAPI.createObjectURL) {
                     img.onload = function () {
                         urlAPI.revokeObjectURL(this.src);
-                        callBack(that._scaleImage(img, maxWidth, maxHeight, noCanvas));
+                        callBack(that._scaleImage(img, maxWidth, maxHeight, useCanvas));
                     };
                     img.src = urlAPI.createObjectURL(file);
                     return true;
@@ -253,7 +236,7 @@
                 if (typeof FileReader !== undef &&
                         FileReader.prototype.readAsDataURL) {
                     img.onload = function () {
-                        callBack(that._scaleImage(img, maxWidth, maxHeight, noCanvas));
+                        callBack(that._scaleImage(img, maxWidth, maxHeight, useCanvas));
                     };
                     fileReader = new FileReader();
                     fileReader.onload = function (e) {
@@ -264,77 +247,6 @@
                 }
             }
             return false;
-        },
-
-        // Opens the image of the given link in a jQuery UI dialog
-        // and provides a simple gallery functionality:
-        _openImageDialog: function (link, callback, noCanvas) {
-            var that = this,
-                rel = link.rel,
-                links = $('a[rel="' + rel + '"]'),
-                nextLink,
-                loader = $('<div class="loading"></div>')
-                    .hide().appendTo(that.element).fadeIn();
-            links.each(function (index) {
-                if ((links[index - 1] === link || links[index - 2] === link) &&
-                        this.href !== link.href) {
-                    nextLink = this;
-                    return false;
-                }
-            });
-            if (!nextLink) {
-                nextLink = links[0];
-            }
-            $('<img>').bind('load error', function (e) {
-                var dialog = $('<div class="' + rel.replace(/\W/g, '-') +
-                        '-dialog"></div>'),
-                    closeDialog = function () {
-                        dialog.dialog('close'); 
-                    };
-                if (e.type === 'error') {
-                    noCanvas = true;
-                    dialog.addClass('missing-image');
-                }
-                dialog.bind({
-                    click: function () {
-                        dialog.unbind('click').fadeOut();
-                        if (nextLink.href !== link.href) {
-                            that._openImageDialog(nextLink, closeDialog, noCanvas);
-                        } else {
-                            closeDialog();
-                        }
-                    },
-                    dialogopen: function () {
-                        if (typeof callback === 'function') {
-                            callback();
-                        }
-                        $('.ui-widget-overlay').click(closeDialog);
-                    },
-                    dialogclose: function () {
-                        $(this).remove();
-                    }
-                }).css('cursor', 'pointer').append(
-                    that._scaleImage(
-                        this,
-                        $(window).width() - 100,
-                        $(window).height() - 100,
-                        noCanvas
-                    )
-                ).appendTo(that.element).dialog({
-                    modal: true,
-                    resizable: false,
-                    width: 'auto',
-                    height: 'auto',
-                    show: 'fade',
-                    hide: 'fade',
-                    title: decodeURIComponent(this.src.split('/').pop())
-                });
-                loader.fadeOut(function () {
-                    loader.remove();
-                });
-            }).prop('src', link.href);
-            // Preload the next image:
-            $('<img>').prop('src', nextLink.href);
         },
 
         // Link handler, that allows to download files
@@ -444,7 +356,7 @@
                     options.previewMaxWidth,
                     options.previewMaxHeight,
                     options.previewFileTypes,
-                    !options.previewAsCanvas
+                    options.previewAsCanvas
                 );
             });
             return tmpl;
@@ -507,12 +419,6 @@
                 dataType: e.data.fileupload.options.dataType
             });
         },
-
-        _imageLinkHandler: function (e) {
-            e.preventDefault();
-            var fu = e.data.fileupload;
-            fu._openImageDialog(this, null, !fu.options.openImageAsCanvas);
-        },
         
         _initEventHandlers: function () {
             $.blueimp.fileupload.prototype._initEventHandlers.call(this);
@@ -537,17 +443,13 @@
                     this._deleteHandler
                 );
             filesList.find('a[rel^=gallery]')
-                .live(
-                    'click.' + this.options.namespace,
-                    eventData,
-                    this._imageLinkHandler
-                );
+                .imagegallery(this.options.imageGalleryOptions);
         },
         
         _destroyEventHandlers: function () {
             var filesList = this.element.find('.files');
             filesList.find('a[rel^=gallery]')
-                .die('click.' + this.options.namespace);
+                .imagegallery('destroy', this.options.imageGalleryOptions);
             filesList.find('.start button')
                 .die('click.' + this.options.namespace);
             filesList.find('.cancel button')
