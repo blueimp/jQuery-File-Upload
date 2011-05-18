@@ -1,7 +1,7 @@
 <!DOCTYPE HTML>
 <!--
 /*
- * jQuery File Upload Plugin HTML Example 5.0.1
+ * jQuery File Upload Plugin HTML Example 5.0.2
  * https://github.com/blueimp/jQuery-File-Upload
  *
  * Copyright 2010, Sebastian Tschan
@@ -32,8 +32,10 @@
             <button type="button" class="delete">Delete files</button>
         </div>
     </form>
-    <table class="files"></table>
-    <div class="fileupload-progressbar"></div>
+    <div class="fileupload-content">
+        <table class="files"></table>
+        <div class="fileupload-progressbar"></div>
+    </div>
 </div>
 <script id="template-upload" type="text/x-jquery-tmpl">
     <tr class="template-upload{{if error}} ui-state-error{{/if}}">
