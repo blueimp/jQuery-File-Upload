@@ -90,10 +90,6 @@
   white-space: nowrap;
 }
 
-.gallery-dialog .ui-dialog-content {
-  text-align: center;
-}
-
 .gallery-dialog-loader {
   position: fixed;
   top: 50%;
@@ -102,12 +98,15 @@
   height: 32px;
   margin: -16px 0 0 -16px;
   background: url(loading.gif);
-  z-index: 9999;
 }
 
 /* IE 6: */
 *html .gallery-dialog-loader {
   position: absolute;
+}
+
+.gallery-dialog .ui-dialog-content {
+  text-align: center;
 }
 
 .ui-state-disabled .ui-state-disabled {

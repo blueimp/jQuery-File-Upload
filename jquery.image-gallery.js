@@ -1,6 +1,6 @@
 /*
- * jQuery Image Gallery Plugin 1.0
- * https://github.com/blueimp/jQuery-File-Upload
+ * jQuery Image Gallery Plugin 1.1
+ * https://github.com/blueimp/jQuery-Image-Gallery
  *
  * Copyright 2011, Sebastian Tschan
  * https://blueimp.net
@@ -9,41 +9,48 @@
  * http://creativecommons.org/licenses/MIT/
  */
 
-/*global jQuery, window, document */
+/*global jQuery, window, document, setTimeout, clearTimeout */
 
 (function ($) {
     'use strict';
 
     // The Image Gallery plugin makes use of jQuery's live method to attach
-    // a click handler for all elements that match the selector of the given
+    // a click handler to all elements that match the selector of the given
     // jQuery collection, now and in the future:
     // 
-    // $('a[rel^=gallery]').imagegallery();
+    // $('a[rel=gallery]').imagegallery();
     // 
     // The click handler opens the linked images in a jQuery UI dialog.
     // The options object given to the imagegallery method is passed to the
     // jQuery UI dialog initialization and allows to set any dialog options:
     // 
-    // $('a[rel^=gallery]').imagegallery({
+    // $('a[rel=gallery]').imagegallery({
     //     open: function (event, ui) {/* called on dialogopen */},
-    //     title: 'Image Gallery' // Sets the dialog title
+    //     title: 'Image Gallery', // Sets the dialog title
+    //     offsetWidth: 50, // Offset of image width to viewport width
+    //     offsetHeight: 50, // Offset of image height to viewport height
+    //     slideshow: 50000, // Shows the next image after 5000 ms
+    //     canvas: true, // Displays images as canvas element
+    //     namespace: 'myimagegallery' // event handler namespace
     // });
+    //
+    // offsetWidth, offsetHeight, canvas, slideshow and namespace are
+    // imagegallery specific options, while open and title are jQuery UI
+    // dialog options.
     // 
     // The click event listeners can be removed by calling the imagegallery
     // method with "destroy" as first argument, using the same selector for
-    // the jQuery collection:
+    // the jQuery collection and the same namespace:
     // 
-    // $('a[rel^=gallery]').imagegallery('destroy', options);
+    // $('a[rel=gallery]').imagegallery('destroy', {namespace: 'ns'});
     // 
     // To directly open an image with gallery functionality, the imagegallery
     // method can be called with "open" as first argument:
     // 
-    // $('a[rel^=gallery]').imagegallery('open');
+    // $('a:last').imagegallery('open', {selector: 'a[rel=gallery]'});
     // 
     // The selector for related images can be overriden with the "selector"
     // option.
-    // The namespace used for the click event listeners can be overriden
-    // with the "namespace" option.
     
     $.fn.imagegallery = function (options, opts) {
         opts = $.extend({
@@ -102,7 +109,9 @@
             // The loader is displayed until the image has loaded
             // and the dialog has been opened:
             loader = $('<div class="' + className + '-loader"></div>')
-                .hide().appendTo('body').fadeIn();
+                .hide()
+                .appendTo($('.ui-widget-overlay:last')[0] || 'body')
+                .fadeIn();
         options = $.extend({
             namespace: 'imagegallery',
             modal: true,
@@ -111,6 +120,8 @@
             height: 'auto',
             show: 'fade',
             hide: 'fade',
+            offsetWidth: 100,
+            offsetHeight: 100,
             title: link.title ||
                 decodeURIComponent(link.href.split('/').pop()),
             dialogClass: className
@@ -178,6 +189,7 @@
                         wheelHandler
                     );
                 },
+                slideShow,
                 scaledImage;
             if (e.type === 'error') {
                 scaledImage = this;
@@ -185,8 +197,8 @@
             } else {
                 scaledImage = $.fn.imagegallery.scale(
                     this,
-                    $(window).width() - 100,
-                    $(window).height() - 100,
+                    $(window).width() - options.offsetWidth,
+                    $(window).height() - options.offsetHeight,
                     options.canvas
                 );
             }
@@ -199,12 +211,19 @@
                     ', DOMMouseScroll.' + options.namespace,
                 wheelHandler
             );
+            if (options.slideshow) {
+                slideShow = setTimeout(function () {
+                    dialog.click();
+                }, options.slideshow);
+            }
             dialog.bind({
                 click: function (e) {
-                    dialog.unbind('click').fadeOut();
+                    clearTimeout(slideShow);
+                    dialog.unbind('click').dialog('widget').fadeOut();
                     var newLink = (e.altKey && prevLink) || nextLink;
                     if (newLink.href !== link.href) {
                         options.callback = closeDialog;
+                        delete options.title;
                         $.fn.imagegallery.open(newLink, options);
                     } else {
                         closeDialog();
@@ -217,6 +236,7 @@
                     $('.ui-widget-overlay:last').click(closeDialog);
                 },
                 dialogclose: function () {
+                    clearTimeout(slideShow);
                     $(this).remove();
                 }
             }).css('cursor', 'pointer').append(
