@@ -44,7 +44,7 @@
             previewMaxHeight: 80,
             // By default, preview images are displayed as canvas elements
             // if supported by the browser. Set the following option to false
-            // to alwqys display preview images as img elements:
+            // to always display preview images as img elements:
             previewAsCanvas: true,
             // Image links with a "rel" attribute starting with "gallery"
             // (e.g. rel="gallery" or rel="gallery[name]") are opened with the
