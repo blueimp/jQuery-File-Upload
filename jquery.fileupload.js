@@ -679,7 +679,7 @@
         // must have a files property and can contain additional options:
         // .fileupload('add', {files: filesList});
         add: function (data) {
-            if (!data || this.options.disabled) {
+            if (!data || this.options.disabled) {
                 return;
             }
             data.files = $.each($.makeArray(data.files), this._normalizeFile);
@@ -692,7 +692,7 @@
         // .fileupload('send', {files: filesList});
         // The method returns a Promise object for the file upload call.
         send: function (data) {
-            if (data && !this.options.disabled) {
+            if (data && !this.options.disabled) {
                 data.files = $.each($.makeArray(data.files), this._normalizeFile);
                 if (data.files.length) {
                     return this._onSend(null, data);
