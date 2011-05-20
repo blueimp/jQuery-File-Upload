@@ -1,5 +1,5 @@
 /*
- * jQuery File Upload User Interface Plugin 5.0.4
+ * jQuery File Upload User Interface Plugin 5.0.5
  * https://github.com/blueimp/jQuery-File-Upload
  *
  * Copyright 2010, Sebastian Tschan
@@ -531,8 +531,26 @@
                 });
         },
 
+        _initTemplates: function () {
+            // Handle cases where the templates are defined
+            // after the widget library has been included:
+            if (this.options.uploadTemplate instanceof $ &&
+                    !this.options.uploadTemplate.length) {
+                this.options.uploadTemplate = $(
+                    this.options.uploadTemplate.selector
+                );
+            }
+            if (this.options.downloadTemplate instanceof $ &&
+                    !this.options.downloadTemplate.length) {
+                this.options.downloadTemplate = $(
+                    this.options.downloadTemplate.selector
+                );
+            }
+        },
+
         _create: function () {
             $.blueimp.fileupload.prototype._create.call(this);
+            this._initTemplates();
             this.element
                 .addClass('ui-widget');
             this._initFileUploadButtonBar();
