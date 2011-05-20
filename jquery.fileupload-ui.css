@@ -1,6 +1,6 @@
 @charset 'UTF-8';
 /*
- * jQuery File Upload UI Plugin CSS 5.0.4
+ * jQuery File Upload UI Plugin CSS 5.0.5
  * https://github.com/blueimp/jQuery-File-Upload
  *
  * Copyright 2010, Sebastian Tschan
@@ -88,25 +88,6 @@
   padding: 0 10px 0 0;
   text-align: right;
   white-space: nowrap;
-}
-
-.gallery-dialog-loader {
-  position: fixed;
-  top: 50%;
-  left: 50%;
-  width: 32px;
-  height: 32px;
-  margin: -16px 0 0 -16px;
-  background: url(loading.gif);
-}
-
-/* IE 6: */
-*html .gallery-dialog-loader {
-  position: absolute;
-}
-
-.gallery-dialog .ui-dialog-content {
-  text-align: center;
 }
 
 .ui-state-disabled .ui-state-disabled {

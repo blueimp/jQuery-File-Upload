@@ -1,5 +1,5 @@
 /*
- * jQuery File Upload User Interface Plugin 5.0.3
+ * jQuery File Upload User Interface Plugin 5.0.4
  * https://github.com/blueimp/jQuery-File-Upload
  *
  * Copyright 2010, Sebastian Tschan
@@ -46,11 +46,6 @@
             // if supported by the browser. Set the following option to false
             // to always display preview images as img elements:
             previewAsCanvas: true,
-            // Image links with a "rel" attribute starting with "gallery"
-            // (e.g. rel="gallery" or rel="gallery[name]") are opened with the
-            // Image Gallery plugin. The Image Gallery is initialized with the
-            // following options object:
-            imageGalleryOptions: undefined,
             // The file upload template that is given as first argument to the
             // jQuery.tmpl method to render the file uploads:
             uploadTemplate: $('#template-upload'),
@@ -210,7 +205,24 @@
         },
 
         _scaleImage: function (img, maxWidth, maxHeight, useCanvas) {
-            return $.fn.imagegallery.scale(img, maxWidth, maxHeight, useCanvas);
+            var canvas = document.createElement('canvas'),
+                scale = Math.min(
+                    (maxWidth || img.width) / img.width,
+                    (maxHeight || img.height) / img.height
+                );
+            if (scale > 1) {
+                scale = 1;
+            }
+            img.width = parseInt(img.width * scale, 10);
+            img.height = parseInt(img.height * scale, 10);
+            if (!useCanvas || !canvas.getContext) {
+                return img;
+            }
+            canvas.width = img.width;
+            canvas.height = img.height;
+            canvas.getContext('2d')
+                .drawImage(img, 0, 0, img.width, img.height);
+            return canvas;
         },
 
         // Loads an image for a given File object,
@@ -442,14 +454,10 @@
                     eventData,
                     this._deleteHandler
                 );
-            filesList.find('a[rel^=gallery]')
-                .imagegallery(this.options.imageGalleryOptions);
         },
         
         _destroyEventHandlers: function () {
             var filesList = this.element.find('.files');
-            filesList.find('a[rel^=gallery]')
-                .imagegallery('destroy', this.options.imageGalleryOptions);
             filesList.find('.start button')
                 .die('click.' + this.options.namespace);
             filesList.find('.cancel button')
