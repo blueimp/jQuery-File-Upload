@@ -120,6 +120,9 @@
             'iframe json': function (iframe) {
                 return $.parseJSON(iframe.text());
             },
+            'iframe jsonp': function (iframe) {
+                return $.parseJSON(iframe.text().replace(/^[^(]*\(|\)[^)]*$/g,''));
+            },
             'iframe html': function (iframe) {
                 return iframe.find('body').html();
             }
