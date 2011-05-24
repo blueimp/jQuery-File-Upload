@@ -1,6 +1,6 @@
 <?php
 /*
- * jQuery File Upload Plugin PHP Example 5.0
+ * jQuery File Upload Plugin PHP Example 5.1
  * https://github.com/blueimp/jQuery-File-Upload
  *
  * Copyright 2010, Sebastian Tschan
@@ -21,20 +21,35 @@ class UploadHandler
             'script_url' => $_SERVER['PHP_SELF'],
             'upload_dir' => dirname(__FILE__).'/files/',
             'upload_url' => dirname($_SERVER['PHP_SELF']).'/files/',
-            'thumbnails_dir' => dirname(__FILE__).'/thumbnails/',
-            'thumbnails_url' => dirname($_SERVER['PHP_SELF']).'/thumbnails/',
-            'thumbnail_max_width' => 80,
-            'thumbnail_max_height' => 80,
             'param_name' => 'files',
             // The php.ini settings upload_max_filesize and post_max_size
             // take precedence over the following max_file_size setting:
             'max_file_size' => null,
             'min_file_size' => 1,
             'accept_file_types' => '/.+$/i',
-            'max_number_of_files' => null
+            'max_number_of_files' => null,
+            'image_versions' => array(
+                // Uncomment the following version to restrict the size of
+                // uploaded images. You can also add additional versions with
+                // their own upload directories:
+                /*
+                'large' => array(
+                    'upload_dir' => dirname(__FILE__).'/files/',
+                    'upload_url' => dirname($_SERVER['PHP_SELF']).'/files/',
+                    'max_width' => 1920,
+                    'max_height' => 1200
+                ),
+                */
+                'thumbnail' => array(
+                    'upload_dir' => dirname(__FILE__).'/thumbnails/',
+                    'upload_url' => dirname($_SERVER['PHP_SELF']).'/thumbnails/',
+                    'max_width' => 80,
+                    'max_height' => 80
+                )
+            )
         );
         if ($options) {
-            $this->options = array_merge($this->options, $options);
+            $this->options = array_merge_recursive($this->options, $options);
         }
     }
     
@@ -45,8 +60,12 @@ class UploadHandler
             $file->name = $file_name;
             $file->size = filesize($file_path);
             $file->url = $this->options['upload_url'].rawurlencode($file->name);
-            $file->thumbnail_url = is_file($this->options['thumbnails_dir'].$file_name) ?
-                $this->options['thumbnails_url'].rawurlencode($file->name) : null;
+            foreach($this->options['image_versions'] as $version => $options) {
+                if (is_file($options['upload_dir'].$file_name)) {
+                    $file->{$version.'_url'} = $options['upload_url']
+                        .rawurlencode($file->name);
+                }
+            }
             $file->delete_url = $this->options['script_url']
                 .'?file='.rawurlencode($file->name);
             $file->delete_type = 'DELETE';
@@ -62,52 +81,52 @@ class UploadHandler
         )));
     }
 
-    private function create_thumbnail($file_name) {
+    private function create_scaled_image($file_name, $options) {
         $file_path = $this->options['upload_dir'].$file_name;
-        $thumbnail_path = $this->options['thumbnails_dir'].$file_name;
+        $new_file_path = $options['upload_dir'].$file_name;
         list($img_width, $img_height) = @getimagesize($file_path);
         if (!$img_width || !$img_height) {
             return false;
         }
         $scale = min(
-            $this->options['thumbnail_max_width'] / $img_width,
-            $this->options['thumbnail_max_height'] / $img_height
+            $options['max_width'] / $img_width,
+            $options['max_height'] / $img_height
         );
         if ($scale > 1) {
             $scale = 1;
         }
-        $thumbnail_width = $img_width * $scale;
-        $thumbnail_height = $img_height * $scale;
-        $thumbnail_img = @imagecreatetruecolor($thumbnail_width, $thumbnail_height);
+        $new_width = $img_width * $scale;
+        $new_height = $img_height * $scale;
+        $new_img = @imagecreatetruecolor($new_width, $new_height);
         switch (strtolower(substr(strrchr($file_name, '.'), 1))) {
             case 'jpg':
             case 'jpeg':
                 $src_img = @imagecreatefromjpeg($file_path);
-                $write_thumbnail = 'imagejpeg';
+                $write_image = 'imagejpeg';
                 break;
             case 'gif':
                 $src_img = @imagecreatefromgif($file_path);
-                $write_thumbnail = 'imagegif';
+                $write_image = 'imagegif';
                 break;
             case 'png':
                 $src_img = @imagecreatefrompng($file_path);
-                $write_thumbnail = 'imagepng';
+                $write_image = 'imagepng';
                 break;
             default:
-                $src_img = $write_thumbnail = null;
+                $src_img = $image_method = null;
         }
         $success = $src_img && @imagecopyresampled(
-            $thumbnail_img,
+            $new_img,
             $src_img,
             0, 0, 0, 0,
-            $thumbnail_width,
-            $thumbnail_height,
+            $new_width,
+            $new_height,
             $img_width,
             $img_height
-        ) && $write_thumbnail($thumbnail_img, $thumbnail_path);
+        ) && $write_image($new_img, $new_file_path);
         // Free up memory (imagedestroy does not delete files):
         @imagedestroy($src_img);
-        @imagedestroy($thumbnail_img);
+        @imagedestroy($new_img);
         return $success;
     }
     
@@ -176,8 +195,12 @@ class UploadHandler
             $file_size = filesize($file_path);
             if ($file_size === $file->size) {
                 $file->url = $this->options['upload_url'].rawurlencode($file->name);
-                $file->thumbnail_url = $this->create_thumbnail($file->name) ?
-                    $this->options['thumbnails_url'].rawurlencode($file->name) : null;
+                foreach($this->options['image_versions'] as $version => $options) {
+                    if ($this->create_scaled_image($file->name, $options)) {
+                        $file->{$version.'_url'} = $options['upload_url']
+                            .rawurlencode($file->name);
+                    }
+                }
             }
             $file->size = $file_size;
             $file->delete_url = $this->options['script_url']
@@ -252,10 +275,14 @@ class UploadHandler
         $file_name = isset($_REQUEST['file']) ?
             basename(stripslashes($_REQUEST['file'])) : null;
         $file_path = $this->options['upload_dir'].$file_name;
-        $thumbnail_path = $this->options['thumbnails_dir'].$file_name;
         $success = is_file($file_path) && $file_name[0] !== '.' && unlink($file_path);
-        if ($success && is_file($thumbnail_path)) {
-            unlink($thumbnail_path);
+        if ($success) {
+            foreach($this->options['image_versions'] as $version => $options) {
+                $file = $options['upload_dir'].$file_name;
+                if (is_file($file)) {
+                    unlink($file);
+                }
+            }
         }
         header('Content-type: application/json');
         echo json_encode($success);
