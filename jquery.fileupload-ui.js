@@ -1,5 +1,5 @@
 /*
- * jQuery File Upload User Interface Plugin 5.0.5
+ * jQuery File Upload User Interface Plugin 5.0.6
  * https://github.com/blueimp/jQuery-File-Upload
  *
  * Copyright 2010, Sebastian Tschan
@@ -337,15 +337,20 @@
             return file;
         },
 
+        _renderUploadTemplate: function (files) {
+            var that = this;
+            return $.tmpl(
+                this.options.uploadTemplate,
+                $.map(files, function (file) {
+                    return that._uploadTemplateHelper(file);
+                })
+            );
+        },
+
         _renderUpload: function (files) {
             var that = this,
                 options = this.options,
-                tmpl = $.tmpl(
-                    this.options.uploadTemplate,
-                    $.map(files, function (file) {
-                        return that._uploadTemplateHelper(file);
-                    })
-                );
+                tmpl = this._renderUploadTemplate(files);
             if (!(tmpl instanceof $)) {
                 return $();
             }
@@ -378,15 +383,19 @@
             file.sizef = this._formatFileSize(file);
             return file;
         },
+
+        _renderDownloadTemplate: function (files) {
+            var that = this;
+            return $.tmpl(
+                this.options.downloadTemplate,
+                $.map(files, function (file) {
+                    return that._downloadTemplateHelper(file);
+                })
+            );
+        },
         
         _renderDownload: function (files) {
-            var that = this,
-                tmpl = $.tmpl(
-                    this.options.downloadTemplate,
-                    $.map(files, function (file) {
-                        return that._downloadTemplateHelper(file);
-                    })
-                );
+            var tmpl = this._renderDownloadTemplate(files);
             if (!(tmpl instanceof $)) {
                 return $();
             }
