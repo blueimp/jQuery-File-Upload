@@ -64,3 +64,10 @@ Released under the [MIT license](http://creativecommons.org/licenses/MIT/).
 ## Documentation & Support
 * Documentation can be found on the [Project Wiki](https://github.com/blueimp/jQuery-File-Upload/wiki).
 * Support requests and bug reports can be posted to the [Issue Tracker](https://github.com/blueimp/jQuery-File-Upload/issues).
+
+## Donations
+jQuery File Upload is free software, but you can donate to support the developer, Sebastian Tschan:
+
+flattr (€): [![flattr](https://api.flattr.com/button/flattr-badge-large.png)](https://flattr.com/thing/286433/jQuery-File-Upload-Plugin)  
+
+PayPal ($): [![Paypal](https://www.paypalobjects.com/WEBSCR-640-20110429-1/en_US/i/btn/btn_donateCC_LG.gif)](https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=PYWYSYP77KL54)  
