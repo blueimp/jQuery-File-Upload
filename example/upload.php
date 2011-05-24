@@ -1,6 +1,6 @@
 <?php
 /*
- * jQuery File Upload Plugin PHP Example 5.1
+ * jQuery File Upload Plugin PHP Example 5.2
  * https://github.com/blueimp/jQuery-File-Upload
  *
  * Copyright 2010, Sebastian Tschan
@@ -28,6 +28,7 @@ class UploadHandler
             'min_file_size' => 1,
             'accept_file_types' => '/.+$/i',
             'max_number_of_files' => null,
+            'discard_aborted_uploads' => true,
             'image_versions' => array(
                 // Uncomment the following version to restrict the size of
                 // uploaded images. You can also add additional versions with
@@ -201,6 +202,9 @@ class UploadHandler
                             .rawurlencode($file->name);
                     }
                 }
+            } else if ($this->options['discard_aborted_uploads']) {
+                unlink($file_path);
+                $file->error = 'abort';
             }
             $file->size = $file_size;
             $file->delete_url = $this->options['script_url']
