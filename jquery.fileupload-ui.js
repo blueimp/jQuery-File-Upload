@@ -1,5 +1,5 @@
 /*
- * jQuery File Upload User Interface Plugin 5.0.6
+ * jQuery File Upload User Interface Plugin 5.0.7
  * https://github.com/blueimp/jQuery-File-Upload
  *
  * Copyright 2010, Sebastian Tschan
@@ -355,15 +355,20 @@
                 return $();
             }
             tmpl.css('display', 'none');
-            tmpl.find('.progress div').first().progressbar();
-            tmpl.find('.start button').hide().first().show().button({
-                text: false,
-                icons: {primary: 'ui-icon-circle-arrow-e'}
-            });
-            tmpl.find('.cancel button').hide().first().show().button({
-                text: false,
-                icons: {primary: 'ui-icon-cancel'}
-            });
+            // .slice(1).remove().end().first() removes all but the first
+            // element and selects only the first for the jQuery collection:
+            tmpl.find('.progress div').slice(1).remove().end().first()
+                .progressbar();
+            tmpl.find('.start button').slice(1).remove().end().first()
+                .button({
+                    text: false,
+                    icons: {primary: 'ui-icon-circle-arrow-e'}
+                });
+            tmpl.find('.cancel button').slice(1).remove().end().first()
+                .button({
+                    text: false,
+                    icons: {primary: 'ui-icon-cancel'}
+                });
             tmpl.find('.preview').each(function (index, node) {
                 that._loadImage(
                     files[index],
