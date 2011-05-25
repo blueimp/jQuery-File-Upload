@@ -1,5 +1,5 @@
 /*
- * jQuery File Upload User Interface Plugin 5.0.7
+ * jQuery File Upload User Interface Plugin 5.0.8
  * https://github.com/blueimp/jQuery-File-Upload
  *
  * Copyright 2010, Sebastian Tschan
@@ -69,7 +69,7 @@
                     }).data('data', data);
                 data.isValidated = true;
                 if (that.options.autoUpload || data.autoUpload) {
-                    data.context.find('.start button').click();
+                    data.jqXHR = data.submit();
                 }
             },
             // Callback for the start of each file upload request:
@@ -359,7 +359,9 @@
             // element and selects only the first for the jQuery collection:
             tmpl.find('.progress div').slice(1).remove().end().first()
                 .progressbar();
-            tmpl.find('.start button').slice(1).remove().end().first()
+            tmpl.find('.start button').slice(
+                this.options.autoUpload ? 0 : 1
+            ).remove().end().first()
                 .button({
                     text: false,
                     icons: {primary: 'ui-icon-circle-arrow-e'}
@@ -417,7 +419,7 @@
             e.preventDefault();
             var tmpl = $(this).closest('.template-upload'),
                 data = tmpl.data('data');
-            if (data && data.submit) {
+            if (data && data.submit && !data.jqXHR) {
                 data.jqXHR = data.submit();
                 $(this).fadeOut();
             }
