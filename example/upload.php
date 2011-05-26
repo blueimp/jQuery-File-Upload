@@ -1,6 +1,6 @@
 <?php
 /*
- * jQuery File Upload Plugin PHP Example 5.2
+ * jQuery File Upload Plugin PHP Example 5.2.1
  * https://github.com/blueimp/jQuery-File-Upload
  *
  * Copyright 2010, Sebastian Tschan
@@ -224,7 +224,6 @@ class UploadHandler
         } else {
             $info = $this->get_file_objects();
         }
-        header('Cache-Control: no-cache, must-revalidate');
         header('Content-type: application/json');
         echo json_encode($info);
     }
@@ -264,7 +263,6 @@ class UploadHandler
                 $upload['error']
             );
         }
-        header('Cache-Control: no-cache, must-revalidate');
         header('Vary: Accept');
         if (isset($_SERVER['HTTP_ACCEPT']) &&
             (strpos($_SERVER['HTTP_ACCEPT'], 'application/json') !== false)) {
@@ -294,6 +292,9 @@ class UploadHandler
 }
 
 $upload_handler = new UploadHandler();
+
+header('Pragma: no-cache');
+header('Cache-Control: private, no-cache');
 
 switch ($_SERVER['REQUEST_METHOD']) {
     case 'HEAD':
