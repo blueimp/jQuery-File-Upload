@@ -1,5 +1,5 @@
 /*
- * jQuery File Upload User Interface Plugin 5.0.8
+ * jQuery File Upload User Interface Plugin 5.0.9
  * https://github.com/blueimp/jQuery-File-Upload
  *
  * Copyright 2010, Sebastian Tschan
@@ -9,7 +9,7 @@
  * http://creativecommons.org/licenses/MIT/
  */
 
-/*jslint nomen: false, unparam: false, regexp: false */
+/*jslint nomen: false, unparam: true, regexp: false */
 /*global window, document, URL, webkitURL, FileReader, jQuery */
 
 (function ($) {
@@ -62,29 +62,26 @@
             add: function (e, data) {
                 var that = $(this).data('fileupload');
                 that._adjustMaxNumberOfFiles(-data.files.length);
+                data.isAdjusted = true;
+                data.isValidated = that._validate(data.files);
                 data.context = that._renderUpload(data.files)
                     .appendTo($(this).find('.files')).fadeIn(function () {
                         // Fix for IE7 and lower:
                         $(this).show();
                     }).data('data', data);
-                data.isValidated = true;
-                if (that.options.autoUpload || data.autoUpload) {
+                if ((that.options.autoUpload || data.autoUpload) &&
+                        data.isValidated) {
                     data.jqXHR = data.submit();
                 }
             },
             // Callback for the start of each file upload request:
             send: function (e, data) {
                 if (!data.isValidated) {
-                    var that = $(this).data('fileupload'),
-                        hasErrors = false;
-                    that._adjustMaxNumberOfFiles(-data.files.length);
-                    $.each(data.files, function (index, file) {
-                        file.error = that._hasError(file);
-                        if (file.error) {
-                            hasErrors = true;
-                        }
-                    });
-                    if (hasErrors) {
+                    var that = $(this).data('fileupload');
+                    if (!data.isAdjusted) {
+                        that._adjustMaxNumberOfFiles(-data.files.length);
+                    }
+                    if (!that._validate(data.files)) {
                         return false;
                     }
                 }
@@ -329,6 +326,16 @@
                 return 'minFileSize';
             }
             return null;
+        },
+
+        _validate: function (files) {
+            var that = this,
+                valid;
+            $.each(files, function (index, file) {
+                file.error = that._hasError(file);
+                valid = !file.error;
+            });
+            return valid;
         },
 
         _uploadTemplateHelper: function (file) {
