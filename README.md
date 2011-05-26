@@ -44,15 +44,15 @@
 * [jQuery Templates plugin](http://api.jquery.com/category/plugins/templates/) v. 1.0+ (Optional)
 
 ## Browser Support (tested versions)
-* Google Chrome - 7.0, 8.0, 9.0, 10.0, 11.0
-* Apple Safari - 4.0, 5.0 ¹
-* Mozilla Firefox - 3.5, 3.6, 4.0
-* Opera - 10.6, 11.0, 11.1 ²
-* Microsoft Internet Explorer 6.0, 7.0, 8.0, 9.0 ³
+* Google Chrome - 7.0+
+* Apple Safari - 4.0+
+* Mozilla Firefox - 3.0+
+* Opera - 10.0+
+* Microsoft Internet Explorer 6.0+
 
-¹ Drag & Drop is not supported on the Windows version of Safari.  
-² Opera has no suppport for Drag & Drop or upload progress, but support for multiple file selection since version 11.1.  
-³ MSIE has no support for Drag & Drop, multiple file selection or upload progress.
+Drag & Drop is only supported on Google Chrome, Firefox 4.0+ and the Mac OSX version of Safari 5.0+.  
+Microsoft Internet Explorer has no support for multiple file selection or upload progress.  
+[Extended browser support information](https://github.com/blueimp/jQuery-File-Upload/wiki/Browser-support).
 
 ## License
 Released under the [MIT license](http://creativecommons.org/licenses/MIT/).
