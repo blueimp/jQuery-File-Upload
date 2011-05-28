@@ -1,5 +1,5 @@
 /*
- * jQuery File Upload User Interface Plugin 5.0.10
+ * jQuery File Upload User Interface Plugin 5.0.11
  * https://github.com/blueimp/jQuery-File-Upload
  *
  * Copyright 2010, Sebastian Tschan
@@ -103,6 +103,9 @@
                     data.context.each(function (index) {
                         var file = ($.isArray(data.result) &&
                                 data.result[index]) || {error: 'emptyResult'};
+                        if (file.error) {
+                            that._adjustMaxNumberOfFiles(1);
+                        }
                         $(this).fadeOut(function () {
                             that._renderDownload([file])
                                 .css('display', 'none')
