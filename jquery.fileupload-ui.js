@@ -477,11 +477,13 @@
         _deleteHandler: function (e) {
             e.preventDefault();
             var button = $(this);
+            var fu = e.data.fileupload;
             e.data.fileupload._trigger('destroy', e, {
                 context: button.closest('.template-download'),
                 url: button.attr('data-url'),
+                data: fu.options.formData($("form", fu.element).first()),
                 type: button.attr('data-type'),
-                dataType: e.data.fileupload.options.dataType
+                dataType: fu.options.dataType
             });
         },
         
