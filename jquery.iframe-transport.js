@@ -13,10 +13,10 @@
 
 (function ($) {
     'use strict';
-    
+
     // Helper variable to create unique names for the transport iframes:
     var counter = 0;
-    
+
     // The iframe transport accepts two additional options:
     // options.fileInput: a jQuery collection of file input fields
     // options.formData: an array of objects with name and value properties,
@@ -111,7 +111,7 @@
     });
 
     // The iframe transport returns the iframe content document as response.
-    // The following adds converters from iframe to text, json and html:
+    // The following adds converters from iframe to text, json, html, and script:
     $.ajaxSetup({
         converters: {
             'iframe text': function (iframe) {
@@ -122,7 +122,11 @@
             },
             'iframe html': function (iframe) {
                 return iframe.find('body').html();
+            },
+            'iframe script': function (iframe) {
+                return $.globalEval(iframe.text());
             }
+
         }
     });
 
