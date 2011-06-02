@@ -45,8 +45,12 @@ Features
 Requirements
 ------------
   - jQuery v. 1.6+
-  - jQuery UI v. 1.8+ (Required: Widget, Optional: Progressbar, Button, Dialog)
-  - jQuery Templates plugin v. 1.0+ (Optional)
+  - jQuery UI v. 1.8+ (required: Widget, optional: Progressbar, Button)
+  - jQuery Iframe Transport plugin (included)
+  - jQuery Templates plugin v. 1.0+ (optional)
+
+The jQuery UI widget factory is a requirement for the basic File Upload plugin, but very lightweight without any other dependencies. 
+The UI version of the File Upload plugin also requires the jQuery UI Progressbar and Button components as well as the jQuery Templates plugin. These dependencies are marked as optional, as the basic File Upload plugin can be used without them and the UI version of the plugin can be extended to override these dependencies with alternative solutions.
 
 Browser Support (tested versions)
 ---------------------------------
