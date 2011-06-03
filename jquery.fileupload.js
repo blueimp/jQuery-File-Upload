@@ -1,5 +1,5 @@
 /*
- * jQuery File Upload Plugin 5.0
+ * jQuery File Upload Plugin 5.0.1
  * https://github.com/blueimp/jQuery-File-Upload
  *
  * Copyright 2010, Sebastian Tschan
@@ -9,7 +9,7 @@
  * http://creativecommons.org/licenses/MIT/
  */
 
-/*jslint nomen: false, regexp: false */
+/*jslint nomen: false, unparam: true, regexp: false */
 /*global document, XMLHttpRequestUpload, Blob, File, FormData, location, jQuery */
 
 (function ($) {
@@ -580,7 +580,10 @@
             var that = e.data.fileupload,
                 dataTransfer = e.dataTransfer = e.originalEvent.dataTransfer,
                 data = {
-                    files: $.each($.makeArray(dataTransfer.files), that._normalizeFile)
+                    files: $.each(
+                        $.makeArray(dataTransfer && dataTransfer.files),
+                        that._normalizeFile
+                    )
                 };
             if (that._trigger('drop', e, data) === false ||
                     that._onAdd(e, data) === false) {
@@ -595,7 +598,9 @@
             if (that._trigger('dragover', e) === false) {
                 return false;
             }
-            dataTransfer.dropEffect = dataTransfer.effectAllowed = 'copy';
+            if (dataTransfer) {
+                dataTransfer.dropEffect = dataTransfer.effectAllowed = 'copy';
+            }
             e.preventDefault();
         },
         
