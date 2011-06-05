@@ -127,7 +127,6 @@
             'iframe script': function (iframe) {
                 return $.globalEval(iframe.text());
             }
-
         }
     });
 
