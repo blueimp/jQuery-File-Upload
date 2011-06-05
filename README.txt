@@ -60,7 +60,7 @@ Browser Support (tested versions)
   - Opera - 10.0+
   - Microsoft Internet Explorer 6.0+
 
-Drag & Drop is only supported on Google Chrome, Firefox 4.0+ and the Mac OSX version of Safari 5.0+.  
+Drag & Drop is only supported on Google Chrome, Firefox 4.0+ and Safari 5.0+.  
 Microsoft Internet Explorer has no support for multiple file selection or upload progress.  
 Extended browser support information:
 https://github.com/blueimp/jQuery-File-Upload/wiki/Browser-support
