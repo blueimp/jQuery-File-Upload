@@ -1,6 +1,6 @@
 <?php
 /*
- * jQuery File Upload Plugin PHP Example 5.2.1
+ * jQuery File Upload Plugin PHP Example 5.2.2
  * https://github.com/blueimp/jQuery-File-Upload
  *
  * Copyright 2010, Sebastian Tschan
@@ -295,6 +295,7 @@ $upload_handler = new UploadHandler();
 
 header('Pragma: no-cache');
 header('Cache-Control: private, no-cache');
+header('Content-Disposition: inline; filename="files.json"');
 
 switch ($_SERVER['REQUEST_METHOD']) {
     case 'HEAD':
