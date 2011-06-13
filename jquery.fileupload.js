@@ -1,5 +1,5 @@
 /*
- * jQuery File Upload Plugin 5.0.1
+ * jQuery File Upload Plugin 5.0.2
  * https://github.com/blueimp/jQuery-File-Upload
  *
  * Copyright 2010, Sebastian Tschan
@@ -9,7 +9,7 @@
  * http://creativecommons.org/licenses/MIT/
  */
 
-/*jslint nomen: false, unparam: true, regexp: false */
+/*jslint nomen: true, unparam: true, regexp: true */
 /*global document, XMLHttpRequestUpload, Blob, File, FormData, location, jQuery */
 
 (function ($) {
@@ -232,7 +232,7 @@
                     options.data = options.blob;
                 }
             }
-            if (options.multipart) {
+            if (options.multipart && typeof FormData !== 'undefined') {
                 if (options.formData instanceof FormData) {
                     formData = options.formData;
                 } else {
@@ -318,14 +318,14 @@
 
         // Creates and returns a Promise object enhanced with
         // the jqXHR methods abort, success, error and complete:
-        _getXHRPromise: function (resolveOrReject, context) {
+        _getXHRPromise: function (resolveOrReject, context, args) {
             var dfd = $.Deferred(),
                 promise = dfd.promise();
             context = context || this.options.context || promise;
             if (resolveOrReject === true) {
-                dfd.resolveWith(context);
+                dfd.resolveWith(context, args);
             } else if (resolveOrReject === false) {
-                dfd.rejectWith(context);
+                dfd.rejectWith(context, args);
             }
             promise.abort = dfd.promise;
             return this._enhancePromise(promise);
@@ -452,11 +452,12 @@
             }
         },
 
-        _onAlways: function (result, textStatus, jqXHR, options) {
+        _onAlways: function (result, textStatus, jqXHR, errorThrown, options) {
             this._active -= 1;
             options.result = result;
             options.textStatus = textStatus;
             options.jqXHR = jqXHR;
+            options.errorThrown = errorThrown;
             this._trigger('always', null, options);
             if (this._active === 0) {
                 // The stop callback is triggered when all uploads have
@@ -472,17 +473,22 @@
                 jqXHR,
                 pipe,
                 options = that._getAJAXSettings(data),
-                send = function () {
-                    jqXHR = ((that._trigger('send', e, options) !== false && (
-                        that._chunkedUpload(options) ||
-                        $.ajax(options)
-                    )) || that._getXHRPromise(false, options.context)
+                send = function (resolve, args) {
+                    jqXHR = jqXHR || (
+                        (resolve !== false &&
+                        that._trigger('send', e, options) !== false &&
+                        (that._chunkedUpload(options) || $.ajax(options))) ||
+                        that._getXHRPromise(false, options.context, args)
                     ).done(function (result, textStatus, jqXHR) {
                         that._onDone(result, textStatus, jqXHR, options);
                     }).fail(function (jqXHR, textStatus, errorThrown) {
                         that._onFail(jqXHR, textStatus, errorThrown, options);
-                    }).always(function (result, textStatus, jqXHR) {
-                        that._onAlways(result, textStatus, jqXHR, options);
+                    }).always(function (a1, a2, a3) {
+                        if (!a3 || typeof a3 === 'string') {
+                            that._onAlways(undefined, a2, a1, a3, options);
+                        } else {
+                            that._onAlways(a1, a2, a3, undefined, options);
+                        }
                     });
                     return jqXHR;
                 };
@@ -493,6 +499,9 @@
                 // and jqXHR callbacks mapped to the equivalent Promise methods:
                 pipe = (this._sequence = this._sequence.pipe(send, send));
                 pipe.abort = function () {
+                    if (!jqXHR) {
+                        return send(false, [undefined, 'abort', 'abort']);
+                    }
                     return jqXHR.abort();
                 };
                 return this._enhancePromise(pipe);

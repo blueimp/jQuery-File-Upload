@@ -1,5 +1,5 @@
 /*
- * jQuery File Upload User Interface Plugin 5.0.12
+ * jQuery File Upload User Interface Plugin 5.0.13
  * https://github.com/blueimp/jQuery-File-Upload
  *
  * Copyright 2010, Sebastian Tschan
@@ -9,7 +9,7 @@
  * http://creativecommons.org/licenses/MIT/
  */
 
-/*jslint nomen: false, unparam: true, regexp: false */
+/*jslint nomen: true, unparam: true, regexp: true */
 /*global window, document, URL, webkitURL, FileReader, jQuery */
 
 (function ($) {

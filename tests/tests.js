@@ -1,5 +1,5 @@
 /*
- * jQuery File Upload Plugin Tests 3.0
+ * jQuery File Upload Plugin Tests 3.0.1
  * https://github.com/blueimp/jQuery-File-Upload
  *
  * Copyright 2010, Sebastian Tschan
@@ -9,7 +9,7 @@
  * http://creativecommons.org/licenses/MIT/
  */
 
-/*jslint nomen: false, unparam: true */
+/*jslint nomen: true, unparam: true */
 /*global $, QUnit, document, expect, module, test, asyncTest, start, ok, strictEqual, notStrictEqual */
 
 $(function () {
@@ -313,7 +313,6 @@ $(function () {
         var param = {files: [{name: 'test'}]},
             fu = $('#fileupload').fileupload({
                 url: '404',
-                multipart: false,
                 fail: function (e, data) {
                     ok(true, 'Triggers fail callback');
                     start();
@@ -330,7 +329,6 @@ $(function () {
         var param = {files: [{name: 'test'}]},
             counter = 0,
             fu = $('#fileupload').fileupload({
-                multipart: false,
                 always: function (e, data) {
                     ok(true, 'Triggers always callback');
                     if (counter === 1) {
@@ -599,7 +597,7 @@ $(function () {
         $('#fileupload').fileupload({
             singleFileUploads: true,
             add: function (e, data) {
-                ok(true, 'Triggers callback number ' + index);
+                ok(true, 'Triggers callback number ' + index.toString());
                 index += 1;
             }
         }).fileupload('add', param).fileupload(
@@ -608,25 +606,39 @@ $(function () {
             false
         ).fileupload('add', param);
     });
-    
+
     asyncTest('sequentialUploads', function () {
-        expect(3);
+        expect(6);
         var param = {files: [
                 {name: '1'},
                 {name: '2'},
-                {name: '3'}
+                {name: '3'},
+                {name: '4'},
+                {name: '5'},
+                {name: '6'}
             ]},
+            addIndex = 0,
             sendIndex = 0,
             loadIndex = 0,
             fu = $('#fileupload').fileupload({
                 sequentialUploads: true,
-                multipart: false,
+                add: function (e, data) {
+                    addIndex += 1;
+                    if (addIndex === 4) {
+                        data.submit().abort();
+                    } else {
+                        data.submit();
+                    }
+                },
                 send: function (e, data) {
                     sendIndex += 1;
                 },
-                always: function (e, data) {
+                done: function (e, data) {
                     loadIndex += 1;
                     strictEqual(sendIndex, loadIndex, 'upload in order');
+                },
+                fail: function (e, data) {
+                    strictEqual(data.errorThrown, 'abort', 'upload aborted');
                 },
                 stop: function (e) {
                     start();
