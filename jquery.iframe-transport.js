@@ -50,7 +50,7 @@
                                 completeCallback(
                                     200,
                                     'success',
-                                    {'iframe': iframe.contents()}
+                                    {'iframe': iframe}
                                 );
                                 // Fix for IE endless progress bar activity bug
                                 // (happens on form submits to iframe targets):
