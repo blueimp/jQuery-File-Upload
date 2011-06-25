@@ -1,5 +1,5 @@
 /*
- * jQuery Iframe Transport Plugin 1.2
+ * jQuery Iframe Transport Plugin 1.2.1
  * https://github.com/blueimp/jQuery-File-Upload
  *
  * Copyright 2011, Sebastian Tschan
@@ -45,12 +45,20 @@
                         iframe
                             .unbind('load')
                             .bind('load', function () {
+                                var response;
+                                // Wrap in a try/catch block to catch exceptions thrown
+                                // when trying to access cross-domain iframe contents:
+                                try {
+                                    response = iframe.contents();
+                                } catch (e) {
+                                    response = $();
+                                }
                                 // The complete callback returns the
                                 // iframe content document as response object:
                                 completeCallback(
                                     200,
                                     'success',
-                                    {'iframe': iframe.contents()}
+                                    {'iframe': response}
                                 );
                                 // Fix for IE endless progress bar activity bug
                                 // (happens on form submits to iframe targets):
