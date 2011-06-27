@@ -136,7 +136,12 @@
                 return iframe.text();
             },
             'iframe json': function (iframe) {
-                return $.parseJSON(iframe.text());
+                try {
+                  iframe.text()
+                  return $.parseJSON(iframe.text());
+                } catch(e) {
+                  return;
+                }
             },
             'iframe html': function (iframe) {
                 return iframe.find('body').html();
