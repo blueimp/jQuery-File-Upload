@@ -49,7 +49,7 @@
                                 // Wrap in a try/catch block to catch exceptions thrown
                                 // when trying to access cross-domain iframe contents:
                                 try {
-                                    response = iframe.contents();
+                                    response = iframe.text();
                                 } catch (e) {
                                     response = $();
                                 }
