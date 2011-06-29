@@ -1,5 +1,5 @@
 /*
- * jQuery Iframe Transport Plugin 1.2.1
+ * jQuery Iframe Transport Plugin 1.2.2
  * https://github.com/blueimp/jQuery-File-Upload
  *
  * Copyright 2011, Sebastian Tschan
@@ -50,8 +50,14 @@
                                 // when trying to access cross-domain iframe contents:
                                 try {
                                     response = iframe.contents();
+                                    // Google Chrome and Firefox do not throw an
+                                    // exception when calling iframe.contents() on
+                                    // cross-domain requests, so we unify the response:
+                                    if (!response.length || !response[0].firstChild) {
+                                        throw new Error();
+                                    }
                                 } catch (e) {
-                                    response = $();
+                                    response = undefined;
                                 }
                                 // The complete callback returns the
                                 // iframe content document as response object:
