@@ -77,13 +77,3 @@ https://github.com/blueimp/jQuery-File-Upload
 Documentation
 -------------
 https://github.com/blueimp/jQuery-File-Upload/wiki
-
-Donations
----------
-jQuery File Upload is free software, but you can donate to support the developer, Sebastian Tschan:
-
-flattr (€):
-https://flattr.com/thing/286433/jQuery-File-Upload-Plugin
-
-PayPal ($):
-https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=PYWYSYP77KL54
