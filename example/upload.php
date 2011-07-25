@@ -50,7 +50,7 @@ class UploadHandler
             )
         );
         if ($options) {
-            $this->options = array_merge_recursive($this->options, $options);
+            $this->options = array_replace_recursive($this->options, $options);
         }
     }
     
