@@ -1,5 +1,5 @@
 /*
- * jQuery File Upload Plugin 5.0.3
+ * jQuery File Upload Plugin 5.1
  * https://github.com/blueimp/jQuery-File-Upload
  *
  * Copyright 2010, Sebastian Tschan
@@ -54,6 +54,9 @@
             // Set the following option to true to issue all file upload requests
             // in a sequential order:
             sequentialUploads: false,
+            // To limit the number of concurrent uploads,
+            // set the following option to an integer greater than 0:
+            limitConcurrentUploads: undefined,
             // Set the following option to true to force iframe transport uploads:
             forceIframeTransport: false,
             // By default, XHR file uploads are sent as multipart/form-data.
@@ -471,9 +474,11 @@
         _onSend: function (e, data) {
             var that = this,
                 jqXHR,
+                slot,
                 pipe,
                 options = that._getAJAXSettings(data),
                 send = function (resolve, args) {
+                    that._sending += 1;
                     jqXHR = jqXHR || (
                         (resolve !== false &&
                         that._trigger('send', e, options) !== false &&
@@ -484,23 +489,49 @@
                     }).fail(function (jqXHR, textStatus, errorThrown) {
                         that._onFail(jqXHR, textStatus, errorThrown, options);
                     }).always(function (a1, a2, a3) {
+                        that._sending -= 1;
                         if (a3 && a3.done) {
                             that._onAlways(a1, a2, a3, undefined, options);
                         } else {
                             that._onAlways(undefined, a2, a1, a3, options);
                         }
+                        if (options.limitConcurrentUploads &&
+                                options.limitConcurrentUploads > that._sending) {
+                            // Start the next queued upload,
+                            // that has not been aborted:
+                            var nextSlot = that._slots.shift();
+                            while (nextSlot) {
+                                if (!nextSlot.isRejected()) {
+                                    nextSlot.resolve();
+                                    break;
+                                }
+                                nextSlot = that._slots.shift();
+                            }
+                        }
                     });
                     return jqXHR;
                 };
             this._beforeSend(e, options);
-            if (this.options.sequentialUploads) {
+            if (this.options.sequentialUploads ||
+                    (this.options.limitConcurrentUploads &&
+                    this.options.limitConcurrentUploads <= this._sending)) {
+                if (this.options.limitConcurrentUploads > 1) {
+                    slot = $.Deferred();
+                    this._slots.push(slot);
+                    pipe = slot.pipe(send);
+                } else {
+                    pipe = (this._sequence = this._sequence.pipe(send, send));
+                }
                 // Return the piped Promise object, enhanced with an abort method,
                 // which is delegated to the jqXHR object of the current upload,
                 // and jqXHR callbacks mapped to the equivalent Promise methods:
-                pipe = (this._sequence = this._sequence.pipe(send, send));
                 pipe.abort = function () {
+                    var args = [undefined, 'abort', 'abort'];
                     if (!jqXHR) {
-                        return send(false, [undefined, 'abort', 'abort']);
+                        if (slot) {
+                            slot.rejectWith(args);
+                        }
+                        return send(false, args);
                     }
                     return jqXHR.abort();
                 };
@@ -668,8 +699,9 @@
             if (!options.dropZone) {
                 options.dropZone = $();
             }
+            this._slots = [];
             this._sequence = this._getXHRPromise(true);
-            this._active = this._loaded = this._total = 0;
+            this._sending = this._active = this._loaded = this._total = 0;
             this._initEventHandlers();
         },
         
