@@ -274,15 +274,20 @@
             if (!options || !options.fileTypes ||
                     options.fileTypes.test(file.type)) {
                 url = this._createObjectURL(file);
-                img = $('<img>').bind('load', function () {
-                    $(this).unbind('load');
-                    that._revokeObjectURL(url);
-                    callback(that._scaleImage(img[0], options));
-                }).prop('src', url);
+                
                 if (!url) {
+                  
+                        
                     this._loadFile(file, function (url) {
                         img.prop('src', url);
                     });
+                }
+                else {
+                  img = $('<img>').bind('load', function () {
+                            $(this).unbind('load');
+                            that._revokeObjectURL(url);
+                            callback(that._scaleImage(img[0], options));
+                        }).prop('src', url);
                 }
             }
         },
