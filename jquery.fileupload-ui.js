@@ -276,13 +276,10 @@
                 url = this._createObjectURL(file);
                 
                 if (!url) {
-                  
-                        
                     this._loadFile(file, function (url) {
                         img.prop('src', url);
                     });
-                }
-                else {
+                } else {
                   img = $('<img>').bind('load', function () {
                             $(this).unbind('load');
                             that._revokeObjectURL(url);
