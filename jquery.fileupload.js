@@ -1,5 +1,5 @@
 /*
- * jQuery File Upload Plugin 5.1
+ * jQuery File Upload Plugin 5.2
  * https://github.com/blueimp/jQuery-File-Upload
  *
  * Copyright 2010, Sebastian Tschan
@@ -51,6 +51,9 @@
             // request for XHR type uploads. Set to false to upload file
             // selections in one request each:
             singleFileUploads: true,
+            // To limit the number of files uploaded with one XHR request,
+            // set the following option to an integer greater than 0:
+            limitMultiFileUploads: undefined,
             // Set the following option to true to issue all file upload requests
             // in a sequential order:
             sequentialUploads: false,
@@ -543,23 +546,28 @@
         _onAdd: function (e, data) {
             var that = this,
                 result = true,
-                options = $.extend({}, this.options, data);
-            if (options.singleFileUploads && this._isXHRUpload(options)) {
-                $.each(data.files, function (index, file) {
-                    var newData = $.extend({}, data, {files: [file]});
-                    newData.submit = function () {
-                        return that._onSend(e, newData);
-                    };
-                    return (result = that._trigger('add', e, newData));
-                });
-                return result;
-            } else if (data.files.length) {
-                data = $.extend({}, data);
-                data.submit = function () {
-                    return that._onSend(e, data);
-                };
-                return this._trigger('add', e, data);
+                options = $.extend({}, this.options, data),
+                fileSet = data.files,
+                limit = options.limitMultiFileUploads,
+                i;
+            if (!(options.singleFileUploads || limit) ||
+                    !this._isXHRUpload(options)) {
+                fileSet = [fileSet];
+            } else if (!options.singleFileUploads && limit) {
+                fileSet = [];
+                for (i = 0; i < data.files.length; i += limit) {
+                    fileSet.push(data.files.slice(i, i + limit));
+                }
             }
+            $.each(fileSet, function (index, file) {
+                var files = $.isArray(file) ? file : [file],
+                    newData = $.extend({}, data, {files: files});
+                newData.submit = function () {
+                    return that._onSend(e, newData);
+                };
+                return (result = that._trigger('add', e, newData));
+            });
+            return result;
         },
         
         // File Normalization for Gecko 1.9.1 (Firefox 3.5) support:

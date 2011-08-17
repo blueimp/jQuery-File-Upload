@@ -1,5 +1,5 @@
 /*
- * jQuery File Upload Plugin Tests 3.0.1
+ * jQuery File Upload Plugin Tests 3.1
  * https://github.com/blueimp/jQuery-File-Upload
  *
  * Copyright 2010, Sebastian Tschan
@@ -607,6 +607,30 @@ $(function () {
         ).fileupload('add', param);
     });
 
+    test('limitMultiFileUploads', function () {
+        expect(3);
+        var fu = $('#fileupload').fileupload(),
+            param = {files: [
+                {name: '1'},
+                {name: '2'},
+                {name: '3'},
+                {name: '4'},
+                {name: '5'}
+            ]},
+            index = 1;
+        fu.data('fileupload')._isXHRUpload = function () {
+            return true;
+        };
+        $('#fileupload').fileupload({
+            singleFileUploads: false,
+            limitMultiFileUploads: 2,
+            add: function (e, data) {
+                ok(true, 'Triggers callback number ' + index.toString());
+                index += 1;
+            }
+        }).fileupload('add', param);
+    });
+
     asyncTest('sequentialUploads', function () {
         expect(6);
         var param = {files: [
@@ -636,6 +660,55 @@ $(function () {
                 done: function (e, data) {
                     loadIndex += 1;
                     strictEqual(sendIndex, loadIndex, 'upload in order');
+                },
+                fail: function (e, data) {
+                    strictEqual(data.errorThrown, 'abort', 'upload aborted');
+                },
+                stop: function (e) {
+                    start();
+                }
+            });
+        fu.data('fileupload')._isXHRUpload = function () {
+            return true;
+        };
+        fu.fileupload('add', param);
+    });
+
+    asyncTest('limitConcurrentUploads', function () {
+        expect(12);
+        var param = {files: [
+                {name: '1'},
+                {name: '2'},
+                {name: '3'},
+                {name: '4'},
+                {name: '5'},
+                {name: '6'},
+                {name: '7'},
+                {name: '8'},
+                {name: '9'},
+                {name: '10'},
+                {name: '11'},
+                {name: '12'}
+            ]},
+            addIndex = 0,
+            sendIndex = 0,
+            loadIndex = 0,
+            fu = $('#fileupload').fileupload({
+                limitConcurrentUploads: 3,
+                add: function (e, data) {
+                    addIndex += 1;
+                    if (addIndex === 4) {
+                        data.submit().abort();
+                    } else {
+                        data.submit();
+                    }
+                },
+                send: function (e, data) {
+                    sendIndex += 1;
+                },
+                done: function (e, data) {
+                    loadIndex += 1;
+                    ok(sendIndex - loadIndex < 3);
                 },
                 fail: function (e, data) {
                     strictEqual(data.errorThrown, 'abort', 'upload aborted');
