@@ -197,6 +197,7 @@
                             });
                         });
                 } else {
+                    that._adjustMaxNumberOfFiles(1);
                     data.context.fadeOut(function () {
                         $(this).remove();
                     });
