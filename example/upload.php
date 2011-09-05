@@ -1,6 +1,6 @@
 <?php
 /*
- * jQuery File Upload Plugin PHP Example 5.2.4
+ * jQuery File Upload Plugin PHP Example 5.2.5
  * https://github.com/blueimp/jQuery-File-Upload
  *
  * Copyright 2010, Sebastian Tschan
@@ -308,6 +308,8 @@ switch ($_SERVER['REQUEST_METHOD']) {
         break;
     case 'DELETE':
         $upload_handler->delete();
+        break;
+    case 'OPTIONS':
         break;
     default:
         header('HTTP/1.0 405 Method Not Allowed');
