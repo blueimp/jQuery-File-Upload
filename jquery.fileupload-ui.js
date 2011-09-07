@@ -1,5 +1,5 @@
 /*
- * jQuery File Upload User Interface Plugin 5.0.15
+ * jQuery File Upload User Interface Plugin 5.0.16
  * https://github.com/blueimp/jQuery-File-Upload
  *
  * Copyright 2010, Sebastian Tschan
@@ -362,10 +362,12 @@
 
         _validate: function (files) {
             var that = this,
-                valid;
+                valid = !!files.length;
             $.each(files, function (index, file) {
                 file.error = that._hasError(file);
-                valid = !file.error;
+                if (file.error) {
+                    valid = false;
+                }
             });
             return valid;
         },
@@ -388,17 +390,20 @@
         _renderUpload: function (files) {
             var that = this,
                 options = this.options,
-                tmpl = this._renderUploadTemplate(files);
+                tmpl = this._renderUploadTemplate(files),
+                isValidated = this._validate(files);
             if (!(tmpl instanceof $)) {
                 return $();
             }
             tmpl.css('display', 'none');
             // .slice(1).remove().end().first() removes all but the first
             // element and selects only the first for the jQuery collection:
-            tmpl.find('.progress div').slice(1).remove().end().first()
+            tmpl.find('.progress div').slice(
+                isValidated ? 1 : 0
+            ).remove().end().first()
                 .progressbar();
             tmpl.find('.start button').slice(
-                this.options.autoUpload ? 0 : 1
+                this.options.autoUpload || !isValidated ? 0 : 1
             ).remove().end().first()
                 .button({
                     text: false,
