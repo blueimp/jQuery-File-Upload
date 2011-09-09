@@ -1,6 +1,6 @@
 <?php
 /*
- * jQuery File Upload Plugin PHP Example 5.2.5
+ * jQuery File Upload Plugin PHP Example 5.2.6
  * https://github.com/blueimp/jQuery-File-Upload
  *
  * Copyright 2010, Sebastian Tschan
@@ -106,10 +106,14 @@ class UploadHandler
                 $write_image = 'imagejpeg';
                 break;
             case 'gif':
+                @imagecolortransparent($new_img, @imagecolorallocate($new_img, 0, 0, 0));
                 $src_img = @imagecreatefromgif($file_path);
                 $write_image = 'imagegif';
                 break;
             case 'png':
+                @imagecolortransparent($new_img, @imagecolorallocate($new_img, 0, 0, 0));
+                @imagealphablending($new_img, false);
+                @imagesavealpha($new_img, true);
                 $src_img = @imagecreatefrompng($file_path);
                 $write_image = 'imagepng';
                 break;
