@@ -1,6 +1,6 @@
 <?php
 /*
- * jQuery File Upload Plugin PHP Example 5.2.6
+ * jQuery File Upload Plugin PHP Example 5.2.7
  * https://github.com/blueimp/jQuery-File-Upload
  *
  * Copyright 2010, Sebastian Tschan
@@ -176,7 +176,8 @@ class UploadHandler
         $error = $this->has_error($uploaded_file, $file, $error);
         if (!$error && $file->name) {
             $file_path = $this->options['upload_dir'].$file->name;
-            $append_file = is_file($file_path) && $file->size > filesize($file_path);
+            $append_file = !$this->options['discard_aborted_uploads'] &&
+                is_file($file_path) && $file->size > filesize($file_path);
             clearstatcache();
             if ($uploaded_file && is_uploaded_file($uploaded_file)) {
                 // multipart/formdata uploads (POST method uploads)
