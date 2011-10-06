@@ -485,6 +485,9 @@
         },
         
         _deleteHandler: function (e) {
+	    if (!confirm('Delete file?')) {
+		return;
+	    }
             e.preventDefault();
             var button = $(this);
             e.data.fileupload._trigger('destroy', e, {
