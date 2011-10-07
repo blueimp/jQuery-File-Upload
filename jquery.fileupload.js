@@ -1,5 +1,5 @@
 /*
- * jQuery File Upload Plugin 5.2
+ * jQuery File Upload Plugin 5.2.1
  * https://github.com/blueimp/jQuery-File-Upload
  *
  * Copyright 2010, Sebastian Tschan
@@ -584,6 +584,8 @@
             // Detaching allows to insert the fileInput on another form
             // without loosing the file input value:
             input.after(inputClone).detach();
+            // Avoid memory leaks with the detached file input:
+            $.cleanData(input.unbind('remove'));
             // Replace the original file input element in the fileInput
             // collection with the clone, which has been copied including
             // event handlers:
@@ -593,6 +595,11 @@
                 }
                 return el;
             });
+            // If the widget has been initialized on the file input itself,
+            // override this.element with the file input clone:
+            if (input[0] === this.element[0]) {
+                this.element = inputClone;
+            }
         },
         
         _onChange: function (e) {
@@ -607,13 +614,6 @@
                 // support the File API and we add a pseudo File object with
                 // the input value as name with path information removed:
                 data.files = [{name: e.target.value.replace(/^.*\\/, '')}];
-            }
-            // Store the form reference as jQuery data for other event handlers,
-            // as the form property is not available after replacing the file input: 
-            if (data.form.length) {
-                data.fileInput.data('blueimp.fileupload.form', data.form);
-            } else {
-                data.form = data.fileInput.data('blueimp.fileupload.form');
             }
             if (that.options.replaceFileInput) {
                 that._replaceFileInput(data.fileInput);
@@ -653,7 +653,7 @@
         },
         
         _initEventHandlers: function () {
-            var ns = this.options.namespace || this.name;
+            var ns = this.options.namespace || this.widgetName;
             this.options.dropZone
                 .bind('dragover.' + ns, {fileupload: this}, this._onDragOver)
                 .bind('drop.' + ns, {fileupload: this}, this._onDrop);
@@ -662,7 +662,7 @@
         },
 
         _destroyEventHandlers: function () {
-            var ns = this.options.namespace || this.name;
+            var ns = this.options.namespace || this.widgetName;
             this.options.dropZone
                 .unbind('dragover.' + ns, this._onDragOver)
                 .unbind('drop.' + ns, this._onDrop);
@@ -700,7 +700,7 @@
             var options = this.options;
             if (options.fileInput === undefined) {
                 options.fileInput = this.element.is('input:file') ?
-                    this.element : this.element.find('input:file');
+                        this.element : this.element.find('input:file');
             } else if (!options.fileInput) {
                 options.fileInput = $();
             }
