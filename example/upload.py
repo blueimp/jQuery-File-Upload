@@ -211,11 +211,9 @@ def fileupload():
     response.view = 'generic.json'
 
     def GET(*vars):
-        print 'in da get'
         return FileUpload.get()
 
     def POST(**vars):
-        print 'in da post'
         return FileUpload.post()
 
     def DELETE():
