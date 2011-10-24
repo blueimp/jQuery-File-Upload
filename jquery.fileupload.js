@@ -1,5 +1,5 @@
 /*
- * jQuery File Upload Plugin 5.2.1
+ * jQuery File Upload Plugin 5.3
  * https://github.com/blueimp/jQuery-File-Upload
  *
  * Copyright 2010, Sebastian Tschan
@@ -624,6 +624,23 @@
             }
         },
         
+        _onPaste: function (e) {
+            var that = e.data.fileupload,
+                cbd = e.originalEvent.clipboardData,
+                items = (cbd && cbd.items) || [],
+                data = {files: []};
+            $.each(items, function (index, item) {
+                var file = item.getAsFile && item.getAsFile();
+                if (file) {
+                    data.files.push(file);
+                }
+            });
+            if (that._trigger('paste', e, data) === false ||
+                    that._onAdd(e, data) === false) {
+                return false;
+            }
+        },
+        
         _onDrop: function (e) {
             var that = e.data.fileupload,
                 dataTransfer = e.dataTransfer = e.originalEvent.dataTransfer,
@@ -656,7 +673,8 @@
             var ns = this.options.namespace || this.widgetName;
             this.options.dropZone
                 .bind('dragover.' + ns, {fileupload: this}, this._onDragOver)
-                .bind('drop.' + ns, {fileupload: this}, this._onDrop);
+                .bind('drop.' + ns, {fileupload: this}, this._onDrop)
+                .bind('paste.' + ns, {fileupload: this}, this._onPaste);
             this.options.fileInput
                 .bind('change.' + ns, {fileupload: this}, this._onChange);
         },
@@ -665,7 +683,8 @@
             var ns = this.options.namespace || this.widgetName;
             this.options.dropZone
                 .unbind('dragover.' + ns, this._onDragOver)
-                .unbind('drop.' + ns, this._onDrop);
+                .unbind('drop.' + ns, this._onDrop)
+                .unbind('paste.' + ns, this._onPaste);
             this.options.fileInput
                 .unbind('change.' + ns, this._onChange);
         },

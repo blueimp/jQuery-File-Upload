@@ -1,7 +1,7 @@
 <!DOCTYPE HTML>
 <!--
 /*
- * jQuery File Upload Plugin HTML Example 5.0.7
+ * jQuery File Upload Plugin HTML Example 5.1
  * https://github.com/blueimp/jQuery-File-Upload
  *
  * Copyright 2010, Sebastian Tschan
@@ -40,7 +40,7 @@
 <script id="template-upload" type="text/x-jquery-tmpl">
     <tr class="template-upload{{if error}} ui-state-error{{/if}}">
         <td class="preview"></td>
-        <td class="name">${name}</td>
+        <td class="name">{{if name}}${name}{{else}}Untitled{{/if}}</td>
         <td class="size">${sizef}</td>
         {{if error}}
             <td class="error" colspan="2">Error:
