@@ -1,5 +1,5 @@
 /*
- * jQuery File Upload Plugin Tests 3.1
+ * jQuery File Upload Plugin Tests 3.2
  * https://github.com/blueimp/jQuery-File-Upload
  *
  * Copyright 2010, Sebastian Tschan
@@ -434,6 +434,23 @@ $(function () {
         fuo._onChange({
             data: {fileupload: fuo},
             target: fileInput[0]
+        });
+    });
+
+    test('paste', function () {
+        var fu = $('#fileupload').fileupload(),
+            fuo = fu.data('fileupload');
+        expect(1);
+        fu.fileupload({
+            paste: function (e, data) {
+                ok(true, 'Triggers paste callback');
+            },
+            add: $.noop
+        });
+        fuo._onPaste({
+            data: {fileupload: fuo},
+            originalEvent: {clipboardData: {}},
+            preventDefault: $.noop
         });
     });
     
