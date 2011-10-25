@@ -1,6 +1,6 @@
 <?php
 /*
- * jQuery File Upload Plugin PHP Example 5.2.7
+ * jQuery File Upload Plugin PHP Example 5.2.8
  * https://github.com/blueimp/jQuery-File-Upload
  *
  * Copyright 2010, Sebastian Tschan
@@ -235,15 +235,9 @@ class UploadHandler
     
     public function post() {
         $upload = isset($_FILES[$this->options['param_name']]) ?
-            $_FILES[$this->options['param_name']] : array(
-                'tmp_name' => null,
-                'name' => null,
-                'size' => null,
-                'type' => null,
-                'error' => null
-            );
+            $_FILES[$this->options['param_name']] : null;
         $info = array();
-        if (is_array($upload['tmp_name'])) {
+        if ($upload && is_array($upload['tmp_name'])) {
             foreach ($upload['tmp_name'] as $index => $value) {
                 $info[] = $this->handle_file_upload(
                     $upload['tmp_name'][$index],
@@ -256,7 +250,7 @@ class UploadHandler
                     $upload['error'][$index]
                 );
             }
-        } else {
+        } elseif ($upload) {
             $info[] = $this->handle_file_upload(
                 $upload['tmp_name'],
                 isset($_SERVER['HTTP_X_FILE_NAME']) ?
