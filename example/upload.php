@@ -1,6 +1,6 @@
 <?php
 /*
- * jQuery File Upload Plugin PHP Example 5.2.8
+ * jQuery File Upload Plugin PHP Example 5.2.9
  * https://github.com/blueimp/jQuery-File-Upload
  *
  * Copyright 2010, Sebastian Tschan
@@ -165,12 +165,22 @@ class UploadHandler
         return $error;
     }
     
-    private function handle_file_upload($uploaded_file, $name, $size, $type, $error) {
-        $file = new stdClass();
+    private function trim_file_name($name, $type) {
         // Remove path information and dots around the filename, to prevent uploading
         // into different directories or replacing hidden system files.
         // Also remove control characters and spaces (\x00..\x20) around the filename:
-        $file->name = trim(basename(stripslashes($name)), ".\x00..\x20");
+        $file_name = trim(basename(stripslashes($name)), ".\x00..\x20");
+        // Add missing file extension for known image types:
+        if (strpos($file_name, '.') === false &&
+            preg_match('/^image\/(gif|jpe?g|png)/', $type, $matches)) {
+            $file_name .= '.'.$matches[1];
+        }
+        return $file_name;
+    }
+    
+    private function handle_file_upload($uploaded_file, $name, $size, $type, $error) {
+        $file = new stdClass();
+        $file->name = $this->trim_file_name($name, $type);
         $file->size = intval($size);
         $file->type = $type;
         $error = $this->has_error($uploaded_file, $file, $error);
