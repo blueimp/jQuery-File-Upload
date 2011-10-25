@@ -9,7 +9,7 @@
  * http://creativecommons.org/licenses/MIT/
  */
 
-/*jslint nomen: true, unparam: true, regexp: true */
+/*jslint white: true, nomen: true, unparam: true, regexp: true */
 /*global document, XMLHttpRequestUpload, Blob, File, FormData, location, jQuery */
 
 (function ($) {
@@ -127,6 +127,8 @@
             // stop: function (e) {}, // .bind('fileuploadstop', func);
             // Callback for change events of the fileInput collection:
             // change: function (e, data) {}, // .bind('fileuploadchange', func);
+            // Callback for paste events to the dropZone collection:
+            // paste: function (e, data) {}, // .bind('fileuploadpaste', func);
             // Callback for drop events of the dropZone collection:
             // drop: function (e, data) {}, // .bind('fileuploaddrop', func);
             // Callback for dragover events of the dropZone collection:
