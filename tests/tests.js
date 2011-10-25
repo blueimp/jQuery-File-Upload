@@ -9,7 +9,7 @@
  * http://creativecommons.org/licenses/MIT/
  */
 
-/*jslint nomen: true, unparam: true */
+/*jslint white: true, nomen: true, unparam: true */
 /*global $, QUnit, document, expect, module, test, asyncTest, start, ok, strictEqual, notStrictEqual */
 
 $(function () {
