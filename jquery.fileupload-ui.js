@@ -1,5 +1,5 @@
 /*
- * jQuery File Upload User Interface Plugin 5.0.17
+ * jQuery File Upload User Interface Plugin 5.0.18
  * https://github.com/blueimp/jQuery-File-Upload
  *
  * Copyright 2010, Sebastian Tschan
@@ -468,7 +468,9 @@
                 data = tmpl.data('data');
             if (data && data.submit && !data.jqXHR) {
                 data.jqXHR = data.submit();
-                $(this).fadeOut();
+                if (data.jqXHR) {
+                    $(this).fadeOut();
+                }
             }
         },
         
