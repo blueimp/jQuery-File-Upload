@@ -323,15 +323,22 @@
 
         _formatFileSize: function (file) {
             if (typeof file.size !== 'number') {
-                return '';
+                // The file size field returned from server may be an string, but the value is a vaid number.
+                if(typeof file.size === 'string' && !isNaN(parseInt(file.size)) ){
+                    file.size = parseInt(file.size);
+                } else {
+                    return '';
+                }
             }
-            if (file.size >= 1000000000) {
-                return (file.size / 1000000000).toFixed(2) + ' GB';
+            // The conversion ratio is differnt between mac and other OSs. 
+            var ratio = ( navigator.platform.toLowerCase().indexOf('mac') != -1 ) ? 1000 : 1024;
+            if (file.size >= (ratio * ratio * ratio) )  {
+                return (file.size / (ratio * ratio * ratio)).toFixed(2) + ' GB';
             }
-            if (file.size >= 1000000) {
-                return (file.size / 1000000).toFixed(2) + ' MB';
+            if (file.size >= (ratio * ratio)) {
+                return (file.size / (ratio * ratio)).toFixed(2) + ' MB';
             }
-            return (file.size / 1000).toFixed(2) + ' KB';
+            return (file.size / ratio).toFixed(2) + ' KB';
         },
 
         _hasError: function (file) {
