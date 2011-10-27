@@ -1,5 +1,5 @@
 /*
- * jQuery File Upload Plugin Tests 3.2
+ * jQuery File Upload Plugin Tests 3.3
  * https://github.com/blueimp/jQuery-File-Upload
  *
  * Copyright 2010, Sebastian Tschan
@@ -281,6 +281,18 @@ $(function () {
             add: function (e, data) {
                 ok(true, 'Triggers add callback');
                 start();
+            }
+        }).fileupload('add', param);
+    });
+
+    asyncTest('submit', function () {
+        expect(1);
+        var param = {files: [{name: 'test'}]};
+        $('#fileupload').fileupload({
+            submit: function (e, data) {
+                ok(true, 'Triggers submit callback');
+                start();
+                return false;
             }
         }).fileupload('add', param);
     });

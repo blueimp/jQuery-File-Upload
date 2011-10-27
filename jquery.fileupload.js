@@ -1,5 +1,5 @@
 /*
- * jQuery File Upload Plugin 5.3
+ * jQuery File Upload Plugin 5.4
  * https://github.com/blueimp/jQuery-File-Upload
  *
  * Copyright 2010, Sebastian Tschan
@@ -15,12 +15,12 @@
 (function ($) {
     'use strict';
 
-    // The fileupload widget listens for change events on file input fields
-    // defined via fileInput setting and drop events of the given dropZone.
+    // The fileupload widget listens for change events on file input fields defined
+    // via fileInput setting and paste or drop events of the given dropZone.
     // In addition to the default jQuery Widget methods, the fileupload widget
-    // exposes the "add" and "send" methods, to add or directly send files
-    // using the fileupload API.
-    // By default, files added via file input selection, drag & drop or
+    // exposes the "add" and "send" methods, to add or directly send files using
+    // the fileupload API.
+    // By default, files added via file input selection, paste, drag & drop or
     // "add" method are uploaded immediately, but it is possible to override
     // the "add" callback option to queue file uploads.
     $.widget('blueimp.fileupload', {
@@ -92,7 +92,7 @@
             },
             
             // The add callback is invoked as soon as files are added to the fileupload
-            // widget (via file input selection, drag & drop or add API call).
+            // widget (via file input selection, drag & drop, paste or add API call).
             // If the singleFileUploads option is enabled, this callback will be
             // called once for each file in the selection for XHR file uplaods, else
             // once for each file selection.
@@ -109,6 +109,8 @@
             },
             
             // Other callbacks:
+            // Callback for the submit event of each file upload:
+            // submit: function (e, data) {}, // .bind('fileuploadsubmit', func);
             // Callback for the start of each file upload request:
             // send: function (e, data) {}, // .bind('fileuploadsend', func);
             // Callback for successful uploads:
@@ -565,7 +567,8 @@
                 var files = $.isArray(file) ? file : [file],
                     newData = $.extend({}, data, {files: files});
                 newData.submit = function () {
-                    return that._onSend(e, newData);
+                    return (that._trigger('submit', e, newData) !== false) &&
+                        that._onSend(e, newData);
                 };
                 return (result = that._trigger('add', e, newData));
             });
