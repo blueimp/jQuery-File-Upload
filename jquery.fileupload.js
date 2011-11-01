@@ -1,5 +1,5 @@
 /*
- * jQuery File Upload Plugin 5.4
+ * jQuery File Upload Plugin 5.4.1
  * https://github.com/blueimp/jQuery-File-Upload
  *
  * Copyright 2010, Sebastian Tschan
@@ -551,20 +551,20 @@
             var that = this,
                 result = true,
                 options = $.extend({}, this.options, data),
-                fileSet = data.files,
                 limit = options.limitMultiFileUploads,
+                fileSet,
                 i;
             if (!(options.singleFileUploads || limit) ||
                     !this._isXHRUpload(options)) {
-                fileSet = [fileSet];
+                fileSet = [data.files];
             } else if (!options.singleFileUploads && limit) {
                 fileSet = [];
                 for (i = 0; i < data.files.length; i += limit) {
                     fileSet.push(data.files.slice(i, i + limit));
                 }
             }
-            $.each(fileSet, function (index, file) {
-                var files = $.isArray(file) ? file : [file],
+            $.each(fileSet || data.files, function (index, element) {
+                var files = fileSet ? element : [element],
                     newData = $.extend({}, data, {files: files});
                 newData.submit = function () {
                     return (that._trigger('submit', e, newData) !== false) &&
