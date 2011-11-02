@@ -1,5 +1,5 @@
 /*
- * jQuery File Upload User Interface Plugin 5.0.18
+ * jQuery File Upload User Interface Plugin 5.0.19
  * https://github.com/blueimp/jQuery-File-Upload
  *
  * Copyright 2010, Sebastian Tschan
@@ -499,22 +499,22 @@
         
         _initEventHandlers: function () {
             $.blueimp.fileupload.prototype._initEventHandlers.call(this);
-            var filesList = this.element.find('.files'),
-                eventData = {fileupload: this};
-            filesList.find('.start button')
-                .live(
+            var eventData = {fileupload: this};
+            this.element.find('.files')
+                .delegate(
+                    '.start button',
                     'click.' + this.options.namespace,
                     eventData,
                     this._startHandler
-                );
-            filesList.find('.cancel button')
-                .live(
+                )
+                .delegate(
+                    '.cancel button',
                     'click.' + this.options.namespace,
                     eventData,
                     this._cancelHandler
-                );
-            filesList.find('.delete button')
-                .live(
+                )
+                .delegate(
+                    '.delete button',
                     'click.' + this.options.namespace,
                     eventData,
                     this._deleteHandler
@@ -522,13 +522,10 @@
         },
         
         _destroyEventHandlers: function () {
-            var filesList = this.element.find('.files');
-            filesList.find('.start button')
-                .die('click.' + this.options.namespace);
-            filesList.find('.cancel button')
-                .die('click.' + this.options.namespace);
-            filesList.find('.delete button')
-                .die('click.' + this.options.namespace);
+            this.element.find('.files')
+                .undelegate('.start button', 'click.' + this.options.namespace)
+                .undelegate('.cancel button', 'click.' + this.options.namespace)
+                .undelegate('.delete button', 'click.' + this.options.namespace);
             $.blueimp.fileupload.prototype._destroyEventHandlers.call(this);
         },
 
