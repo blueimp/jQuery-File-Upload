@@ -1,5 +1,5 @@
 /*
- * jQuery File Upload Plugin 5.4.2
+ * jQuery File Upload Plugin 5.4.3
  * https://github.com/blueimp/jQuery-File-Upload
  *
  * Copyright 2010, Sebastian Tschan
@@ -462,12 +462,10 @@
             }
         },
 
-        _onAlways: function (result, textStatus, jqXHR, errorThrown, options) {
+        _onAlways: function (jqXHR, textStatus, options) {
             this._active -= 1;
-            options.result = result;
-            options.textStatus = textStatus;
             options.jqXHR = jqXHR;
-            options.errorThrown = errorThrown;
+            options.textStatus = textStatus;
             this._trigger('always', null, options);
             if (this._active === 0) {
                 // The stop callback is triggered when all uploads have
@@ -491,18 +489,16 @@
                         that._trigger('send', e, options) !== false &&
                         (that._chunkedUpload(options) || $.ajax(options))) ||
                         that._getXHRPromise(false, options.context, args)
-                    );
-                    jqXHR.done(function (result, textStatus, jqXHR) {
+                    ).done(function (result, textStatus, jqXHR) {
                         that._onDone(result, textStatus, jqXHR, options);
                     }).fail(function (jqXHR, textStatus, errorThrown) {
                         that._onFail(jqXHR, textStatus, errorThrown, options);
-                    }).always(function (a1, a2, a3) {
+                    }).complete(function (jqXHR, textStatus) {
+                        // jqXHR.complete() will be deprecated in jQuery 1.8,
+                        // but is preferable over jqXHR.always() due to this bug:
+                        // http://bugs.jquery.com/ticket/10723 (jQuery 1.7)
                         that._sending -= 1;
-                        if (a3 && a3.done) {
-                            that._onAlways(a1, a2, a3, undefined, options);
-                        } else {
-                            that._onAlways(undefined, a2, a1, a3, options);
-                        }
+                        that._onAlways(jqXHR, textStatus, options);
                         if (options.limitConcurrentUploads &&
                                 options.limitConcurrentUploads > that._sending) {
                             // Start the next queued upload,
