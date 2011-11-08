@@ -491,7 +491,8 @@
                         that._trigger('send', e, options) !== false &&
                         (that._chunkedUpload(options) || $.ajax(options))) ||
                         that._getXHRPromise(false, options.context, args)
-                    ).done(function (result, textStatus, jqXHR) {
+                    );
+                    jqXHR.done(function (result, textStatus, jqXHR) {
                         that._onDone(result, textStatus, jqXHR, options);
                     }).fail(function (jqXHR, textStatus, errorThrown) {
                         that._onFail(jqXHR, textStatus, errorThrown, options);
