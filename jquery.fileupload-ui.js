@@ -135,8 +135,8 @@
                         $(this).fadeOut(function () {
                             if (data.errorThrown !== 'abort') {
                                 var file = data.files[index];
-                                file.error = file.error || data.errorThrown
-                                    || true;
+                                file.error = file.error || data.errorThrown ||
+                                    true;
                                 that._renderDownload([file])
                                     .css('display', 'none')
                                     .replaceAll(this)
