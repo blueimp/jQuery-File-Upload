@@ -405,8 +405,8 @@
                                     total: o.chunkSize
                                 }), o);
                             }
-                            options.uploadedBytes = o.uploadedBytes
-                                += o.chunkSize;
+                            options.uploadedBytes = o.uploadedBytes +=
+                              o.chunkSize;
                         });
                     return jqXHR;
                 });
