@@ -1,5 +1,5 @@
 /*
- * jQuery File Upload Plugin JS Example 5.1.2
+ * jQuery File Upload Plugin JS Example 5.1.3
  * https://github.com/blueimp/jQuery-File-Upload
  *
  * Copyright 2010, Sebastian Tschan
@@ -29,6 +29,7 @@ $(function () {
             'action',
             '//jquery-file-upload.appspot.com'
         );
+        $('#fileupload').fileupload('option', 'maxFileSize', 5000000);
     } else {
         // Load existing files:
         $.getJSON($('#fileupload form').prop('action'), function (files) {
