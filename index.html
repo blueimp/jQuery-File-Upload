@@ -1,7 +1,7 @@
 <!DOCTYPE HTML>
 <!--
 /*
- * jQuery File Upload Plugin Tests 3.1
+ * jQuery File Upload Plugin Demo 5.2
  * https://github.com/blueimp/jQuery-File-Upload
  *
  * Copyright 2010, Sebastian Tschan
@@ -14,18 +14,57 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<title>jQuery File Upload Plugin Tests</title>
-<link rel="stylesheet" href="http://code.jquery.com/qunit/git/qunit.css">
+<title>jQuery File Upload Demo</title>
+<link rel="stylesheet" href="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.16/themes/base/jquery-ui.css" id="theme">
+<link rel="stylesheet" href="http://blueimp.github.com/jQuery-Image-Gallery/jquery.image-gallery.css">
+<link rel="stylesheet" href="jquery.fileupload-ui.css">
+<link rel="stylesheet" href="style.css">
 </head>
 <body>
-<h1 id="qunit-header">jQuery File Upload Plugin Tests</h1>
-<h2 id="qunit-banner"></h2>
-<div id="qunit-testrunner-toolbar"></div>
-<h2 id="qunit-userAgent"></h2>
-<ol id="qunit-tests"></ol>
-<div id="qunit-fixture">
+<div id="demo">
+    <h1>jQuery File Upload Demo</h1>
+    <div id="options">
+        <select id="theme-switcher">
+            <option value="base" selected>Base</option>
+            <option value="black-tie">Black Tie</option>
+            <option value="blitzer">Blitzer</option>
+            <option value="cupertino">Cupertino</option>
+            <option value="dark-hive">Dark Hive</option>
+            <option value="dot-luv">Dot Luv</option>
+            <option value="eggplant">Eggplant</option>
+            <option value="excite-bike">Excite Bike</option>
+            <option value="flick">Flick</option>
+            <option value="hot-sneaks">Hot sneaks</option>
+            <option value="humanity">Humanity</option>
+            <option value="le-frog">Le Frog</option>
+            <option value="mint-choc">Mint Choc</option>
+            <option value="overcast">Overcast</option>
+            <option value="pepper-grinder">Pepper Grinder</option>
+            <option value="redmond">Redmond</option>
+            <option value="smoothness">Smoothness</option>
+            <option value="south-street">South Street</option>
+            <option value="start">Start</option>
+            <option value="sunny">Sunny</option>
+            <option value="swanky-purse">Swanky Purse</option>
+            <option value="trontastic">Trontastic</option>
+            <option value="ui-darkness">UI Darkness</option>
+            <option value="ui-lightness">UI Lightness</option>
+            <option value="vader">Vader</option>
+        </select>
+        <span id="info">
+            <a href="https://github.com/blueimp/jQuery-File-Upload/downloads">Downloads</a>
+            <span>|</span>
+            <a href="https://github.com/blueimp/jQuery-File-Upload">Source Code</a>
+            <span>|</span>
+            <a href="https://github.com/blueimp/jQuery-File-Upload/wiki">Documentation</a>
+            <span>|</span>
+            <a href="https://github.com/blueimp/jQuery-File-Upload/issues">Support</a>
+            <span>|</span>
+            <span>Contact: <a href="https://blueimp.net">Sebastian Tschan</a></span>
+        </span>
+    </div>
     <div id="fileupload">
-        <form action="../php/index.php" method="POST" enctype="multipart/form-data">
+        <form action="php/index.php" method="POST" enctype="multipart/form-data">
             <div class="fileupload-buttonbar">
                 <label class="fileinput-button">
                     <span>Add files...</span>
@@ -106,10 +145,10 @@
 <script src="//ajax.googleapis.com/ajax/libs/jquery/1.7/jquery.min.js"></script>
 <script src="//ajax.googleapis.com/ajax/libs/jqueryui/1.8.16/jquery-ui.min.js"></script>
 <script src="//ajax.aspnetcdn.com/ajax/jquery.templates/beta1/jquery.tmpl.min.js"></script>
-<script src="../jquery.iframe-transport.js"></script>
-<script src="../jquery.fileupload.js"></script>
-<script src="../jquery.fileupload-ui.js"></script>
-<script src="http://code.jquery.com/qunit/git/qunit.js"></script>
-<script src="tests.js"></script>
+<script src="http://blueimp.github.com/jQuery-Image-Gallery/jquery.image-gallery.js"></script>
+<script src="jquery.iframe-transport.js"></script>
+<script src="jquery.fileupload.js"></script>
+<script src="jquery.fileupload-ui.js"></script>
+<script src="application.js"></script>
 </body> 
 </html>

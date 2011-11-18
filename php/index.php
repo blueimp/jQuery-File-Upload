@@ -1,6 +1,6 @@
 <?php
 /*
- * jQuery File Upload Plugin PHP Example 5.2.9
+ * jQuery File Upload Plugin PHP Example 5.3
  * https://github.com/blueimp/jQuery-File-Upload
  *
  * Copyright 2010, Sebastian Tschan
@@ -18,9 +18,9 @@ class UploadHandler
     
     function __construct($options=null) {
         $this->options = array(
-            'script_url' => $_SERVER['PHP_SELF'],
+            'script_url' => $this->getFullUrl().'/'.basename(__FILE__),
             'upload_dir' => dirname(__FILE__).'/files/',
-            'upload_url' => dirname($_SERVER['PHP_SELF']).'/files/',
+            'upload_url' => $this->getFullUrl().'/files/',
             'param_name' => 'files',
             // The php.ini settings upload_max_filesize and post_max_size
             // take precedence over the following max_file_size setting:
@@ -43,7 +43,7 @@ class UploadHandler
                 */
                 'thumbnail' => array(
                     'upload_dir' => dirname(__FILE__).'/thumbnails/',
-                    'upload_url' => dirname($_SERVER['PHP_SELF']).'/thumbnails/',
+                    'upload_url' => $this->getFullUrl().'/thumbnails/',
                     'max_width' => 80,
                     'max_height' => 80
                 )
@@ -53,6 +53,16 @@ class UploadHandler
             $this->options = array_replace_recursive($this->options, $options);
         }
     }
+
+	function getFullUrl() {
+		return
+			(isset($_SERVER['HTTPS']) ? 'https://' : 'http://').
+			(isset($_SERVER['REMOTE_USER']) ? $_SERVER['REMOTE_USER'].'@' : '').
+			(isset($_SERVER['HTTP_HOST']) ? $_SERVER['HTTP_HOST'] : ($_SERVER['SERVER_NAME'].
+			(isset($_SERVER['HTTPS']) && $_SERVER['SERVER_PORT'] == 443 ||
+			$_SERVER['SERVER_PORT'] == 80 ? '' : ':'.$_SERVER['SERVER_PORT']))).
+			substr($_SERVER['SCRIPT_NAME'],0, strrpos($_SERVER['SCRIPT_NAME'], '/'));
+	}
     
     private function get_file_object($file_name) {
         $file_path = $this->options['upload_dir'].$file_name;
@@ -273,13 +283,20 @@ class UploadHandler
             );
         }
         header('Vary: Accept');
+        $json = json_encode($info);
+        $redirect = isset($_REQUEST['redirect']) ?
+            stripslashes($_REQUEST['redirect']) : null;
+        if ($redirect) {
+            header('Location: '.sprintf($redirect, rawurlencode($json)));
+            return;
+        }
         if (isset($_SERVER['HTTP_ACCEPT']) &&
             (strpos($_SERVER['HTTP_ACCEPT'], 'application/json') !== false)) {
             header('Content-type: application/json');
         } else {
             header('Content-type: text/plain');
         }
-        echo json_encode($info);
+        echo $json;
     }
     
     public function delete() {
@@ -306,8 +323,13 @@ header('Pragma: no-cache');
 header('Cache-Control: private, no-cache');
 header('Content-Disposition: inline; filename="files.json"');
 header('X-Content-Type-Options: nosniff');
+header('Access-Control-Allow-Origin: *');
+header('Access-Control-Allow-Methods: OPTIONS, HEAD, GET, POST, PUT, DELETE');
+header('Access-Control-Allow-Headers: X-File-Name,X-File-Type,X-File-Size');
 
 switch ($_SERVER['REQUEST_METHOD']) {
+    case 'OPTIONS':
+        break;
     case 'HEAD':
     case 'GET':
         $upload_handler->get();
@@ -318,9 +340,7 @@ switch ($_SERVER['REQUEST_METHOD']) {
     case 'DELETE':
         $upload_handler->delete();
         break;
-    case 'OPTIONS':
-        break;
     default:
-        header('HTTP/1.0 405 Method Not Allowed');
+        header('HTTP/1.1 405 Method Not Allowed');
 }
 ?>
