@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# jQuery File Upload Plugin GAE Example 1.0
+# jQuery File Upload Plugin GAE Example 1.0.1
 # https://github.com/blueimp/jQuery-File-Upload
 #
 # Copyright 2010, Sebastian Tschan
