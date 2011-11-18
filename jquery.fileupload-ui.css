@@ -1,0 +1,100 @@
+@charset 'UTF-8';
+/*
+ * jQuery File Upload UI Plugin CSS 5.0.6
+ * https://github.com/blueimp/jQuery-File-Upload
+ *
+ * Copyright 2010, Sebastian Tschan
+ * https://blueimp.net
+ *
+ * Licensed under the MIT license:
+ * http://creativecommons.org/licenses/MIT/
+ */
+
+.fileupload-buttonbar .ui-button input {
+  position: absolute;
+  top: 0;
+  right: 0;
+  margin: 0;
+  border: solid transparent;
+  border-width: 0 0 100px 200px;
+  opacity: 0;
+  filter: alpha(opacity=0);
+  -o-transform: translate(250px, -50px) scale(1);
+  -moz-transform: translate(-300px, 0) scale(4);
+  direction: ltr;
+  cursor: pointer;
+}
+
+.fileinput-button {
+  overflow: hidden;
+}
+
+/* Fix for IE 6: */
+*html .fileinput-button {
+  padding: 2px 0;
+}
+
+/* Fix for IE 7: */
+*+html .fileinput-button {
+  padding: 2px 0;
+}
+
+.fileupload-buttonbar {
+  padding: 0.2em 0.4em;
+}
+
+.fileupload-buttonbar .ui-button {
+  vertical-align: middle;
+}
+
+.fileupload-content {
+  padding: 0.2em 0.4em;
+  border-top-width: 0;
+}
+
+.fileupload-content .ui-progressbar {
+  width: 200px;
+  height: 20px;
+}
+
+.fileupload-content .ui-progressbar-value {
+  background: url(pbar-ani.gif);
+}
+
+.fileupload-content .fileupload-progressbar {
+  width: 400px;
+  margin: 10px 0;
+}
+
+.files {
+  margin: 10px 0;
+  border-collapse: collapse;
+}
+
+.files td {
+  padding: 5px;
+  border-spacing: 5px;
+}
+
+.files img {
+  border: none;
+}
+
+.files .name {
+  padding: 0 10px;
+}
+
+.files .size {
+  padding: 0 10px 0 0;
+  text-align: right;
+  white-space: nowrap;
+}
+
+.ui-state-disabled .ui-state-disabled {
+  opacity: 1;
+  filter: alpha(opacity=100);
+}
+
+.ui-state-disabled input {
+  cursor: default;
+}

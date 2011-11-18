@@ -1,0 +1,45 @@
+@charset 'UTF-8';
+/*
+ * jQuery File Upload Plugin CSS Example 5.1
+ * https://github.com/blueimp/jQuery-File-Upload
+ *
+ * Copyright 2010, Sebastian Tschan
+ * https://blueimp.net
+ *
+ * Licensed under the MIT license:
+ * http://creativecommons.org/licenses/MIT/
+ */
+
+html {
+  height: 100%;
+}
+
+body { 
+  height: 100%;
+  margin: 0;
+  background: #222;
+  color: #fff;
+  font-family: 'Lucida Grande', 'Lucida Sans Unicode', Arial, sans-serif;
+  line-height:1.5em;
+  font-size: 0.85em;
+}
+
+a {
+  color: #fff;
+}
+
+img {
+  border: 0;
+}
+
+#demo {
+  padding: 30px 60px;
+}
+
+#options {
+  margin: 30px 0;
+}
+
+#info {
+  padding: 0 5px;
+}
