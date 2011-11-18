@@ -1,5 +1,5 @@
 /*
- * jQuery File Upload Plugin JS Example 5.1.1
+ * jQuery File Upload Plugin JS Example 5.1.2
  * https://github.com/blueimp/jQuery-File-Upload
  *
  * Copyright 2010, Sebastian Tschan
@@ -17,6 +17,11 @@ $(function () {
 
     // Initialize the jQuery File Upload widget:
     $('#fileupload').fileupload();
+
+    // Load XDR library for cross-domain AJAX requests in MSIE >= 8:
+    if (window.XDomainRequest) {
+        $.getScript('jquery.xdr-transport.js');
+    }
 
     if (window.location.hostname === 'blueimp.github.com') {
         // Demo setting:
