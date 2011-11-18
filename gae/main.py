@@ -70,7 +70,8 @@ class UploadHandler(webapp2.RequestHandler):
             if type(fieldStorage) is unicode:
                 continue
             result = {}
-            result['name'] = fieldStorage.filename
+            result['name'] = re.sub(r'^.*\\', '',
+                fieldStorage.filename)
             result['type'] = fieldStorage.type
             result['size'] = self.get_file_size(fieldStorage.file)
             if self.validate(result):
