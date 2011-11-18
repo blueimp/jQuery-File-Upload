@@ -1,5 +1,5 @@
 /*
- * jQuery File Upload Plugin JS Example 5.1
+ * jQuery File Upload Plugin JS Example 5.1.1
  * https://github.com/blueimp/jQuery-File-Upload
  *
  * Copyright 2010, Sebastian Tschan
@@ -47,7 +47,7 @@ $(function () {
                     name: 'redirect',
                     value: window.location.href.replace(
                         /\/[^\/]*$/,
-                        '/result.html#%s'
+                        '/result.html?%s'
                     )
                 });
             }
