@@ -1,5 +1,5 @@
 /*
- * jQuery File Upload Plugin JS Example 5.1.3
+ * jQuery File Upload Plugin JS Example 5.1.4
  * https://github.com/blueimp/jQuery-File-Upload
  *
  * Copyright 2010, Sebastian Tschan
@@ -18,18 +18,16 @@ $(function () {
     // Initialize the jQuery File Upload widget:
     $('#fileupload').fileupload();
 
-    // Load XDR library for cross-domain AJAX requests in MSIE >= 8:
-    if (window.XDomainRequest) {
-        $.getScript('jquery.xdr-transport.js');
-    }
-
     if (window.location.hostname === 'blueimp.github.com') {
-        // Demo setting:
+        // Demo settings:
         $('#fileupload form').prop(
             'action',
             '//jquery-file-upload.appspot.com'
         );
-        $('#fileupload').fileupload('option', 'maxFileSize', 5000000);
+        $('#fileupload').fileupload('option', {
+            maxFileSize: 5000000,
+            acceptFileTypes: /(\.|\/)(gif|jpe?g|png)$/i
+        });
     } else {
         // Load existing files:
         $.getJSON($('#fileupload form').prop('action'), function (files) {
@@ -45,16 +43,17 @@ $(function () {
     }
 
     // Enable iframe cross-domain access via redirect page:
+    var redirectPage = window.location.href.replace(
+        /\/[^\/]*$/,
+        '/result.html?%s'
+    );
     $('#fileupload').bind('fileuploadsend', function (e, data) {
         if (data.dataType.substr(0, 6) === 'iframe') {
             var target = $('<a/>').prop('href', data.url)[0];
             if (window.location.host !== target.host) {
                 data.formData.push({
                     name: 'redirect',
-                    value: window.location.href.replace(
-                        /\/[^\/]*$/,
-                        '/result.html?%s'
-                    )
+                    value: redirectPage
                 });
             }
         }

@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# jQuery File Upload Plugin GAE Example 1.1
+# jQuery File Upload Plugin GAE Example 1.1.1
 # https://github.com/blueimp/jQuery-File-Upload
 #
 # Copyright 2010, Sebastian Tschan
@@ -20,7 +20,7 @@ WEBSITE = 'http://blueimp.github.com/jQuery-File-Upload/'
 MIN_FILE_SIZE = 1 # bytes
 MAX_FILE_SIZE = 5000000 # bytes
 IMAGE_TYPES = re.compile('image/(gif|p?jpeg|(x-)?png)')
-ACCEPT_FILE_TYPES = re.compile('.*')
+ACCEPT_FILE_TYPES = IMAGE_TYPES
 THUMBNAIL_MODIFICATOR = '=s80' # max width / height
 EXPIRATION_TIME = 300 # seconds
 
