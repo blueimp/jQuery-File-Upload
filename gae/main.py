@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# jQuery File Upload Plugin GAE Example 1.1.1
+# jQuery File Upload Plugin GAE Example 1.1.2
 # https://github.com/blueimp/jQuery-File-Upload
 #
 # Copyright 2010, Sebastian Tschan
@@ -79,17 +79,20 @@ class UploadHandler(webapp2.RequestHandler):
                     self.write_blob(fieldStorage.value, result)
                 )
                 blob_keys.append(blob_key)
-                if (IMAGE_TYPES.match(result['type'])):
-                    result['url'] = images.get_serving_url(blob_key)
-                    result['thumbnail_url'] = result['url'] +\
-                        THUMBNAIL_MODIFICATOR
-                else:
-                    result['url'] = self.request.host_url +\
-                        '/' + blob_key + '/' + urllib.quote(
-                            result['name'].encode('utf-8'), '')
                 result['delete_type'] = 'DELETE'
                 result['delete_url'] = self.request.host_url +\
                     '/?key=' + urllib.quote(blob_key, '')
+                if (IMAGE_TYPES.match(result['type'])):
+                    try:
+                        result['url'] = images.get_serving_url(blob_key)
+                        result['thumbnail_url'] = result['url'] +\
+                            THUMBNAIL_MODIFICATOR
+                    except: # Could not get an image serving url
+                        pass
+                if not 'url' in result:
+                    result['url'] = self.request.host_url +\
+                        '/' + blob_key + '/' + urllib.quote(
+                            result['name'].encode('utf-8'), '')
             results.append(result)
         deferred.defer(
             cleanup,
