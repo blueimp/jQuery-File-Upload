@@ -3,7 +3,7 @@ jQuery File Upload Plugin
 
 Demo
 ----
-http://aquantum-demo.appspot.com/file-upload
+http://blueimp.github.com/jQuery-File-Upload/
 
 Setup instructions
 ------------------
