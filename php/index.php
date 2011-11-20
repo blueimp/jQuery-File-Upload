@@ -1,6 +1,6 @@
 <?php
 /*
- * jQuery File Upload Plugin PHP Example 5.4
+ * jQuery File Upload Plugin PHP Example 5.4.1
  * https://github.com/blueimp/jQuery-File-Upload
  *
  * Copyright 2010, Sebastian Tschan
@@ -28,6 +28,7 @@ class UploadHandler
             'min_file_size' => 1,
             'accept_file_types' => '/.+$/i',
             'max_number_of_files' => null,
+            // Set the following option to false to enable non-multipart uploads:
             'discard_aborted_uploads' => true,
             'image_versions' => array(
                 // Uncomment the following version to restrict the size of
@@ -273,16 +274,19 @@ class UploadHandler
                     $upload['error'][$index]
                 );
             }
-        } elseif ($upload) {
+        } elseif ($upload || isset($_SERVER['HTTP_X_FILE_NAME'])) {
             $info[] = $this->handle_file_upload(
-                $upload['tmp_name'],
+                isset($upload['tmp_name']) ? $upload['tmp_name'] : null,
                 isset($_SERVER['HTTP_X_FILE_NAME']) ?
-                    $_SERVER['HTTP_X_FILE_NAME'] : $upload['name'],
+                    $_SERVER['HTTP_X_FILE_NAME'] : (isset($upload['name']) ?
+                        isset($upload['name']) : null),
                 isset($_SERVER['HTTP_X_FILE_SIZE']) ?
-                    $_SERVER['HTTP_X_FILE_SIZE'] : $upload['size'],
+                    $_SERVER['HTTP_X_FILE_SIZE'] : (isset($upload['size']) ?
+                        isset($upload['size']) : null),
                 isset($_SERVER['HTTP_X_FILE_TYPE']) ?
-                    $_SERVER['HTTP_X_FILE_TYPE'] : $upload['type'],
-                $upload['error']
+                    $_SERVER['HTTP_X_FILE_TYPE'] : (isset($upload['type']) ?
+                        isset($upload['type']) : null),
+                isset($upload['error']) ? $upload['error'] : null
             );
         }
         header('Vary: Accept');
@@ -328,7 +332,7 @@ header('Content-Disposition: inline; filename="files.json"');
 header('X-Content-Type-Options: nosniff');
 header('Access-Control-Allow-Origin: *');
 header('Access-Control-Allow-Methods: OPTIONS, HEAD, GET, POST, PUT, DELETE');
-header('Access-Control-Allow-Headers: X-File-Name,X-File-Type,X-File-Size');
+header('Access-Control-Allow-Headers: X-File-Name, X-File-Type, X-File-Size');
 
 switch ($_SERVER['REQUEST_METHOD']) {
     case 'OPTIONS':

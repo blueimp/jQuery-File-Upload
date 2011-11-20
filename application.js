@@ -1,5 +1,5 @@
 /*
- * jQuery File Upload Plugin JS Example 5.1.4
+ * jQuery File Upload Plugin JS Example 5.1.5
  * https://github.com/blueimp/jQuery-File-Upload
  *
  * Copyright 2010, Sebastian Tschan
@@ -10,7 +10,7 @@
  */
 
 /*jslint nomen: true, unparam: true, regexp: true */
-/*global $, window */
+/*global $, window, document */
 
 $(function () {
     'use strict';
@@ -68,7 +68,7 @@ $(function () {
             e.preventDefault();
             $('<iframe style="display:none;"></iframe>')
                 .prop('src', this.href)
-                .appendTo('body');
+                .appendTo(document.body);
         }
     );
 

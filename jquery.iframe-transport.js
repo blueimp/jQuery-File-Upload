@@ -1,5 +1,5 @@
 /*
- * jQuery Iframe Transport Plugin 1.2.3
+ * jQuery Iframe Transport Plugin 1.2.4
  * https://github.com/blueimp/jQuery-File-Upload
  *
  * Copyright 2011, Sebastian Tschan
@@ -9,8 +9,8 @@
  * http://creativecommons.org/licenses/MIT/
  */
 
-/*jslint unparam: true */
-/*global jQuery */
+/*jslint unparam: true, nomen: true */
+/*global jQuery, document */
 
 (function ($) {
     'use strict';
@@ -24,13 +24,13 @@
     //  overrides the name property of the file input field(s)
     // options.formData: an array of objects with name and value properties,
     //  equivalent to the return data of .serializeArray(), e.g.:
-    //  [{name: a, value: 1}, {name: b, value: 2}]
-    $.ajaxTransport('iframe', function (options, originalOptions, jqXHR) {
-        if (options.type === 'POST' || options.type === 'GET') {
+    //  [{name: 'a', value: 1}, {name: 'b', value: 2}]
+    $.ajaxTransport('iframe', function (options) {
+        if (options.async && (options.type === 'POST' || options.type === 'GET')) {
             var form,
                 iframe;
             return {
-                send: function (headers, completeCallback) {
+                send: function (_, completeCallback) {
                     form = $('<form style="display:none;"></form>');
                     // javascript:false as initial iframe src
                     // prevents warning popups on HTTPS in IE6.
@@ -115,7 +115,7 @@
                             });
                         }
                     });
-                    form.append(iframe).appendTo('body');
+                    form.append(iframe).appendTo(document.body);
                 },
                 abort: function () {
                     if (iframe) {

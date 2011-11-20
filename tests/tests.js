@@ -1,5 +1,5 @@
 /*
- * jQuery File Upload Plugin Tests 3.3
+ * jQuery File Upload Plugin Tests 3.3.1
  * https://github.com/blueimp/jQuery-File-Upload
  *
  * Copyright 2010, Sebastian Tschan
@@ -847,6 +847,7 @@ $(function () {
         buttonbar.find('.cancel').click();
         $('#fileupload').data('fileupload')._renderDownload(files)
             .appendTo($('#fileupload .files')).show();
+        buttonbar.find('.toggle').click();
         buttonbar.find('.delete').click();
     });
 
@@ -883,7 +884,7 @@ $(function () {
         $('#fileupload').fileupload();
         $('#fileupload').fileupload('disable');
         strictEqual(
-            buttonbar.find('input, button').not(':disabled').length,
+            buttonbar.find('input[type=file], button').not(':disabled').length,
             0,
             'Disables the buttonbar buttons'
         );
@@ -896,7 +897,7 @@ $(function () {
             .fileupload('disable')
             .fileupload('enable');
         strictEqual(
-            buttonbar.find('input, button').not(':disabled').length,
+            buttonbar.find('input[type=file], button').not(':disabled').length,
             4,
             'Enables the buttonbar buttons'
         );
@@ -926,6 +927,7 @@ $(function () {
             delete_url: 'test',
             delete_type: 'DELETE'
         }]).appendTo($('#fileupload .files')).show();
+        $('#fileupload .fileupload-buttonbar .toggle').click();
         $('#fileupload .fileupload-buttonbar .delete').click();
     });
 

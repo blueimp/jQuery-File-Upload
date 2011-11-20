@@ -1,5 +1,5 @@
 /*
- * jQuery File Upload Plugin 5.4.4
+ * jQuery File Upload Plugin 5.5
  * https://github.com/blueimp/jQuery-File-Upload
  *
  * Copyright 2010, Sebastian Tschan
@@ -62,6 +62,9 @@
             limitConcurrentUploads: undefined,
             // Set the following option to true to force iframe transport uploads:
             forceIframeTransport: false,
+            // Set the following option to the location of a postMessage window,
+            // to enable postMessage transport uploads:
+            postMessage: undefined,
             // By default, XHR file uploads are sent as multipart/form-data.
             // The iframe transport is always using multipart/form-data.
             // Set to false to enable non-multipart XHR uploads:
@@ -243,32 +246,53 @@
                 }
             }
             if (options.multipart && typeof FormData !== 'undefined') {
-                if (options.formData instanceof FormData) {
-                    formData = options.formData;
-                } else {
-                    formData = new FormData();
-                    $.each(this._getFormData(options), function (index, field) {
-                        formData.append(field.name, field.value);
-                    });
-                }
-                if (options.blob) {
-                    formData.append(options.paramName, options.blob);
-                } else {
-                    $.each(options.files, function (index, file) {
-                        // File objects are also Blob instances.
-                        // This check allows the tests to run with
-                        // dummy objects:
-                        if (file instanceof Blob) {
-                            formData.append(options.paramName, file);
-                        }
-                    });
+                if (options.postMessage) {
+                    // window.postMessage does not allow sending FormData
+                    // objects, so we just add the File/Blob objects to
+                    // the formData array and let the postMessage window
+                    // create the FormData object out of this array:
+                    formData = this._getFormData(options);
+                    if (options.blob) {
+                        formData.push({
+                            name: options.paramName,
+                            value: options.blob
+                        });
+                    } else {
+                        $.each(options.files, function (index, file) {
+                            formData.push({
+                                name: options.paramName,
+                                value: file
+                            });
+                        });
+                    }
+                } else {      
+                    if (options.formData instanceof FormData) {
+                        formData = options.formData;
+                    } else {
+                        formData = new FormData();
+                        $.each(this._getFormData(options), function (index, field) {
+                            formData.append(field.name, field.value);
+                        });
+                    }
+                    if (options.blob) {
+                        formData.append(options.paramName, options.blob);
+                    } else {
+                        $.each(options.files, function (index, file) {
+                            // File objects are also Blob instances.
+                            // This check allows the tests to run with
+                            // dummy objects:
+                            if (file instanceof Blob) {
+                                formData.append(options.paramName, file);
+                            }
+                        });
+                    }
                 }
                 options.data = formData;
             }
             // Blob reference is not needed anymore, free memory:
             options.blob = null;
         },
-        
+
         _initIframeSettings: function (options) {
             // Setting the dataType to iframe enables the iframe transport:
             options.dataType = 'iframe ' + (options.dataType || '');
@@ -284,8 +308,13 @@
                     }
                     this._initProgressListener(options);
                 }
+                if (options.postMessage) {
+                    // Setting the dataType to postmessage enables the
+                    // postMessage transport:
+                    options.dataType = 'postmessage ' + (options.dataType || '');
+                }
             } else {
-                this._initIframeSettings(options);
+                this._initIframeSettings(options, 'iframe');
             }
         },
         

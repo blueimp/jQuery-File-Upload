@@ -8,5 +8,9 @@ builtins:
 - deferred: on
 
 handlers:
+- url: /(favicon\.ico|robots\.txt|postmessage\.html)
+  static_files: static/\1
+  upload: static/(.*)
+  expiration: '1d'
 - url: /.*
   script: main.app
