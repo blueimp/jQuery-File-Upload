@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# jQuery File Upload Plugin GAE Example 1.1.2
+# jQuery File Upload Plugin GAE Example 1.1.3
 # https://github.com/blueimp/jQuery-File-Upload
 #
 # Copyright 2010, Sebastian Tschan
@@ -108,11 +108,11 @@ class UploadHandler(webapp2.RequestHandler):
         pass
     
     def get(self):
-        if (self.request.get('_method') == 'DELETE'):
-            return self.delete()
         self.redirect(WEBSITE)
     
     def post(self):
+        if (self.request.get('_method') == 'DELETE'):
+            return self.delete()
         s = json.dumps(self.handle_upload(), separators=(',',':'))
         redirect = self.request.get('redirect')
         if redirect:

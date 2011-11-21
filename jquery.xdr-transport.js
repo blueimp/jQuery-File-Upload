@@ -1,5 +1,5 @@
 /*
- * jQuery XDomainRequest Transport Plugin 1.0
+ * jQuery XDomainRequest Transport Plugin 1.0.1
  * https://github.com/blueimp/jQuery-File-Upload
  *
  * Copyright 2011, Sebastian Tschan
@@ -37,7 +37,11 @@
                         if (s.type === 'DELETE') {
                             s.url = s.url + (/\?/.test(s.url) ? '&' : '?') +
                                 '_method=DELETE';
-                            s.type = 'GET';
+                            s.type = 'POST';
+                        } else if (s.type === 'PUT') {
+                            s.url = s.url + (/\?/.test(s.url) ? '&' : '?') +
+                                '_method=PUT';
+                            s.type = 'POST';
                         }
                         xdr.open(s.type, s.url);
                         xdr.onload = function () {
