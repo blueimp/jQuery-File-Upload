@@ -1,7 +1,7 @@
 <!DOCTYPE HTML>
 <!--
 /*
- * jQuery File Upload Plugin Demo 5.3.2
+ * jQuery File Upload Plugin Demo 5.3.3
  * https://github.com/blueimp/jQuery-File-Upload
  *
  * Copyright 2010, Sebastian Tschan
@@ -138,11 +138,11 @@
         {{else}}
             <td class="preview">
                 {{if thumbnail_url}}
-                    <a href="${url}" rel="gallery"><img src="${thumbnail_url}"></a>
+                    <a href="${url}" title="${name}" rel="gallery"><img src="${thumbnail_url}"></a>
                 {{/if}}
             </td>
             <td class="name">
-                <a href="${url}"{{if thumbnail_url}} rel="gallery"{{/if}}>${name}</a>
+                <a href="${url}" title="${name}"{{if thumbnail_url}} rel="gallery"{{/if}}>${name}</a>
             </td>
             <td class="size">${sizef}</td>
             <td colspan="2"></td>
