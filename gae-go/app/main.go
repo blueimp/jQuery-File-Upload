@@ -1,5 +1,5 @@
 /*
- * jQuery File Upload Plugin GAE Go Example 1.1
+ * jQuery File Upload Plugin GAE Go Example 1.2
  * https://github.com/blueimp/jQuery-File-Upload
  *
  * Copyright 2011, Sebastian Tschan
@@ -54,7 +54,6 @@ var (
 
 type FileInfo struct {
 	Key          appengine.BlobKey `json:"-"`
-	Index        int               `json:"-"`
 	Url          string            `json:"url,omitempty"`
 	ThumbnailUrl string            `json:"thumbnail_url,omitempty"`
 	Name         string            `json:"name"`
@@ -65,13 +64,19 @@ type FileInfo struct {
 	DeleteType   string            `json:"delete_type,omitempty"`
 }
 
-func (fi *FileInfo) Validate() (valid bool) {
+func (fi *FileInfo) ValidateType() (valid bool) {
+	if acceptFileTypes.MatchString(fi.Type) {
+		return true
+	}
+	fi.Error = "acceptFileTypes"
+	return false
+}
+
+func (fi *FileInfo) ValidateSize() (valid bool) {
 	if fi.Size < MIN_FILE_SIZE {
 		fi.Error = "minFileSize"
 	} else if fi.Size > MAX_FILE_SIZE {
 		fi.Error = "maxFileSize"
-	} else if !acceptFileTypes.MatchString(fi.Type) {
-		fi.Error = "acceptFileTypes"
 	} else {
 		return true
 	}
@@ -114,20 +119,20 @@ func (fi *FileInfo) CreateThumbnail(r io.Reader, c appengine.Context) (data []by
 	}()
 	img, _, err := image.Decode(r)
 	check(err)
-	if b := img.Bounds(); b.Dx() > THUMBNAIL_MAX_WIDTH ||
-		b.Dy() > THUMBNAIL_MAX_HEIGHT {
+	if bounds := img.Bounds(); bounds.Dx() > THUMBNAIL_MAX_WIDTH ||
+		bounds.Dy() > THUMBNAIL_MAX_HEIGHT {
 		w, h := THUMBNAIL_MAX_WIDTH, THUMBNAIL_MAX_HEIGHT
-		if b.Dx() > b.Dy() {
-			h = b.Dy() * h / b.Dx()
+		if bounds.Dx() > bounds.Dy() {
+			h = bounds.Dy() * h / bounds.Dx()
 		} else {
-			w = b.Dx() * w / b.Dy()
+			w = bounds.Dx() * w / bounds.Dy()
 		}
 		img = resize.Resize(img, img.Bounds(), w, h)
 	}
-	buffer := bytes.NewBuffer(make([]byte, 0, 32768))
-	err = png.Encode(buffer, img)
+	var b bytes.Buffer
+	err = png.Encode(&b, img)
 	check(err)
-	data = buffer.Bytes()
+	data = b.Bytes()
 	fi.ThumbnailUrl = "data:image/png;base64," +
 		base64.StdEncoding.EncodeToString(data)
 	return
@@ -139,7 +144,7 @@ func check(err os.Error) {
 	}
 }
 
-func queueDeletion(c appengine.Context, fi *FileInfo) {
+func delayedDelete(c appengine.Context, fi *FileInfo) {
 	if key := string(fi.Key); key != "" {
 		task := &taskqueue.Task{
 			Path:   "/" + url.QueryEscape(key) + "/-",
@@ -149,60 +154,71 @@ func queueDeletion(c appengine.Context, fi *FileInfo) {
 	}
 }
 
-func handleUpload(r *http.Request, fh *multipart.FileHeader, i int, c chan *FileInfo) {
-	fi := FileInfo{Index: i, Name: fh.Filename}
-	context := appengine.NewContext(r)
+func handleUpload(r *http.Request, p *multipart.Part) (fi *FileInfo) {
+	fi = &FileInfo{
+		Name: p.FileName(),
+		Type: p.Header.Get("Content-Type"),
+	}
+	if !fi.ValidateType() {
+		return
+	}
 	defer func() {
-		queueDeletion(context, &fi)
 		if rec := recover(); rec != nil {
 			log.Println(rec)
 			fi.Error = rec.(os.Error).String()
 		}
-		c <- &fi
 	}()
-	if h, b := fh.Header["Content-Type"]; b && len(h) > 0 {
-		fi.Type = h[0]
-	}
-	f, err := fh.Open()
-	defer f.Close()
-	check(err)
-	fi.Size, err = f.Seek(0, 2)
-	check(err)
-	if fi.Validate() {
-		_, err = f.Seek(0, 0)
+	var b bytes.Buffer
+	lr := &io.LimitedReader{p, MAX_FILE_SIZE + 1}
+	context := appengine.NewContext(r)
+	w, err := blobstore.Create(context, fi.Type)
+	defer func() {
+		w.Close()
+		fi.Size = MAX_FILE_SIZE + 1 - lr.N
+		fi.Key, err = w.Key()
 		check(err)
-		var w *blobstore.Writer
-		w, err = blobstore.Create(context, fi.Type)
-		defer func() {
-			w.Close()
-			fi.Key, err = w.Key()
+		if !fi.ValidateSize() {
+			err := blobstore.Delete(context, fi.Key)
 			check(err)
-			if imageTypes.MatchString(fi.Type) {
-				_, err = f.Seek(0, 0)
-				check(err)
-				fi.CreateThumbnail(f, context)
-			}
-			fi.CreateUrls(r, context)
-		}()
-		check(err)
-		_, err = io.Copy(w, f)
+			return
+		}
+		delayedDelete(context, fi)
+		if b.Len() > 0 {
+			fi.CreateThumbnail(&b, context)
+		}
+		fi.CreateUrls(r, context)
+	}()
+	check(err)
+	var wr io.Writer = w
+	if imageTypes.MatchString(fi.Type) {
+		wr = io.MultiWriter(&b, w)
 	}
+	_, err = io.Copy(wr, lr)
+	return
+}
+
+func getFormValue(p *multipart.Part) string {
+	var b bytes.Buffer
+	io.Copyn(&b, p, int64(1<<20)) // Copy max: 1 MiB
+	return b.String()
 }
 
 func handleUploads(r *http.Request) (fileInfos []*FileInfo) {
-	if r.MultipartForm != nil && r.MultipartForm.File != nil {
-		for _, mfs := range r.MultipartForm.File {
-			mfsLen := len(mfs)
-			c := make(chan *FileInfo, mfsLen)
-			for i, fh := range mfs {
-				go handleUpload(r, fh, i, c)
-			}
-			fileInfos = make([]*FileInfo, mfsLen)
-			for i := 0; i < mfsLen; i++ {
-				fi := <-c
-				fileInfos[fi.Index] = fi
+	fileInfos = make([]*FileInfo, 0)
+	mr, err := r.MultipartReader()
+	check(err)
+	r.Form, err = url.ParseQuery(r.URL.RawQuery)
+	check(err)
+	part, err := mr.NextPart()
+	for err == nil {
+		if name := part.FormName(); name != "" {
+			if part.FileName() != "" {
+				fileInfos = append(fileInfos, handleUpload(r, part))
+			} else {
+				r.Form[name] = append(r.Form[name], getFormValue(part))
 			}
 		}
+		part, err = mr.NextPart()
 	}
 	return
 }
@@ -228,7 +244,7 @@ func get(w http.ResponseWriter, r *http.Request) {
 					w.Header().Add("Content-Type", "application/octet-stream")
 					w.Header().Add(
 						"Content-Disposition:",
-						fmt.Sprintf("attachment; filename=%s;", bi.Filename),
+						fmt.Sprintf("attachment; filename=%s;", parts[2]),
 					)
 				}
 				blobstore.Send(w, appengine.BlobKey(key))
@@ -309,6 +325,8 @@ func serveThumbnail(w http.ResponseWriter, r *http.Request) {
 }
 
 func handle(w http.ResponseWriter, r *http.Request) {
+	params, err := url.ParseQuery(r.URL.RawQuery)
+	check(err)
 	w.Header().Add("Access-Control-Allow-Origin", "*")
 	w.Header().Add(
 		"Access-Control-Allow-Methods",
@@ -320,7 +338,7 @@ func handle(w http.ResponseWriter, r *http.Request) {
 	case "GET":
 		get(w, r)
 	case "POST":
-		if r.FormValue("_method") == "DELETE" {
+		if len(params["_method"]) > 0 && params["_method"][0] == "DELETE" {
 			delete(w, r)
 		} else {
 			post(w, r)
