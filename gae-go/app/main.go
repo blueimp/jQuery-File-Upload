@@ -1,5 +1,5 @@
 /*
- * jQuery File Upload Plugin GAE Go Example 1.2
+ * jQuery File Upload Plugin GAE Go Example 1.2.1
  * https://github.com/blueimp/jQuery-File-Upload
  *
  * Copyright 2011, Sebastian Tschan
@@ -87,18 +87,19 @@ func (fi *FileInfo) CreateUrls(r *http.Request, c appengine.Context) {
 	u := &url.URL{
 		Scheme: r.URL.Scheme,
 		Host:   appengine.DefaultVersionHostname(c),
+		Path:   "/",
 	}
-	u.Path = "/" + url.QueryEscape(string(fi.Key)) + "/" +
-		url.QueryEscape(string(fi.Name))
-	fi.Url = u.String()
+	uString := u.String()
+	fi.Url = uString + escape(string(fi.Key)) + "/" +
+		escape(string(fi.Name))
 	fi.DeleteUrl = fi.Url
 	fi.DeleteType = "DELETE"
 	if fi.ThumbnailUrl != "" && -1 == strings.Index(
 		r.Header.Get("Accept"),
 		"application/json",
 	) {
-		u.Path = "/thumbnails/" + url.QueryEscape(string(fi.Key))
-		fi.ThumbnailUrl = u.String()
+		fi.ThumbnailUrl = uString + "thumbnails/" +
+			escape(string(fi.Key))
 	}
 }
 
@@ -144,10 +145,14 @@ func check(err os.Error) {
 	}
 }
 
+func escape(s string) string {
+	return strings.Replace(url.QueryEscape(s), "+", "%20", -1)
+}
+
 func delayedDelete(c appengine.Context, fi *FileInfo) {
 	if key := string(fi.Key); key != "" {
 		task := &taskqueue.Task{
-			Path:   "/" + url.QueryEscape(key) + "/-",
+			Path:   "/" + escape(key) + "/-",
 			Method: "DELETE", Delay: EXPIRATION_TIME * 1000000,
 		}
 		taskqueue.Add(c, task, "")
@@ -261,7 +266,7 @@ func post(w http.ResponseWriter, r *http.Request) {
 	if redirect := r.FormValue("redirect"); redirect != "" {
 		http.Redirect(w, r, fmt.Sprintf(
 			redirect,
-			url.QueryEscape(string(b)),
+			escape(string(b)),
 		), http.StatusFound)
 		return
 	}
@@ -279,8 +284,7 @@ func delete(w http.ResponseWriter, r *http.Request) {
 	}
 	if key := parts[1]; key != "" {
 		c := appengine.NewContext(r)
-		err := blobstore.Delete(c, appengine.BlobKey(key))
-		check(err)
+		blobstore.Delete(c, appengine.BlobKey(key))
 		memcache.Delete(c, key)
 	}
 }
