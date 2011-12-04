@@ -1,5 +1,5 @@
 /*
- * jQuery File Upload Plugin 5.5
+ * jQuery File Upload Plugin 5.5.1
  * https://github.com/blueimp/jQuery-File-Upload
  *
  * Copyright 2010, Sebastian Tschan
@@ -491,10 +491,16 @@
             }
         },
 
-        _onAlways: function (jqXHR, textStatus, options) {
+        _onAlways: function (jqXHRorResult, textStatus, jqXHRorError, options) {
             this._active -= 1;
-            options.jqXHR = jqXHR;
             options.textStatus = textStatus;
+            if (jqXHRorError && jqXHRorError.always) {
+                options.jqXHR = jqXHRorError;
+                options.result = jqXHRorResult;
+            } else {
+                options.jqXHR = jqXHRorResult;
+                options.errorThrown = jqXHRorError;
+            }
             this._trigger('always', null, options);
             if (this._active === 0) {
                 // The stop callback is triggered when all uploads have
@@ -522,12 +528,14 @@
                         that._onDone(result, textStatus, jqXHR, options);
                     }).fail(function (jqXHR, textStatus, errorThrown) {
                         that._onFail(jqXHR, textStatus, errorThrown, options);
-                    }).complete(function (jqXHR, textStatus) {
-                        // jqXHR.complete() will be deprecated in jQuery 1.8,
-                        // but is preferable over jqXHR.always() due to this bug:
-                        // http://bugs.jquery.com/ticket/10723 (jQuery 1.7)
+                    }).always(function (jqXHRorResult, textStatus, jqXHRorError) {
                         that._sending -= 1;
-                        that._onAlways(jqXHR, textStatus, options);
+                        that._onAlways(
+                            jqXHRorResult,
+                            textStatus,
+                            jqXHRorError,
+                            options
+                        );
                         if (options.limitConcurrentUploads &&
                                 options.limitConcurrentUploads > that._sending) {
                             // Start the next queued upload,
