@@ -1,5 +1,5 @@
 /*
- * jQuery File Upload Plugin 5.5.1
+ * jQuery File Upload Plugin 5.5.2
  * https://github.com/blueimp/jQuery-File-Upload
  *
  * Copyright 2010, Sebastian Tschan
@@ -397,7 +397,11 @@
             }
             if (ub >= fs) {
                 file.error = 'uploadedBytes';
-                return this._getXHRPromise(false);
+                return this._getXHRPromise(
+                    false,
+                    options.context,
+                    [null, 'error', file.error]
+                );
             }
             // n is the number of blobs to upload,
             // calculated via filesize, uploaded bytes and max chunk size:
@@ -405,7 +409,7 @@
             // The chunk upload method accepting the chunk number as parameter:
             upload = function (i) {
                 if (!i) {
-                    return that._getXHRPromise(true);
+                    return that._getXHRPromise(true, options.context);
                 }
                 // Upload the blobs in sequential order:
                 return upload(i -= 1).pipe(function () {
@@ -596,14 +600,16 @@
                 for (i = 0; i < data.files.length; i += limit) {
                     fileSet.push(data.files.slice(i, i + limit));
                 }
-            }    
+            }
             data.originalFiles = data.files;
             $.each(fileSet || data.files, function (index, element) {
                 var files = fileSet ? element : [element],
                     newData = $.extend({}, data, {files: files});
                 newData.submit = function () {
-                    return (that._trigger('submit', e, newData) !== false) &&
-                        that._onSend(e, newData);
+                    newData.jqXHR = this.jqXHR =
+                        (that._trigger('submit', e, this) !== false) &&
+                        that._onSend(e, this);
+                    return this.jqXHR;
                 };
                 return (result = that._trigger('add', e, newData));
             });
