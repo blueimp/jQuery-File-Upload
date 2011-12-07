@@ -9,7 +9,7 @@
  * http://creativecommons.org/licenses/MIT/
  */
 
-/*jslint white: true, nomen: true, unparam: true */
+/*jslint nomen: true, unparam: true */
 /*global $, QUnit, document, expect, module, test, asyncTest, start, ok, strictEqual, notStrictEqual */
 
 $(function () {
@@ -56,7 +56,7 @@ $(function () {
         };
 
     module('Initialization', lifecycle);
-    
+
     test('Widget initialization', function () {
         ok($('#fileupload').fileupload().data('fileupload'));
     });
@@ -72,12 +72,12 @@ $(function () {
             'Widget element as file input field'
         );
     });
-    
+
     test('Drop zone initialization', function () {
         ok($('#fileupload').fileupload()
             .fileupload('option', 'dropZone').length);
     });
-    
+
     test('Event listeners initialization', function () {
         var fu = $('#fileupload').fileupload();
         ok(
@@ -123,7 +123,7 @@ $(function () {
             'Removes own drop zone dragover event listener'
         );
     });
-    
+
     test('disable', function () {
         var fu = $('#fileupload').fileupload(),
             fileInput = fu.fileupload('option', 'fileInput'),
@@ -155,7 +155,7 @@ $(function () {
             }
         }).fileupload('add', param);
     });
-    
+
     test('enable', function () {
         var fu = $('#fileupload').fileupload(),
             param = {files: [{name: 'test'}]};
@@ -188,12 +188,12 @@ $(function () {
             }
         }).fileupload('send', param);
     });
-    
+
     test('option', function () {
         var fu = $('#fileupload').fileupload(),
             fileInput = fu.fileupload('option', 'fileInput'),
             dropZone = fu.fileupload('option', 'dropZone');
-        fu.fileupload('option', 'fileInput', null);   
+        fu.fileupload('option', 'fileInput', null);
         fu.fileupload('option', 'dropZone', null);
         ok(
             !fileInput.data('events'),
@@ -203,7 +203,7 @@ $(function () {
             !dropZone.data('events'),
             'Removes event listeners after changing dropZone option'
         );
-        fu.fileupload('option', 'fileInput', fileInput);   
+        fu.fileupload('option', 'fileInput', fileInput);
         fu.fileupload('option', 'dropZone', dropZone);
         ok(
             fileInput.data('events').change.length,
@@ -252,7 +252,7 @@ $(function () {
             }
         ).fileupload('add', param2);
     });
-    
+
     asyncTest('send', function () {
         expect(3);
         var param = {files: [{name: 'test'}]};
@@ -271,7 +271,7 @@ $(function () {
             start();
         }).abort();
     });
-    
+
     module('Callbacks', lifecycle);
 
     asyncTest('add', function () {
@@ -319,7 +319,7 @@ $(function () {
             }
         }).fileupload('send', param);
     });
-    
+
     asyncTest('fail', function () {
         expect(1);
         var param = {files: [{name: 'test'}]},
@@ -335,7 +335,7 @@ $(function () {
         };
         fu.fileupload('send', param);
     });
-    
+
     asyncTest('always', function () {
         expect(2);
         var param = {files: [{name: 'test'}]},
@@ -359,7 +359,7 @@ $(function () {
             '404'
         ).fileupload('add', param);
     });
-    
+
     asyncTest('progress', function () {
         expect(1);
         var param = {files: [{name: 'test'}]},
@@ -376,7 +376,7 @@ $(function () {
             }
         }).fileupload('send', param);
     });
-    
+
     asyncTest('progressall', function () {
         expect(1);
         var param = {files: [{name: 'test'}]},
@@ -408,7 +408,7 @@ $(function () {
             }
         }).fileupload('send', param);
     });
-    
+
     asyncTest('stop', function () {
         expect(1);
         var param = {files: [{name: '1'}, {name: '2'}]},
@@ -465,7 +465,7 @@ $(function () {
             preventDefault: $.noop
         });
     });
-    
+
     test('drop', function () {
         var fu = $('#fileupload').fileupload(),
             fuo = fu.data('fileupload');
@@ -482,7 +482,7 @@ $(function () {
             preventDefault: $.noop
         });
     });
-    
+
     test('dragover', function () {
         var fu = $('#fileupload').fileupload(),
             fuo = fu.data('fileupload');
@@ -517,7 +517,7 @@ $(function () {
             }
         }).fileupload('send', param);
     });
-    
+
     test('url', function () {
         expect(1);
         var param = {files: [{name: 'test'}]};
@@ -533,7 +533,7 @@ $(function () {
             }
         }).fileupload('send', param);
     });
-    
+
     test('type', function () {
         expect(2);
         var param = {files: [{name: 'test'}]};
@@ -560,7 +560,7 @@ $(function () {
             }
         }).fileupload('send', param);
     });
-    
+
     test('replaceFileInput', function () {
         var fu = $('#fileupload').fileupload(),
             fuo = fu.data('fileupload'),
@@ -614,7 +614,7 @@ $(function () {
             }
         }).fileupload('send', param);
     });
-    
+
     test('singleFileUploads', function () {
         expect(3);
         var fu = $('#fileupload').fileupload(),
@@ -751,7 +751,7 @@ $(function () {
         };
         fu.fileupload('add', param);
     });
-    
+
     asyncTest('multipart', function () {
         expect(4);
         var param = {files: [{
@@ -787,12 +787,12 @@ $(function () {
             });
         fu.data('fileupload')._isXHRUpload = function () {
             return true;
-        };    
+        };
         fu.fileupload('send', param);
     });
 
     module('UI Initialization', lifecycleUI);
-    
+
     test('Widget initialization', function () {
         ok($('#fileupload').fileupload().data('fileupload'));
         ok(
@@ -878,7 +878,7 @@ $(function () {
             'Deinitialized global progressbar'
         );
     });
-    
+
     test('disable', function () {
         var buttonbar = $('#fileupload .fileupload-buttonbar');
         $('#fileupload').fileupload();
@@ -889,7 +889,7 @@ $(function () {
             'Disables the buttonbar buttons'
         );
     });
-    
+
     test('enable', function () {
         var buttonbar = $('#fileupload .fileupload-buttonbar');
         $('#fileupload')
@@ -904,7 +904,7 @@ $(function () {
     });
 
     module('UI Callbacks', lifecycleUI);
-    
+
     test('destroy', function () {
         expect(3);
         $('#fileupload').fileupload({
@@ -932,7 +932,7 @@ $(function () {
     });
 
     module('UI Options', lifecycleUI);
-    
+
     test('autoUpload', function () {
         expect(1);
         $('#fileupload')
@@ -1035,7 +1035,7 @@ $(function () {
                 size: 1001
             }]});
     });
-    
+
     test('minFileSize', function () {
         expect(3);
         var addIndex = 0,
@@ -1077,7 +1077,7 @@ $(function () {
                 size: 999
             }]});
     });
-    
+
     test('acceptFileTypes', function () {
         expect(3);
         var addIndex = 0,
