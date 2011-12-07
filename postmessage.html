@@ -1,10 +1,10 @@
 <!DOCTYPE HTML>
 <!--
 /*
- * jQuery File Upload Plugin postMessage API 1.0
+ * jQuery File Upload Plugin postMessage API 1.1
  * https://github.com/blueimp/jQuery-File-Upload
  *
- * Copyright 2010, Sebastian Tschan
+ * Copyright 2011, Sebastian Tschan
  * https://blueimp.net
  *
  * Licensed under the MIT license:
@@ -15,15 +15,26 @@
 <head>
 <meta charset="utf-8">
 <title>jQuery File Upload Plugin postMessage API</title>
-<script src="//ajax.googleapis.com/ajax/libs/jquery/1.7/jquery.min.js"></script>
+<script src="//ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
 </head>
 <body>
 <script>
+/*jslint unparam: true, regexp: true */
+/*global $, Blob, FormData, location */
+'use strict';
+var origin = /^http:\/\/example.org/,
+    target = new RegExp('^(http(s)?:)?\\/\\/' + location.host + '\\/');
 $(window).on('message', function (e) {
     e = e.originalEvent;
     var s = e.data,
         xhr = $.ajaxSettings.xhr(),
         f;
+    if (!origin.test(e.origin)) {
+        throw new Error('Origin "' + e.origin + '" does not match ' + origin);
+    }
+    if (!target.test(e.data.url)) {
+        throw new Error('Target "' + e.data.url + '" does not match ' + target);
+    }
     $(xhr.upload).on('progress', function (ev) {
         ev = ev.originalEvent;
         e.source.postMessage({

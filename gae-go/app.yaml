@@ -4,7 +4,7 @@ runtime: go
 api_version: 3
 
 handlers:
-- url: /(favicon\.ico|robots\.txt|postmessage\.html)
+- url: /(favicon\.ico|robots\.txt)
   static_files: static/\1
   upload: static/(.*)
   expiration: '1d'
