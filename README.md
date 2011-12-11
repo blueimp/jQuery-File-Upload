@@ -68,7 +68,7 @@ Released under the [MIT license](http://creativecommons.org/licenses/MIT/).
 
 ## Source Code & Download
 * Browse and checkout the [source code](https://github.com/blueimp/jQuery-File-Upload).
-* [Download](https://github.com/blueimp/jQuery-File-Upload/archives/master) the project to add the plugin to your website.
+* [Download](https://github.com/blueimp/jQuery-File-Upload/downloads) the project to add the plugin to your website.
 
 ## Documentation & Support
 * Documentation can be found on the [Project Wiki](https://github.com/blueimp/jQuery-File-Upload/wiki).
