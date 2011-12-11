@@ -1,5 +1,5 @@
 /*
- * jQuery File Upload Plugin Tests 3.3.2
+ * jQuery File Upload Plugin Tests 5.2
  * https://github.com/blueimp/jQuery-File-Upload
  *
  * Copyright 2010, Sebastian Tschan

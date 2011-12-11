@@ -1,5 +1,5 @@
 /*
- * jQuery File Upload User Interface Plugin 5.1.1
+ * jQuery File Upload User Interface Plugin 5.2
  * https://github.com/blueimp/jQuery-File-Upload
  *
  * Copyright 2010, Sebastian Tschan
@@ -46,12 +46,6 @@
             // if supported by the browser. Set the following option to false
             // to always display preview images as img elements:
             previewAsCanvas: true,
-            // The file upload template that is given as first argument to the
-            // jQuery.tmpl method to render the file uploads:
-            uploadTemplate: $('#template-upload'),
-            // The file download template, that is given as first argument to the
-            // jQuery.tmpl method to render the file downloads:
-            downloadTemplate: $('#template-download'),
             // The expected data type of the upload response, sets the dataType
             // option of the $.ajax upload requests:
             dataType: 'json',
@@ -60,11 +54,12 @@
             // widget (via file input selection, drag & drop or add API call).
             // See the basic file upload widget for more information:
             add: function (e, data) {
-                var that = $(this).data('fileupload');
-                that._adjustMaxNumberOfFiles(-data.files.length);
+                var that = $(this).data('fileupload'),
+                    files = data.files;
+                that._adjustMaxNumberOfFiles(-files.length);
                 data.isAdjusted = true;
-                data.isValidated = that._validate(data.files);
-                data.context = that._renderUpload(data.files)
+                data.files.valid = data.isValidated = that._validate(files);
+                data.context = that._renderUpload(files)
                     .appendTo($(this).find('.files')).fadeIn(function () {
                         // Fix for IE7 and lower:
                         $(this).show();
@@ -321,17 +316,17 @@
             }
         },
 
-        _formatFileSize: function (file) {
-            if (typeof file.size !== 'number') {
+        _formatFileSize: function (bytes) {
+            if (typeof bytes !== 'number') {
                 return '';
             }
-            if (file.size >= 1000000000) {
-                return (file.size / 1000000000).toFixed(2) + ' GB';
+            if (bytes >= 1000000000) {
+                return (bytes / 1000000000).toFixed(2) + ' GB';
             }
-            if (file.size >= 1000000) {
-                return (file.size / 1000000).toFixed(2) + ' MB';
+            if (bytes >= 1000000) {
+                return (bytes / 1000000).toFixed(2) + ' MB';
             }
-            return (file.size / 1000).toFixed(2) + ' KB';
+            return (bytes / 1000).toFixed(2) + ' KB';
         },
 
         _hasError: function (file) {
@@ -374,49 +369,33 @@
             return valid;
         },
 
-        _uploadTemplateHelper: function (file) {
-            file.sizef = this._formatFileSize(file);
-            return file;
-        },
-
         _renderUploadTemplate: function (files) {
-            var that = this;
-            return $.tmpl(
-                this.options.uploadTemplate,
-                $.map(files, function (file) {
-                    return that._uploadTemplateHelper(file);
-                })
-            );
+            var options = this.options,
+                container = options.templateContainer;
+            container.innerHTML = options.uploadTemplate({
+                files: files,
+                formatFileSize: this._formatFileSize,
+                options: options
+            });
+            return $(container).children();
         },
 
         _renderUpload: function (files) {
             var that = this,
                 options = this.options,
-                tmpl = this._renderUploadTemplate(files),
-                isValidated = this._validate(files);
-            if (!(tmpl instanceof $)) {
-                return $();
-            }
-            tmpl.css('display', 'none');
-            // .slice(1).remove().end().first() removes all but the first
-            // element and selects only the first for the jQuery collection:
-            tmpl.find('.progress div').slice(
-                isValidated ? 1 : 0
-            ).remove().end().first()
-                .progressbar();
-            tmpl.find('.start button').slice(
-                this.options.autoUpload || !isValidated ? 0 : 1
-            ).remove().end().first()
-                .button({
-                    text: false,
-                    icons: {primary: 'ui-icon-circle-arrow-e'}
-                });
-            tmpl.find('.cancel button').slice(1).remove().end().first()
-                .button({
-                    text: false,
-                    icons: {primary: 'ui-icon-cancel'}
-                });
-            tmpl.find('.preview').each(function (index, node) {
+                nodes = this._renderUploadTemplate(files)
+                    .css('display', 'none'),
+                firstNode = nodes.first();
+            firstNode.find('.progress div').progressbar();
+            firstNode.find('.start button').button({
+                text: false,
+                icons: {primary: 'ui-icon-circle-arrow-e'}
+            });
+            firstNode.find('.cancel button').button({
+                text: false,
+                icons: {primary: 'ui-icon-cancel'}
+            });
+            nodes.find('.preview').each(function (index, node) {
                 that._loadImage(
                     files[index],
                     function (img) {
@@ -430,36 +409,29 @@
                     }
                 );
             });
-            return tmpl;
-        },
-
-        _downloadTemplateHelper: function (file) {
-            file.sizef = this._formatFileSize(file);
-            return file;
+            return nodes;
         },
 
         _renderDownloadTemplate: function (files) {
-            var that = this;
-            return $.tmpl(
-                this.options.downloadTemplate,
-                $.map(files, function (file) {
-                    return that._downloadTemplateHelper(file);
-                })
-            );
+            var options = this.options,
+                container = options.templateContainer;
+            container.innerHTML = options.downloadTemplate({
+                files: files,
+                formatFileSize: this._formatFileSize,
+                options: options
+            });
+            return $(container).children();
         },
 
         _renderDownload: function (files) {
-            var tmpl = this._renderDownloadTemplate(files);
-            if (!(tmpl instanceof $)) {
-                return $();
-            }
-            tmpl.css('display', 'none');
-            tmpl.find('.delete button').button({
+            var nodes = this._renderDownloadTemplate(files)
+                .css('display', 'none');
+            nodes.find('.delete button').button({
                 text: false,
                 icons: {primary: 'ui-icon-trash'}
             });
-            tmpl.find('a').each(this._enableDragToDesktop);
-            return tmpl;
+            nodes.find('a').each(this._enableDragToDesktop);
+            return nodes;
         },
 
         _startHandler: function (e) {
@@ -601,20 +573,11 @@
         },
 
         _initTemplates: function () {
-            // Handle cases where the templates are defined
-            // after the widget library has been included:
-            if (this.options.uploadTemplate instanceof $ &&
-                    !this.options.uploadTemplate.length) {
-                this.options.uploadTemplate = $(
-                    this.options.uploadTemplate.selector
-                );
-            }
-            if (this.options.downloadTemplate instanceof $ &&
-                    !this.options.downloadTemplate.length) {
-                this.options.downloadTemplate = $(
-                    this.options.downloadTemplate.selector
-                );
-            }
+            this.options.templateContainer = document.createElement(
+                this.element.find('.files').prop('nodeName')
+            );
+            this.options.uploadTemplate = window.tmpl('template-upload');
+            this.options.downloadTemplate = window.tmpl('template-download');
         },
 
         _create: function () {
