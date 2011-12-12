@@ -1,5 +1,5 @@
 /*
- * jQuery File Upload User Interface Plugin 5.2.1
+ * jQuery File Upload User Interface Plugin 5.3
  * https://github.com/blueimp/jQuery-File-Upload
  *
  * Copyright 2010, Sebastian Tschan
@@ -200,93 +200,6 @@
             }
         },
 
-        // Scales the given image (img HTML element)
-        // using the given options.
-        // Returns a canvas object if the canvas option is true
-        // and the browser supports canvas, else the scaled image:
-        _scaleImage: function (img, options) {
-            options = options || {};
-            var canvas = document.createElement('canvas'),
-                scale = Math.min(
-                    (options.maxWidth || img.width) / img.width,
-                    (options.maxHeight || img.height) / img.height
-                );
-            if (scale >= 1) {
-                scale = Math.max(
-                    (options.minWidth || img.width) / img.width,
-                    (options.minHeight || img.height) / img.height
-                );
-            }
-            img.width = parseInt(img.width * scale, 10);
-            img.height = parseInt(img.height * scale, 10);
-            if (!options.canvas || !canvas.getContext) {
-                return img;
-            }
-            canvas.width = img.width;
-            canvas.height = img.height;
-            canvas.getContext('2d')
-                .drawImage(img, 0, 0, img.width, img.height);
-            return canvas;
-        },
-
-        _createObjectURL: function (file) {
-            var undef = 'undefined',
-                urlAPI = (typeof window.createObjectURL !== undef && window) ||
-                    (typeof URL !== undef && URL) ||
-                    (typeof webkitURL !== undef && webkitURL);
-            return urlAPI ? urlAPI.createObjectURL(file) : false;
-        },
-
-        _revokeObjectURL: function (url) {
-            var undef = 'undefined',
-                urlAPI = (typeof window.revokeObjectURL !== undef && window) ||
-                    (typeof URL !== undef && URL) ||
-                    (typeof webkitURL !== undef && webkitURL);
-            return urlAPI ? urlAPI.revokeObjectURL(url) : false;
-        },
-
-        // Loads a given File object via FileReader interface,
-        // invokes the callback with a data url:
-        _loadFile: function (file, callback) {
-            if (typeof FileReader !== 'undefined' &&
-                    FileReader.prototype.readAsDataURL) {
-                var fileReader = new FileReader();
-                fileReader.onload = function (e) {
-                    callback(e.target.result);
-                };
-                fileReader.readAsDataURL(file);
-                return true;
-            }
-            return false;
-        },
-
-        // Loads an image for a given File object.
-        // Invokes the callback with an img or optional canvas
-        // element (if supported by the browser) as parameter:
-        _loadImage: function (file, callback, options) {
-            var that = this,
-                url,
-                img;
-            if (!options || !options.fileTypes ||
-                    options.fileTypes.test(file.type)) {
-                url = this._createObjectURL(file);
-                img = $('<img>').bind('load', function () {
-                    $(this).unbind('load');
-                    that._revokeObjectURL(url);
-                    callback(that._scaleImage(img[0], options));
-                });
-                if (url) {
-                    img.prop('src', url);
-                    return true;
-                } else {
-                    return this._loadFile(file, function (url) {
-                        img.prop('src', url);
-                    });
-                }
-            }
-            return false;
-        },
-
         // Link handler, that allows to download files
         // by drag & drop of the links to the desktop:
         _enableDragToDesktop: function () {
@@ -378,8 +291,7 @@
         },
 
         _renderUpload: function (files) {
-            var that = this,
-                options = this.options,
+            var options = this.options,
                 nodes = this._renderTemplate(options.uploadTemplate, files)
                     .css('display', 'none'),
                 firstNode = nodes.first();
@@ -393,18 +305,20 @@
                 icons: {primary: 'ui-icon-cancel'}
             });
             nodes.find('.preview').each(function (index, node) {
-                that._loadImage(
-                    files[index],
-                    function (img) {
-                        $(img).hide().appendTo(node).fadeIn();
-                    },
-                    {
-                        maxWidth: options.previewMaxWidth,
-                        maxHeight: options.previewMaxHeight,
-                        fileTypes: options.previewFileTypes,
-                        canvas: options.previewAsCanvas
-                    }
-                );
+                var file = files[index];
+                if (options.previewFileTypes.test(file.type)) {
+                    window.loadImage(
+                        files[index],
+                        function (img) {
+                            $(img).hide().appendTo(node).fadeIn();
+                        },
+                        {
+                            maxWidth: options.previewMaxWidth,
+                            maxHeight: options.previewMaxHeight,
+                            canvas: options.previewAsCanvas
+                        }
+                    );
+                }
             });
             return nodes;
         },
