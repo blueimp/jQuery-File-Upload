@@ -1,5 +1,5 @@
 /*
- * jQuery File Upload User Interface Plugin 5.2
+ * jQuery File Upload User Interface Plugin 5.2.1
  * https://github.com/blueimp/jQuery-File-Upload
  *
  * Copyright 2010, Sebastian Tschan
@@ -369,21 +369,18 @@
             return valid;
         },
 
-        _renderUploadTemplate: function (files) {
-            var options = this.options,
-                container = options.templateContainer;
-            container.innerHTML = options.uploadTemplate({
+        _renderTemplate: function (func, files) {
+            return $(this.options.templateContainer).html(func({
                 files: files,
                 formatFileSize: this._formatFileSize,
-                options: options
-            });
-            return $(container).children();
+                options: this.options
+            })).children();
         },
 
         _renderUpload: function (files) {
             var that = this,
                 options = this.options,
-                nodes = this._renderUploadTemplate(files)
+                nodes = this._renderTemplate(options.uploadTemplate, files)
                     .css('display', 'none'),
                 firstNode = nodes.first();
             firstNode.find('.progress div').progressbar();
@@ -412,20 +409,11 @@
             return nodes;
         },
 
-        _renderDownloadTemplate: function (files) {
-            var options = this.options,
-                container = options.templateContainer;
-            container.innerHTML = options.downloadTemplate({
-                files: files,
-                formatFileSize: this._formatFileSize,
-                options: options
-            });
-            return $(container).children();
-        },
-
         _renderDownload: function (files) {
-            var nodes = this._renderDownloadTemplate(files)
-                .css('display', 'none');
+            var nodes = this._renderTemplate(
+                this.options.downloadTemplate,
+                files
+            ).css('display', 'none');
             nodes.find('.delete button').button({
                 text: false,
                 icons: {primary: 'ui-icon-trash'}
