@@ -1,0 +1,105 @@
+<!DOCTYPE HTML>
+<!--
+/*
+ * jQuery File Upload Plugin Test 6.0
+ * https://github.com/blueimp/jQuery-File-Upload
+ *
+ * Copyright 2010, Sebastian Tschan
+ * https://blueimp.net
+ *
+ * Licensed under the MIT license:
+ * http://creativecommons.org/licenses/MIT/
+ */
+-->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>jQuery File Upload Plugin Test</title>
+<link rel="stylesheet" href="http://code.jquery.com/qunit/git/qunit.css">
+</head>
+<body>
+<h1 id="qunit-header">jQuery File Upload Plugin Test</h1>
+<h2 id="qunit-banner"></h2>
+<div id="qunit-testrunner-toolbar"></div>
+<h2 id="qunit-userAgent"></h2>
+<ol id="qunit-tests"></ol>
+<div id="qunit-fixture">
+    <form id="fileupload" action="../php/index.php" method="POST" enctype="multipart/form-data">
+        <div class="fileupload-buttonbar">
+            <div class="progressbar fileupload-progressbar"><div style="width:0%;"></div></div>
+            <span class="fileinput-button">
+                <span>Add files...</span>
+                <input type="file" name="files[]" multiple>
+            </span>
+            <button type="submit" class="start">Start upload</button>
+            <button type="reset" class="cancel">Cancel upload</button>
+            <button type="button" class="delete">Delete selected</button>
+            <input type="checkbox" class="toggle">
+        </div>
+        <table class="zebra-striped"><tbody class="files"></tbody></table>
+    </form>
+</div>
+<script>
+var fileUploadErrors = {
+    maxFileSize: 'File is too big',
+    minFileSize: 'File is too small',
+    acceptFileTypes: 'Filetype not allowed',
+    maxNumberOfFiles: 'Max number of files exceeded',
+    uploadedBytes: 'Uploaded bytes exceed file size',
+    emptyResult: 'Empty file upload result'
+};
+</script>
+<script id="template-upload" type="text/html">
+{% for (var i=0, files=o.files, l=files.length, file=files[0]; i<l; file=files[++i]) { %}
+    <tr class="template-upload">
+        <td class="preview"></td>
+        <td class="name">{%=file.name%}</td>
+        <td class="size">{%=o.formatFileSize(file.size)%}</td>
+        {% if (file.error) { %}
+            <td class="error" colspan="2"><span class="label important">Error</span> {%=fileUploadErrors[file.error] || file.error%}</td>
+        {% } else if (o.files.valid && !i) { %}
+            <td class="progress"><div class="progressbar"><div style="width:0%;"></div></div></td>
+            <td class="start">{% if (!o.options.autoUpload) { %}<button class="btn primary">Start</button>{% } %}</td>
+        {% } else { %}
+            <td colspan="2"></td>
+        {% } %}
+        <td class="cancel">{% if (!i) { %}<button class="btn info">Cancel</button>{% } %}</td>
+    </tr>
+{% } %}
+</script>
+<script id="template-download" type="text/html">
+{% for (var i=0, files=o.files, l=files.length, file=files[0]; i<l; file=files[++i]) { %}
+    <tr class="template-download">
+        {% if (file.error) { %}
+            <td></td>
+            <td class="name">{%=file.name%}</td>
+            <td class="size">{%=o.formatFileSize(file.size)%}</td>
+            <td class="error" colspan="2"><span class="label important">Error</span> {%=fileUploadErrors[file.error] || file.error%}</td>
+        {% } else { %}
+            <td class="preview">{% if (file.thumbnail_url) { %}
+                <a href="{%=file.url%}" title="{%=file.name%}" rel="gallery"><img src="{%=file.thumbnail_url%}"></a>
+            {% } %}</td>
+            <td class="name">
+                <a href="{%=file.url%}" title="{%=file.name%}" rel="{%=file.thumbnail_url&&'gallery'%}">{%=file.name%}</a>
+            </td>
+            <td class="size">{%=o.formatFileSize(file.size)%}</td>
+            <td colspan="2"></td>
+        {% } %}
+        <td class="delete">
+            <button class="btn danger" data-type="{%=file.delete_type%}" data-url="{%=file.delete_url%}">Delete</button>
+            <input type="checkbox" name="delete" value="1">
+        </td>
+    </tr>
+{% } %}
+</script>
+<script src="//ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
+<script src="http://blueimp.github.com/Bootstrap-Image-Gallery/vendor/jquery.ui.widget.min.js"></script>
+<script src="http://blueimp.github.com/JavaScript-Templates/tmpl.min.js"></script>
+<script src="http://blueimp.github.com/JavaScript-Load-Image/load-image.min.js"></script>
+<script src="../jquery.iframe-transport.js"></script>
+<script src="../jquery.fileupload.js"></script>
+<script src="../jquery.fileupload-ui.js"></script>
+<script src="http://code.jquery.com/qunit/git/qunit.js"></script>
+<script src="test.js"></script>
+</body> 
+</html>

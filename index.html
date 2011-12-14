@@ -1,7 +1,7 @@
 <!DOCTYPE HTML>
 <!--
 /*
- * jQuery File Upload Plugin Demo 5.4
+ * jQuery File Upload Plugin Demo 6.0
  * https://github.com/blueimp/jQuery-File-Upload
  *
  * Copyright 2010, Sebastian Tschan
@@ -15,94 +15,130 @@
 <head>
 <meta charset="utf-8">
 <title>jQuery File Upload Demo</title>
-<link rel="stylesheet" href="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.16/themes/base/jquery-ui.css" id="theme">
-<link rel="stylesheet" href="http://blueimp.github.com/jQuery-Image-Gallery/jquery.image-gallery.min.css">
+<link rel="stylesheet" href="http://twitter.github.com/bootstrap/1.4.0/bootstrap.min.css">
+<link rel="stylesheet" href="http://blueimp.github.com/Bootstrap-Image-Gallery/bootstrap-image-gallery.min.css">
 <link rel="stylesheet" href="jquery.fileupload-ui.css">
-<link rel="stylesheet" href="style.css">
+<style type="text/css">
+.page-header {
+    background-color: #f5f5f5;
+    padding: 80px 20px 10px;
+    margin: 0 -20px 20px;
+    border: 1px solid #DDD;
+    -webkit-border-radius: 0 0 6px 6px;
+       -moz-border-radius: 0 0 6px 6px;
+            border-radius: 0 0 6px 6px;
+}
+</style>
+<!--[if lt IE 7]>
+<style type="text/css">
+.topbar {
+    position: absolute;
+}
+.topbar ul, .topbar .container {
+    padding-top: 10px;
+}
+.topbar li {
+    display: inline;
+    margin-right: 10px;
+}
+.topbar a:hover {
+    color: #fff;
+}
+.span16 {
+    display: inline;
+    float: left;
+    margin-left: 20px;
+}
+input {
+    display: inline;
+    width: auto;
+}
+/* The following is required for Modals to work on IE6 */
+.modal {
+    position: absolute;
+    top: 50%;
+    filter: none;
+}
+#gallery-modal.fullscreen {
+    overflow: hidden;
+}
+</style>
+<![endif]-->
 <meta name="description" content="File Upload widget with multiple file selection, drag&amp;drop support, progress bar and preview images for jQuery. Supports cross-domain, chunked and resumable file uploads. Works with any server-side platform (Google App Engine, PHP, Python, Ruby on Rails, Java, etc.) that supports standard HTML form file uploads.">
 </head>
 <body>
-    <div id="error"></div>
-<div id="demo">
-    <h1>jQuery File Upload Demo</h1>
-    <div id="options">
-        <select id="theme-switcher">
-            <option value="base" selected>Base</option>
-            <option value="black-tie">Black Tie</option>
-            <option value="blitzer">Blitzer</option>
-            <option value="cupertino">Cupertino</option>
-            <option value="dark-hive">Dark Hive</option>
-            <option value="dot-luv">Dot Luv</option>
-            <option value="eggplant">Eggplant</option>
-            <option value="excite-bike">Excite Bike</option>
-            <option value="flick">Flick</option>
-            <option value="hot-sneaks">Hot sneaks</option>
-            <option value="humanity">Humanity</option>
-            <option value="le-frog">Le Frog</option>
-            <option value="mint-choc">Mint Choc</option>
-            <option value="overcast">Overcast</option>
-            <option value="pepper-grinder">Pepper Grinder</option>
-            <option value="redmond">Redmond</option>
-            <option value="smoothness">Smoothness</option>
-            <option value="south-street">South Street</option>
-            <option value="start">Start</option>
-            <option value="sunny">Sunny</option>
-            <option value="swanky-purse">Swanky Purse</option>
-            <option value="trontastic">Trontastic</option>
-            <option value="ui-darkness">UI Darkness</option>
-            <option value="ui-lightness">UI Lightness</option>
-            <option value="vader">Vader</option>
-        </select>
-        <span id="info">
-            <a href="https://github.com/blueimp/jQuery-File-Upload/downloads">Downloads</a>
-            <span>|</span>
-            <a href="https://github.com/blueimp/jQuery-File-Upload">Source Code</a>
-            <span>|</span>
-            <a href="https://github.com/blueimp/jQuery-File-Upload/wiki">Documentation</a>
-            <span>|</span>
-            <a href="https://github.com/blueimp/jQuery-File-Upload/issues">Support</a>
-            <span>|</span>
-            <span>Contact: <a href="https://blueimp.net">Sebastian Tschan</a></span>
-        </span>
-    </div>
-    <div id="fileupload">
-        <form action="php/index.php" method="POST" enctype="multipart/form-data">
-            <div class="fileupload-buttonbar">
-                <label class="fileinput-button">
-                    <span>Add files...</span>
-                    <input type="file" name="files[]" multiple>
-                </label>
-                <button type="submit" class="start">Start upload</button>
-                <button type="reset" class="cancel">Cancel upload</button>
-                <button type="button" class="delete">Delete selected</button>
-                <input type="checkbox" class="toggle">
-            </div>
-        </form>
-        <div class="fileupload-content">
-            <table class="files"></table>
-            <div class="fileupload-progressbar"></div>
+<div class="topbar">
+    <div class="fill">
+        <div class="container">
+            <a class="brand" href="https://github.com/blueimp/jQuery-File-Upload">jQuery File Upload</a>
+            <ul class="nav">
+                <li class="active"><a href="#">Demo</a></li>
+                <li><a href="https://github.com/blueimp/jQuery-File-Upload/downloads">Downloads</a></li>
+                <li><a href="https://github.com/blueimp/jQuery-File-Upload">Source Code</a></li>
+                <li><a href="https://github.com/blueimp/jQuery-File-Upload/wiki">Documentation</a></li>
+                <li><a href="https://github.com/blueimp/jQuery-File-Upload/issues">Issues</a></li>
+                <li><a href="test/">Test</a></li>
+                <li><a href="https://blueimp.net">&copy; Sebastian Tschan</a></li>
+            </ul>
         </div>
     </div>
-    <div id="notes">
+</div>
+<div class="container">
+    <div class="page-header">
+        <h1>jQuery File Upload Demo</h1>
+        <p>File Upload widget with multiple file selection, drag&amp;drop support, progress bar and preview images for jQuery.<br>
+            Supports cross-domain, chunked and resumable file uploads.<br>
+            Works with any server-side platform (Google App Engine, PHP, Python, Ruby on Rails, Java, etc.) that supports standard HTML form file uploads.</p>
+    </div>
+    <form id="fileupload" action="php/index.php" method="POST" enctype="multipart/form-data">
+        <div class="row">
+            <div class="span16 fileupload-buttonbar">
+                <div class="progressbar fileupload-progressbar"><div style="width:0%;"></div></div>
+                <span class="btn success fileinput-button">
+                    <span>Add files...</span>
+                    <input type="file" name="files[]" multiple>
+                </span>
+                <button type="submit" class="btn primary start">Start upload</button>
+                <button type="reset" class="btn info cancel">Cancel upload</button>
+                <button type="button" class="btn danger delete">Delete selected</button>
+                <input type="checkbox" class="toggle">
+            </div>
+        </div>
+        <br>
+        <div class="row">
+            <div class="span16">
+                <table class="zebra-striped"><tbody class="files"></tbody></table>
+            </div>
+        </div>
+    </form>
+    <div class="well">
         <h3>Demo Notes</h3>
         <ul>
             <li>The maximum file size for uploads in this demo is <strong>5 MB</strong> (default file size is unlimited).</li>
             <li>Only image files (<strong>JPG, GIF, PNG</strong>) are allowed in this demo (by default there is no file type restriction).</li>
             <li>Uploaded files will be deleted automatically after <strong>5 minutes</strong> (demo setting).</li>
             <li>You can <strong>drag &amp; drop</strong> files from your desktop on this webpage with Google Chrome, Mozilla Firefox and Apple Safari.</li>
-            <li>Please refer to the project <a href="https://github.com/blueimp/jQuery-File-Upload">homepage</a> and <a href="https://github.com/blueimp/jQuery-File-Upload/wiki">documentation</a> for more information.</li>
+            <li>Please refer to the <a href="https://github.com/blueimp/jQuery-File-Upload">project website</a> and <a href="https://github.com/blueimp/jQuery-File-Upload/wiki">documentation</a> for more information.</li>
         </ul>
+    </div>
+</div>
+<!-- gallery-loader is the loading animation container -->
+<div id="gallery-loader"></div>
+<!-- gallery-modal is the modal dialog used for the image gallery -->
+<div id="gallery-modal" class="modal hide fade">
+    <div class="modal-header">
+        <a href="#" class="close">&times;</a>
+        <h3 class="title"></h3>
+    </div>
+    <div class="modal-body"></div>
+    <div class="modal-footer">
+        <a class="btn primary next">Next</a>
+        <a class="btn info prev">Previous</a>
+        <a class="btn success download" target="_blank">Download</a>
     </div>
 </div>
 <script>
 var fileUploadErrors = {
-    '1': 'File exceeds upload_max_filesize (php.ini directive)',
-    '2': 'File exceeds MAX_FILE_SIZE (HTML form directive)',
-    '3': 'File was only partially uploaded',
-    '4': 'No File was uploaded',
-    '5': 'Missing a temporary folder',
-    '6': 'Failed to write file to disk',
-    '7': 'File upload stopped by extension',
     maxFileSize: 'File is too big',
     minFileSize: 'File is too small',
     acceptFileTypes: 'Filetype not allowed',
@@ -112,62 +148,62 @@ var fileUploadErrors = {
 };
 </script>
 <script id="template-upload" type="text/html">
-{% $.each(o.files, function (index, file) { %}
-    <tbody class="template-upload{%=(file.error&&' ui-state-error')||''%}">
-        <tr>
-            <td class="preview"></td>
-            <td class="name">{%=file.name%}</td>
-            <td class="size">{%=o.formatFileSize(file.size)%}</td>
-            {% if (file.error) { %}
-                <td class="error" colspan="2">Error: {%=fileUploadErrors[file.error]%}</td>
-            {% } else if (o.files.valid && !index) { %}
-                <td class="progress"><div></div></td>
-                <td class="start">{% if (!o.options.autoUpload) { %}<button>Start</button>{% } %}</td>
-            {% } else { %}
-                <td colspan="2"></td>
-            {% } %}
-            <td class="cancel">{% if (!index) { %}<button>Cancel</button>{% } %}</td>
-        </tr>
-    </tbody>
-{% }); %}
+{% for (var i=0, files=o.files, l=files.length, file=files[0]; i<l; file=files[++i]) { %}
+    <tr class="template-upload fade">
+        <td class="preview"></td>
+        <td class="name">{%=file.name%}</td>
+        <td class="size">{%=o.formatFileSize(file.size)%}</td>
+        {% if (file.error) { %}
+            <td class="error" colspan="2"><span class="label important">Error</span> {%=fileUploadErrors[file.error] || file.error%}</td>
+        {% } else if (o.files.valid && !i) { %}
+            <td class="progress"><div class="progressbar"><div style="width:0%;"></div></div></td>
+            <td class="start">{% if (!o.options.autoUpload) { %}<button class="btn primary">Start</button>{% } %}</td>
+        {% } else { %}
+            <td colspan="2"></td>
+        {% } %}
+        <td class="cancel">{% if (!i) { %}<button class="btn info">Cancel</button>{% } %}</td>
+    </tr>
+{% } %}
 </script>
 <script id="template-download" type="text/html">
-{% $.each(o.files, function (index, file) { %}
-    <tbody class="template-download{%=(file.error&&' ui-state-error')||''%}">
-        <tr>
-            {% if (file.error) { %}
-                <td></td>
-                <td class="name">{%=file.name%}</td>
-                <td class="size">{%=o.formatFileSize(file.size)%}</td>
-                <td class="error" colspan="2">Error: {%=fileUploadErrors[file.error]%}</td>
-            {% } else { %}
-                <td class="preview">{% if (file.thumbnail_url) { %}
-                    <a href="{%=file.url%}" title="{%=file.name%}" rel="gallery"><img src="{%=file.thumbnail_url%}"></a>
-                {% } %}</td>
-                <td class="name">
-                    <a href="{%=file.url%}" title="{%=file.name%}" rel="{%=file.thumbnail_url&&'gallery'%}">{%=file.name%}</a>
-                </td>
-                <td class="size">{%=o.formatFileSize(file.size)%}</td>
-                <td colspan="2"></td>
-            {% } %}
-            <td class="delete">
-                <button data-type="{%=file.delete_type%}" data-url="{%=file.delete_url%}">Delete</button>
-                <input type="checkbox" name="delete" value="1">
+{% for (var i=0, files=o.files, l=files.length, file=files[0]; i<l; file=files[++i]) { %}
+    <tr class="template-download fade">
+        {% if (file.error) { %}
+            <td></td>
+            <td class="name">{%=file.name%}</td>
+            <td class="size">{%=o.formatFileSize(file.size)%}</td>
+            <td class="error" colspan="2"><span class="label important">Error</span> {%=fileUploadErrors[file.error] || file.error%}</td>
+        {% } else { %}
+            <td class="preview">{% if (file.thumbnail_url) { %}
+                <a href="{%=file.url%}" title="{%=file.name%}" rel="gallery"><img src="{%=file.thumbnail_url%}"></a>
+            {% } %}</td>
+            <td class="name">
+                <a href="{%=file.url%}" title="{%=file.name%}" rel="{%=file.thumbnail_url&&'gallery'%}">{%=file.name%}</a>
             </td>
-        </tr>
-    </tbody>
-{% }); %}
+            <td class="size">{%=o.formatFileSize(file.size)%}</td>
+            <td colspan="2"></td>
+        {% } %}
+        <td class="delete">
+            <button class="btn danger" data-type="{%=file.delete_type%}" data-url="{%=file.delete_url%}">Delete</button>
+            <input type="checkbox" name="delete" value="1">
+        </td>
+    </tr>
+{% } %}
 </script>
 <script src="//ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
-<script src="//ajax.googleapis.com/ajax/libs/jqueryui/1.8.16/jquery-ui.min.js"></script>
-<script src="http://blueimp.github.com/JavaScript-Templates/tmpl.min.js"></script>
+<script src="http://blueimp.github.com/Bootstrap-Image-Gallery/vendor/jquery.ui.widget.min.js"></script>
 <script src="http://blueimp.github.com/JavaScript-Load-Image/load-image.min.js"></script>
-<script src="http://blueimp.github.com/jQuery-Image-Gallery/jquery.image-gallery.min.js"></script>
-<!--script src="jquery.postmessage-transport.js"></script-->
+<script src="http://blueimp.github.com/JavaScript-Templates/tmpl.min.js"></script>
+<!-- Bootstrap Modal and Image Gallery are not required, but included for the demo -->
+<script src="http://twitter.github.com/bootstrap/1.4.0/bootstrap-modal.min.js"></script>
+<script src="http://blueimp.github.com/Bootstrap-Image-Gallery/bootstrap-image-gallery.min.js"></script>
 <script src="jquery.iframe-transport.js"></script>
-<script src="jquery.xdr-transport.js"></script>
 <script src="jquery.fileupload.js"></script>
 <script src="jquery.fileupload-ui.js"></script>
 <script src="application.js"></script>
+<!-- The XDomainRequest Transport is included for cross-domain file deletion for IE >= 8 -->
+<script src="jquery.xdr-transport.js"></script>
+<!-- postMessage Transport support can be added with the following plugin -->
+<!--script src="jquery.postmessage-transport.js"></script-->
 </body> 
 </html>

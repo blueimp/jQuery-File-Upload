@@ -41,15 +41,15 @@
 
 ## Requirements
 * [jQuery](http://jquery.com/) v. 1.6+
-* [jQuery UI](http://jqueryui.com/) v. 1.8+ (required: Widget, optional: Progressbar, Button)
+* [jQuery UI widget factory](http://wiki.jqueryui.com/w/page/12138135/Widget%20factory) v. 1.8.16+
 * [jQuery Iframe Transport plugin](https://github.com/blueimp/jQuery-File-Upload/blob/master/jquery.iframe-transport.js) (included)
+* [JavaScript Load Image function](http://blueimp.github.com/JavaScript-Load-Image) v. 1.1.3+ (optional)
 * [JavaScript Templates engine](https://github.com/blueimp/JavaScript-Templates) v. 1.0+ (optional)
-* [JavaScript Load Image function](https://github.com/blueimp/JavaScript-Load-Image) v. 1.0+ (optional)
 
 The jQuery UI widget factory is a requirement for the basic File Upload plugin, but very lightweight without any other dependencies. 
-The UI version of the File Upload plugin also requires the jQuery UI Progressbar and Button components as well as the JavaScript Templates engine and the JavaScript Load Image function (for the upload image previews). These dependencies are marked as optional, as the basic File Upload plugin can be used without them and the UI version of the plugin can be extended to override these dependencies with alternative solutions.
+The UI version of the File Upload plugin also requires the JavaScript Templates engine and the JavaScript Load Image function (for the upload image previews). These dependencies are marked as optional, as the basic File Upload plugin can be used without them and the UI version of the plugin can be extended to override these dependencies with alternative solutions.
 
-The repository also includes the [jQuery XDomainRequest Transport Plugin](https://github.com/blueimp/jQuery-File-Upload/blob/master/jquery.xdr-transport.js), which is required for Cross-domain AJAX requests in Microsoft Internet Explorer >= 8. It is only included for the [Demo](http://blueimp.github.com/jQuery-File-Upload/), which makes use of Cross-domain DELETE requests to delete uploaded files from the Demo File Upload service.
+The repository also includes the [jQuery XDomainRequest Transport Plugin](https://github.com/blueimp/jQuery-File-Upload/blob/master/jquery.xdr-transport.js), which is required for Cross-domain AJAX requests in Microsoft Internet Explorer >= 8. It is only included for the [Demo](http://blueimp.github.com/jQuery-File-Upload/), which makes use of Cross-domain DELETE requests (GET requests for IE) to delete uploaded files from the Demo File Upload service.
 
 [Cross-domain File Uploads](https://github.com/blueimp/jQuery-File-Upload/wiki/Cross-domain-uploads) using the [Iframe Transport plugin](https://github.com/blueimp/jQuery-File-Upload/blob/master/jquery.iframe-transport.js) require a redirect back to the origin server to retrieve the upload results. The example implementation makes use of [result.html](https://github.com/blueimp/jQuery-File-Upload/blob/master/result.html) as redirect page. See also the example code in [application.js](https://github.com/blueimp/jQuery-File-Upload/blob/master/application.js) as well as the explanation of all [files in the repository](https://github.com/blueimp/jQuery-File-Upload/wiki/Plugin-files).
 
@@ -66,11 +66,3 @@ Microsoft Internet Explorer has no support for multiple file selection or upload
 
 ## License
 Released under the [MIT license](http://creativecommons.org/licenses/MIT/).
-
-## Source Code & Download
-* Browse and checkout the [source code](https://github.com/blueimp/jQuery-File-Upload).
-* [Download](https://github.com/blueimp/jQuery-File-Upload/downloads) the project to add the plugin to your website.
-
-## Documentation & Support
-* Documentation can be found on the [Project Wiki](https://github.com/blueimp/jQuery-File-Upload/wiki).
-* Support requests and bug reports can be posted to the [Issue Tracker](https://github.com/blueimp/jQuery-File-Upload/issues).

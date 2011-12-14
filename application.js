@@ -1,5 +1,5 @@
 /*
- * jQuery File Upload Plugin JS Example 5.1.5
+ * jQuery File Upload Plugin JS Example 6.0
  * https://github.com/blueimp/jQuery-File-Upload
  *
  * Copyright 2010, Sebastian Tschan
@@ -20,7 +20,7 @@ $(function () {
 
     if (window.location.hostname === 'blueimp.github.com') {
         // Demo settings:
-        $('#fileupload form').prop(
+        $('#fileupload').prop(
             'action',
             '//jquery-file-upload.appspot.com'
         );
@@ -30,15 +30,16 @@ $(function () {
         });
     } else {
         // Load existing files:
-        $.getJSON($('#fileupload form').prop('action'), function (files) {
-            var fu = $('#fileupload').data('fileupload');
+        $.getJSON($('#fileupload').prop('action'), function (files) {
+            var fu = $('#fileupload').data('fileupload'),
+                template;
             fu._adjustMaxNumberOfFiles(-files.length);
-            fu._renderDownload(files)
-                .appendTo($('#fileupload .files'))
-                .fadeIn(function () {
-                    // Fix for IE7 and lower:
-                    $(this).show();
-                });
+            template = fu._renderDownload(files)
+                .appendTo($('#fileupload .files'));
+            // Force reflow:
+            fu._reflow = fu._transition && template.length &&
+                template[0].offsetWidth;
+            template.addClass('in');
         });
     }
 
@@ -72,19 +73,7 @@ $(function () {
         }
     );
 
-    // Initialize the Image Gallery widget:
+    // Initialize the Bootstrap Image Gallery plugin:
     $('#fileupload .files').imagegallery();
-
-    // Initialize the theme switcher:
-    $('#theme-switcher').change(function () {
-        var theme = $('#theme');
-        theme.prop(
-            'href',
-            theme.prop('href').replace(
-                /[\w\-]+\/jquery-ui.css/,
-                $(this).val() + '/jquery-ui.css'
-            )
-        );
-    });
 
 });

@@ -1,5 +1,5 @@
 /*
- * jQuery File Upload Plugin Tests 5.2
+ * jQuery File Upload Plugin Test 6.0
  * https://github.com/blueimp/jQuery-File-Upload
  *
  * Copyright 2010, Sebastian Tschan
@@ -803,10 +803,6 @@ $(function () {
             $('#fileupload').fileupload('option', 'downloadTemplate').length,
             'Initialized download template'
         );
-        ok(
-            $('#fileupload :ui-progressbar').length,
-            'Initialized global progressbar'
-        );
     });
 
     test('Buttonbar event listeners', function () {
@@ -872,10 +868,6 @@ $(function () {
             buttonbar.find('.delete').data('events').click.length,
             1,
             'Removes own delete button click event listener'
-        );
-        ok(
-            !$('#fileupload :ui-progressbar').length,
-            'Deinitialized global progressbar'
         );
     });
 
