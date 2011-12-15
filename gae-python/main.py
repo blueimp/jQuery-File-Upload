@@ -7,7 +7,7 @@
 # https://blueimp.net
 #
 # Licensed under the MIT license:
-# http://creativecommons.org/licenses/MIT/
+# http://www.opensource.org/licenses/MIT
 #
 
 from __future__ import with_statement

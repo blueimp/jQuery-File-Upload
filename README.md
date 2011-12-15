@@ -44,7 +44,7 @@
 * [jQuery UI widget factory](http://wiki.jqueryui.com/w/page/12138135/Widget%20factory) v. 1.8.16+
 * [jQuery Iframe Transport plugin](https://github.com/blueimp/jQuery-File-Upload/blob/master/jquery.iframe-transport.js) (included)
 * [JavaScript Load Image function](http://blueimp.github.com/JavaScript-Load-Image) v. 1.1.3+ (optional)
-* [JavaScript Templates engine](https://github.com/blueimp/JavaScript-Templates) v. 1.0+ (optional)
+* [JavaScript Templates engine](https://github.com/blueimp/JavaScript-Templates) v. 1.0.2+ (optional)
 
 The jQuery UI widget factory is a requirement for the basic File Upload plugin, but very lightweight without any other dependencies. 
 The UI version of the File Upload plugin also requires the JavaScript Templates engine and the JavaScript Load Image function (for the upload image previews). These dependencies are marked as optional, as the basic File Upload plugin can be used without them and the UI version of the plugin can be extended to override these dependencies with alternative solutions.
@@ -65,4 +65,4 @@ Microsoft Internet Explorer has no support for multiple file selection or upload
 [Extended browser support information](https://github.com/blueimp/jQuery-File-Upload/wiki/Browser-support).
 
 ## License
-Released under the [MIT license](http://creativecommons.org/licenses/MIT/).
+Released under the [MIT license](http://www.opensource.org/licenses/MIT).

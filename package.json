@@ -1,0 +1,60 @@
+{
+    "name": "blueimp-file-upload",
+    "version": "6.0.0",
+    "title": "jQuery File Upload",
+    "description": "File Upload widget with multiple file selection, drag&drop support, progress bar and preview images for jQuery. Supports cross-domain, chunked and resumable file uploads. Works with any server-side platform (Google App Engine, PHP, Python, Ruby on Rails, Java, etc.) that supports standard HTML form file uploads.",
+    "keywords": [
+        "file",
+        "upload",
+        "widget",
+        "multiple",
+        "selection",
+        "drag",
+        "drop",
+        "progress",
+        "preview",
+        "cross-domain",
+        "cross-site",
+        "chunked",
+        "resume",
+        "gae",
+        "go",
+        "python",
+        "php"
+    ],
+    "homepage": "https://github.com/blueimp/jQuery-File-Upload",
+    "author": {
+        "name": "Sebastian Tschan",
+        "url": "https://blueimp.net"
+    },
+    "maintainers": [
+        {
+            "name": "Sebastian Tschan",
+            "url": "https://blueimp.net"
+        }
+    ],
+    "repository": {
+        "type": "git",
+        "url": "git://github.com/blueimp/jQuery-File-Upload.git"
+    },
+    "bugs": "https://github.com/blueimp/jQuery-File-Upload/issues",
+    "licenses": [
+        {
+            "type": "MIT",
+            "url": "http://www.opensource.org/licenses/MIT"
+        }
+    ],
+    "dependencies": {
+        "jquery": ">=1.6",
+        "jquery.ui.widget": ">=1.8",
+        "blueimp-load-image": ">=1.1.3",
+        "blueimp-tmpl": ">=1.0.2"
+    },
+    "files": [
+        "jquery.iframe-transport.js",
+        "jquery.fileupload.js",
+        "jquery.fileupload-ui.js",
+        "jquery.fileupload-ui.css",
+        "progressbar.gif"
+    ]
+}
