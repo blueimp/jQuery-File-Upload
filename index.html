@@ -1,7 +1,7 @@
 <!DOCTYPE HTML>
 <!--
 /*
- * jQuery File Upload Plugin Demo 6.0
+ * jQuery File Upload Plugin Demo 6.0.1
  * https://github.com/blueimp/jQuery-File-Upload
  *
  * Copyright 2010, Sebastian Tschan
@@ -150,7 +150,7 @@ var fileUploadErrors = {
 <script id="template-upload" type="text/html">
 {% for (var i=0, files=o.files, l=files.length, file=files[0]; i<l; file=files[++i]) { %}
     <tr class="template-upload fade">
-        <td class="preview"></td>
+        <td class="preview"><span class="fade"></span></td>
         <td class="name">{%=file.name%}</td>
         <td class="size">{%=o.formatFileSize(file.size)%}</td>
         {% if (file.error) { %}

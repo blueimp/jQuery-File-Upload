@@ -1,5 +1,5 @@
 /*
- * jQuery File Upload User Interface Plugin 6.0
+ * jQuery File Upload User Interface Plugin 6.0.1
  * https://github.com/blueimp/jQuery-File-Upload
  *
  * Copyright 2010, Sebastian Tschan
@@ -97,7 +97,8 @@
             // Callback for successful uploads:
             done: function (e, data) {
                 var that = $(this).data('fileupload'),
-                    template;
+                    template,
+                    preview;
                 if (data.context) {
                     data.context.each(function (index) {
                         var file = ($.isArray(data.result) &&
@@ -108,7 +109,15 @@
                         that._transitionCallback(
                             $(this).removeClass('in'),
                             function (node) {
-                                template = that._renderDownload([file])
+                                template = that._renderDownload([file]);
+                                preview = node
+                                    .find('.preview img, .preview canvas');
+                                if (preview.length) {
+                                    template.find('.preview img')
+                                        .prop('width', preview.prop('width'))
+                                        .prop('height', preview.prop('height'));
+                                }
+                                template
                                     .replaceAll(node);
                                 // Force reflow:
                                 that._reflow = that._transition &&
@@ -302,7 +311,7 @@
             var that = this,
                 options = this.options,
                 nodes = this._renderTemplate(options.uploadTemplate, files);
-            nodes.find('.preview').each(function (index, node) {
+            nodes.find('.preview span').each(function (index, node) {
                 var file = files[index];
                 if (options.previewFileTypes.test(file.type) &&
                         (!options.previewMaxFileSize ||
@@ -310,11 +319,11 @@
                     window.loadImage(
                         files[index],
                         function (img) {
-                            $(img).appendTo(node);
+                            $(node).append(img);
                             // Force reflow:
                             that._reflow = that._transition &&
-                                img.offsetWidth;
-                            $(img).addClass('fade in');
+                                node.offsetWidth;
+                            $(node).addClass('in');
                         },
                         {
                             maxWidth: options.previewMaxWidth,
