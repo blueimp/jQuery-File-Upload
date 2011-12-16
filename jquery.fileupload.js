@@ -1,5 +1,5 @@
 /*
- * jQuery File Upload Plugin 5.5.2
+ * jQuery File Upload Plugin 5.5.3
  * https://github.com/blueimp/jQuery-File-Upload
  *
  * Copyright 2010, Sebastian Tschan
@@ -716,7 +716,7 @@
         },
 
         _initEventHandlers: function () {
-            var ns = this.options.namespace || this.widgetName;
+            var ns = this.options.namespace;
             this.options.dropZone
                 .bind('dragover.' + ns, {fileupload: this}, this._onDragOver)
                 .bind('drop.' + ns, {fileupload: this}, this._onDrop)
@@ -726,7 +726,7 @@
         },
 
         _destroyEventHandlers: function () {
-            var ns = this.options.namespace || this.widgetName;
+            var ns = this.options.namespace;
             this.options.dropZone
                 .unbind('dragover.' + ns, this._onDragOver)
                 .unbind('drop.' + ns, this._onDrop)
@@ -763,6 +763,7 @@
 
         _create: function () {
             var options = this.options;
+            options.namespace = options.namespace || this.widgetName;
             if (options.fileInput === undefined) {
                 options.fileInput = this.element.is('input:file') ?
                         this.element : this.element.find('input:file');

@@ -1,5 +1,5 @@
 /*
- * jQuery File Upload User Interface Plugin 6.0.1
+ * jQuery File Upload User Interface Plugin 6.0.2
  * https://github.com/blueimp/jQuery-File-Upload
  *
  * Copyright 2010, Sebastian Tschan
@@ -378,39 +378,45 @@
             });
         },
 
-        _initEventHandlers: function () {
-            $.blueimp.fileupload.prototype._initEventHandlers.call(this);
-            var eventData = {fileupload: this};
-            this._files
-                .delegate(
-                    '.start button',
-                    'click.' + this.options.namespace,
-                    eventData,
-                    this._startHandler
-                )
-                .delegate(
-                    '.cancel button',
-                    'click.' + this.options.namespace,
-                    eventData,
-                    this._cancelHandler
-                )
-                .delegate(
-                    '.delete button',
-                    'click.' + this.options.namespace,
-                    eventData,
-                    this._deleteHandler
+        _transitionCallback: function (node, callback) {
+            var that = this;
+            if (this._transition && node.hasClass('fade')) {
+                node.bind(
+                    this._transitionEnd,
+                    function (e) {
+                        // Make sure we don't respond to other transitions events
+                        // in the container element, e.g. from button elements:
+                        if (e.target === node[0]) {
+                            node.unbind(that._transitionEnd);
+                            callback.call(that, node);
+                        }
+                    }
                 );
+            } else {
+                callback.call(this, node);
+            }
         },
 
-        _destroyEventHandlers: function () {
-            this._files
-                .undelegate('.start button', 'click.' + this.options.namespace)
-                .undelegate('.cancel button', 'click.' + this.options.namespace)
-                .undelegate('.delete button', 'click.' + this.options.namespace);
-            $.blueimp.fileupload.prototype._destroyEventHandlers.call(this);
+        _initTransitionSupport: function () {
+            var that = this,
+                style = (document.body || document.documentElement).style,
+                suffix = '.' + that.options.namespace;
+            that._transition = style.transition !== undefined ||
+                style.WebkitTransition !== undefined ||
+                style.MozTransition !== undefined ||
+                style.MsTransition !== undefined ||
+                style.OTransition !== undefined;
+            if (that._transition) {
+                that._transitionEnd = [
+                    'TransitionEnd',
+                    'webkitTransitionEnd',
+                    'transitionend',
+                    'oTransitionEnd'
+                ].join(suffix + ' ') + suffix;
+            }
         },
 
-        _initFileUploadButtonBar: function () {
+        _initButtonBarEventHandlers: function () {
             var fileUploadButtonBar = this.element.find('.fileupload-buttonbar'),
                 filesList = this._files,
                 ns = this.options.namespace;
@@ -439,11 +445,46 @@
                 });
         },
 
-        _destroyFileUploadButtonBar: function () {
+        _destroyButtonBarEventHandlers: function () {
             this.element.find('.fileupload-buttonbar button')
                 .unbind('click.' + this.options.namespace);
             this.element.find('.fileupload-buttonbar .toggle')
                 .unbind('change.' + this.options.namespace);
+        },
+
+        _initEventHandlers: function () {
+            $.blueimp.fileupload.prototype._initEventHandlers.call(this);
+            var eventData = {fileupload: this};
+            this._files
+                .delegate(
+                    '.start button',
+                    'click.' + this.options.namespace,
+                    eventData,
+                    this._startHandler
+                )
+                .delegate(
+                    '.cancel button',
+                    'click.' + this.options.namespace,
+                    eventData,
+                    this._cancelHandler
+                )
+                .delegate(
+                    '.delete button',
+                    'click.' + this.options.namespace,
+                    eventData,
+                    this._deleteHandler
+                );
+            this._initButtonBarEventHandlers();
+            this._initTransitionSupport();
+        },
+
+        _destroyEventHandlers: function () {
+            this._destroyButtonBarEventHandlers();
+            this._files
+                .undelegate('.start button', 'click.' + this.options.namespace)
+                .undelegate('.cancel button', 'click.' + this.options.namespace)
+                .undelegate('.delete button', 'click.' + this.options.namespace);
+            $.blueimp.fileupload.prototype._destroyEventHandlers.call(this);
         },
 
         _enableFileInputButton: function () {
@@ -470,55 +511,13 @@
             this._files = this.element.find('.files');
         },
 
-        _transitionCallback: function (node, callback) {
-            var that = this;
-            if (this._transition && node.hasClass('fade')) {
-                node.bind(
-                    this._transitionEnd + '.' + this.options.namespace,
-                    function (e) {
-                        // Make sure we don't respond to other transitions events
-                        // in the container element, e.g. from button elements:
-                        if (e.target === node[0]) {
-                            node.unbind(
-                                that._transitionEnd + '.' + that.options.namespace
-                            );
-                            callback.call(that, node);
-                        }
-                    }
-                );
-            } else {
-                callback.call(this, node);
-            }
-        },
-
-        _initTransitionSupport: function () {
-            var that = this;
-            // Load after DOM is ready, to wait for the Modal plugin:
-            $(function () {
-                that._transition = $.support.transition;
-                if ($.support.transition) {
-                    that._transitionEnd = 'TransitionEnd';
-                    if ($.browser.webkit) {
-                        that._transitionEnd = 'webkitTransitionEnd';
-                    } else if ($.browser.mozilla) {
-                        that._transitionEnd = 'transitionend';
-                    } else if ($.browser.opera) {
-                        that._transitionEnd = 'oTransitionEnd';
-                    }
-                }
-            });
-        },
-
         _create: function () {
             this._initFiles();
             $.blueimp.fileupload.prototype._create.call(this);
-            this._initTransitionSupport();
             this._initTemplates();
-            this._initFileUploadButtonBar();
         },
 
         destroy: function () {
-            this._destroyFileUploadButtonBar();
             $.blueimp.fileupload.prototype.destroy.call(this);
         },
 
