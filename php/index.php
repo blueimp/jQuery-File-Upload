@@ -1,6 +1,6 @@
 <?php
 /*
- * jQuery File Upload Plugin PHP Example 5.4.2
+ * jQuery File Upload Plugin PHP Example 5.5
  * https://github.com/blueimp/jQuery-File-Upload
  *
  * Copyright 2010, Sebastian Tschan
@@ -30,12 +30,13 @@ class UploadHandler
             'max_number_of_files' => null,
             // Set the following option to false to enable non-multipart uploads:
             'discard_aborted_uploads' => true,
-            'orient_image' => true,
+            // Set to true to rotate images based on EXIF meta data, if available:
+            'orient_image' => false,
             'image_versions' => array(
                 // Uncomment the following version to restrict the size of
                 // uploaded images. You can also add additional versions with
                 // their own upload directories:
-		/*
+                /*
                 'large' => array(
                     'upload_dir' => dirname(__FILE__).'/files/',
                     'upload_url' => dirname($_SERVER['PHP_SELF']).'/files/',
@@ -56,15 +57,15 @@ class UploadHandler
         }
     }
 
-	function getFullUrl() {
-		return
-			(isset($_SERVER['HTTPS']) ? 'https://' : 'http://').
-			(isset($_SERVER['REMOTE_USER']) ? $_SERVER['REMOTE_USER'].'@' : '').
-			(isset($_SERVER['HTTP_HOST']) ? $_SERVER['HTTP_HOST'] : ($_SERVER['SERVER_NAME'].
-			(isset($_SERVER['HTTPS']) && $_SERVER['SERVER_PORT'] == 443 ||
-			$_SERVER['SERVER_PORT'] == 80 ? '' : ':'.$_SERVER['SERVER_PORT']))).
-			substr($_SERVER['SCRIPT_NAME'],0, strrpos($_SERVER['SCRIPT_NAME'], '/'));
-	}
+    function getFullUrl() {
+      	return
+        		(isset($_SERVER['HTTPS']) ? 'https://' : 'http://').
+        		(isset($_SERVER['REMOTE_USER']) ? $_SERVER['REMOTE_USER'].'@' : '').
+        		(isset($_SERVER['HTTP_HOST']) ? $_SERVER['HTTP_HOST'] : ($_SERVER['SERVER_NAME'].
+        		(isset($_SERVER['HTTPS']) && $_SERVER['SERVER_PORT'] === 443 ||
+        		$_SERVER['SERVER_PORT'] === 80 ? '' : ':'.$_SERVER['SERVER_PORT']))).
+        		substr($_SERVER['SCRIPT_NAME'],0, strrpos($_SERVER['SCRIPT_NAME'], '/'));
+    }
     
     private function get_file_object($file_name) {
         $file_path = $this->options['upload_dir'].$file_name;
@@ -189,6 +190,32 @@ class UploadHandler
         }
         return $file_name;
     }
+
+    private function orient_image($file_path) {
+      	$exif = exif_read_data($file_path);
+      	$orientation = intval(@$exif['Orientation']);
+      	if (!in_array($orientation, array(3, 6, 8))) { 
+      	    return false;
+      	}
+      	$image = @imagecreatefromjpeg($file_path);
+      	switch ($orientation) {
+        	  case 3:
+          	    $image = @imagerotate($image, 180, 0);
+          	    break;
+        	  case 6:
+          	    $image = @imagerotate($image, 270, 0);
+          	    break;
+        	  case 8:
+          	    $image = @imagerotate($image, 90, 0);
+          	    break;
+          	default:
+          	    return false;
+      	}
+      	$success = imagejpeg($image, $file_path);
+      	// Free up memory (imagedestroy does not delete files):
+      	@imagedestroy($image);
+      	return $success;
+    }
     
     private function handle_file_upload($uploaded_file, $name, $size, $type, $error) {
         $file = new stdClass();
@@ -222,11 +249,9 @@ class UploadHandler
             }
             $file_size = filesize($file_path);
             if ($file_size === $file->size) {
-
-		if ($this->options['orient_image']) {
-		    $this->orient($file->name);
-		}
-	
+            		if ($this->options['orient_image']) {
+            		    $this->orient_image($file_path);
+            		}
                 $file->url = $this->options['upload_url'].rawurlencode($file->name);
                 foreach($this->options['image_versions'] as $version => $options) {
                     if ($this->create_scaled_image($file->name, $options)) {
@@ -329,34 +354,6 @@ class UploadHandler
         echo json_encode($success);
     }
 
-    /**
-     * Rotates image based on the EXIF meta data, if available
-     */
-    public function orient($file_name) {
-        $file_path = $this->options['upload_dir'].$file_name;
-	$exif = exif_read_data($file_path);
-	$orientation = @$exif['Orientation'];
-	if (empty($orientation)){ 
-	    return;
-	}
-
-	$image = imagecreatefromjpeg($file_path);
-
-	switch ($orientation) {
-	  case 3:
-	    $image = imagerotate($image, 180, 0);
-	    break;
-	  case 6:
-	    $image = imagerotate($image, 270, 0);
-	    break;
-	  case 8:
-	    $image = imagerotate($image, 90, 0);
-	    break;
-
-	}
-	imagejpeg($image, $file_path);
-     }
-
 }
 
 $upload_handler = new UploadHandler();
@@ -385,4 +382,3 @@ switch ($_SERVER['REQUEST_METHOD']) {
     default:
         header('HTTP/1.1 405 Method Not Allowed');
 }
-?>
