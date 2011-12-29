@@ -30,11 +30,12 @@ class UploadHandler
             'max_number_of_files' => null,
             // Set the following option to false to enable non-multipart uploads:
             'discard_aborted_uploads' => true,
+            'orient_image' => true,
             'image_versions' => array(
                 // Uncomment the following version to restrict the size of
                 // uploaded images. You can also add additional versions with
                 // their own upload directories:
-                /*
+		/*
                 'large' => array(
                     'upload_dir' => dirname(__FILE__).'/files/',
                     'upload_url' => dirname($_SERVER['PHP_SELF']).'/files/',
@@ -221,6 +222,11 @@ class UploadHandler
             }
             $file_size = filesize($file_path);
             if ($file_size === $file->size) {
+
+		if ($this->options['orient_image']) {
+		    $this->orient($file->name);
+		}
+	
                 $file->url = $this->options['upload_url'].rawurlencode($file->name);
                 foreach($this->options['image_versions'] as $version => $options) {
                     if ($this->create_scaled_image($file->name, $options)) {
@@ -322,6 +328,35 @@ class UploadHandler
         header('Content-type: application/json');
         echo json_encode($success);
     }
+
+    /**
+     * Rotates image based on the EXIF meta data, if available
+     */
+    public function orient($file_name) {
+        $file_path = $this->options['upload_dir'].$file_name;
+	$exif = exif_read_data($file_path);
+	$orientation = @$exif['Orientation'];
+	if (empty($orientation)){ 
+	    return;
+	}
+
+	$image = imagecreatefromjpeg($file_path);
+
+	switch ($orientation) {
+	  case 3:
+	    $image = imagerotate($image, 180, 0);
+	    break;
+	  case 6:
+	    $image = imagerotate($image, 270, 0);
+	    break;
+	  case 8:
+	    $image = imagerotate($image, 90, 0);
+	    break;
+
+	}
+	imagejpeg($image, $file_path);
+     }
+
 }
 
 $upload_handler = new UploadHandler();
