@@ -1,5 +1,5 @@
 /*!
- * jQuery UI Widget 1.8.17
+ * jQuery UI Widget 1.8.16
  *
  * Copyright 2011, AUTHORS.txt (http://jqueryui.com/about)
  * Dual licensed under the MIT or GPL Version 2 licenses.
@@ -239,25 +239,21 @@ $.Widget.prototype = {
 	},
 
 	_trigger: function( type, event, data ) {
-		var prop, orig,
-			callback = this.options[ type ];
+		var callback = this.options[ type ];
 
-		data = data || {};
 		event = $.Event( event );
 		event.type = ( type === this.widgetEventPrefix ?
 			type :
 			this.widgetEventPrefix + type ).toLowerCase();
-		// the original event may come from any element
-		// so we need to reset the target on the new event
-		event.target = this.element[ 0 ];
+		data = data || {};
 
 		// copy original event properties over to the new event
-		orig = event.originalEvent;
-		if ( orig ) {
-			for ( prop in orig ) {
-				if ( !( prop in event ) ) {
-					event[ prop ] = orig[ prop ];
-				}
+		// this would happen if we could call $.event.fix instead of $.Event
+		// but we don't have a way to force an event to be fixed multiple times
+		if ( event.originalEvent ) {
+			for ( var i = $.event.props.length, prop; i; ) {
+				prop = $.event.props[ --i ];
+				event[ prop ] = event.originalEvent[ prop ];
 			}
 		}
 
