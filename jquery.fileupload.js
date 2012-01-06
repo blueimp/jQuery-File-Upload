@@ -1,5 +1,5 @@
 /*
- * jQuery File Upload Plugin 5.5.3
+ * jQuery File Upload Plugin 5.5.4
  * https://github.com/blueimp/jQuery-File-Upload
  *
  * Copyright 2010, Sebastian Tschan
@@ -210,10 +210,15 @@
                 xhr = options.xhr ? options.xhr() : $.ajaxSettings.xhr();
             // Accesss to the native XHR object is required to add event listeners
             // for the upload progress event:
-            if (xhr.upload && xhr.upload.addEventListener) {
-                xhr.upload.addEventListener('progress', function (e) {
+            if (xhr.upload) {
+                $(xhr.upload).bind('progress', function (e) {
+                    var oe = e.originalEvent;
+                    // Make sure the progress event properties get copied over:
+                    e.lengthComputable = oe.lengthComputable;
+                    e.loaded = oe.loaded;
+                    e.total = oe.total;
                     that._onProgress(e, options);
-                }, false);
+                });
                 options.xhr = function () {
                     return xhr;
                 };
