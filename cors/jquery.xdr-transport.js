@@ -1,5 +1,5 @@
 /*
- * jQuery XDomainRequest Transport Plugin 1.0.1
+ * jQuery XDomainRequest Transport Plugin 1.0.2
  * https://github.com/blueimp/jQuery-File-Upload
  *
  * Copyright 2011, Sebastian Tschan
@@ -18,7 +18,7 @@
 (function ($) {
     'use strict';
     if (window.XDomainRequest) {
-        jQuery.ajaxTransport(function (s) {
+        $.ajaxTransport(function (s) {
             if (s.crossDomain && s.async) {
                 if (s.timeout) {
                     s.xdrTimeout = s.timeout;

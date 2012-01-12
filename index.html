@@ -1,7 +1,7 @@
 <!DOCTYPE HTML>
 <!--
 /*
- * jQuery File Upload Plugin Demo 6.0.2
+ * jQuery File Upload Plugin Demo 6.0.3
  * https://github.com/blueimp/jQuery-File-Upload
  *
  * Copyright 2010, Sebastian Tschan
@@ -15,55 +15,18 @@
 <head>
 <meta charset="utf-8">
 <title>jQuery File Upload Demo</title>
+<!--
+    The Bootstrap CSS is not required, but included for the demo.
+    However, the FileUpload user interface waits for CSS transition events in several callbacks,
+    if a "fade" class is present. These CSS transitions are defined by the Bootstrap CSS.
+    If it is not included, either remove the "fade" class from the upload/download templates,
+    or define your own "fade" class with CSS transitions.
+-->
 <link rel="stylesheet" href="http://twitter.github.com/bootstrap/1.4.0/bootstrap.min.css">
 <link rel="stylesheet" href="http://blueimp.github.com/Bootstrap-Image-Gallery/bootstrap-image-gallery.min.css">
+<!--[if lt IE 7]><link rel="stylesheet" href="http://blueimp.github.com/Bootstrap-Image-Gallery/bootstrap-ie6.min.css"><![endif]-->
 <link rel="stylesheet" href="jquery.fileupload-ui.css">
-<style type="text/css">
-.page-header {
-    background-color: #f5f5f5;
-    padding: 80px 20px 10px;
-    margin: 0 -20px 20px;
-    border: 1px solid #DDD;
-    -webkit-border-radius: 0 0 6px 6px;
-       -moz-border-radius: 0 0 6px 6px;
-            border-radius: 0 0 6px 6px;
-}
-</style>
-<!--[if lt IE 7]>
-<style type="text/css">
-.topbar {
-    position: absolute;
-}
-.topbar ul, .topbar .container {
-    padding-top: 10px;
-}
-.topbar li {
-    display: inline;
-    margin-right: 10px;
-}
-.topbar a:hover {
-    color: #fff;
-}
-.span16 {
-    display: inline;
-    float: left;
-    margin-left: 20px;
-}
-input {
-    display: inline;
-    width: auto;
-}
-/* The following is required for Modals to work on IE6 */
-.modal {
-    position: absolute;
-    top: 50%;
-    filter: none;
-}
-#gallery-modal.fullscreen {
-    overflow: hidden;
-}
-</style>
-<![endif]-->
+<style type="text/css">body {padding-top: 80px;}</style>
 <meta name="description" content="File Upload widget with multiple file selection, drag&amp;drop support, progress bar and preview images for jQuery. Supports cross-domain, chunked and resumable file uploads. Works with any server-side platform (Google App Engine, PHP, Python, Ruby on Rails, Java, etc.) that supports standard HTML form file uploads.">
 </head>
 <body>
@@ -86,14 +49,17 @@ input {
 <div class="container">
     <div class="page-header">
         <h1>jQuery File Upload Demo</h1>
-        <p>File Upload widget with multiple file selection, drag&amp;drop support, progress bar and preview images for jQuery.<br>
-            Supports cross-domain, chunked and resumable file uploads.<br>
-            Works with any server-side platform (Google App Engine, PHP, Python, Ruby on Rails, Java, etc.) that supports standard HTML form file uploads.</p>
     </div>
+    <blockquote>
+        <p>File Upload widget with multiple file selection, drag&amp;drop support, progress bar and preview images for jQuery.<br>
+        Supports cross-domain, chunked and resumable file uploads.<br>
+        Works with any server-side platform (Google App Engine, PHP, Python, Ruby on Rails, Java, etc.) that supports standard HTML form file uploads.</p>
+    </blockquote>
+    <br>
     <form id="fileupload" action="php/index.php" method="POST" enctype="multipart/form-data">
         <div class="row">
             <div class="span16 fileupload-buttonbar">
-                <div class="progressbar fileupload-progressbar"><div style="width:0%;"></div></div>
+                <div class="progressbar fileupload-progressbar fade"><div style="width:0%;"></div></div>
                 <span class="btn success fileinput-button">
                     <span>Add files...</span>
                     <input type="file" name="files[]" multiple>
@@ -191,19 +157,20 @@ var fileUploadErrors = {
 {% } %}
 </script>
 <script src="//ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
+<!-- The jQuery UI widget factory, can be omitted if jQuery UI is already included -->
 <script src="vendor/jquery.ui.widget.js"></script>
+<!-- The Templates and Load Image plugins are included for the FileUpload user interface -->
 <script src="http://blueimp.github.com/JavaScript-Templates/tmpl.min.js"></script>
 <script src="http://blueimp.github.com/JavaScript-Load-Image/load-image.min.js"></script>
 <!-- Bootstrap Modal and Image Gallery are not required, but included for the demo -->
 <script src="http://twitter.github.com/bootstrap/1.4.0/bootstrap-modal.min.js"></script>
 <script src="http://blueimp.github.com/Bootstrap-Image-Gallery/bootstrap-image-gallery.min.js"></script>
+<!-- The Iframe Transport is required for browsers without support for XHR file uploads -->
 <script src="jquery.iframe-transport.js"></script>
 <script src="jquery.fileupload.js"></script>
 <script src="jquery.fileupload-ui.js"></script>
 <script src="application.js"></script>
-<!-- The XDomainRequest Transport is included for cross-domain file deletion for IE >= 8 -->
-<script src="jquery.xdr-transport.js"></script>
-<!-- postMessage Transport support can be added with the following plugin -->
-<!--script src="jquery.postmessage-transport.js"></script-->
+<!-- The XDomainRequest Transport is included for cross-domain file deletion for IE8+ -->
+<script src="cors/jquery.xdr-transport.js"></script>
 </body> 
 </html>

@@ -1,5 +1,5 @@
 /*
- * jQuery File Upload User Interface Plugin 6.0.2
+ * jQuery File Upload User Interface Plugin 6.0.3
  * https://github.com/blueimp/jQuery-File-Upload
  *
  * Copyright 2010, Sebastian Tschan
@@ -193,13 +193,13 @@
             },
             // Callback for uploads start, equivalent to the global ajaxStart event:
             start: function () {
-                $(this).find('.fileupload-progressbar div')
-                    .css('width', '0%');
+                $(this).find('.fileupload-progressbar')
+                    .addClass('in').find('div').css('width', '0%');
             },
             // Callback for uploads stop, equivalent to the global ajaxStop event:
             stop: function () {
-                $(this).find('.fileupload-progressbar div')
-                    .css('width', '0%');
+                $(this).find('.fileupload-progressbar')
+                    .removeClass('in').find('div').css('width', '0%');
             },
             // Callback for file deletion:
             destroy: function (e, data) {
@@ -408,7 +408,7 @@
                 style.OTransition !== undefined;
             if (that._transition) {
                 that._transitionEnd = [
-                    'TransitionEnd',
+                    'MSTransitionEnd',
                     'webkitTransitionEnd',
                     'transitionend',
                     'oTransitionEnd'

@@ -1,5 +1,5 @@
 /*
- * jQuery File Upload Plugin JS Example 6.0
+ * jQuery File Upload Plugin JS Example 6.0.3
  * https://github.com/blueimp/jQuery-File-Upload
  *
  * Copyright 2010, Sebastian Tschan
@@ -46,7 +46,7 @@ $(function () {
     // Enable iframe cross-domain access via redirect page:
     var redirectPage = window.location.href.replace(
         /\/[^\/]*$/,
-        '/result.html?%s'
+        '/cors/result.html?%s'
     );
     $('#fileupload').bind('fileuploadsend', function (e, data) {
         if (data.dataType.substr(0, 6) === 'iframe') {
