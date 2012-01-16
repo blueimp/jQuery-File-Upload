@@ -1,3 +1,13 @@
+(function (factory) {
+    if (typeof define === 'function' && define.amd) {
+        // AMD. Register as an anonymous module.
+        define(['jquery', './vendor/jquery.ui.widget', './jquery.iframe-transport'], factory);
+    } else {
+        // Browser globals
+        factory(jQuery);
+    }
+}(function ($) {
+
 /*
  * jQuery File Upload Plugin 5.5.4
  * https://github.com/blueimp/jQuery-File-Upload
@@ -828,4 +838,7 @@
 
     });
 
-}(jQuery));
+}($));
+
+}));
+
