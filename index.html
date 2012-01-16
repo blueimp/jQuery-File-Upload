@@ -1,7 +1,7 @@
 <!DOCTYPE HTML>
 <!--
 /*
- * jQuery File Upload Plugin Demo 6.0.3
+ * jQuery File Upload Plugin Demo 6.0.4
  * https://github.com/blueimp/jQuery-File-Upload
  *
  * Copyright 2010, Sebastian Tschan
@@ -171,6 +171,6 @@ var fileUploadErrors = {
 <script src="jquery.fileupload-ui.js"></script>
 <script src="application.js"></script>
 <!-- The XDomainRequest Transport is included for cross-domain file deletion for IE8+ -->
-<script src="cors/jquery.xdr-transport.js"></script>
+<!--[if gte IE 8]><script src="cors/jquery.xdr-transport.js"></script><![endif]-->
 </body> 
 </html>

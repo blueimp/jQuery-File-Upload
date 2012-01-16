@@ -1,5 +1,5 @@
 /*
- * jQuery File Upload User Interface Plugin 6.0.3
+ * jQuery File Upload User Interface Plugin 6.1
  * https://github.com/blueimp/jQuery-File-Upload
  *
  * Copyright 2010, Sebastian Tschan
@@ -10,9 +10,18 @@
  */
 
 /*jslint nomen: true, unparam: true, regexp: true */
-/*global window, document, URL, webkitURL, FileReader, jQuery */
+/*global define, window, document, URL, webkitURL, FileReader */
 
-(function ($) {
+(function (factory) {
+    'use strict';
+    if (typeof define === 'function' && define.amd) {
+        // Register as an anonymous AMD module:
+        define(['jquery', 'tmpl', 'loadImage', './jquery.fileupload.js'], factory);
+    } else {
+        // Browser globals:
+        factory(window.jQuery, window.tmpl, window.loadImage);
+    }
+}(function ($, tmpl, loadImage) {
     'use strict';
 
     // The UI version extends the basic fileupload widget and adds
@@ -316,7 +325,7 @@
                 if (options.previewFileTypes.test(file.type) &&
                         (!options.previewMaxFileSize ||
                         file.size < options.previewMaxFileSize)) {
-                    window.loadImage(
+                    loadImage(
                         files[index],
                         function (img) {
                             $(node).append(img);
@@ -348,8 +357,8 @@
         _startHandler: function (e) {
             e.preventDefault();
             var button = $(this),
-                tmpl = button.closest('.template-upload'),
-                data = tmpl.data('data');
+                template = button.closest('.template-upload'),
+                data = template.data('data');
             if (data && data.submit && !data.jqXHR && data.submit()) {
                 button.prop('disabled', true);
             }
@@ -357,8 +366,8 @@
 
         _cancelHandler: function (e) {
             e.preventDefault();
-            var tmpl = $(this).closest('.template-upload'),
-                data = tmpl.data('data') || {};
+            var template = $(this).closest('.template-upload'),
+                data = template.data('data') || {};
             if (!data.jqXHR) {
                 data.errorThrown = 'abort';
                 e.data.fileupload._trigger('fail', e, data);
@@ -503,8 +512,8 @@
             this.options.templateContainer = document.createElement(
                 this._files.prop('nodeName')
             );
-            this.options.uploadTemplate = window.tmpl('template-upload');
-            this.options.downloadTemplate = window.tmpl('template-download');
+            this.options.uploadTemplate = tmpl('template-upload');
+            this.options.downloadTemplate = tmpl('template-download');
         },
 
         _initFiles: function () {
@@ -535,4 +544,4 @@
 
     });
 
-}(jQuery));
+}));

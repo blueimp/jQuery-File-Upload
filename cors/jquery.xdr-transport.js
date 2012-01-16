@@ -1,5 +1,5 @@
 /*
- * jQuery XDomainRequest Transport Plugin 1.0.2
+ * jQuery XDomainRequest Transport Plugin 1.1
  * https://github.com/blueimp/jQuery-File-Upload
  *
  * Copyright 2011, Sebastian Tschan
@@ -13,9 +13,18 @@
  */
 
 /*jslint unparam: true */
-/*global jQuery, window, XDomainRequest */
+/*global define, window, XDomainRequest */
 
-(function ($) {
+(function (factory) {
+    'use strict';
+    if (typeof define === 'function' && define.amd) {
+        // Register as an anonymous AMD module:
+        define(['jquery'], factory);
+    } else {
+        // Browser globals:
+        factory(window.jQuery);
+    }
+}(function ($) {
     'use strict';
     if (window.XDomainRequest) {
         $.ajaxTransport(function (s) {
@@ -28,7 +37,7 @@
                 return {
                     send: function (headers, completeCallback) {
                         function callback(status, statusText, responses, responseHeaders) {
-                            xdr.onload = xdr.onerror = xdr.ontimeout = jQuery.noop;
+                            xdr.onload = xdr.onerror = xdr.ontimeout = $.noop;
                             xdr = null;
                             completeCallback(status, statusText, responses, responseHeaders);
                         }
@@ -65,7 +74,7 @@
                     },
                     abort: function () {
                         if (xdr) {
-                            xdr.onerror = jQuery.noop();
+                            xdr.onerror = $.noop();
                             xdr.abort();
                         }
                     }
@@ -73,4 +82,4 @@
             }
         });
     }
-}(jQuery));
+}));
