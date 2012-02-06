@@ -1,5 +1,5 @@
 /*
- * jQuery File Upload Plugin JS Example 6.0.3
+ * jQuery File Upload Plugin JS Example 6.2
  * https://github.com/blueimp/jQuery-File-Upload
  *
  * Copyright 2010, Sebastian Tschan
@@ -72,8 +72,5 @@ $(function () {
                 .appendTo(document.body);
         }
     );
-
-    // Initialize the Bootstrap Image Gallery plugin:
-    $('#fileupload .files').imagegallery();
 
 });

@@ -1,5 +1,5 @@
 /*
- * jQuery File Upload User Interface Plugin 6.1
+ * jQuery File Upload User Interface Plugin 6.2
  * https://github.com/blueimp/jQuery-File-Upload
  *
  * Copyright 2010, Sebastian Tschan
@@ -74,7 +74,7 @@
                     .appendTo(that._files)
                     .data('data', data);
                 // Force reflow:
-                that._reflow = that._transition && data.context[0].offsetWidth;
+                that._reflow = $.support.transition && data.context[0].offsetWidth;
                 data.context.addClass('in');
                 if ((that.options.autoUpload || data.autoUpload) &&
                         data.isValidated) {
@@ -97,10 +97,14 @@
                     // Iframe Transport does not support progress events.
                     // In lack of an indeterminate progress bar, we set
                     // the progress to 100%, showing the full animated bar:
-                    data.context.find('.progressbar div').css(
-                        'width',
-                        parseInt(100, 10) + '%'
-                    );
+                    data.context
+                        .find('.progress').addClass(
+                            !$.support.transition && 'progress-animated'
+                        )
+                        .find('.bar').css(
+                            'width',
+                            parseInt(100, 10) + '%'
+                        );
                 }
             },
             // Callback for successful uploads:
@@ -118,18 +122,11 @@
                         that._transitionCallback(
                             $(this).removeClass('in'),
                             function (node) {
-                                template = that._renderDownload([file]);
-                                preview = node
-                                    .find('.preview img, .preview canvas');
-                                if (preview.length) {
-                                    template.find('.preview img')
-                                        .prop('width', preview.prop('width'))
-                                        .prop('height', preview.prop('height'));
-                                }
-                                template
+                                template = that._renderDownload([file])
+                                    .css('height', node.height())
                                     .replaceAll(node);
                                 // Force reflow:
-                                that._reflow = that._transition &&
+                                that._reflow = $.support.transition &&
                                     template[0].offsetWidth;
                                 template.addClass('in');
                             }
@@ -139,7 +136,7 @@
                     template = that._renderDownload(data.result)
                         .appendTo(that._files);
                     // Force reflow:
-                    that._reflow = that._transition && template[0].offsetWidth;
+                    that._reflow = $.support.transition && template[0].offsetWidth;
                     template.addClass('in');
                 }
             },
@@ -160,7 +157,7 @@
                                     template = that._renderDownload([file])
                                         .replaceAll(node);
                                     // Force reflow:
-                                    that._reflow = that._transition &&
+                                    that._reflow = $.support.transition &&
                                         template[0].offsetWidth;
                                     template.addClass('in');
                                 }
@@ -180,14 +177,14 @@
                         .appendTo(that._files)
                         .data('data', data);
                     // Force reflow:
-                    that._reflow = that._transition && data.context[0].offsetWidth;
+                    that._reflow = $.support.transition && data.context[0].offsetWidth;
                     data.context.addClass('in');
                 }
             },
             // Callback for upload progress events:
             progress: function (e, data) {
                 if (data.context) {
-                    data.context.find('.progressbar div').css(
+                    data.context.find('.progress .bar').css(
                         'width',
                         parseInt(data.loaded / data.total * 100, 10) + '%'
                     );
@@ -195,20 +192,25 @@
             },
             // Callback for global upload progress events:
             progressall: function (e, data) {
-                $(this).find('.fileupload-progressbar div').css(
+                $(this).find('.fileupload-buttonbar .progress .bar').css(
                     'width',
                     parseInt(data.loaded / data.total * 100, 10) + '%'
                 );
             },
             // Callback for uploads start, equivalent to the global ajaxStart event:
             start: function () {
-                $(this).find('.fileupload-progressbar')
-                    .addClass('in').find('div').css('width', '0%');
+                $(this).find('.fileupload-buttonbar .progress')
+                    .addClass('in');
             },
             // Callback for uploads stop, equivalent to the global ajaxStop event:
             stop: function () {
-                $(this).find('.fileupload-progressbar')
-                    .removeClass('in').find('div').css('width', '0%');
+                var that = $(this).data('fileupload');
+                that._transitionCallback(
+                    $(this).find('.fileupload-buttonbar .progress').removeClass('in'),
+                    function (node) {
+                        node.find('.bar').css('width', '0%');
+                    }
+                );
             },
             // Callback for file deletion:
             destroy: function (e, data) {
@@ -330,7 +332,7 @@
                         function (img) {
                             $(node).append(img);
                             // Force reflow:
-                            that._reflow = that._transition &&
+                            that._reflow = $.support.transition &&
                                 node.offsetWidth;
                             $(node).addClass('in');
                         },
@@ -389,39 +391,20 @@
 
         _transitionCallback: function (node, callback) {
             var that = this;
-            if (this._transition && node.hasClass('fade')) {
+            if ($.support.transition && node.hasClass('fade')) {
                 node.bind(
-                    this._transitionEnd,
+                    $.support.transition.end,
                     function (e) {
                         // Make sure we don't respond to other transitions events
                         // in the container element, e.g. from button elements:
                         if (e.target === node[0]) {
-                            node.unbind(that._transitionEnd);
+                            node.unbind($.support.transition.end);
                             callback.call(that, node);
                         }
                     }
                 );
             } else {
                 callback.call(this, node);
-            }
-        },
-
-        _initTransitionSupport: function () {
-            var that = this,
-                style = (document.body || document.documentElement).style,
-                suffix = '.' + that.options.namespace;
-            that._transition = style.transition !== undefined ||
-                style.WebkitTransition !== undefined ||
-                style.MozTransition !== undefined ||
-                style.MsTransition !== undefined ||
-                style.OTransition !== undefined;
-            if (that._transition) {
-                that._transitionEnd = [
-                    'MSTransitionEnd',
-                    'webkitTransitionEnd',
-                    'transitionend',
-                    'oTransitionEnd'
-                ].join(suffix + ' ') + suffix;
             }
         },
 
@@ -484,7 +467,6 @@
                     this._deleteHandler
                 );
             this._initButtonBarEventHandlers();
-            this._initTransitionSupport();
         },
 
         _destroyEventHandlers: function () {
