@@ -43,11 +43,14 @@
 * [jQuery](http://jquery.com/) v. 1.6+
 * [jQuery UI widget factory](http://wiki.jqueryui.com/w/page/12138135/Widget%20factory) v. 1.8.16+
 * [jQuery Iframe Transport plugin](https://github.com/blueimp/jQuery-File-Upload/blob/master/jquery.iframe-transport.js) (included)
-* [JavaScript Load Image function](http://blueimp.github.com/JavaScript-Load-Image) v. 1.1.3+ (optional)
+* [JavaScript Load Image function](https://github.com/blueimp/JavaScript-Load-Image) v. 1.1.4+ (optional)
 * [JavaScript Templates engine](https://github.com/blueimp/JavaScript-Templates) v. 1.0.2+ (optional)
+* [Bootstrap CSS Toolkit](https://github.com/twitter/bootstrap/) v. 2.0+ (optional)
 
 The jQuery UI widget factory is a requirement for the basic File Upload plugin, but very lightweight without any other dependencies. 
 The UI version of the File Upload plugin also requires the JavaScript Templates engine and the JavaScript Load Image function (for the upload image previews). These dependencies are marked as optional, as the basic File Upload plugin can be used without them and the UI version of the plugin can be extended to override these dependencies with alternative solutions.
+
+The User Interface is built with Twitter's [Bootstrap](https://github.com/twitter/bootstrap/) Toolkit. This enables a CSS based, responsive layout and fancy transition effects on modern browsers. The demo also includes the [Bootstrap Image Gallery Plugin](https://github.com/blueimp/Bootstrap-Image-Gallery). Both of these components are optional and not required.
 
 The repository also includes the [jQuery XDomainRequest Transport Plugin](https://github.com/blueimp/jQuery-File-Upload/blob/master/cors/jquery.xdr-transport.js), which is required for Cross-domain AJAX requests in Microsoft Internet Explorer >= 8. It is only included for the [Demo](http://blueimp.github.com/jQuery-File-Upload/), which makes use of Cross-domain DELETE requests (GET requests for IE) to delete uploaded files from the Demo File Upload service.
 
