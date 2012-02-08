@@ -955,7 +955,8 @@ $(function () {
                         addIndex
                     );
                 },
-                done: $.noop
+                done: $.noop,
+                stop: $.noop
             })
             .fileupload('add', {files: [{name: (addIndex += 1)}]})
             .fileupload('add', {files: [{name: 'test'}]})
