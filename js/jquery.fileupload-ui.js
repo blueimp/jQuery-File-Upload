@@ -1,5 +1,5 @@
 /*
- * jQuery File Upload User Interface Plugin 6.2
+ * jQuery File Upload User Interface Plugin 6.3
  * https://github.com/blueimp/jQuery-File-Upload
  *
  * Copyright 2010, Sebastian Tschan
@@ -75,16 +75,21 @@
                     .data('data', data);
                 // Force reflow:
                 that._reflow = $.support.transition && data.context[0].offsetWidth;
-                data.context.addClass('in');
-                if ((that.options.autoUpload || data.autoUpload) &&
-                        data.isValidated) {
-                    data.submit();
-                }
+                that._transitionCallback(
+                    data.context.addClass('in'),
+                    function (node) {
+                        if ((that._trigger('added', e, data) !== false) &&
+                                (that.options.autoUpload || data.autoUpload) &&
+                                data.isValidated) {
+                            data.submit();
+                        }
+                    }
+                );
             },
             // Callback for the start of each file upload request:
             send: function (e, data) {
+                var that = $(this).data('fileupload');
                 if (!data.isValidated) {
-                    var that = $(this).data('fileupload');
                     if (!data.isAdjusted) {
                         that._adjustMaxNumberOfFiles(-data.files.length);
                     }
@@ -106,6 +111,7 @@
                             parseInt(100, 10) + '%'
                         );
                 }
+                return that._trigger('sent', e, data);
             },
             // Callback for successful uploads:
             done: function (e, data) {
@@ -128,7 +134,13 @@
                                 // Force reflow:
                                 that._reflow = $.support.transition &&
                                     template[0].offsetWidth;
-                                template.addClass('in');
+                                that._transitionCallback(
+                                    template.addClass('in'),
+                                    function (node) {
+                                        data.context = node;
+                                        that._trigger('completed', e, data);
+                                    }
+                                );
                             }
                         );
                     });
@@ -137,7 +149,13 @@
                         .appendTo(that._files);
                     // Force reflow:
                     that._reflow = $.support.transition && template[0].offsetWidth;
-                    template.addClass('in');
+                    that._transitionCallback(
+                        template.addClass('in'),
+                        function (node) {
+                            data.context = node;
+                            that._trigger('completed', e, data);
+                        }
+                    );
                 }
             },
             // Callback for failed (abort or error) uploads:
@@ -159,7 +177,13 @@
                                     // Force reflow:
                                     that._reflow = $.support.transition &&
                                         template[0].offsetWidth;
-                                    template.addClass('in');
+                                    that._transitionCallback(
+                                        template.addClass('in'),
+                                        function (node) {
+                                            data.context = node;
+                                            that._trigger('failed', e, data);
+                                        }
+                                    );
                                 }
                             );
                         } else {
@@ -167,6 +191,7 @@
                                 $(this).removeClass('in'),
                                 function (node) {
                                     node.remove();
+                                    that._trigger('failed', e, data);
                                 }
                             );
                         }
@@ -178,7 +203,15 @@
                         .data('data', data);
                     // Force reflow:
                     that._reflow = $.support.transition && data.context[0].offsetWidth;
-                    data.context.addClass('in');
+                    that._transitionCallback(
+                        data.context.addClass('in'),
+                        function (node) {
+                            data.context = node;
+                            that._trigger('failed', e, data);
+                        }
+                    );
+                } else {
+                    that._trigger('failed', e, data);
                 }
             },
             // Callback for upload progress events:
@@ -198,17 +231,23 @@
                 );
             },
             // Callback for uploads start, equivalent to the global ajaxStart event:
-            start: function () {
-                $(this).find('.fileupload-buttonbar .progress')
-                    .addClass('in');
+            start: function (e) {
+                var that = $(this).data('fileupload');
+                that._transitionCallback(
+                    $(this).find('.fileupload-buttonbar .progress').addClass('in'),
+                    function (node) {
+                        that._trigger('started', e);
+                    }
+                );
             },
             // Callback for uploads stop, equivalent to the global ajaxStop event:
-            stop: function () {
+            stop: function (e) {
                 var that = $(this).data('fileupload');
                 that._transitionCallback(
                     $(this).find('.fileupload-buttonbar .progress').removeClass('in'),
                     function (node) {
                         node.find('.bar').css('width', '0%');
+                        that._trigger('stopped', e);
                     }
                 );
             },
@@ -223,6 +262,7 @@
                     data.context.removeClass('in'),
                     function (node) {
                         node.remove();
+                        that._trigger('destroyed', e, data);
                     }
                 );
             }
