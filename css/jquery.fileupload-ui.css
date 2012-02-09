@@ -37,6 +37,6 @@
   width: 200px;
 }
 .progress-animated .bar {
-  background: url(../img/progressbar.gif);
+  background: url(../img/progressbar.gif) !important;
   filter: none;
 }
