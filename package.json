@@ -51,10 +51,10 @@
         "blueimp-tmpl": ">=1.0.2"
     },
     "files": [
-        "jquery.iframe-transport.js",
-        "jquery.fileupload.js",
-        "jquery.fileupload-ui.js",
-        "jquery.fileupload-ui.css",
-        "progressbar.gif"
+        "js/jquery.iframe-transport.js",
+        "js/jquery.fileupload.js",
+        "js/jquery.fileupload-ui.js",
+        "css/jquery.fileupload-ui.css",
+        "img/progressbar.gif"
     ]
 }
