@@ -20,13 +20,15 @@ $(function () {
 
     if (window.location.hostname === 'blueimp.github.com') {
         // Demo settings:
-        $('#fileupload').prop(
-            'action',
-            '//jquery-file-upload.appspot.com'
-        );
         $('#fileupload').fileupload('option', {
+            url: '//jquery-file-upload.appspot.com',
             maxFileSize: 5000000,
             acceptFileTypes: /(\.|\/)(gif|jpe?g|png)$/i
+        });
+        $.get('//jquery-file-upload.appspot.com').fail(function () {
+            $('<span class="alert alert-error"/>')
+                .text('Upload server currently unavailable - ' + new Date())
+                .appendTo('#fileupload');
         });
     } else {
         // Load existing files:
@@ -37,7 +39,7 @@ $(function () {
             template = fu._renderDownload(files)
                 .appendTo($('#fileupload .files'));
             // Force reflow:
-            fu._reflow = fu._transition && template.length &&
+            fu._reflow = $.support.transition && template.length &&
                 template[0].offsetWidth;
             template.addClass('in');
         });
