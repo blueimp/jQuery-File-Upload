@@ -29,7 +29,8 @@
   direction: ltr;
   cursor: pointer;
 }
-.fileupload-buttonbar button {
+.fileupload-buttonbar .btn,
+.fileupload-buttonbar .toggle {
   margin-bottom: 5px;
 }
 .files .progress {
