@@ -1,5 +1,5 @@
 /*
- * jQuery File Upload Plugin JS Example 6.2
+ * jQuery File Upload Plugin JS Example 6.3
  * https://github.com/blueimp/jQuery-File-Upload
  *
  * Copyright 2010, Sebastian Tschan
@@ -38,16 +38,11 @@ $(function () {
         }
     } else {
         // Load existing files:
-        $.getJSON($('#fileupload').prop('action'), function (files) {
-            var fu = $('#fileupload').data('fileupload'),
-                template;
-            fu._adjustMaxNumberOfFiles(-files.length);
-            template = fu._renderDownload(files)
-                .appendTo($('#fileupload .files'));
-            // Force reflow:
-            fu._reflow = $.support.transition && template.length &&
-                template[0].offsetWidth;
-            template.addClass('in');
+        $.getJSON($('#fileupload').prop('action'), function (result) {
+            if (result && result.length) {
+                $('#fileupload').fileupload('option', 'done')
+                    .call($('#fileupload')[0], null, {result: result});
+            }
         });
     }
 
