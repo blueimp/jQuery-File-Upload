@@ -4,6 +4,7 @@
     "title": "jQuery File Upload",
     "description": "File Upload widget with multiple file selection, drag&drop support, progress bar and preview images for jQuery. Supports cross-domain, chunked and resumable file uploads. Works with any server-side platform (Google App Engine, PHP, Python, Ruby on Rails, Java, etc.) that supports standard HTML form file uploads.",
     "keywords": [
+        "jquery",
         "file",
         "upload",
         "widget",
@@ -15,12 +16,13 @@
         "preview",
         "cross-domain",
         "cross-site",
-        "chunked",
+        "chunk",
         "resume",
         "gae",
         "go",
         "python",
-        "php"
+        "php",
+        "bootstrap"
     ],
     "homepage": "https://github.com/blueimp/jQuery-File-Upload",
     "author": {
