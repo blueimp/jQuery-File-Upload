@@ -26,15 +26,16 @@ $(function () {
             acceptFileTypes: /(\.|\/)(gif|jpe?g|png)$/i
         });
         // Upload server status check for browsers with CORS support:
-        if (window.XDomainRequest || (window.XMLHttpRequest &&
-                (new XMLHttpRequest()).withCredentials !== undefined)) {
-            $.get('//jquery-file-upload.appspot.com/')
-                .fail(function () {
-                    $('<span class="alert alert-error"/>')
-                        .text('Upload server currently unavailable - ' +
-                                new Date())
-                        .appendTo('#fileupload');
-                });
+        if ($.ajaxSettings.xhr().withCredentials !== undefined) {
+            $.ajax({
+                url: '//jquery-file-upload.appspot.com/',
+                type: 'HEAD'
+            }).fail(function () {
+                $('<span class="alert alert-error"/>')
+                    .text('Upload server currently unavailable - ' +
+                            new Date())
+                    .appendTo('#fileupload');
+            });
         }
     } else {
         // Load existing files:
