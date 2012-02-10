@@ -10,7 +10,7 @@
  */
 
 /*jslint nomen: true, unparam: true, regexp: true */
-/*global $, window, document, XMLHttpRequest */
+/*global $, window, document */
 
 $(function () {
     'use strict';

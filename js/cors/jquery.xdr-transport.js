@@ -13,7 +13,7 @@
  */
 
 /*jslint unparam: true */
-/*global define, window, XDomainRequest, XMLHttpRequest */
+/*global define, window, XDomainRequest */
 
 (function (factory) {
     'use strict';
@@ -26,8 +26,7 @@
     }
 }(function ($) {
     'use strict';
-    if (window.XDomainRequest && (!window.XMLHttpRequest ||
-            (new XMLHttpRequest()).withCredentials === undefined)) {
+    if (window.XDomainRequest && $.ajaxSettings.xhr().withCredentials === undefined) {
         $.ajaxTransport(function (s) {
             if (s.crossDomain && s.async) {
                 if (s.timeout) {
