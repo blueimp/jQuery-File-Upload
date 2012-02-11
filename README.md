@@ -20,8 +20,8 @@
   Aborted uploads can be resumed with browsers supporting the Blob API.
 * **Chunked uploads:**  
   Large files can be uploaded in smaller chunks with browsers supporting the Blob API.
-* **Automatic image resizing:**  
-  Images can be automatically resized with browsers supporting the required JS APIs.
+* **Client-side image resizing:**  
+  Images can be automatically resized on client-side with browsers supporting the required JS APIs.
 * **Preview images:**  
   A preview of image files can be displayed before uploading with browsers supporting the required JS APIs.
 * **No browser plugins (e.g. Adobe Flash) required:**  
@@ -39,7 +39,7 @@
 * **Multipart and file contents stream uploads:**  
   Files can be uploaded as standard "multipart/form-data" or file contents stream (HTTP PUT file upload).
 * **Compatible with any server-side application platform:**  
-  Works with Google App Engine (Python, Java), Ruby on Rails, PHP and any other platform that supports HTTP file uploads.
+  Works with any server-side platform (PHP, Python, Ruby on Rails, Java, Node.js, Go etc.) that supports standard HTML form file uploads.
 
 ## Requirements
 * [jQuery](http://jquery.com/) v. 1.6+
