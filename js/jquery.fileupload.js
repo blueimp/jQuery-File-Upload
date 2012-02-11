@@ -1,5 +1,5 @@
 /*
- * jQuery File Upload Plugin 5.6
+ * jQuery File Upload Plugin 5.6.1
  * https://github.com/blueimp/jQuery-File-Upload
  *
  * Copyright 2010, Sebastian Tschan
@@ -16,7 +16,11 @@
     'use strict';
     if (typeof define === 'function' && define.amd) {
         // Register as an anonymous AMD module:
-        define(['jquery', './vendor/jquery.ui.widget', './jquery.iframe-transport'], factory);
+        define([
+            'jquery',
+            './vendor/jquery.ui.widget',
+            './jquery.iframe-transport'
+        ], factory);
     } else {
         // Browser globals:
         factory(window.jQuery);
@@ -289,14 +293,14 @@
                         });
                     }
                     if (options.blob) {
-                        formData.append(options.paramName, options.blob);
+                        formData.append(options.paramName, options.blob, file.name);
                     } else {
                         $.each(options.files, function (index, file) {
                             // File objects are also Blob instances.
                             // This check allows the tests to run with
                             // dummy objects:
                             if (file instanceof Blob) {
-                                formData.append(options.paramName, file);
+                                formData.append(options.paramName, file, file.name);
                             }
                         });
                     }
