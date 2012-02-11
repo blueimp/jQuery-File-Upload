@@ -40,6 +40,16 @@
   background: url(../img/progressbar.gif) !important;
   filter: none;
 }
+.fileupload-loading {
+  position: absolute;
+  left: 50%;
+  width: 128px;
+  height: 0;
+  background: url(../img/loading.gif) center no-repeat;
+}
+.fileupload-processing .fileupload-loading {
+  height: 128px;
+}
 
 /* Fix for IE 6: */
 *html .fileinput-button {

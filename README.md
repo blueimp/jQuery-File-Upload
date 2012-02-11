@@ -20,8 +20,10 @@
   Aborted uploads can be resumed with browsers supporting the Blob API.
 * **Chunked uploads:**  
   Large files can be uploaded in smaller chunks with browsers supporting the Blob API.
+* **Automatic image resizing:**  
+  Images can be automatically resized with browsers supporting the required JS APIs.
 * **Preview images:**  
-  A preview of image files can be displayed before uploading with browsers supporting the required HTML5 APIs.
+  A preview of image files can be displayed before uploading with browsers supporting the required JS APIs.
 * **No browser plugins (e.g. Adobe Flash) required:**  
   The implementation is based on open standards like HTML5 and JavaScript and requires no additional browser plugins.
 * **Graceful fallback for legacy browsers:**  

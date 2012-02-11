@@ -1,5 +1,5 @@
 /*
- * jQuery File Upload User Interface Plugin 6.3
+ * jQuery File Upload User Interface Plugin 6.4
  * https://github.com/blueimp/jQuery-File-Upload
  *
  * Copyright 2010, Sebastian Tschan
@@ -16,18 +16,26 @@
     'use strict';
     if (typeof define === 'function' && define.amd) {
         // Register as an anonymous AMD module:
-        define(['jquery', 'tmpl', 'loadImage', './jquery.fileupload.js'], factory);
+        define([
+            'jquery',
+            './tmpl.js',
+            './load-image.js',
+            './jquery.fileupload-ip.js'
+        ], factory);
     } else {
         // Browser globals:
-        factory(window.jQuery, window.tmpl, window.loadImage);
+        factory(
+            window.jQuery,
+            window.tmpl,
+            window.loadImage
+        );
     }
 }(function ($, tmpl, loadImage) {
     'use strict';
 
-    // The UI version extends the basic fileupload widget and adds
-    // a complete user interface based on the given upload/download
-    // templates.
-    $.widget('blueimpUI.fileupload', $.blueimp.fileupload, {
+    // The UI version extends the IP (image processing) version and adds
+    // complete user interface interaction:
+    $.widget('blueimpUI.fileupload', $.blueimpIP.fileupload, {
 
         options: {
             // By default, files added to the widget are uploaded as soon
@@ -46,9 +54,9 @@
             acceptFileTypes:  /.+$/i,
             // The regular expression to define for which files a preview
             // image is shown, matched against the file type:
-            previewFileTypes: /^image\/(gif|jpeg|png)$/,
-            // The maximum file size for preview images:
-            previewMaxFileSize: 5000000, // 5MB
+            previewSourceFileTypes: /^image\/(gif|jpeg|png)$/,
+            // The maximum file size of images that are to be displayed as preview:
+            previewSourceMaxFileSize: 5000000, // 5MB
             // The maximum width of the preview images:
             previewMaxWidth: 80,
             // The maximum height of the preview images:
@@ -66,25 +74,28 @@
             // See the basic file upload widget for more information:
             add: function (e, data) {
                 var that = $(this).data('fileupload'),
+                    options = that.options,
                     files = data.files;
-                that._adjustMaxNumberOfFiles(-files.length);
-                data.isAdjusted = true;
-                data.files.valid = data.isValidated = that._validate(files);
-                data.context = that._renderUpload(files)
-                    .appendTo(that._files)
-                    .data('data', data);
-                // Force reflow:
-                that._reflow = $.support.transition && data.context[0].offsetWidth;
-                that._transitionCallback(
-                    data.context.addClass('in'),
-                    function (node) {
-                        if ((that._trigger('added', e, data) !== false) &&
-                                (that.options.autoUpload || data.autoUpload) &&
-                                data.isValidated) {
-                            data.submit();
+                $(this).fileupload('resize', data).done(data, function () {
+                    that._adjustMaxNumberOfFiles(-files.length);
+                    data.isAdjusted = true;
+                    data.files.valid = data.isValidated = that._validate(files);
+                    data.context = that._renderUpload(files)
+                        .appendTo(that._files)
+                        .data('data', data);
+                    // Force reflow:
+                    that._reflow = $.support.transition && data.context[0].offsetWidth;
+                    that._transitionCallback(
+                        data.context.addClass('in'),
+                        function (node) {
+                            if ((that._trigger('added', e, data) !== false) &&
+                                    (options.autoUpload || data.autoUpload) &&
+                                    data.isValidated) {
+                                data.submit();
+                            }
                         }
-                    }
-                );
+                    );
+                });
             },
             // Callback for the start of each file upload request:
             send: function (e, data) {
@@ -358,33 +369,53 @@
             })).children();
         },
 
+        _renderPreview: function (file, node, callback) {
+            var that = this,
+                options = this.options;
+            loadImage(
+                file,
+                function (img) {
+                    node.append(img);
+                    // Force reflow:
+                    that._reflow = $.support.transition &&
+                        node[0].offsetWidth;
+                    that._transitionCallback(
+                        node.addClass('in'),
+                        callback || $.noop
+                    );
+                },
+                {
+                    maxWidth: options.previewMaxWidth,
+                    maxHeight: options.previewMaxHeight,
+                    canvas: options.previewAsCanvas
+                }
+            );
+        },
+
         _renderUpload: function (files) {
             var that = this,
-                options = this.options,
-                nodes = this._renderTemplate(options.uploadTemplate, files);
-            nodes.find('.preview span').each(function (index, node) {
-                var file = files[index];
-                if (options.previewFileTypes.test(file.type) &&
-                        (!options.previewMaxFileSize ||
-                        file.size < options.previewMaxFileSize)) {
-                    loadImage(
-                        files[index],
-                        function (img) {
-                            $(node).append(img);
-                            // Force reflow:
-                            that._reflow = $.support.transition &&
-                                node.offsetWidth;
-                            $(node).addClass('in');
-                        },
-                        {
-                            maxWidth: options.previewMaxWidth,
-                            maxHeight: options.previewMaxHeight,
-                            canvas: options.previewAsCanvas
-                        }
-                    );
-                }
-            });
-            return nodes;
+                options = this.options;
+            return this._renderTemplate(options.uploadTemplate, files)
+                .each(function (index, element) {
+                    var file = files[index],
+                        node = $(element),
+                        previewNode = node.find('.preview span'),
+                        hasPreview = previewNode.length &&
+                            ($.type(options.previewSourceMaxFileSize) !== 'number' ||
+                            file.size < options.previewSourceMaxFileSize) &&
+                            options.previewSourceFileTypes.test(file.type);
+                    if (hasPreview) {
+                        that._processingQueue = that._processingQueue.pipe(function () {
+                            var deferred = $.Deferred();
+                            that._renderPreview(
+                                file,
+                                previewNode,
+                                deferred.resolve
+                            );
+                            return deferred.promise();
+                        });
+                    }
+                });
         },
 
         _renderDownload: function (files) {
@@ -485,7 +516,7 @@
         },
 
         _initEventHandlers: function () {
-            $.blueimp.fileupload.prototype._initEventHandlers.call(this);
+            $.blueimpIP.fileupload.prototype._initEventHandlers.call(this);
             var eventData = {fileupload: this};
             this._files
                 .delegate(
@@ -515,7 +546,7 @@
                 .undelegate('.start button', 'click.' + this.options.namespace)
                 .undelegate('.cancel button', 'click.' + this.options.namespace)
                 .undelegate('.delete button', 'click.' + this.options.namespace);
-            $.blueimp.fileupload.prototype._destroyEventHandlers.call(this);
+            $.blueimpIP.fileupload.prototype._destroyEventHandlers.call(this);
         },
 
         _enableFileInputButton: function () {
@@ -544,16 +575,16 @@
 
         _create: function () {
             this._initFiles();
-            $.blueimp.fileupload.prototype._create.call(this);
+            $.blueimpIP.fileupload.prototype._create.call(this);
             this._initTemplates();
         },
 
         destroy: function () {
-            $.blueimp.fileupload.prototype.destroy.call(this);
+            $.blueimpIP.fileupload.prototype.destroy.call(this);
         },
 
         enable: function () {
-            $.blueimp.fileupload.prototype.enable.call(this);
+            $.blueimpIP.fileupload.prototype.enable.call(this);
             this.element.find('input, button').prop('disabled', false);
             this._enableFileInputButton();
         },
@@ -561,7 +592,7 @@
         disable: function () {
             this.element.find('input, button').prop('disabled', true);
             this._disableFileInputButton();
-            $.blueimp.fileupload.prototype.disable.call(this);
+            $.blueimpIP.fileupload.prototype.disable.call(this);
         }
 
     });
