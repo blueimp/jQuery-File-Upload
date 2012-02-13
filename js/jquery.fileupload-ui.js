@@ -1,5 +1,5 @@
 /*
- * jQuery File Upload User Interface Plugin 6.4
+ * jQuery File Upload User Interface Plugin 6.4.1
  * https://github.com/blueimp/jQuery-File-Upload
  *
  * Copyright 2010, Sebastian Tschan
@@ -90,7 +90,7 @@
                         function (node) {
                             if ((that._trigger('added', e, data) !== false) &&
                                     (options.autoUpload || data.autoUpload) &&
-                                    data.isValidated) {
+                                    data.autoUpload !== false && data.isValidated) {
                                 data.submit();
                             }
                         }
@@ -577,10 +577,6 @@
             this._initFiles();
             $.blueimpIP.fileupload.prototype._create.call(this);
             this._initTemplates();
-        },
-
-        destroy: function () {
-            $.blueimpIP.fileupload.prototype.destroy.call(this);
         },
 
         enable: function () {
