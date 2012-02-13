@@ -1,5 +1,5 @@
 /*
- * jQuery File Upload Plugin JS Example 6.4
+ * jQuery File Upload Plugin JS Example 6.5
  * https://github.com/blueimp/jQuery-File-Upload
  *
  * Copyright 2010, Sebastian Tschan
@@ -17,6 +17,16 @@ $(function () {
 
     // Initialize the jQuery File Upload widget:
     $('#fileupload').fileupload();
+
+    // Enable iframe cross-domain access via redirect option:
+    $('#fileupload').fileupload(
+        'option',
+        'redirect',
+        window.location.href.replace(
+            /\/[^\/]*$/,
+            '/cors/result.html?%s'
+        )
+    );
 
     if (window.location.hostname === 'blueimp.github.com') {
         // Demo settings:
@@ -41,42 +51,15 @@ $(function () {
         }
     } else {
         // Load existing files:
-        $.getJSON($('#fileupload').prop('action'), function (result) {
-            if (result && result.length) {
-                $('#fileupload').fileupload('option', 'done')
-                    .call($('#fileupload')[0], null, {result: result});
-            }
+        $('#fileupload').each(function () {
+            var that = this;
+            $.getJSON(this.action, function (result) {
+                if (result && result.length) {
+                    $(that).fileupload('option', 'done')
+                        .call(that, null, {result: result});
+                }
+            });
         });
     }
-
-    // Enable iframe cross-domain access via redirect page:
-    var redirectPage = window.location.href.replace(
-        /\/[^\/]*$/,
-        '/cors/result.html?%s'
-    );
-    $('#fileupload').bind('fileuploadsend', function (e, data) {
-        if (data.dataType.substr(0, 6) === 'iframe') {
-            var target = $('<a/>').prop('href', data.url)[0];
-            if (window.location.host !== target.host) {
-                data.formData.push({
-                    name: 'redirect',
-                    value: redirectPage
-                });
-            }
-        }
-    });
-
-    // Open download dialogs via iframes,
-    // to prevent aborting current uploads:
-    $('#fileupload .files').delegate(
-        'a:not([rel^=gallery])',
-        'click',
-        function (e) {
-            e.preventDefault();
-            $('<iframe style="display:none;"></iframe>')
-                .prop('src', this.href)
-                .appendTo(document.body);
-        }
-    );
 
 });
