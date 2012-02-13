@@ -938,7 +938,7 @@ $(function () {
             send: function () {
                 return false;
             }
-        }).fileupload('add', param)
+        }).fileupload('add', param);
     });
 
     asyncTest('started', function () {
@@ -953,7 +953,7 @@ $(function () {
             sent: function (e, data) {
                 return false;
             }
-        }).fileupload('send', param)
+        }).fileupload('send', param);
     });
 
     asyncTest('sent', function () {
@@ -969,7 +969,7 @@ $(function () {
                 );
                 return false;
             }
-        }).fileupload('send', param)
+        }).fileupload('send', param);
     });
 
     asyncTest('completed', function () {
@@ -981,7 +981,7 @@ $(function () {
                 ok('Triggers completed callback');
                 return false;
             }
-        }).fileupload('send', param)
+        }).fileupload('send', param);
     });
 
     asyncTest('failed', function () {
@@ -1005,10 +1005,10 @@ $(function () {
                 ok('Triggers stopped callback');
                 return false;
             }
-        }).fileupload('send', param)
+        }).fileupload('send', param);
     });
 
-    asyncTest('destroy', function () {
+    asyncTest('destroyed', function () {
         expect(1);
         $('#fileupload').fileupload({
             destroyed: function (e, data) {
