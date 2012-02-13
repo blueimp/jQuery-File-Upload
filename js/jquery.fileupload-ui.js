@@ -1,5 +1,5 @@
 /*
- * jQuery File Upload User Interface Plugin 6.4.1
+ * jQuery File Upload User Interface Plugin 6.5
  * https://github.com/blueimp/jQuery-File-Upload
  *
  * Copyright 2010, Sebastian Tschan
@@ -76,18 +76,18 @@
                 var that = $(this).data('fileupload'),
                     options = that.options,
                     files = data.files;
+                that._adjustMaxNumberOfFiles(-files.length);
+                data.isAdjusted = true;
                 $(this).fileupload('resize', data).done(data, function () {
-                    that._adjustMaxNumberOfFiles(-files.length);
-                    data.isAdjusted = true;
                     data.files.valid = data.isValidated = that._validate(files);
                     data.context = that._renderUpload(files)
                         .appendTo(that._files)
                         .data('data', data);
+                    that._renderPreviews(files, data.context);
                     // Force reflow:
                     that._reflow = $.support.transition && data.context[0].offsetWidth;
-                    that._transitionCallback(
-                        data.context.addClass('in'),
-                        function (node) {
+                    that._transition(data.context).done(
+                        function () {
                             if ((that._trigger('added', e, data) !== false) &&
                                     (options.autoUpload || data.autoUpload) &&
                                     data.autoUpload !== false && data.isValidated) {
@@ -136,19 +136,18 @@
                         if (file.error) {
                             that._adjustMaxNumberOfFiles(1);
                         }
-                        that._transitionCallback(
-                            $(this).removeClass('in'),
-                            function (node) {
+                        that._transition($(this)).done(
+                            function () {
+                                var node = $(this);
                                 template = that._renderDownload([file])
                                     .css('height', node.height())
                                     .replaceAll(node);
                                 // Force reflow:
                                 that._reflow = $.support.transition &&
                                     template[0].offsetWidth;
-                                that._transitionCallback(
-                                    template.addClass('in'),
-                                    function (node) {
-                                        data.context = node;
+                                that._transition(template).done(
+                                    function () {
+                                        data.context = $(this);
                                         that._trigger('completed', e, data);
                                     }
                                 );
@@ -160,10 +159,9 @@
                         .appendTo(that._files);
                     // Force reflow:
                     that._reflow = $.support.transition && template[0].offsetWidth;
-                    that._transitionCallback(
-                        template.addClass('in'),
-                        function (node) {
-                            data.context = node;
+                    that._transition(template).done(
+                        function () {
+                            data.context = $(this);
                             that._trigger('completed', e, data);
                         }
                     );
@@ -180,28 +178,26 @@
                             var file = data.files[index];
                             file.error = file.error || data.errorThrown ||
                                 true;
-                            that._transitionCallback(
-                                $(this).removeClass('in'),
-                                function (node) {
+                            that._transition($(this)).done(
+                                function () {
+                                    var node = $(this);
                                     template = that._renderDownload([file])
                                         .replaceAll(node);
                                     // Force reflow:
                                     that._reflow = $.support.transition &&
                                         template[0].offsetWidth;
-                                    that._transitionCallback(
-                                        template.addClass('in'),
-                                        function (node) {
-                                            data.context = node;
+                                    that._transition(template).done(
+                                        function () {
+                                            data.context = $(this);
                                             that._trigger('failed', e, data);
                                         }
                                     );
                                 }
                             );
                         } else {
-                            that._transitionCallback(
-                                $(this).removeClass('in'),
-                                function (node) {
-                                    node.remove();
+                            that._transition($(this)).done(
+                                function () {
+                                    $(this).remove();
                                     that._trigger('failed', e, data);
                                 }
                             );
@@ -214,10 +210,9 @@
                         .data('data', data);
                     // Force reflow:
                     that._reflow = $.support.transition && data.context[0].offsetWidth;
-                    that._transitionCallback(
-                        data.context.addClass('in'),
-                        function (node) {
-                            data.context = node;
+                    that._transition(data.context).done(
+                        function () {
+                            data.context = $(this);
                             that._trigger('failed', e, data);
                         }
                     );
@@ -244,9 +239,8 @@
             // Callback for uploads start, equivalent to the global ajaxStart event:
             start: function (e) {
                 var that = $(this).data('fileupload');
-                that._transitionCallback(
-                    $(this).find('.fileupload-buttonbar .progress').addClass('in'),
-                    function (node) {
+                that._transition($(this).find('.fileupload-buttonbar .progress')).done(
+                    function () {
                         that._trigger('started', e);
                     }
                 );
@@ -254,10 +248,9 @@
             // Callback for uploads stop, equivalent to the global ajaxStop event:
             stop: function (e) {
                 var that = $(this).data('fileupload');
-                that._transitionCallback(
-                    $(this).find('.fileupload-buttonbar .progress').removeClass('in'),
-                    function (node) {
-                        node.find('.bar').css('width', '0%');
+                that._transition($(this).find('.fileupload-buttonbar .progress')).done(
+                    function () {
+                        $(this).find('.bar').css('width', '0%');
                         that._trigger('stopped', e);
                     }
                 );
@@ -269,10 +262,9 @@
                     $.ajax(data);
                 }
                 that._adjustMaxNumberOfFiles(1);
-                that._transitionCallback(
-                    data.context.removeClass('in'),
-                    function (node) {
-                        node.remove();
+                that._transition(data.context).done(
+                    function () {
+                        $(this).remove();
                         that._trigger('destroyed', e, data);
                     }
                 );
@@ -284,8 +276,7 @@
         _enableDragToDesktop: function () {
             var link = $(this),
                 url = link.prop('href'),
-                name = decodeURIComponent(url.split('/').pop())
-                    .replace(/:/g, '-'),
+                name = link.prop('download'),
                 type = 'application/octet-stream';
             link.bind('dragstart', function (e) {
                 try {
@@ -369,66 +360,64 @@
             })).children();
         },
 
-        _renderPreview: function (file, node, callback) {
+        _renderPreview: function (file, node) {
             var that = this,
-                options = this.options;
-            if (!loadImage(
-                    file,
-                    function (img) {
-                        node.append(img);
-                        // Force reflow:
-                        that._reflow = $.support.transition &&
-                            node[0].offsetWidth;
-                        that._transitionCallback(
-                            node.addClass('in'),
-                            callback || $.noop
+                options = this.options,
+                deferred = $.Deferred();
+            return (loadImage(
+                file,
+                function (img) {
+                    node.append(img);
+                    // Force reflow:
+                    that._reflow = $.support.transition &&
+                        node[0].offsetWidth;
+                    that._transition(node).done(function () {
+                        deferred.resolveWith(node);
+                    });
+                },
+                {
+                    maxWidth: options.previewMaxWidth,
+                    maxHeight: options.previewMaxHeight,
+                    canvas: options.previewAsCanvas
+                }
+            ) || deferred.resolveWith(node)) && deferred;
+        },
+
+        _renderPreviews: function (files, nodes) {
+            var that = this,
+                options = this.options,
+                file;
+            nodes.find('.preview span').each(function (index, element) {
+                file = files[index];
+                if (options.previewSourceFileTypes.test(file.type) &&
+                        ($.type(options.previewSourceMaxFileSize) !== 'number' ||
+                        file.size < options.previewSourceMaxFileSize)) {
+                    that._processingQueue = that._processingQueue.pipe(function () {
+                        var deferred = $.Deferred();
+                        that._renderPreview(file, $(element)).done(
+                            function () {
+                                deferred.resolveWith(that);
+                            }
                         );
-                    },
-                    {
-                        maxWidth: options.previewMaxWidth,
-                        maxHeight: options.previewMaxHeight,
-                        canvas: options.previewAsCanvas
-                    }
-                ) && callback) {
-                callback();
-            }
+                        return deferred.promise();
+                    });
+                }
+            });
+            return this._processingQueue;
         },
 
         _renderUpload: function (files) {
-            var that = this,
-                options = this.options;
-            return this._renderTemplate(options.uploadTemplate, files)
-                .each(function (index, element) {
-                    var file = files[index],
-                        node = $(element),
-                        previewNode = node.find('.preview span'),
-                        hasPreview = previewNode.length &&
-                            ($.type(options.previewSourceMaxFileSize) !== 'number' ||
-                            file.size < options.previewSourceMaxFileSize) &&
-                            options.previewSourceFileTypes.test(file.type);
-                    if (hasPreview) {
-                        that._processingQueue = that._processingQueue.pipe(function () {
-                            var deferred = $.Deferred();
-                            that._renderPreview(
-                                file,
-                                previewNode,
-                                function () {
-                                    deferred.resolveWith(that);
-                                }
-                            );
-                            return deferred.promise();
-                        });
-                    }
-                });
+            return this._renderTemplate(
+                this.options.uploadTemplate,
+                files
+            );
         },
 
         _renderDownload: function (files) {
-            var nodes = this._renderTemplate(
+            return this._renderTemplate(
                 this.options.downloadTemplate,
                 files
-            );
-            nodes.find('a').each(this._enableDragToDesktop);
-            return nodes;
+            ).find('a[download]').each(this._enableDragToDesktop).end();
         },
 
         _startHandler: function (e) {
@@ -464,8 +453,9 @@
             });
         },
 
-        _transitionCallback: function (node, callback) {
-            var that = this;
+        _transition: function (node) {
+            var that = this,
+                deferred = $.Deferred();
             if ($.support.transition && node.hasClass('fade')) {
                 node.bind(
                     $.support.transition.end,
@@ -474,13 +464,15 @@
                         // in the container element, e.g. from button elements:
                         if (e.target === node[0]) {
                             node.unbind($.support.transition.end);
-                            callback.call(that, node);
+                            deferred.resolveWith(node);
                         }
                     }
-                );
+                ).toggleClass('in');
             } else {
-                callback.call(this, node);
+                node.toggleClass('in');
+                deferred.resolveWith(node);
             }
+            return deferred;
         },
 
         _initButtonBarEventHandlers: function () {
