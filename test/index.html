@@ -47,7 +47,7 @@
             </div>
             <div class="span5">
                 <!-- The global progress bar -->
-                <div class="progress progress-success progress-striped active fade">
+                <div class="progress progress-success progress-striped active">
                     <div class="bar" style="width:0%;"></div>
                 </div>
             </div>
@@ -73,8 +73,8 @@ var fileUploadErrors = {
 <!-- The template to display files available for upload -->
 <script id="template-upload" type="text/html">
 {% for (var i=0, files=o.files, l=files.length, file=files[0]; i<l; file=files[++i]) { %}
-    <tr class="template-upload fade">
-        <td class="preview"><span class="fade"></span></td>
+    <tr class="template-upload">
+        <td class="preview"><span class=""></span></td>
         <td class="name">{%=file.name%}</td>
         <td class="size">{%=o.formatFileSize(file.size)%}</td>
         {% if (file.error) { %}
@@ -102,7 +102,7 @@ var fileUploadErrors = {
 <!-- The template to display files available for download -->
 <script id="template-download" type="text/html">
 {% for (var i=0, files=o.files, l=files.length, file=files[0]; i<l; file=files[++i]) { %}
-    <tr class="template-download fade">
+    <tr class="template-download">
         {% if (file.error) { %}
             <td></td>
             <td class="name">{%=file.name%}</td>
