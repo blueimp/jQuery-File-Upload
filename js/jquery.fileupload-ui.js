@@ -372,24 +372,26 @@
         _renderPreview: function (file, node, callback) {
             var that = this,
                 options = this.options;
-            loadImage(
-                file,
-                function (img) {
-                    node.append(img);
-                    // Force reflow:
-                    that._reflow = $.support.transition &&
-                        node[0].offsetWidth;
-                    that._transitionCallback(
-                        node.addClass('in'),
-                        callback || $.noop
-                    );
-                },
-                {
-                    maxWidth: options.previewMaxWidth,
-                    maxHeight: options.previewMaxHeight,
-                    canvas: options.previewAsCanvas
-                }
-            );
+            if (!loadImage(
+                    file,
+                    function (img) {
+                        node.append(img);
+                        // Force reflow:
+                        that._reflow = $.support.transition &&
+                            node[0].offsetWidth;
+                        that._transitionCallback(
+                            node.addClass('in'),
+                            callback || $.noop
+                        );
+                    },
+                    {
+                        maxWidth: options.previewMaxWidth,
+                        maxHeight: options.previewMaxHeight,
+                        canvas: options.previewAsCanvas
+                    }
+                ) && callback) {
+                callback();
+            }
         },
 
         _renderUpload: function (files) {
@@ -410,7 +412,9 @@
                             that._renderPreview(
                                 file,
                                 previewNode,
-                                deferred.resolve
+                                function () {
+                                    deferred.resolveWith(that);
+                                }
                             );
                             return deferred.promise();
                         });
