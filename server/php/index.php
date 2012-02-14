@@ -1,6 +1,6 @@
 <?php
 /*
- * jQuery File Upload Plugin PHP Example 5.6.1
+ * jQuery File Upload Plugin PHP Example 5.7
  * https://github.com/blueimp/jQuery-File-Upload
  *
  * Copyright 2010, Sebastian Tschan
@@ -32,7 +32,11 @@ switch ($_SERVER['REQUEST_METHOD']) {
         $upload_handler->get();
         break;
     case 'POST':
-        $upload_handler->post();
+        if (isset($_REQUEST['_method']) && $_REQUEST['_method'] === 'DELETE') {
+            $upload_handler->delete();
+        } else {
+            $upload_handler->post();
+        }
         break;
     case 'DELETE':
         $upload_handler->delete();
