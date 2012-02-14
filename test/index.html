@@ -1,7 +1,7 @@
 <!DOCTYPE HTML>
 <!--
 /*
- * jQuery File Upload Plugin Test 6.4
+ * jQuery File Upload Plugin Test 6.4.1
  * https://github.com/blueimp/jQuery-File-Upload
  *
  * Copyright 2010, Sebastian Tschan
@@ -71,7 +71,7 @@ var fileUploadErrors = {
 };
 </script>
 <!-- The template to display files available for upload -->
-<script id="template-upload" type="text/html">
+<script id="template-upload" type="text/x-tmpl">
 {% for (var i=0, files=o.files, l=files.length, file=files[0]; i<l; file=files[++i]) { %}
     <tr class="template-upload">
         <td class="preview"><span class=""></span></td>
@@ -100,7 +100,7 @@ var fileUploadErrors = {
 {% } %}
 </script>
 <!-- The template to display files available for download -->
-<script id="template-download" type="text/html">
+<script id="template-download" type="text/x-tmpl">
 {% for (var i=0, files=o.files, l=files.length, file=files[0]; i<l; file=files[++i]) { %}
     <tr class="template-download">
         {% if (file.error) { %}
