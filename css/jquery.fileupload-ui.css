@@ -1,6 +1,6 @@
 @charset 'UTF-8';
 /*
- * jQuery File Upload UI Plugin CSS 6.2
+ * jQuery File Upload UI Plugin CSS 6.2.1
  * https://github.com/blueimp/jQuery-File-Upload
  *
  * Copyright 2010, Sebastian Tschan
@@ -44,11 +44,12 @@
   position: absolute;
   left: 50%;
   width: 128px;
-  height: 0;
+  height: 128px;
   background: url(../img/loading.gif) center no-repeat;
+  display: none;
 }
 .fileupload-processing .fileupload-loading {
-  height: 128px;
+  display: block;
 }
 
 /* Fix for IE 6: */
