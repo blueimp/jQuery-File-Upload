@@ -1,4 +1,4 @@
-/*!
+/*
  * jQuery UI Widget 1.8.17+amd
  * https://github.com/blueimp/jQuery-File-Upload
  *
