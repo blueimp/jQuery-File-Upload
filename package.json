@@ -52,14 +52,5 @@
         "blueimp-tmpl": ">=1.0.2",
         "blueimp-load-image": ">=1.1.4",
         "blueimp-canvas-to-blob": ">=1.0.1"
-    },
-    "files": [
-        "js/jquery.iframe-transport.js",
-        "js/jquery.fileupload.js",
-        "js/jquery.fileupload-ip.js",
-        "js/jquery.fileupload-ui.js",
-        "css/jquery.fileupload-ui.css",
-        "img/progressbar.gif",
-        "img/loading.gif"
-    ]
+    }
 }
