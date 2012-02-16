@@ -1,5 +1,5 @@
 /*
- * jQuery File Upload Plugin Test 6.3
+ * jQuery File Upload Plugin Test 6.4
  * https://github.com/blueimp/jQuery-File-Upload
  *
  * Copyright 2010, Sebastian Tschan
@@ -59,6 +59,15 @@ $(function () {
 
     test('Widget initialization', function () {
         ok($('#fileupload').fileupload().data('fileupload'));
+    });
+
+    test('Data attribute options', function () {
+        $('#fileupload').attr('data-url', 'http://example.org');
+        $('#fileupload').fileupload();
+        strictEqual(
+            $('#fileupload').fileupload('option', 'url'),
+            'http://example.org'
+        );
     });
 
     test('File input initialization', function () {
@@ -216,6 +225,30 @@ $(function () {
         ok(
             dropZone.data('events').dragover.length,
             'Adds dragover event listener after setting dropZone option'
+        );
+        fu.fileupload('option', 'dropZone', 'body');
+        strictEqual(
+            fu.fileupload('option', 'dropZone')[0],
+            document.body,
+            'Allow a query string as parameter for the dropZone option'
+        );
+        fu.fileupload('option', 'dropZone', document);
+        strictEqual(
+            fu.fileupload('option', 'dropZone')[0],
+            document,
+            'Allow a document element as parameter for the dropZone option'
+        );
+        fu.fileupload('option', 'fileInput', ':file');
+        strictEqual(
+            fu.fileupload('option', 'fileInput')[0],
+            $(':file')[0],
+            'Allow a query string as parameter for the fileInput option'
+        );
+        fu.fileupload('option', 'fileInput', $(':file')[0]);
+        strictEqual(
+            fu.fileupload('option', 'fileInput')[0],
+            $(':file')[0],
+            'Allow a document element as parameter for the fileInput option'
         );
     });
 

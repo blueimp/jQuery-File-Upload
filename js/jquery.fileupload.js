@@ -1,5 +1,5 @@
 /*
- * jQuery File Upload Plugin 5.7
+ * jQuery File Upload Plugin 5.8
  * https://github.com/blueimp/jQuery-File-Upload
  *
  * Copyright 2010, Sebastian Tschan
@@ -767,44 +767,38 @@
                 .unbind('change.' + ns, this._onChange);
         },
 
-        _beforeSetOption: function (key, value) {
-            this._destroyEventHandlers();
-        },
-
-        _afterSetOption: function (key, value) {
-            var options = this.options;
-            if (!options.fileInput) {
-                options.fileInput = $();
-            }
-            if (!options.dropZone) {
-                options.dropZone = $();
-            }
-            this._initEventHandlers();
-        },
-
         _setOption: function (key, value) {
             var refresh = $.inArray(key, this._refreshOptionsList) !== -1;
             if (refresh) {
-                this._beforeSetOption(key, value);
+                this._destroyEventHandlers();
             }
             $.Widget.prototype._setOption.call(this, key, value);
             if (refresh) {
-                this._afterSetOption(key, value);
+                this._initSpecialOptions();
+                this._initEventHandlers();
+            }
+        },
+
+        _initSpecialOptions: function () {
+            var options = this.options;
+            if (options.fileInput === undefined) {
+                options.fileInput = this.element.is('input:file') ?
+                        this.element : this.element.find('input:file');
+            } else if (!(options.fileInput instanceof $)) {
+                options.fileInput = $(options.fileInput);
+            }
+            if (!(options.dropZone instanceof $)) {
+                options.dropZone = $(options.dropZone);
             }
         },
 
         _create: function () {
-            var options = this.options;
+            var options = this.options,
+                dataOpts = $.extend({}, this.element.data());
+            dataOpts[this.widgetName] = undefined;
+            $.extend(options, dataOpts);
             options.namespace = options.namespace || this.widgetName;
-            if (options.fileInput === undefined) {
-                options.fileInput = this.element.is('input:file') ?
-                        this.element : this.element.find('input:file');
-            } else if (!options.fileInput) {
-                options.fileInput = $();
-            }
-            if (!options.dropZone) {
-                options.dropZone = $();
-            }
+            this._initSpecialOptions();
             this._slots = [];
             this._sequence = this._getXHRPromise(true);
             this._sending = this._active = this._loaded = this._total = 0;
