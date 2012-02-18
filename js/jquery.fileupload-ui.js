@@ -1,5 +1,5 @@
 /*
- * jQuery File Upload User Interface Plugin 6.5
+ * jQuery File Upload User Interface Plugin 6.5.1
  * https://github.com/blueimp/jQuery-File-Upload
  *
  * Copyright 2010, Sebastian Tschan
@@ -494,6 +494,8 @@
                     e.preventDefault();
                     filesList.find('.delete input:checked')
                         .siblings('button').click();
+                    fileUploadButtonBar.find('.toggle')
+                        .prop('checked', false);
                 });
             fileUploadButtonBar.find('.toggle')
                 .bind('change.' + ns, function (e) {
