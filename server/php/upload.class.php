@@ -1,6 +1,6 @@
 <?php
 /*
- * jQuery File Upload Plugin PHP Class 5.7
+ * jQuery File Upload Plugin PHP Class 5.8
  * https://github.com/blueimp/jQuery-File-Upload
  *
  * Copyright 2010, Sebastian Tschan
@@ -42,7 +42,8 @@ class UploadHandler
                     'upload_dir' => dirname($_SERVER['SCRIPT_FILENAME']).'/files/',
                     'upload_url' => $this->getFullUrl().'/files/',
                     'max_width' => 1920,
-                    'max_height' => 1200
+                    'max_height' => 1200,
+                    'jpeg_quality' => 95
                 ),
                 */
                 'thumbnail' => array(
@@ -114,8 +115,11 @@ class UploadHandler
             $options['max_width'] / $img_width,
             $options['max_height'] / $img_height
         );
-        if ($scale > 1) {
-            $scale = 1;
+        if ($scale >= 1) {
+            if ($file_path !== $new_file_path) {
+                return copy($file_path, $new_file_path);
+            }
+            return true;
         }
         $new_width = $img_width * $scale;
         $new_height = $img_height * $scale;
@@ -125,11 +129,14 @@ class UploadHandler
             case 'jpeg':
                 $src_img = @imagecreatefromjpeg($file_path);
                 $write_image = 'imagejpeg';
+                $image_quality = isset($options['jpeg_quality']) ?
+                    $options['jpeg_quality'] : 75;
                 break;
             case 'gif':
                 @imagecolortransparent($new_img, @imagecolorallocate($new_img, 0, 0, 0));
                 $src_img = @imagecreatefromgif($file_path);
                 $write_image = 'imagegif';
+                $image_quality = null;
                 break;
             case 'png':
                 @imagecolortransparent($new_img, @imagecolorallocate($new_img, 0, 0, 0));
@@ -137,9 +144,11 @@ class UploadHandler
                 @imagesavealpha($new_img, true);
                 $src_img = @imagecreatefrompng($file_path);
                 $write_image = 'imagepng';
+                $image_quality = isset($options['png_quality']) ?
+                    $options['png_quality'] : 9;
                 break;
             default:
-                $src_img = $image_method = null;
+                $src_img = null;
         }
         $success = $src_img && @imagecopyresampled(
             $new_img,
@@ -149,7 +158,7 @@ class UploadHandler
             $new_height,
             $img_width,
             $img_height
-        ) && $write_image($new_img, $new_file_path);
+        ) && $write_image($new_img, $new_file_path, $image_quality);
         // Free up memory (imagedestroy does not delete files):
         @imagedestroy($src_img);
         @imagedestroy($new_img);
@@ -257,14 +266,19 @@ class UploadHandler
             }
             $file_size = filesize($file_path);
             if ($file_size === $file->size) {
-            		if ($this->options['orient_image']) {
-            		    $this->orient_image($file_path);
-            		}
+            	if ($this->options['orient_image']) {
+            		$this->orient_image($file_path);
+            	}
                 $file->url = $this->options['upload_url'].rawurlencode($file->name);
                 foreach($this->options['image_versions'] as $version => $options) {
                     if ($this->create_scaled_image($file->name, $options)) {
-                        $file->{$version.'_url'} = $options['upload_url']
-                            .rawurlencode($file->name);
+                        if ($this->options['upload_dir'] !== $options['upload_dir']) {
+                            $file->{$version.'_url'} = $options['upload_url']
+                                .rawurlencode($file->name);
+                        } else {
+                            clearstatcache();
+                            $file_size = filesize($file_path);
+                        }
                     }
                 }
             } else if ($this->options['discard_aborted_uploads']) {
