@@ -1,5 +1,5 @@
 /*
- * jQuery File Upload User Interface Plugin 6.5.2
+ * jQuery File Upload User Interface Plugin 6.5.3
  * https://github.com/blueimp/jQuery-File-Upload
  *
  * Copyright 2010, Sebastian Tschan
@@ -65,6 +65,10 @@
             // if supported by the browser. Set the following option to false
             // to always display preview images as img elements:
             previewAsCanvas: true,
+            // The ID of the upload template:
+            uploadTemplateId: 'template-upload',
+            // The ID of the download template:
+            downloadTemplateId: 'template-download',
             // The expected data type of the upload response, sets the dataType
             // option of the $.ajax upload requests:
             dataType: 'json',
@@ -559,11 +563,12 @@
         },
 
         _initTemplates: function () {
-            this.options.templateContainer = document.createElement(
+            var options = this.options;
+            options.templateContainer = document.createElement(
                 this._files.prop('nodeName')
             );
-            this.options.uploadTemplate = tmpl('template-upload');
-            this.options.downloadTemplate = tmpl('template-download');
+            options.uploadTemplate = tmpl(options.uploadTemplateId);
+            options.downloadTemplate = tmpl(options.downloadTemplateId);
         },
 
         _initFiles: function () {
