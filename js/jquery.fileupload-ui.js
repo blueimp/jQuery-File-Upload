@@ -1,5 +1,5 @@
 /*
- * jQuery File Upload User Interface Plugin 6.5.3
+ * jQuery File Upload User Interface Plugin 6.5.4
  * https://github.com/blueimp/jQuery-File-Upload
  *
  * Copyright 2010, Sebastian Tschan
@@ -48,7 +48,7 @@
             // The maximum allowed file size:
             maxFileSize: undefined,
             // The minimum allowed file size:
-            minFileSize: 1,
+            minFileSize: undefined,
             // The regular expression for allowed file types, matches
             // against either file type or file name:
             acceptFileTypes:  /.+$/i,
