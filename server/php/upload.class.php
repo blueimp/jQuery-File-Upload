@@ -1,6 +1,6 @@
 <?php
 /*
- * jQuery File Upload Plugin PHP Class 5.8
+ * jQuery File Upload Plugin PHP Class 5.9
  * https://github.com/blueimp/jQuery-File-Upload
  *
  * Copyright 2010, Sebastian Tschan
@@ -29,7 +29,7 @@ class UploadHandler
             'min_file_size' => 1,
             'accept_file_types' => '/.+$/i',
             'max_number_of_files' => null,
-            // Set the following option to false to enable non-multipart uploads:
+            // Set the following option to false to enable resumable uploads:
             'discard_aborted_uploads' => true,
             // Set to true to rotate images based on EXIF meta data, if available:
             'orient_image' => false,
@@ -61,12 +61,12 @@ class UploadHandler
 
     protected function getFullUrl() {
       	return
-        		(isset($_SERVER['HTTPS']) ? 'https://' : 'http://').
-        		(isset($_SERVER['REMOTE_USER']) ? $_SERVER['REMOTE_USER'].'@' : '').
-        		(isset($_SERVER['HTTP_HOST']) ? $_SERVER['HTTP_HOST'] : ($_SERVER['SERVER_NAME'].
-        		(isset($_SERVER['HTTPS']) && $_SERVER['SERVER_PORT'] === 443 ||
-        		$_SERVER['SERVER_PORT'] === 80 ? '' : ':'.$_SERVER['SERVER_PORT']))).
-        		substr($_SERVER['SCRIPT_NAME'],0, strrpos($_SERVER['SCRIPT_NAME'], '/'));
+    		(isset($_SERVER['HTTPS']) ? 'https://' : 'http://').
+    		(isset($_SERVER['REMOTE_USER']) ? $_SERVER['REMOTE_USER'].'@' : '').
+    		(isset($_SERVER['HTTP_HOST']) ? $_SERVER['HTTP_HOST'] : ($_SERVER['SERVER_NAME'].
+    		(isset($_SERVER['HTTPS']) && $_SERVER['SERVER_PORT'] === 443 ||
+    		$_SERVER['SERVER_PORT'] === 80 ? '' : ':'.$_SERVER['SERVER_PORT']))).
+    		substr($_SERVER['SCRIPT_NAME'],0, strrpos($_SERVER['SCRIPT_NAME'], '/'));
     }
     
     protected function set_file_delete_url($file) {
@@ -194,6 +194,21 @@ class UploadHandler
         }
         return $error;
     }
+
+    protected function upcount_name_callback($matches) {
+        $index = isset($matches[1]) ? intval($matches[1]) + 1 : 1;
+        $ext = isset($matches[2]) ? $matches[2] : '';
+        return ' ('.$index.')'.$ext;
+    }
+
+    protected function upcount_name($name) {
+        return preg_replace_callback(
+            '/(?:(?: \(([\d]+)\))?(\.[^.]+))?$/',
+            array($this, 'upcount_name_callback'),
+            $name,
+            1
+        );
+    }
     
     protected function trim_file_name($name, $type) {
         // Remove path information and dots around the filename, to prevent uploading
@@ -204,6 +219,11 @@ class UploadHandler
         if (strpos($file_name, '.') === false &&
             preg_match('/^image\/(gif|jpe?g|png)/', $type, $matches)) {
             $file_name .= '.'.$matches[1];
+        }
+        if ($this->options['discard_aborted_uploads']) {
+            while(is_file($this->options['upload_dir'].$file_name)) {
+                $file_name = $this->upcount_name($file_name);
+            }
         }
         return $file_name;
     }
