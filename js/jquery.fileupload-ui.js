@@ -1,5 +1,5 @@
 /*
- * jQuery File Upload User Interface Plugin 6.5.4
+ * jQuery File Upload User Interface Plugin 6.5.5
  * https://github.com/blueimp/jQuery-File-Upload
  *
  * Copyright 2010, Sebastian Tschan
@@ -18,8 +18,8 @@
         // Register as an anonymous AMD module:
         define([
             'jquery',
-            './tmpl.js',
-            './load-image.js',
+            'tmpl',
+            'load-image',
             './jquery.fileupload-ip.js'
         ], factory);
     } else {

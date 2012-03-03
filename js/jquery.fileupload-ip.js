@@ -1,5 +1,5 @@
 /*
- * jQuery File Upload Image Processing Plugin 1.0.1
+ * jQuery File Upload Image Processing Plugin 1.0.2
  * https://github.com/blueimp/jQuery-File-Upload
  *
  * Copyright 2012, Sebastian Tschan
@@ -18,8 +18,8 @@
         // Register as an anonymous AMD module:
         define([
             'jquery',
-            './load-image.js',
-            './canvas-to-blob.js',
+            'load-image',
+            'canvas-to-blob',
             './jquery.fileupload.js'
         ], factory);
     } else {
