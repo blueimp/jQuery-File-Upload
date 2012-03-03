@@ -1,5 +1,5 @@
 /*
- * jQuery File Upload Plugin 5.8
+ * jQuery File Upload Plugin 5.8.1
  * https://github.com/blueimp/jQuery-File-Upload
  *
  * Copyright 2010, Sebastian Tschan
@@ -18,7 +18,7 @@
         // Register as an anonymous AMD module:
         define([
             'jquery',
-            './vendor/jquery.ui.widget',
+            'jquery.ui.widget',
             './jquery.iframe-transport'
         ], factory);
     } else {
