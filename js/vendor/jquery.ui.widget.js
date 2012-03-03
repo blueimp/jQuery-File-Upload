@@ -1,5 +1,5 @@
 /*
- * jQuery UI Widget 1.8.17+amd
+ * jQuery UI Widget 1.8.18+amd
  * https://github.com/blueimp/jQuery-File-Upload
  *
  * Copyright 2011, AUTHORS.txt (http://jqueryui.com/about)
