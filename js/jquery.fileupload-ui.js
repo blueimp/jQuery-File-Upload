@@ -1,5 +1,5 @@
 /*
- * jQuery File Upload User Interface Plugin 6.6
+ * jQuery File Upload User Interface Plugin 6.6.1
  * https://github.com/blueimp/jQuery-File-Upload
  *
  * Copyright 2010, Sebastian Tschan
@@ -573,24 +573,31 @@
                 options.filesContainer.prop('nodeName')
             );
             if (tmpl) {
-                options.uploadTemplate = tmpl(options.uploadTemplateId);
-                options.downloadTemplate = tmpl(options.downloadTemplateId);
+                if (options.uploadTemplateId) {
+                    options.uploadTemplate = tmpl(options.uploadTemplateId);
+                }
+                if (options.downloadTemplateId) {
+                    options.downloadTemplate = tmpl(options.downloadTemplateId);
+                }
             }
         },
 
         _initFilesContainer: function () {
-            if (!this.options.filesContainer) {
-                this.options.filesContainer = this.element.find('.files');
+            var options = this.options;
+            if (options.filesContainer === undefined) {
+                options.filesContainer = this.element.find('.files');
+            } else if (!(options.filesContainer instanceof $)) {
+                options.filesContainer = $(options.filesContainer);
             }
         },
 
         _initSpecialOptions: function () {
             parentWidget.prototype._initSpecialOptions.call(this);
+            this._initFilesContainer();
             this._initTemplates();
         },
 
         _create: function () {
-            this._initFilesContainer();
             parentWidget.prototype._create.call(this);
             this._refreshOptionsList.push(
                 'filesContainer',
