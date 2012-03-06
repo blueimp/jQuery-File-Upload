@@ -1,5 +1,5 @@
 /*
- * jQuery File Upload Image Processing Plugin 1.0.2
+ * jQuery File Upload Image Processing Plugin 1.0.3
  * https://github.com/blueimp/jQuery-File-Upload
  *
  * Copyright 2012, Sebastian Tschan
@@ -147,7 +147,7 @@
             $.blueimp.fileupload.prototype._create.call(this);
             this._processing = 0;
             this._processingQueue = $.Deferred().resolveWith(this).promise();
-            this._resizeSupport = canvasToBlob(
+            this._resizeSupport = canvasToBlob && canvasToBlob(
                 document.createElement('canvas'),
                 $.noop
             );
