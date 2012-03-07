@@ -1,5 +1,5 @@
 /*
- * jQuery File Upload Image Processing Plugin 1.0.3
+ * jQuery File Upload Image Processing Plugin 1.0.4
  * https://github.com/blueimp/jQuery-File-Upload
  *
  * Copyright 2012, Sebastian Tschan
@@ -64,13 +64,13 @@
 
         // Resizes the image file at the given index and stores the created blob
         // at the original position of the files list, returns a Promise object:
-        _resizeImage: function (files, index) {
+        _resizeImage: function (files, index, options) {
             var that = this,
-                options = this.options,
                 file = files[index],
                 deferred = $.Deferred(),
                 canvas,
                 blob;
+            options = options || this.options;
             loadImage(
                 file,
                 function (img) {
@@ -127,7 +127,8 @@
                         var deferred = $.Deferred();
                         that._resizeImage(
                             data.files,
-                            index
+                            index,
+                            options
                         ).done(function () {
                             that._processing -= 1;
                             if (that._processing === 0) {
