@@ -1,5 +1,5 @@
 /*
- * jQuery File Upload Image Processing Plugin 1.0.4
+ * jQuery File Upload Image Processing Plugin 1.0.5
  * https://github.com/blueimp/jQuery-File-Upload
  *
  * Copyright 2012, Sebastian Tschan
@@ -20,7 +20,7 @@
             'jquery',
             'load-image',
             'canvas-to-blob',
-            './jquery.fileupload.js'
+            './jquery.fileupload'
         ], factory);
     } else {
         // Browser globals:
