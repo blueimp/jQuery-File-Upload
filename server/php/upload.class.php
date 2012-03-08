@@ -1,6 +1,6 @@
 <?php
 /*
- * jQuery File Upload Plugin PHP Class 5.9
+ * jQuery File Upload Plugin PHP Class 5.9.1
  * https://github.com/blueimp/jQuery-File-Upload
  *
  * Copyright 2010, Sebastian Tschan
@@ -333,6 +333,8 @@ class UploadHandler
             $_FILES[$this->options['param_name']] : null;
         $info = array();
         if ($upload && is_array($upload['tmp_name'])) {
+            // param_name is an array identifier like "files[]",
+            // $_FILES is a multi-dimensional array:
             foreach ($upload['tmp_name'] as $index => $value) {
                 $info[] = $this->handle_file_upload(
                     $upload['tmp_name'][$index],
@@ -346,17 +348,19 @@ class UploadHandler
                 );
             }
         } elseif ($upload || isset($_SERVER['HTTP_X_FILE_NAME'])) {
+            // param_name is a single object identifier like "file",
+            // $_FILES is a one-dimensional array:
             $info[] = $this->handle_file_upload(
                 isset($upload['tmp_name']) ? $upload['tmp_name'] : null,
                 isset($_SERVER['HTTP_X_FILE_NAME']) ?
                     $_SERVER['HTTP_X_FILE_NAME'] : (isset($upload['name']) ?
-                        isset($upload['name']) : null),
+                        $upload['name'] : null),
                 isset($_SERVER['HTTP_X_FILE_SIZE']) ?
                     $_SERVER['HTTP_X_FILE_SIZE'] : (isset($upload['size']) ?
-                        isset($upload['size']) : null),
+                        $upload['size'] : null),
                 isset($_SERVER['HTTP_X_FILE_TYPE']) ?
                     $_SERVER['HTTP_X_FILE_TYPE'] : (isset($upload['type']) ?
-                        isset($upload['type']) : null),
+                        $upload['type'] : null),
                 isset($upload['error']) ? $upload['error'] : null
             );
         }
