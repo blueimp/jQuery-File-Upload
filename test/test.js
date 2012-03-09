@@ -43,12 +43,12 @@ $(function () {
         },
         lifecycleUI = {
             setup: function () {
-                // Set the .fileupload method to the UI widget method:
-                $.widget('blueimpUI.fileupload', $.blueimpUI.fileupload, {});
+                // Set the .fileupload method to the JUI widget method:
+                $.widget('blueimpJUI.fileupload', $.blueimpJUI.fileupload, {});
             },
             teardown: function () {
                 // De-initialize the file input plugin:
-                $('#fileupload:blueimpUI-fileupload').fileupload('destroy');
+                $('#fileupload:blueimpJUI-fileupload').fileupload('destroy');
                 // Remove all remaining event listeners:
                 $('#fileupload input, #fileupload button').unbind();
                 $(document).unbind();

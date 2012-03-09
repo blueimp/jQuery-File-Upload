@@ -14,7 +14,7 @@
   position: relative;
   overflow: hidden;
   float: left;
-  margin-right: 4px;
+  margin-right: 5px;
 }
 .fileinput-button input {
   position: absolute;
@@ -29,16 +29,24 @@
   direction: ltr;
   cursor: pointer;
 }
-.fileupload-buttonbar .btn,
+.fileupload-buttonbar .ui-button,
 .fileupload-buttonbar .toggle {
   margin-bottom: 5px;
 }
 .files .progress {
   width: 200px;
 }
-.progress-animated .bar {
-  background: url(../img/progressbar.gif) !important;
-  filter: none;
+.files .progress,
+.fileupload-buttonbar .progress {
+  height: 20px;
+}
+.files .ui-progressbar-value,
+.fileupload-buttonbar .ui-progressbar-value {
+  background: url(../img/progressbar.gif);
+}
+.fileupload-buttonbar .fade,
+.files .fade {
+  display: none;
 }
 .fileupload-loading {
   position: absolute;
@@ -54,19 +62,27 @@
 
 /* Fix for IE 6: */
 *html .fileinput-button {
-  line-height: 22px;
-  margin: 1px -3px 0 0;
+  margin-right: -2px;
+}
+*html .fileinput-button .ui-button-text {
+  line-height: 24px;
+}
+*html .fileupload-buttonbar .ui-button {
+  margin-left: 3px;
 }
 
 /* Fix for IE 7: */
 *+html .fileinput-button {
-  margin: 1px 0 0 0;
+  margin-right: 1px;
+}
+*+html .fileinput-button .ui-button-text {
+  line-height: 24px;
+}
+*+html .fileupload-buttonbar .ui-button {
+  margin-left: 3px;
 }
 
 @media (max-width: 480px) {
-  .files .btn span {
-    display: none;
-  }
   .files .preview * {
     width: 40px;
   }
@@ -80,5 +96,12 @@
   }
   .files .delete {
     width: 60px;
+  }
+}
+
+/* Fix for Webkit (Safari, Chrome) */
+@media screen and (-webkit-min-device-pixel-ratio:0) {
+  .fileinput-button {
+    margin-top: 2px;
   }
 }

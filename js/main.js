@@ -62,4 +62,19 @@ $(function () {
         });
     }
 
+    // Initialize the Image Gallery widget:
+    $('#fileupload .files').imagegallery();
+
+    // Initialize the theme switcher:
+    $('#theme-switcher').change(function () {
+        var theme = $('#theme');
+        theme.prop(
+            'href',
+            theme.prop('href').replace(
+                /[\w\-]+\/jquery-ui.css/,
+                $(this).val() + '/jquery-ui.css'
+            )
+        );
+    });
+
 });
