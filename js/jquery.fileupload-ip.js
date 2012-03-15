@@ -1,5 +1,5 @@
 /*
- * jQuery File Upload Image Processing Plugin 1.0.5
+ * jQuery File Upload Image Processing Plugin 1.0.6
  * https://github.com/blueimp/jQuery-File-Upload
  *
  * Copyright 2012, Sebastian Tschan
@@ -112,9 +112,10 @@
         resize: function (data) {
             var that = this,
                 options = $.extend({}, this.options, data),
-                resizeAll = $.type(options.resizeSourceMaxFileSize) !== 'number';
+                resizeAll = $.type(options.resizeSourceMaxFileSize) !== 'number',
+                isXHRUpload = this._isXHRUpload(options);
             $.each(data.files, function (index, file) {
-                if (that._resizeSupport &&
+                if (isXHRUpload && that._resizeSupport &&
                         (options.resizeMaxWidth || options.resizeMaxHeight ||
                             options.resizeMinWidth || options.resizeMinHeight) &&
                         (resizeAll || file.size < options.resizeSourceMaxFileSize) &&
