@@ -1,5 +1,5 @@
 /*
- * jQuery File Upload Plugin 5.8.1
+ * jQuery File Upload Plugin 5.9
  * https://github.com/blueimp/jQuery-File-Upload
  *
  * Copyright 2010, Sebastian Tschan
@@ -10,7 +10,7 @@
  */
 
 /*jslint nomen: true, unparam: true, regexp: true */
-/*global define, window, document, XMLHttpRequestUpload, Blob, File, FormData, location */
+/*global define, window, document, Blob, FormData, location */
 
 (function (factory) {
     'use strict';
@@ -26,6 +26,12 @@
     }
 }(function ($) {
     'use strict';
+
+    // The FileReader API is not actually used, but works as feature detection,
+    // as e.g. Safari supports XHR file uploads via the FormData API,
+    // but not non-multipart XHR file uploads:
+    $.support.xhrFileUpload = !!(window.XMLHttpRequestUpload && window.FileReader);
+    $.support.xhrFormDataFileUpload = !!window.FormData;
 
     // The fileupload widget listens for change events on file input fields defined
     // via fileInput setting and paste or drop events of the given dropZone.
@@ -165,13 +171,18 @@
         },
 
         // A list of options that require a refresh after assigning a new value:
-        _refreshOptionsList: ['namespace', 'dropZone', 'fileInput'],
+        _refreshOptionsList: [
+            'namespace',
+            'dropZone',
+            'fileInput',
+            'multipart',
+            'forceIframeTransport'
+        ],
 
         _isXHRUpload: function (options) {
-            var undef = 'undefined';
             return !options.forceIframeTransport &&
-                typeof XMLHttpRequestUpload !== undef && typeof File !== undef &&
-                (!options.multipart || typeof FormData !== undef);
+                ((!options.multipart && $.support.xhrFileUpload) ||
+                $.support.xhrFormDataFileUpload);
         },
 
         _getFormData: function (options) {
@@ -245,8 +256,10 @@
 
         _initXHRData: function (options) {
             var formData,
-                file = options.files[0];
-            if (!options.multipart || options.blob) {
+                file = options.files[0],
+                // Ignore non-multipart setting if not supported:
+                multipart = options.multipart || !$.support.xhrFileUpload;
+            if (!multipart || options.blob) {
                 // For non-multipart uploads and chunked uploads,
                 // file meta data is not part of the request body,
                 // so we transmit this data as part of the HTTP headers.
@@ -262,13 +275,13 @@
                     // Non-chunked non-multipart upload:
                     options.contentType = file.type;
                     options.data = file;
-                } else if (!options.multipart) {
+                } else if (!multipart) {
                     // Chunked non-multipart upload:
                     options.contentType = 'application/octet-stream';
                     options.data = options.blob;
                 }
             }
-            if (options.multipart && typeof FormData !== 'undefined') {
+            if (multipart && $.support.xhrFormDataFileUpload) {
                 if (options.postMessage) {
                     // window.postMessage does not allow sending FormData
                     // objects, so we just add the File/Blob objects to
@@ -748,10 +761,12 @@
 
         _initEventHandlers: function () {
             var ns = this.options.namespace;
-            this.options.dropZone
-                .bind('dragover.' + ns, {fileupload: this}, this._onDragOver)
-                .bind('drop.' + ns, {fileupload: this}, this._onDrop)
-                .bind('paste.' + ns, {fileupload: this}, this._onPaste);
+            if (this._isXHRUpload(this.options)) {
+                this.options.dropZone
+                    .bind('dragover.' + ns, {fileupload: this}, this._onDragOver)
+                    .bind('drop.' + ns, {fileupload: this}, this._onDrop)
+                    .bind('paste.' + ns, {fileupload: this}, this._onPaste);
+            }
             this.options.fileInput
                 .bind('change.' + ns, {fileupload: this}, this._onChange);
         },

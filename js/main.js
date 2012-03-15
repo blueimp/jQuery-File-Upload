@@ -1,5 +1,5 @@
 /*
- * jQuery File Upload Plugin JS Example 6.5
+ * jQuery File Upload Plugin JS Example 6.5.1
  * https://github.com/blueimp/jQuery-File-Upload
  *
  * Copyright 2010, Sebastian Tschan
@@ -38,7 +38,7 @@ $(function () {
             resizeMaxHeight: 1200
         });
         // Upload server status check for browsers with CORS support:
-        if ($.ajaxSettings.xhr().withCredentials !== undefined) {
+        if ($.support.cors) {
             $.ajax({
                 url: '//jquery-file-upload.appspot.com/',
                 type: 'HEAD'
