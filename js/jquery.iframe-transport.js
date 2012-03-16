@@ -1,5 +1,5 @@
 /*
- * jQuery Iframe Transport Plugin 1.3
+ * jQuery Iframe Transport Plugin 1.4
  * https://github.com/blueimp/jQuery-File-Upload
  *
  * Copyright 2011, Sebastian Tschan
@@ -30,7 +30,8 @@
     // The iframe transport accepts three additional options:
     // options.fileInput: a jQuery collection of file input fields
     // options.paramName: the parameter name for the file form data,
-    //  overrides the name property of the file input field(s)
+    //  overrides the name property of the file input field(s),
+    //  can be a string or an array of strings.
     // options.formData: an array of objects with name and value properties,
     //  equivalent to the return data of .serializeArray(), e.g.:
     //  [{name: 'a', value: 1}, {name: 'b', value: 2}]
@@ -50,7 +51,9 @@
                         '<iframe src="javascript:false;" name="iframe-transport-' +
                             (counter += 1) + '"></iframe>'
                     ).bind('load', function () {
-                        var fileInputClones;
+                        var fileInputClones,
+                            paramNames = $.isArray(options.paramName) ?
+                                    options.paramName : [options.paramName];
                         iframe
                             .unbind('load')
                             .bind('load', function () {
@@ -101,8 +104,11 @@
                                 return fileInputClones[index];
                             });
                             if (options.paramName) {
-                                options.fileInput.each(function () {
-                                    $(this).prop('name', options.paramName);
+                                options.fileInput.each(function (index) {
+                                    $(this).prop(
+                                        'name',
+                                        paramNames[index] || options.paramName
+                                    );
                                 });
                             }
                             // Appending the file input fields to the hidden form

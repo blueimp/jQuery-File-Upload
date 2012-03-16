@@ -1,5 +1,5 @@
 /*
- * jQuery File Upload Plugin Test 6.5
+ * jQuery File Upload Plugin Test 6.6
  * https://github.com/blueimp/jQuery-File-Upload
  *
  * Copyright 2010, Sebastian Tschan
@@ -552,7 +552,7 @@ $(function () {
             paramName: null,
             send: function (e, data) {
                 strictEqual(
-                    data.paramName,
+                    data.paramName[0],
                     data.fileInput.prop('name'),
                     'Takes paramName from file input field if not set'
                 );
