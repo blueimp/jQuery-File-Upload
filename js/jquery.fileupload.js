@@ -1,5 +1,5 @@
 /*
- * jQuery File Upload Plugin 5.9
+ * jQuery File Upload Plugin 5.10.0
  * https://github.com/blueimp/jQuery-File-Upload
  *
  * Copyright 2010, Sebastian Tschan
@@ -63,7 +63,8 @@
             replaceFileInput: true,
             // The parameter name for the file form data (the request argument name).
             // If undefined or empty, the name property of the file input field is
-            // used, or "files[]" if the file input name property is also empty:
+            // used, or "files[]" if the file input name property is also empty,
+            // can be a string or an array of strings:
             paramName: undefined,
             // By default, each file of a selection is uploaded using an individual
             // request for XHR type uploads. Set to false to upload file
@@ -258,7 +259,8 @@
             var formData,
                 file = options.files[0],
                 // Ignore non-multipart setting if not supported:
-                multipart = options.multipart || !$.support.xhrFileUpload;
+                multipart = options.multipart || !$.support.xhrFileUpload,
+                paramName = options.paramName[0];
             if (!multipart || options.blob) {
                 // For non-multipart uploads and chunked uploads,
                 // file meta data is not part of the request body,
@@ -290,13 +292,13 @@
                     formData = this._getFormData(options);
                     if (options.blob) {
                         formData.push({
-                            name: options.paramName,
+                            name: paramName,
                             value: options.blob
                         });
                     } else {
                         $.each(options.files, function (index, file) {
                             formData.push({
-                                name: options.paramName,
+                                name: options.paramName[index] || paramName,
                                 value: file
                             });
                         });
@@ -311,14 +313,18 @@
                         });
                     }
                     if (options.blob) {
-                        formData.append(options.paramName, options.blob, file.name);
+                        formData.append(paramName, options.blob, file.name);
                     } else {
                         $.each(options.files, function (index, file) {
                             // File objects are also Blob instances.
                             // This check allows the tests to run with
                             // dummy objects:
                             if (file instanceof Blob) {
-                                formData.append(options.paramName, file, file.name);
+                                formData.append(
+                                    options.paramName[index] || paramName,
+                                    file,
+                                    file.name
+                                );
                             }
                         });
                     }
@@ -362,16 +368,36 @@
             }
         },
 
+        _getParamName: function (options) {
+            var fileInput = $(options.fileInput),
+                paramName = options.paramName;
+            if (!paramName) {
+                paramName = [];
+                fileInput.each(function () {
+                    var input = $(this),
+                        name = input.prop('name') || 'files[]',
+                        i = (input.prop('files') || [1]).length;
+                    while (i) {
+                        paramName.push(name);
+                        i -= 1;
+                    }
+                });
+                if (!paramName.length) {
+                    paramName = [fileInput.prop('name') || 'files[]'];
+                }
+            } else if (!$.isArray(paramName)) {
+                paramName = [paramName];
+            }
+            return paramName;
+        },
+
         _initFormSettings: function (options) {
             // Retrieve missing options from the input field and the
             // associated form, if available:
             if (!options.form || !options.form.length) {
                 options.form = $(options.fileInput.prop('form'));
             }
-            if (!options.paramName) {
-                options.paramName = options.fileInput.prop('name') ||
-                    'files[]';
-            }
+            options.paramName = this._getParamName(options);
             if (!options.url) {
                 options.url = options.form.prop('action') || location.href;
             }
@@ -634,21 +660,34 @@
                 result = true,
                 options = $.extend({}, this.options, data),
                 limit = options.limitMultiFileUploads,
+                paramName = this._getParamName(options),
+                paramNameSet,
+                paramNameSlice,
                 fileSet,
                 i;
             if (!(options.singleFileUploads || limit) ||
                     !this._isXHRUpload(options)) {
                 fileSet = [data.files];
+                paramNameSet = [paramName];
             } else if (!options.singleFileUploads && limit) {
                 fileSet = [];
+                paramNameSet = [];
                 for (i = 0; i < data.files.length; i += limit) {
                     fileSet.push(data.files.slice(i, i + limit));
+                    paramNameSlice = paramName.slice(i, i + limit);
+                    if (!paramNameSlice.length) {
+                        paramNameSlice = paramName;
+                    }
+                    paramNameSet.push(paramNameSlice);
                 }
+            } else {
+                paramNameSet = paramName;
             }
             data.originalFiles = data.files;
             $.each(fileSet || data.files, function (index, element) {
-                var files = fileSet ? element : [element],
-                    newData = $.extend({}, data, {files: files});
+                var newData = $.extend({}, data);
+                newData.files = fileSet ? element : [element];
+                newData.paramName = paramNameSet[index];
                 newData.submit = function () {
                     newData.jqXHR = this.jqXHR =
                         (that._trigger('submit', e, this) !== false) &&
