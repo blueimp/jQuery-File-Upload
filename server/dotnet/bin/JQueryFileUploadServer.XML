@@ -1,0 +1,59 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>JQueryFileUploadServer</name>
+    </assembly>
+    <members>
+        <member name="T:JQueryFileUpload.UploadHttpHandler">
+            <summary>
+            Server side handler for the jQuery File Upload. Must be added in Web.config to function.
+            </summary>
+            <remarks>
+            See <a href="http://blueimp.github.com/jQuery-File-Upload/">http://blueimp.github.com/jQuery-File-Upload/</a>
+            </remarks>
+        </member>
+        <member name="M:JQueryFileUpload.UploadHttpHandler.NextUniqueFilename(System.String,System.Func{System.String,System.Boolean})">
+            <summary>
+            Finds the next unused unique (numbered) filename.
+            </summary>
+            <param name="fileName">Name of the file.</param>
+            <param name="inUse">Function that will determine if the name is already in use</param>
+            <returns>The original filename if it wasn't already used, or the filename with " (n)"
+            added to the name if the original filename is already in use.</returns>
+        </member>
+        <member name="M:JQueryFileUpload.UploadHttpHandler.WriteFileListJson(System.Web.HttpContext,System.Collections.Generic.Dictionary{System.String,JQueryFileUpload.UploadHttpHandler.FileData})">
+            <summary>
+            Writes the file list as JSON to the httpcontect, setting content type and encoding.
+            </summary>
+            <param name="context">The context.</param>
+            <param name="uploadedFiles">The uploaded files to write out.</param>
+        </member>
+        <member name="M:JQueryFileUpload.UploadHttpHandler.SaveUploadToDisk(System.Web.HttpPostedFile)">
+            <summary>
+            Saves the uploaded file to the temp folder with the right extension and a temporary file name.
+            </summary>
+            <param name="file">The file.</param>
+            <returns>The path to the saved file</returns>
+        </member>
+        <member name="M:JQueryFileUpload.UploadHttpHandler.ProcessPresentation(System.String)">
+            <summary>
+            Unzips the file, loops through the slides and adds them as pages
+            </summary>
+            <param name="zipFilePath">The path to the zip file containing the presentation.</param>
+        </member>
+        <member name="M:JQueryFileUpload.UploadHttpHandler.GetSessionStore(System.Web.HttpContext)">
+            <summary>
+            Get session storage for list of uploaded files. Creates dictionary if missing.
+            </summary>
+            <param name="context">The http context.</param>
+            <returns></returns>
+        </member>
+        <member name="T:JQueryFileUpload.UploadHttpHandler.FileData">
+            <summary>
+            Container for all the data we need to know about an uploaded file,
+            including data for redisplay in the uploader, and where the temp file
+            is saved.
+            </summary>
+        </member>
+    </members>
+</doc>
