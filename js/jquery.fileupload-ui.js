@@ -1,5 +1,5 @@
 /*
- * jQuery File Upload User Interface Plugin 6.6.2
+ * jQuery File Upload User Interface Plugin 6.6.3
  * https://github.com/blueimp/jQuery-File-Upload
  *
  * Copyright 2010, Sebastian Tschan
@@ -81,9 +81,9 @@
                 var that = $(this).data('fileupload'),
                     options = that.options,
                     files = data.files;
-                that._adjustMaxNumberOfFiles(-files.length);
-                data.isAdjusted = true;
                 $(this).fileupload('resize', data).done(data, function () {
+                    that._adjustMaxNumberOfFiles(-files.length);
+                    data.isAdjusted = true;
                     data.files.valid = data.isValidated = that._validate(files);
                     data.context = that._renderUpload(files)
                         .appendTo(options.filesContainer)
