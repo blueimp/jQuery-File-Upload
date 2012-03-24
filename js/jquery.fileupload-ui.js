@@ -256,6 +256,11 @@
             // Callback for file deletion:
             destroy: function (e, data) {
                 var that = $(this).data('fileupload');
+				if (data.confirm) {
+					if (!confirm(data.confirm)) {
+						return;						
+					}					
+				}				
                 if (data.url) {
                     $.ajax(data);
                 }
@@ -451,6 +456,7 @@
                 context: button.closest('.template-download'),
                 url: button.attr('data-url'),
                 type: button.attr('data-type') || 'DELETE',
+				confirm: button.attr('data-confirm'),
                 dataType: e.data.fileupload.options.dataType
             });
         },
