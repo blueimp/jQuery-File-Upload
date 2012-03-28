@@ -1,5 +1,5 @@
 /*
- * jQuery File Upload User Interface Plugin 6.6.3
+ * jQuery File Upload User Interface Plugin 6.6.4
  * https://github.com/blueimp/jQuery-File-Upload
  *
  * Copyright 2010, Sebastian Tschan
@@ -377,6 +377,12 @@
                     that._transition(node).done(function () {
                         deferred.resolveWith(node);
                     });
+                    if (!$.contains(document.body, node[0])) {
+                        // If the element is not part of the DOM,
+                        // transition events are not triggered,
+                        // so we have to resolve manually:
+                        deferred.resolveWith(node);
+                    }
                 },
                 {
                     maxWidth: options.previewMaxWidth,
