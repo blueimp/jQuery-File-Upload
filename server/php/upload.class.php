@@ -229,7 +229,12 @@ class UploadHandler
     }
 
     protected function orient_image($file_path) {
-      	$exif = exif_read_data($file_path);
+      	$exif = @exif_read_data($file_path);
+
+        if ($exif === false) { //if not exif exists, we don't need to continue
+            return false;
+        }
+
       	$orientation = intval(@$exif['Orientation']);
       	if (!in_array($orientation, array(3, 6, 8))) { 
       	    return false;
