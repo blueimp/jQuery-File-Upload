@@ -1,6 +1,6 @@
 <?php
 /*
- * jQuery File Upload Plugin PHP Class 5.9.1
+ * jQuery File Upload Plugin PHP Class 5.9.2
  * https://github.com/blueimp/jQuery-File-Upload
  *
  * Copyright 2010, Sebastian Tschan
@@ -230,11 +230,9 @@ class UploadHandler
 
     protected function orient_image($file_path) {
       	$exif = @exif_read_data($file_path);
-
-        if ($exif === false) { //if not exif exists, we don't need to continue
+        if ($exif === false) {
             return false;
         }
-
       	$orientation = intval(@$exif['Orientation']);
       	if (!in_array($orientation, array(3, 6, 8))) { 
       	    return false;
