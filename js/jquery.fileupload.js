@@ -1,5 +1,5 @@
 /*
- * jQuery File Upload Plugin 5.10.0
+ * jQuery File Upload Plugin 5.10.1
  * https://github.com/blueimp/jQuery-File-Upload
  *
  * Copyright 2010, Sebastian Tschan
@@ -846,10 +846,9 @@
         },
 
         _create: function () {
-            var options = this.options,
-                dataOpts = $.extend({}, this.element.data());
-            dataOpts[this.widgetName] = undefined;
-            $.extend(options, dataOpts);
+            var options = this.options;
+            // Initialize options set via HTML5 data-attributes:
+            $.extend(options, $(this.element[0].cloneNode(false)).data());
             options.namespace = options.namespace || this.widgetName;
             this._initSpecialOptions();
             this._slots = [];
