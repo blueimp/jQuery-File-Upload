@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /*
- * jQuery File Upload Plugin Node.js Example 1.0
+ * jQuery File Upload Plugin Node.js Example 1.0.1
  * https://github.com/blueimp/jQuery-File-Upload
  *
  * Copyright 2012, Sebastian Tschan
@@ -82,11 +82,23 @@
                 'Access-Control-Allow-Methods',
                 options.accessControl.allowMethods
             );
-            var handleResult = function (result) {
-                    var contentType = req.headers.accept.indexOf('application/json') !== -1 ?
-                            'application/json' : 'text/plain';
-                    res.writeHead(200, {'Content-Type': contentType});
-                    res.end(JSON.stringify(result));
+            var handleResult = function (result, redirect) {
+                    if (redirect) {
+                        res.writeHead(302, {
+                            'Location': redirect.replace(
+                                /%s/,
+                                encodeURIComponent(JSON.stringify(result))
+                            )
+                        });
+                        res.end();
+                    } else {
+                        res.writeHead(200, {
+                            'Content-Type': req.headers.accept
+                                .indexOf('application/json') !== -1 ?
+                                        'application/json' : 'text/plain'
+                        });
+                        res.end(JSON.stringify(result));
+                    }
                 },
                 setNoCacheHeaders = function () {
                     res.setHeader('Pragma', 'no-cache');
@@ -197,13 +209,14 @@
             files = [],
             map = {},
             counter = 1,
+            redirect,
             finish = function () {
                 counter -= 1;
                 if (!counter) {
                     files.forEach(function (fileInfo) {
                         fileInfo.initUrls(handler.req);
                     });
-                    handler.callback(files);
+                    handler.callback(files, redirect);
                 }
             };
         form.uploadDir = options.tmpDir;
@@ -213,6 +226,10 @@
             fileInfo.safeName();
             map[path.basename(file.path)] = fileInfo;
             files.push(fileInfo);
+        }).on('field', function (name, value) {
+            if (name === 'redirect') {
+                redirect = value;
+            }
         }).on('file', function (name, file) {
             var fileInfo = map[path.basename(file.path)];
             fileInfo.size = file.size;
