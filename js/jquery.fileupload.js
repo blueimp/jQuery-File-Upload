@@ -798,11 +798,20 @@
             e.preventDefault();
         },
 
+        _onDragLeave: function (e) {
+            var that = e.data.fileupload;
+            if (that._trigger('dragleave', e) === false) {
+                return false;
+            }
+            e.preventDefault();
+        },
+
         _initEventHandlers: function () {
             var ns = this.options.namespace;
             if (this._isXHRUpload(this.options)) {
                 this.options.dropZone
                     .bind('dragover.' + ns, {fileupload: this}, this._onDragOver)
+                    .bind('dragleave.' + ns, {fileupload: this}, this._onDragLeave)
                     .bind('drop.' + ns, {fileupload: this}, this._onDrop)
                     .bind('paste.' + ns, {fileupload: this}, this._onPaste);
             }
@@ -814,6 +823,7 @@
             var ns = this.options.namespace;
             this.options.dropZone
                 .unbind('dragover.' + ns, this._onDragOver)
+                .unbind('dragleave.' + ns, this._onDragLeave)
                 .unbind('drop.' + ns, this._onDrop)
                 .unbind('paste.' + ns, this._onPaste);
             this.options.fileInput
