@@ -453,12 +453,12 @@
                 mcs = options.maxChunkSize || fs,
                 // Use the Blob methods with the slice implementation
                 // according to the W3C Blob API specification:
-                slice = file.webkitSlice || file.mozSlice || file.slice,
+                slice = file.webkitSlice || file.mozSlice,
                 upload,
                 n,
                 jqXHR,
                 pipe;
-            if (!(this._isXHRUpload(options) && slice && (ub || mcs < fs)) ||
+            if (!(this._isXHRUpload(options) && (slice || file.slice) && (ub || mcs < fs)) ||
                     options.data) {
                 return false;
             }
@@ -485,11 +485,11 @@
                 return upload(i -= 1).pipe(function () {
                     // Clone the options object for each chunk upload:
                     var o = $.extend({}, options);
-                    o.blob = slice.call(
-                        file,
-                        ub + i * mcs,
-                        ub + (i + 1) * mcs
-                    );
+                    if (slice) {
+                        o.blob = slice.call(file, ub + i * mcs, ub + (i + 1) * mcs);
+                    } else {
+                        o.blob = file.slice.call(file, ub + i * mcs, mcs);
+                    }
                     // Store the current chunk size, as the blob itself
                     // will be dereferenced after data processing:
                     o.chunkSize = o.blob.size;
