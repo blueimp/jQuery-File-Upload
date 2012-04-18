@@ -1,5 +1,5 @@
 /*
- * jQuery File Upload User Interface Plugin 6.6.4
+ * jQuery File Upload User Interface Plugin 6.6.5
  * https://github.com/blueimp/jQuery-File-Upload
  *
  * Copyright 2010, Sebastian Tschan
@@ -70,6 +70,12 @@
             uploadTemplateId: 'template-upload',
             // The ID of the download template:
             downloadTemplateId: 'template-download',
+            // The container for the list of files. If undefined, it is set to
+            // an element with class "files" inside of the widget element:
+            filesContainer: undefined,
+            // By default, files are appended to the files container.
+            // Set the following option to true, to prepend files instead:
+            prependFiles: false,
             // The expected data type of the upload response, sets the dataType
             // option of the $.ajax upload requests:
             dataType: 'json',
@@ -85,9 +91,10 @@
                     that._adjustMaxNumberOfFiles(-files.length);
                     data.isAdjusted = true;
                     data.files.valid = data.isValidated = that._validate(files);
-                    data.context = that._renderUpload(files)
-                        .appendTo(options.filesContainer)
-                        .data('data', data);
+                    data.context = that._renderUpload(files).data('data', data);
+                    options.filesContainer[
+                        options.prependFiles ? 'prepend' : 'append'
+                    ](data.context);
                     that._renderPreviews(files, data.context);
                     that._forceReflow(data.context);
                     that._transition(data.context).done(
