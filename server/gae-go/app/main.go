@@ -1,5 +1,5 @@
 /*
- * jQuery File Upload Plugin GAE Go Example 1.2.1
+ * jQuery File Upload Plugin GAE Go Example 2.0
  * https://github.com/blueimp/jQuery-File-Upload
  *
  * Copyright 2011, Sebastian Tschan
@@ -18,19 +18,19 @@ import (
 	"appengine/taskqueue"
 	"bytes"
 	"encoding/base64"
+	"encoding/json"
 	"fmt"
-	"http"
 	"image"
 	"image/png"
 	"io"
-	"json"
 	"log"
 	"mime/multipart"
-	"os"
+	"net/http"
+	"net/url"
 	"regexp"
 	"resize"
 	"strings"
-	"url"
+	"time"
 )
 
 import _ "image/gif"
@@ -103,7 +103,7 @@ func (fi *FileInfo) CreateUrls(r *http.Request, c appengine.Context) {
 	}
 }
 
-func (fi *FileInfo) CreateThumbnail(r io.Reader, c appengine.Context) (data []byte, err os.Error) {
+func (fi *FileInfo) CreateThumbnail(r io.Reader, c appengine.Context) (data []byte, err error) {
 	defer func() {
 		if rec := recover(); rec != nil {
 			log.Println(rec)
@@ -139,7 +139,7 @@ func (fi *FileInfo) CreateThumbnail(r io.Reader, c appengine.Context) (data []by
 	return
 }
 
-func check(err os.Error) {
+func check(err error) {
 	if err != nil {
 		panic(err)
 	}
@@ -153,7 +153,8 @@ func delayedDelete(c appengine.Context, fi *FileInfo) {
 	if key := string(fi.Key); key != "" {
 		task := &taskqueue.Task{
 			Path:   "/" + escape(key) + "/-",
-			Method: "DELETE", Delay: EXPIRATION_TIME * 1000000,
+			Method: "DELETE",
+			Delay:  time.Duration(EXPIRATION_TIME) * time.Second,
 		}
 		taskqueue.Add(c, task, "")
 	}
@@ -170,11 +171,11 @@ func handleUpload(r *http.Request, p *multipart.Part) (fi *FileInfo) {
 	defer func() {
 		if rec := recover(); rec != nil {
 			log.Println(rec)
-			fi.Error = rec.(os.Error).String()
+			fi.Error = rec.(error).Error()
 		}
 	}()
 	var b bytes.Buffer
-	lr := &io.LimitedReader{p, MAX_FILE_SIZE + 1}
+	lr := &io.LimitedReader{R: p, N: MAX_FILE_SIZE + 1}
 	context := appengine.NewContext(r)
 	w, err := blobstore.Create(context, fi.Type)
 	defer func() {
@@ -204,7 +205,7 @@ func handleUpload(r *http.Request, p *multipart.Part) (fi *FileInfo) {
 
 func getFormValue(p *multipart.Part) string {
 	var b bytes.Buffer
-	io.Copyn(&b, p, int64(1<<20)) // Copy max: 1 MiB
+	io.CopyN(&b, p, int64(1<<20)) // Copy max: 1 MiB
 	return b.String()
 }
 

@@ -1,7 +1,7 @@
 application: jquery-file-upload
 version: 2
 runtime: go
-api_version: 3
+api_version: go1
 
 handlers:
 - url: /(favicon\.ico|robots\.txt)
