@@ -1,5 +1,5 @@
 /*
- * jQuery File Upload User Interface Plugin 6.6.5
+ * jQuery File Upload User Interface Plugin 6.7
  * https://github.com/blueimp/jQuery-File-Upload
  *
  * Copyright 2010, Sebastian Tschan
@@ -20,7 +20,7 @@
             'jquery',
             'tmpl',
             'load-image',
-            './jquery.fileupload-ip'
+            './jquery.fileupload-fp'
         ], factory);
     } else {
         // Browser globals:
@@ -33,9 +33,9 @@
 }(function ($, tmpl, loadImage) {
     'use strict';
 
-    // The UI version extends the IP (image processing) version or the basic
+    // The UI version extends the FP (file processing) version or the basic
     // file upload widget and adds complete user interface interaction:
-    var parentWidget = ($.blueimpIP || $.blueimp).fileupload;
+    var parentWidget = ($.blueimpFP || $.blueimp).fileupload;
     $.widget('blueimpUI.fileupload', parentWidget, {
 
         options: {
@@ -87,7 +87,7 @@
                 var that = $(this).data('fileupload'),
                     options = that.options,
                     files = data.files;
-                $(this).fileupload('resize', data).done(data, function () {
+                $(this).fileupload('process', data).done(function () {
                     that._adjustMaxNumberOfFiles(-files.length);
                     data.isAdjusted = true;
                     data.files.valid = data.isValidated = that._validate(files);
@@ -375,20 +375,20 @@
         _renderPreview: function (file, node) {
             var that = this,
                 options = this.options,
-                deferred = $.Deferred();
+                dfd = $.Deferred();
             return ((loadImage && loadImage(
                 file,
                 function (img) {
                     node.append(img);
                     that._forceReflow(node);
                     that._transition(node).done(function () {
-                        deferred.resolveWith(node);
+                        dfd.resolveWith(node);
                     });
                     if (!$.contains(document.body, node[0])) {
                         // If the element is not part of the DOM,
                         // transition events are not triggered,
                         // so we have to resolve manually:
-                        deferred.resolveWith(node);
+                        dfd.resolveWith(node);
                     }
                 },
                 {
@@ -396,7 +396,7 @@
                     maxHeight: options.previewMaxHeight,
                     canvas: options.previewAsCanvas
                 }
-            )) || deferred.resolveWith(node)) && deferred;
+            )) || dfd.resolveWith(node)) && dfd;
         },
 
         _renderPreviews: function (files, nodes) {
@@ -408,13 +408,13 @@
                         ($.type(options.previewSourceMaxFileSize) !== 'number' ||
                         file.size < options.previewSourceMaxFileSize)) {
                     that._processingQueue = that._processingQueue.pipe(function () {
-                        var deferred = $.Deferred();
+                        var dfd = $.Deferred();
                         that._renderPreview(file, $(element)).done(
                             function () {
-                                deferred.resolveWith(that);
+                                dfd.resolveWith(that);
                             }
                         );
-                        return deferred.promise();
+                        return dfd.promise();
                     });
                 }
             });
@@ -475,7 +475,7 @@
 
         _transition: function (node) {
             var that = this,
-                deferred = $.Deferred();
+                dfd = $.Deferred();
             if ($.support.transition && node.hasClass('fade')) {
                 node.bind(
                     $.support.transition.end,
@@ -484,15 +484,15 @@
                         // in the container element, e.g. from button elements:
                         if (e.target === node[0]) {
                             node.unbind($.support.transition.end);
-                            deferred.resolveWith(node);
+                            dfd.resolveWith(node);
                         }
                     }
                 ).toggleClass('in');
             } else {
                 node.toggleClass('in');
-                deferred.resolveWith(node);
+                dfd.resolveWith(node);
             }
-            return deferred;
+            return dfd;
         },
 
         _initButtonBarEventHandlers: function () {
@@ -617,9 +617,9 @@
                 'uploadTemplateId',
                 'downloadTemplateId'
             );
-            if (!$.blueimpIP) {
+            if (!$.blueimpFP) {
                 this._processingQueue = $.Deferred().resolveWith(this).promise();
-                this.resize = function () {
+                this.process = function () {
                     return this._processingQueue;
                 };
             }
