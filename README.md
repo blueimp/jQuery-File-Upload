@@ -43,11 +43,11 @@
 
 ## Requirements
 * [jQuery](http://jquery.com/) v. 1.6+
-* [jQuery UI widget factory](http://wiki.jqueryui.com/w/page/12138135/Widget%20factory) v. 1.8.16+
+* [jQuery UI widget factory](http://wiki.jqueryui.com/w/page/12138135/Widget%20factory) v. 1.8+
 * [jQuery Iframe Transport plugin](https://github.com/blueimp/jQuery-File-Upload/blob/master/jquery.iframe-transport.js) (included)
-* [JavaScript Templates engine](https://github.com/blueimp/JavaScript-Templates) v. 1.0.2+ (optional)
-* [JavaScript Load Image function](https://github.com/blueimp/JavaScript-Load-Image) v. 1.1.4+ (optional)
-* [JavaScript Canvas to Blob function](https://github.com/blueimp/JavaScript-Canvas-to-Blob) v. 1.0.1+ (optional)
+* [JavaScript Templates engine](https://github.com/blueimp/JavaScript-Templates) v. 2.1.0+ (optional)
+* [JavaScript Load Image function](https://github.com/blueimp/JavaScript-Load-Image) v. 1.1.6+ (optional)
+* [JavaScript Canvas to Blob function](https://github.com/blueimp/JavaScript-Canvas-to-Blob) v. 2.0.0+ (optional)
 * [Bootstrap CSS Toolkit](https://github.com/twitter/bootstrap/) v. 2.0+ (optional)
 
 The jQuery UI widget factory is a requirement for the basic File Upload plugin, but very lightweight without any other dependencies.  
