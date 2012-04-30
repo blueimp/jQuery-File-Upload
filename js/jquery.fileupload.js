@@ -1,5 +1,5 @@
 /*
- * jQuery File Upload Plugin 5.10.1
+ * jQuery File Upload Plugin 5.11
  * https://github.com/blueimp/jQuery-File-Upload
  *
  * Copyright 2010, Sebastian Tschan
@@ -109,6 +109,10 @@
             // global progress calculation. Set the following option to false to
             // prevent recalculating the global progress data:
             recalculateProgress: true,
+            // Interval in milliseconds to calculate and trigger progress events:
+            progressInterval: 100,
+            // Interval in milliseconds to calculate progress bitrate:
+            bitrateInterval: 500,
 
             // Additional form data to be sent along with the file uploads can be set
             // using this option, which accepts an array of objects with name and
@@ -180,6 +184,21 @@
             'forceIframeTransport'
         ],
 
+        _BitrateTimer: function () {
+            this.timestamp = Date.now();
+            this.loaded = 0;
+            this.bitrate = 0;
+            this.getBitrate = function (now, loaded, interval) {
+                var timeDiff = now - this.timestamp;
+                if (!this.bitrate || !interval || timeDiff > interval) {
+                    this.bitrate = (loaded - this.loaded) * (1000 / timeDiff) * 8;
+                    this.loaded = loaded;
+                    this.timestamp = now;
+                }
+                return this.bitrate;
+            };
+        },
+
         _isXHRUpload: function (options) {
             return !options.forceIframeTransport &&
                 ((!options.multipart && $.support.xhrFileUpload) ||
@@ -212,15 +231,29 @@
 
         _onProgress: function (e, data) {
             if (e.lengthComputable) {
-                var total = data.total || this._getTotal(data.files),
-                    loaded = parseInt(
-                        e.loaded / e.total * (data.chunkSize || total),
-                        10
-                    ) + (data.uploadedBytes || 0);
+                var now = Date.now(),
+                    total,
+                    loaded;
+                if (data._time && data.progressInterval &&
+                        (now - data._time < data.progressInterval) &&
+                        e.loaded !== e.total) {
+                    return;
+                }
+                data._time = now;
+                total = data.total || this._getTotal(data.files);
+                loaded = parseInt(
+                    e.loaded / e.total * (data.chunkSize || total),
+                    10
+                ) + (data.uploadedBytes || 0);
                 this._loaded += loaded - (data.loaded || data.uploadedBytes || 0);
                 data.lengthComputable = true;
                 data.loaded = loaded;
                 data.total = total;
+                data.bitrate = data._bitrateTimer.getBitrate(
+                    now,
+                    loaded,
+                    data.bitrateInterval
+                );
                 // Trigger a custom progress event with a total data property set
                 // to the file size(s) of the current upload and a loaded data
                 // property calculated accordingly:
@@ -230,7 +263,12 @@
                 this._trigger('progressall', e, {
                     lengthComputable: true,
                     loaded: this._loaded,
-                    total: this._total
+                    total: this._total,
+                    bitrate: this._bitrateTimer.getBitrate(
+                        now,
+                        this._loaded,
+                        data.bitrateInterval
+                    )
                 });
             }
         },
@@ -530,6 +568,8 @@
                 // and no other uploads are currently running,
                 // equivalent to the global ajaxStart event:
                 this._trigger('start');
+                // Set timer for global bitrate progress calculation:
+                this._bitrateTimer = new this._BitrateTimer();
             }
             this._active += 1;
             // Initialize the global progress values:
@@ -582,6 +622,7 @@
                 this._trigger('stop');
                 // Reset the global progress values:
                 this._loaded = this._total = 0;
+                this._bitrateTimer = null;
             }
         },
 
@@ -593,6 +634,8 @@
                 options = that._getAJAXSettings(data),
                 send = function (resolve, args) {
                     that._sending += 1;
+                    // Set timer for bitrate progress calculation:
+                    options._bitrateTimer = new that._BitrateTimer();
                     jqXHR = jqXHR || (
                         (resolve !== false &&
                         that._trigger('send', e, options) !== false &&

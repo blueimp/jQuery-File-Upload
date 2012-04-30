@@ -1,7 +1,7 @@
 <!DOCTYPE HTML>
 <!--
 /*
- * jQuery File Upload Plugin Demo 6.7
+ * jQuery File Upload Plugin Demo 6.8
  * https://github.com/blueimp/jQuery-File-Upload
  *
  * Copyright 2010, Sebastian Tschan
@@ -114,11 +114,14 @@
                 </button>
                 <input type="checkbox" class="toggle">
             </div>
-            <div class="span5">
+            <!-- The global progress information -->
+            <div class="span5 fileupload-progress fade">
                 <!-- The global progress bar -->
-                <div class="progress progress-success progress-striped active fade">
+                <div class="progress progress-success progress-striped active">
                     <div class="bar" style="width:0%;"></div>
                 </div>
+                <!-- The extended global progress information -->
+                <div class="progress-extended">&nbsp;</div>
             </div>
         </div>
         <!-- The loading indicator is shown during file processing -->

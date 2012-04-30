@@ -1,5 +1,5 @@
 /*
- * jQuery File Upload User Interface Plugin 6.7
+ * jQuery File Upload User Interface Plugin 6.8
  * https://github.com/blueimp/jQuery-File-Upload
  *
  * Copyright 2010, Sebastian Tschan
@@ -228,7 +228,7 @@
             // Callback for upload progress events:
             progress: function (e, data) {
                 if (data.context) {
-                    data.context.find('.progress .bar').css(
+                    data.context.find('.bar').css(
                         'width',
                         parseInt(data.loaded / data.total * 100, 10) + '%'
                     );
@@ -236,15 +236,23 @@
             },
             // Callback for global upload progress events:
             progressall: function (e, data) {
-                $(this).find('.fileupload-buttonbar .progress .bar').css(
-                    'width',
-                    parseInt(data.loaded / data.total * 100, 10) + '%'
-                );
+                var $this = $(this);
+                $this.find('.fileupload-progress')
+                    .find('.bar').css(
+                        'width',
+                        parseInt(data.loaded / data.total * 100, 10) + '%'
+                    ).end()
+                    .find('.progress-extended').each(function () {
+                        $(this).html(
+                            $this.data('fileupload')
+                                ._renderExtendedProgress(data)
+                        );
+                    });
             },
             // Callback for uploads start, equivalent to the global ajaxStart event:
             start: function (e) {
                 var that = $(this).data('fileupload');
-                that._transition($(this).find('.fileupload-buttonbar .progress')).done(
+                that._transition($(this).find('.fileupload-progress')).done(
                     function () {
                         that._trigger('started', e);
                     }
@@ -253,9 +261,10 @@
             // Callback for uploads stop, equivalent to the global ajaxStop event:
             stop: function (e) {
                 var that = $(this).data('fileupload');
-                that._transition($(this).find('.fileupload-buttonbar .progress')).done(
+                that._transition($(this).find('.fileupload-progress')).done(
                     function () {
                         $(this).find('.bar').css('width', '0%');
+                        $(this).find('.progress-extended').html('&nbsp;');
                         that._trigger('stopped', e);
                     }
                 );
@@ -315,6 +324,48 @@
                 return (bytes / 1000000).toFixed(2) + ' MB';
             }
             return (bytes / 1000).toFixed(2) + ' KB';
+        },
+
+        _formatBitrate: function (bits) {
+            if (typeof bits !== 'number') {
+                return '';
+            }
+            if (bits >= 1000000000) {
+                return (bits / 1000000000).toFixed(2) + ' Gbit/s';
+            }
+            if (bits >= 1000000) {
+                return (bits / 1000000).toFixed(2) + ' Mbit/s';
+            }
+            if (bits >= 1000) {
+                return (bits / 1000).toFixed(2) + ' kbit/s';
+            }
+            return bits + ' bit/s';
+        },
+
+        _formatTime: function (seconds) {
+            var date = new Date(seconds * 1000),
+                days = parseInt(seconds / 86400, 10);
+            days = days ? days + 'd ' : '';
+            return days +
+                ('0' + date.getUTCHours()).slice(-2) + ':' +
+                ('0' + date.getUTCMinutes()).slice(-2) + ':' +
+                ('0' + date.getUTCSeconds()).slice(-2);
+        },
+
+        _formatPercentage: function (floatValue) {
+            return (floatValue * 100).toFixed(2) + ' %';
+        },
+
+        _renderExtendedProgress: function (data) {
+            return this._formatBitrate(data.bitrate) + ' | ' +
+                this._formatTime(
+                    (data.total - data.loaded) * 8 / data.bitrate
+                ) + ' | ' +
+                this._formatPercentage(
+                    data.loaded / data.total
+                ) + ' | ' +
+                this._formatFileSize(data.loaded) + ' / ' +
+                this._formatFileSize(data.total);
         },
 
         _hasError: function (file) {
