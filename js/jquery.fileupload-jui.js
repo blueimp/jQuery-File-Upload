@@ -1,5 +1,5 @@
 /*
- * jQuery File Upload jQuery UI Plugin 1.1.1
+ * jQuery File Upload jQuery UI Plugin 1.2
  * https://github.com/blueimp/jQuery-File-Upload
  *
  * Copyright 2012, Sebastian Tschan
@@ -49,11 +49,19 @@
                 }
             },
             progressall: function (e, data) {
-                $(this).find('.fileupload-buttonbar .progress').progressbar(
-                    'option',
-                    'value',
-                    parseInt(data.loaded / data.total * 100, 10)
-                );
+                var $this = $(this);
+                $this.find('.fileupload-progress')
+                    .find('.progress').progressbar(
+                        'option',
+                        'value',
+                        parseInt(data.loaded / data.total * 100, 10)
+                    ).end()
+                    .find('.progress-extended').each(function () {
+                        $(this).html(
+                            $this.data('fileupload')
+                                ._renderExtendedProgress(data)
+                        );
+                    });
             }
         },
         _renderUpload: function (func, files) {
