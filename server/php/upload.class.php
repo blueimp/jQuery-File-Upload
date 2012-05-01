@@ -1,6 +1,6 @@
 <?php
 /*
- * jQuery File Upload Plugin PHP Class 5.9.2
+ * jQuery File Upload Plugin PHP Class 5.10
  * https://github.com/blueimp/jQuery-File-Upload
  *
  * Copyright 2010, Sebastian Tschan
@@ -13,7 +13,7 @@
 class UploadHandler
 {
     protected $options;
-    
+
     function __construct($options=null) {
         $this->options = array(
             'script_url' => $this->getFullUrl().'/',
@@ -68,7 +68,7 @@ class UploadHandler
     		$_SERVER['SERVER_PORT'] === 80 ? '' : ':'.$_SERVER['SERVER_PORT']))).
     		substr($_SERVER['SCRIPT_NAME'],0, strrpos($_SERVER['SCRIPT_NAME'], '/'));
     }
-    
+
     protected function set_file_delete_url($file) {
         $file->delete_url = $this->options['script_url']
             .'?file='.rawurlencode($file->name);
@@ -77,7 +77,7 @@ class UploadHandler
             $file->delete_url .= '&_method=DELETE';
         }
     }
-    
+
     protected function get_file_object($file_name) {
         $file_path = $this->options['upload_dir'].$file_name;
         if (is_file($file_path) && $file_name[0] !== '.') {
@@ -96,7 +96,7 @@ class UploadHandler
         }
         return null;
     }
-    
+
     protected function get_file_objects() {
         return array_values(array_filter(array_map(
             array($this, 'get_file_object'),
@@ -164,13 +164,19 @@ class UploadHandler
         @imagedestroy($new_img);
         return $success;
     }
-    
-    protected function has_error($uploaded_file, $file, $error) {
+
+    protected function validate($uploaded_file, $file, $error, $index) {
         if ($error) {
-            return $error;
+            $file->error = $error;
+            return false;
+        }
+        if (!$file->name) {
+            $file->error = 'missingFileName';
+            return false;
         }
         if (!preg_match($this->options['accept_file_types'], $file->name)) {
-            return 'acceptFileTypes';
+            $file->error = 'acceptFileTypes';
+            return false;
         }
         if ($uploaded_file && is_uploaded_file($uploaded_file)) {
             $file_size = filesize($uploaded_file);
@@ -181,18 +187,21 @@ class UploadHandler
                 $file_size > $this->options['max_file_size'] ||
                 $file->size > $this->options['max_file_size'])
             ) {
-            return 'maxFileSize';
+            $file->error = 'maxFileSize';
+            return false;
         }
         if ($this->options['min_file_size'] &&
             $file_size < $this->options['min_file_size']) {
-            return 'minFileSize';
+            $file->error = 'minFileSize';
+            return false;
         }
         if (is_int($this->options['max_number_of_files']) && (
                 count($this->get_file_objects()) >= $this->options['max_number_of_files'])
             ) {
-            return 'maxNumberOfFiles';
+            $file->error = 'maxNumberOfFiles';
+            return false;
         }
-        return $error;
+        return true;
     }
 
     protected function upcount_name_callback($matches) {
@@ -209,8 +218,8 @@ class UploadHandler
             1
         );
     }
-    
-    protected function trim_file_name($name, $type) {
+
+    protected function trim_file_name($name, $type, $index) {
         // Remove path information and dots around the filename, to prevent uploading
         // into different directories or replacing hidden system files.
         // Also remove control characters and spaces (\x00..\x20) around the filename:
@@ -226,6 +235,10 @@ class UploadHandler
             }
         }
         return $file_name;
+    }
+
+    protected function handle_form_data($file, $index) {
+        // Handle form data, e.g. $_REQUEST['description'][$index]
     }
 
     protected function orient_image($file_path) {
@@ -256,14 +269,14 @@ class UploadHandler
       	@imagedestroy($image);
       	return $success;
     }
-    
-    protected function handle_file_upload($uploaded_file, $name, $size, $type, $error) {
+
+    protected function handle_file_upload($uploaded_file, $name, $size, $type, $error, $index) {
         $file = new stdClass();
-        $file->name = $this->trim_file_name($name, $type);
+        $file->name = $this->trim_file_name($name, $type, $index);
         $file->size = intval($size);
         $file->type = $type;
-        $error = $this->has_error($uploaded_file, $file, $error);
-        if (!$error && $file->name) {
+        if ($this->validate($uploaded_file, $file, $error, $index)) {
+            $this->handle_form_data($file, $index);
             $file_path = $this->options['upload_dir'].$file->name;
             $append_file = !$this->options['discard_aborted_uploads'] &&
                 is_file($file_path) && $file->size > filesize($file_path);
@@ -310,12 +323,10 @@ class UploadHandler
             }
             $file->size = $file_size;
             $this->set_file_delete_url($file);
-        } else {
-            $file->error = $error;
         }
         return $file;
     }
-    
+
     public function get() {
         $file_name = isset($_REQUEST['file']) ?
             basename(stripslashes($_REQUEST['file'])) : null;
@@ -327,7 +338,7 @@ class UploadHandler
         header('Content-type: application/json');
         echo json_encode($info);
     }
-    
+
     public function post() {
         if (isset($_REQUEST['_method']) && $_REQUEST['_method'] === 'DELETE') {
             return $this->delete();
@@ -347,7 +358,8 @@ class UploadHandler
                         $_SERVER['HTTP_X_FILE_SIZE'] : $upload['size'][$index],
                     isset($_SERVER['HTTP_X_FILE_TYPE']) ?
                         $_SERVER['HTTP_X_FILE_TYPE'] : $upload['type'][$index],
-                    $upload['error'][$index]
+                    $upload['error'][$index],
+                    $index
                 );
             }
         } elseif ($upload || isset($_SERVER['HTTP_X_FILE_NAME'])) {
@@ -383,7 +395,7 @@ class UploadHandler
         }
         echo $json;
     }
-    
+
     public function delete() {
         $file_name = isset($_REQUEST['file']) ?
             basename(stripslashes($_REQUEST['file'])) : null;
