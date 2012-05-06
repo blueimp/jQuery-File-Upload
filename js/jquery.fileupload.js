@@ -1,5 +1,5 @@
 /*
- * jQuery File Upload Plugin 5.11.1
+ * jQuery File Upload Plugin 5.11.2
  * https://github.com/blueimp/jQuery-File-Upload
  *
  * Copyright 2010, Sebastian Tschan
@@ -209,9 +209,11 @@
             var formData;
             if (typeof options.formData === 'function') {
                 return options.formData(options.form);
-            } else if ($.isArray(options.formData)) {
+            }
+			if ($.isArray(options.formData)) {
                 return options.formData;
-            } else if (options.formData) {
+            }
+			if (options.formData) {
                 formData = [];
                 $.each(options.formData, function (name, value) {
                     formData.push({name: name, value: value});
