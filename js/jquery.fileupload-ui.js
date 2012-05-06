@@ -1,5 +1,5 @@
 /*
- * jQuery File Upload User Interface Plugin 6.8
+ * jQuery File Upload User Interface Plugin 6.8.1
  * https://github.com/blueimp/jQuery-File-Upload
  *
  * Copyright 2010, Sebastian Tschan
@@ -138,8 +138,7 @@
             // Callback for successful uploads:
             done: function (e, data) {
                 var that = $(this).data('fileupload'),
-                    template,
-                    preview;
+                    template;
                 if (data.context) {
                     data.context.each(function (index) {
                         var file = ($.isArray(data.result) &&
@@ -525,8 +524,7 @@
         },
 
         _transition: function (node) {
-            var that = this,
-                dfd = $.Deferred();
+            var dfd = $.Deferred();
             if ($.support.transition && node.hasClass('fade')) {
                 node.bind(
                     $.support.transition.end,
