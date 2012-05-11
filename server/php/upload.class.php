@@ -1,6 +1,6 @@
 <?php
 /*
- * jQuery File Upload Plugin PHP Class 5.10
+ * jQuery File Upload Plugin PHP Class 5.11
  * https://github.com/blueimp/jQuery-File-Upload
  *
  * Copyright 2010, Sebastian Tschan
@@ -28,7 +28,13 @@ class UploadHandler
             'max_file_size' => null,
             'min_file_size' => 1,
             'accept_file_types' => '/.+$/i',
+            // The maximum number of files for the upload directory:
             'max_number_of_files' => null,
+            // Image resolution restrictions:
+            'max_width' => null,
+            'max_height' => null,
+            'min_width' => 1,
+            'min_height' => 1,
             // Set the following option to false to enable resumable uploads:
             'discard_aborted_uploads' => true,
             // Set to true to rotate images based on EXIF meta data, if available:
@@ -200,6 +206,19 @@ class UploadHandler
             ) {
             $file->error = 'maxNumberOfFiles';
             return false;
+        }
+        list($img_width, $img_height) = @getimagesize($uploaded_file);
+        if (is_int($img_width)) {
+            if ($this->options['max_width'] && $img_width > $this->options['max_width'] ||
+                    $this->options['max_height'] && $img_height > $this->options['max_height']) {
+                $file->error = 'maxResolution';
+                return false;
+            }
+            if ($this->options['min_width'] && $img_width < $this->options['min_width'] ||
+                    $this->options['min_height'] && $img_height < $this->options['min_height']) {
+                $file->error = 'minResolution';
+                return false;
+            }
         }
         return true;
     }
