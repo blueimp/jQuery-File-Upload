@@ -1,5 +1,5 @@
 /*
- * jQuery File Upload User Interface Plugin 6.8.1
+ * jQuery File Upload User Interface Plugin 6.8.2
  * https://github.com/blueimp/jQuery-File-Upload
  *
  * Copyright 2010, Sebastian Tschan
@@ -273,8 +273,8 @@
                 var that = $(this).data('fileupload');
                 if (data.url) {
                     $.ajax(data);
+                    that._adjustMaxNumberOfFiles(1);
                 }
-                that._adjustMaxNumberOfFiles(1);
                 that._transition(data.context).done(
                     function () {
                         $(this).remove();
