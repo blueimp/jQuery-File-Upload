@@ -168,4 +168,39 @@
         }
     });
 
+    var parentWidget = ($.blueimpUI || $.blueimpFP || $.blueimp).fileupload;
+    //using status script for iframe upload progress reporting
+    //for serverside response format, see http://wiki.nginx.org/NginxHttpUploadProgressModule#report_uploads
+    $.widget('blueimpIFP.fileupload',parentWidget,{
+        options: {
+            //The URL to query about upload progress for iframe transport uploads:
+            iframeProgressUrl: null
+        },
+        _initIframeSettings: function (options) {
+            parentWidget.prototype._initIframeSettings.call(this,options);
+
+            if(typeof options.iframeProgressUrl != 'undefined')
+            {
+                var that = this;
+                options.iframeProgressIntervalID = window.setInterval(function()
+                {
+                    $.get(options.iframeProgressUrl,null,function(data,textStatus,xhr)
+                    {
+                        that._onProgress($.Event('progress', {
+                            lengthComputable: data.state =='uploading',
+                            loaded: data.received,
+                            total: data.size
+                        }),options);
+                    },'jsonp');
+                },options.progressInterval);
+            }
+        },
+        _onAlways: function (jqXHRorResult, textStatus, jqXHRorError, options) {
+            if(typeof options.iframeProgressIntervalID != 'undefined')
+            {
+                clearInterval(options.iframeProgressIntervalID);
+            }
+            parentWidget.prototype._onAlways.call(this,jqXHRorResult, textStatus, jqXHRorError, options);
+        }
+    });
 }));
