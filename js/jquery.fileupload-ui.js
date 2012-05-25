@@ -255,12 +255,6 @@
                     .find('.bar').css(
                         'width',
                         progress + '%'
-                    ).parent().attr(
-                    	'aria-valuenow',
-                    	progress
-                    ).attr(
-                    	'aria-valuetext',
-                    	progress + '%'
                     ).end()
                     .find('.progress-extended').each(function () {
                         $(this).html(
@@ -268,6 +262,9 @@
                                 ._renderExtendedProgress(data)
                         );
                     });
+                $this.find('.fileupload-progress').find('.bar').parent()
+                	.attr('aria-valuenow', progress)
+                	.attr('aria-valuetext', progress + '%');
             },
             // Callback for uploads start, equivalent to the global ajaxStart event:
             start: function (e) {
