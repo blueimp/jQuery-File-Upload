@@ -124,13 +124,20 @@
                     // Iframe Transport does not support progress events.
                     // In lack of an indeterminate progress bar, we set
                     // the progress to 100%, showing the full animated bar:
+                	var progress = parseInt(100, 10);
                     data.context
                         .find('.progress').addClass(
                             !$.support.transition && 'progress-animated'
                         )
                         .find('.bar').css(
                             'width',
-                            parseInt(100, 10) + '%'
+                            progress + '%'
+                        ).parent().attr(
+                        	'aria-valuenow',
+                        	progress
+                        ).attr(
+                        	'aria-valuetext',
+                        	progress + '%'
                         );
                 }
                 return that._trigger('sent', e, data);
@@ -227,19 +234,33 @@
             // Callback for upload progress events:
             progress: function (e, data) {
                 if (data.context) {
+                	var progress = parseInt(data.loaded / data.total * 100, 10);
                     data.context.find('.bar').css(
                         'width',
-                        parseInt(data.loaded / data.total * 100, 10) + '%'
+                        progress + '%'
+                    ).parent().attr(
+                    	'aria-valuenow',
+                    	progress
+                    ).attr(
+                    	'aria-valuetext',
+                    	progress + '%'
                     );
                 }
             },
             // Callback for global upload progress events:
             progressall: function (e, data) {
                 var $this = $(this);
+                var progress = parseInt(data.loaded / data.total * 100, 10);
                 $this.find('.fileupload-progress')
                     .find('.bar').css(
                         'width',
-                        parseInt(data.loaded / data.total * 100, 10) + '%'
+                        progress + '%'
+                    ).parent().attr(
+                    	'aria-valuenow',
+                    	progress
+                    ).attr(
+                    	'aria-valuetext',
+                    	progress + '%'
                     ).end()
                     .find('.progress-extended').each(function () {
                         $(this).html(
@@ -262,7 +283,7 @@
                 var that = $(this).data('fileupload');
                 that._transition($(this).find('.fileupload-progress')).done(
                     function () {
-                        $(this).find('.bar').css('width', '0%');
+                        $(this).find('.bar').css('width', '0%').parent().attr('aria-valuenow', '0').attr('aria-valuetext', '0%');
                         $(this).find('.progress-extended').html('&nbsp;');
                         that._trigger('stopped', e);
                     }
