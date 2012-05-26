@@ -129,7 +129,6 @@
                             !$.support.transition && 'progress-animated'
                         )
                         .attr('aria-valuenow', 100)
-                        .attr('aria-valuetext', '100%')
                         .find('.bar').css(
                             'width',
                             '100%'
@@ -232,7 +231,6 @@
                     var progress = parseInt(data.loaded / data.total * 100, 10);
                     data.context.find('.progress')
                         .attr('aria-valuenow', progress)
-                        .attr('aria-valuetext', progress + '%')
                         .find('.bar').css(
                             'width',
                             progress + '%'
@@ -254,7 +252,6 @@
                 globalProgressNode
                     .find('.progress')
                     .attr('aria-valuenow', progress)
-                    .attr('aria-valuetext', progress + '%')
                     .find('.bar').css(
                         'width',
                         progress + '%'
@@ -274,7 +271,9 @@
                 var that = $(this).data('fileupload');
                 that._transition($(this).find('.fileupload-progress')).done(
                     function () {
-                        $(this).find('.bar').css('width', '0%').parent().attr('aria-valuenow', '0').attr('aria-valuetext', '0%');
+                        $(this).find('.progress')
+                            .attr('aria-valuenow', '0')
+                            .find('.bar').css('width', '0%');
                         $(this).find('.progress-extended').html('&nbsp;');
                         that._trigger('stopped', e);
                     }

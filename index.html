@@ -94,7 +94,7 @@
             <!-- The global progress information -->
             <div class="span5 fileupload-progress fade">
                 <!-- The global progress bar -->
-                <div class="progress progress-success progress-striped active" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" aria-valuetext="0%">
+                <div class="progress progress-success progress-striped active" role="progressbar" aria-valuemin="0" aria-valuemax="100">
                     <div class="bar" style="width:0%;"></div>
                 </div>
                 <!-- The extended global progress information -->
@@ -157,7 +157,7 @@
             <td class="error" colspan="2"><span class="label label-important">{%=locale.fileupload.error%}</span> {%=locale.fileupload.errors[file.error] || file.error%}</td>
         {% } else if (o.files.valid && !i) { %}
             <td>
-                <div class="progress progress-success progress-striped active" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" aria-valuetext="0%"><div class="bar" style="width:0%;"></div></div>
+                <div class="progress progress-success progress-striped active" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"><div class="bar" style="width:0%;"></div></div>
             </td>
             <td class="start">{% if (!o.options.autoUpload) { %}
                 <button class="btn btn-primary">
