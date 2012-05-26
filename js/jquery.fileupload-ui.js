@@ -1,5 +1,5 @@
 /*
- * jQuery File Upload User Interface Plugin 6.8.2
+ * jQuery File Upload User Interface Plugin 6.9
  * https://github.com/blueimp/jQuery-File-Upload
  *
  * Copyright 2010, Sebastian Tschan
@@ -124,20 +124,15 @@
                     // Iframe Transport does not support progress events.
                     // In lack of an indeterminate progress bar, we set
                     // the progress to 100%, showing the full animated bar:
-                	var progress = parseInt(100, 10);
                     data.context
                         .find('.progress').addClass(
                             !$.support.transition && 'progress-animated'
                         )
+                        .attr('aria-valuenow', 100)
+                        .attr('aria-valuetext', '100%')
                         .find('.bar').css(
                             'width',
-                            progress + '%'
-                        ).parent().attr(
-                        	'aria-valuenow',
-                        	progress
-                        ).attr(
-                        	'aria-valuetext',
-                        	progress + '%'
+                            '100%'
                         );
                 }
                 return that._trigger('sent', e, data);
@@ -234,37 +229,36 @@
             // Callback for upload progress events:
             progress: function (e, data) {
                 if (data.context) {
-                	var progress = parseInt(data.loaded / data.total * 100, 10);
-                    data.context.find('.bar').css(
-                        'width',
-                        progress + '%'
-                    ).parent().attr(
-                    	'aria-valuenow',
-                    	progress
-                    ).attr(
-                    	'aria-valuetext',
-                    	progress + '%'
-                    );
+                    var progress = parseInt(data.loaded / data.total * 100, 10);
+                    data.context.find('.progress')
+                        .attr('aria-valuenow', progress)
+                        .attr('aria-valuetext', progress + '%')
+                        .find('.bar').css(
+                            'width',
+                            progress + '%'
+                        );
                 }
             },
             // Callback for global upload progress events:
             progressall: function (e, data) {
-                var $this = $(this);
-                var progress = parseInt(data.loaded / data.total * 100, 10);
-                $this.find('.fileupload-progress')
+                var $this = $(this),
+                    progress = parseInt(data.loaded / data.total * 100, 10),
+                    globalProgressNode = $this.find('.fileupload-progress'),
+                    extendedProgressNode = globalProgressNode
+                        .find('.progress-extended');
+                if (extendedProgressNode.length) {
+                    extendedProgressNode.html(
+                        $this.data('fileupload')._renderExtendedProgress(data)
+                    );
+                }
+                globalProgressNode
+                    .find('.progress')
+                    .attr('aria-valuenow', progress)
+                    .attr('aria-valuetext', progress + '%')
                     .find('.bar').css(
                         'width',
                         progress + '%'
-                    ).end()
-                    .find('.progress-extended').each(function () {
-                        $(this).html(
-                            $this.data('fileupload')
-                                ._renderExtendedProgress(data)
-                        );
-                    });
-                $this.find('.fileupload-progress').find('.bar').parent()
-                	.attr('aria-valuenow', progress)
-                	.attr('aria-valuetext', progress + '%');
+                    );
             },
             // Callback for uploads start, equivalent to the global ajaxStart event:
             start: function (e) {

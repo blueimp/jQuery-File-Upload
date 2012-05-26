@@ -1,5 +1,5 @@
 /*
- * jQuery File Upload Plugin Test 6.6
+ * jQuery File Upload Plugin Test 6.9
  * https://github.com/blueimp/jQuery-File-Upload
  *
  * Copyright 2010, Sebastian Tschan
@@ -1099,6 +1099,8 @@ $(function () {
                         addIndex
                     );
                 },
+                progress: $.noop,
+                progressall: $.noop,
                 done: $.noop,
                 stop: $.noop
             })
