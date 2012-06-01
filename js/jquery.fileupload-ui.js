@@ -1,5 +1,5 @@
 /*
- * jQuery File Upload User Interface Plugin 6.9
+ * jQuery File Upload User Interface Plugin 6.9.1
  * https://github.com/blueimp/jQuery-File-Upload
  *
  * Copyright 2010, Sebastian Tschan
@@ -530,8 +530,8 @@
         },
 
         _forceReflow: function (node) {
-            this._reflow = $.support.transition &&
-                node.length && node[0].offsetWidth;
+            return $.support.transition && node.length &&
+                node[0].offsetWidth;
         },
 
         _transition: function (node) {
