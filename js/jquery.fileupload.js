@@ -1,5 +1,5 @@
 /*
- * jQuery File Upload Plugin 5.11.2
+ * jQuery File Upload Plugin 5.11.3
  * https://github.com/blueimp/jQuery-File-Upload
  *
  * Copyright 2010, Sebastian Tschan
@@ -838,7 +838,7 @@
                 return false;
             }
             if (dataTransfer) {
-                dataTransfer.dropEffect = dataTransfer.effectAllowed = 'copy';
+                dataTransfer.dropEffect = 'copy';
             }
             e.preventDefault();
         },
