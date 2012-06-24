@@ -267,7 +267,7 @@ class UploadHandler
             return false;
         }
       	$orientation = intval(@$exif['Orientation']);
-      	if (!in_array($orientation, array(3, 6, 8))) { 
+      	if (!in_array($orientation, array(3, 6, 8))) {
       	    return false;
       	}
       	$image = @imagecreatefromjpeg($file_path);
@@ -290,7 +290,7 @@ class UploadHandler
       	return $success;
     }
 
-    protected function handle_file_upload($uploaded_file, $name, $size, $type, $error, $index) {
+    protected function handle_file_upload($uploaded_file, $name, $size, $type, $error, $index = null) {
         $file = new stdClass();
         $file->name = $this->trim_file_name($name, $type, $index);
         $file->size = intval($size);
