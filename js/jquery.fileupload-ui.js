@@ -597,21 +597,21 @@
             parentWidget.prototype._initEventHandlers.call(this);
             var eventData = {fileupload: this};
             this.options.filesContainer
-                .delegate(
-                    '.start button',
+                .on(
                     'click.' + this.options.namespace,
+                    '.start button',
                     eventData,
                     this._startHandler
                 )
-                .delegate(
-                    '.cancel button',
+                .on(
                     'click.' + this.options.namespace,
+                    '.cancel button',
                     eventData,
                     this._cancelHandler
                 )
-                .delegate(
-                    '.delete button',
+                .on(
                     'click.' + this.options.namespace,
+                    '.delete button',
                     eventData,
                     this._deleteHandler
                 );
