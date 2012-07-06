@@ -53,6 +53,9 @@
             // The regular expression for allowed file types, matches
             // against either file type or file name:
             acceptFileTypes:  /.+$/i,
+            // The regular expression for disallowed file types, matches
+            // against either file type or file name:
+            rejectFileTypes: undefined,
             // The regular expression to define for which files a preview
             // image is shown, matched against the file type:
             previewSourceFileTypes: /^image\/(gif|jpeg|png)$/,
@@ -391,8 +394,14 @@
             // Files are accepted if either the file type or the file name
             // matches against the acceptFileTypes regular expression, as
             // only browsers with support for the File API report the type:
-            if (!(this.options.acceptFileTypes.test(file.type) ||
+            if (this.options.acceptFileTypes && !(this.options.acceptFileTypes.test(file.type) ||
                     this.options.acceptFileTypes.test(file.name))) {
+                return 'acceptFileTypes';
+            }
+            // Files are rejected if either the file type or the file name
+            // matches against the rejectFileTypes regular expression, as
+            // only browsers with support for the File API report the type:
+            if (this.options.rejectFileTypes && (this.options.rejectFileTypes.test(file.type) || this.options.rejectFileTypes.test(file.name))) {
                 return 'acceptFileTypes';
             }
             if (this.options.maxFileSize &&
