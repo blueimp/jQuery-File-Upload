@@ -1,5 +1,5 @@
 /*
- * jQuery File Upload Plugin 5.11.3
+ * jQuery File Upload Plugin 5.12
  * https://github.com/blueimp/jQuery-File-Upload
  *
  * Copyright 2010, Sebastian Tschan
@@ -776,19 +776,30 @@
             }
         },
 
-        _onChange: function (e) {
-            var that = e.data.fileupload,
-                data = {
-                    files: $.each($.makeArray(e.target.files), that._normalizeFile),
-                    fileInput: $(e.target),
-                    form: $(e.target.form)
-                };
-            if (!data.files.length) {
+        _getFileInputFiles: function (fileInput) {
+            fileInput = $(fileInput);
+            var files = $.each($.makeArray(fileInput.prop('files')), this._normalizeFile),
+                value;
+            if (!files.length) {
+                value = fileInput.prop('value');
+                if (!value) {
+                    return [];
+                }
                 // If the files property is not available, the browser does not
                 // support the File API and we add a pseudo File object with
                 // the input value as name with path information removed:
-                data.files = [{name: e.target.value.replace(/^.*\\/, '')}];
+                files = [{name: value.replace(/^.*\\/, '')}];
             }
+            return files;
+        },
+
+        _onChange: function (e) {
+            var that = e.data.fileupload,
+                data = {
+                    fileInput: $(e.target),
+                    form: $(e.target.form)
+                };
+            data.files = that._getFileInputFiles(data.fileInput);
             if (that.options.replaceFileInput) {
                 that._replaceFileInput(data.fileInput);
             }
@@ -925,7 +936,11 @@
             if (!data || this.options.disabled) {
                 return;
             }
-            data.files = $.each($.makeArray(data.files), this._normalizeFile);
+            if (data.fileInput && !data.files) {
+                data.files = this._getFileInputFiles(data.fileInput);
+            } else {
+                data.files = $.each($.makeArray(data.files), this._normalizeFile);
+            }
             this._onAdd(null, data);
         },
 
@@ -936,7 +951,11 @@
         // The method returns a Promise object for the file upload call.
         send: function (data) {
             if (data && !this.options.disabled) {
-                data.files = $.each($.makeArray(data.files), this._normalizeFile);
+                if (data.fileInput && !data.files) {
+                    data.files = this._getFileInputFiles(data.fileInput);
+                } else {
+                    data.files = $.each($.makeArray(data.files), this._normalizeFile);
+                }
                 if (data.files.length) {
                     return this._onSend(null, data);
                 }
