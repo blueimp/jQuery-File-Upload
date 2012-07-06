@@ -1,5 +1,5 @@
 /*
- * jQuery File Upload Plugin Test 6.9
+ * jQuery File Upload Plugin Test 6.9.1
  * https://github.com/blueimp/jQuery-File-Upload
  *
  * Copyright 2010, Sebastian Tschan
@@ -480,8 +480,8 @@ $(function () {
                 ok(true, 'Triggers change callback');
                 strictEqual(
                     data.files.length,
-                    1,
-                    'Creates pseudo File object'
+                    0,
+                    'Returns empty files list'
                 );
             },
             add: $.noop
