@@ -163,7 +163,7 @@
         // Prevent directory traversal and creating hidden system files:
         this.name = path.basename(this.name).replace(/^\.+/, '');
         // Prevent overwriting existing files:
-        while (path.existsSync(options.uploadDir + '/' + this.name)) {
+        while (fs.existsSync(options.uploadDir + '/' + this.name)) {
             this.name = this.name.replace(nameCountRegexp, nameCountFunc);
         }
     };
@@ -174,7 +174,7 @@
                     '//' + req.headers.host + options.uploadUrl;
             this.url = this.delete_url = baseUrl + encodeURIComponent(this.name);
             Object.keys(options.imageVersions).forEach(function (version) {
-                if (path.existsSync(
+                if (fs.existsSync(
                         options.uploadDir + '/' + version + '/' + that.name
                     )) {
                     that[version + '_url'] = baseUrl + version + '/' +
