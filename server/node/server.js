@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /*
- * jQuery File Upload Plugin Node.js Example 1.0.1
+ * jQuery File Upload Plugin Node.js Example 1.0.2
  * https://github.com/blueimp/jQuery-File-Upload
  *
  * Copyright 2012, Sebastian Tschan
@@ -10,14 +10,15 @@
  * http://www.opensource.org/licenses/MIT
  */
 
-/*jslint nomen: true, regexp: true */
+/*jslint nomen: true, regexp: true, unparam: true */
 /*global require, __dirname, unescape */
 
 (function (port) {
     'use strict';
-    var util = require('util'),
-        path = require('path'),
+    var path = require('path'),
         fs = require('fs'),
+        // Since Node 0.8, .existsSync() moved from path to fs:
+        _existsSync = fs.existsSync || path.existsSync,
         formidable = require('formidable'),
         nodeStatic = require('node-static'),
         imageMagick = require('imagemagick'),
@@ -163,7 +164,7 @@
         // Prevent directory traversal and creating hidden system files:
         this.name = path.basename(this.name).replace(/^\.+/, '');
         // Prevent overwriting existing files:
-        while (path.existsSync(options.uploadDir + '/' + this.name)) {
+        while (_existsSync(options.uploadDir + '/' + this.name)) {
             this.name = this.name.replace(nameCountRegexp, nameCountFunc);
         }
     };
@@ -174,7 +175,7 @@
                     '//' + req.headers.host + options.uploadUrl;
             this.url = this.delete_url = baseUrl + encodeURIComponent(this.name);
             Object.keys(options.imageVersions).forEach(function (version) {
-                if (path.existsSync(
+                if (_existsSync(
                         options.uploadDir + '/' + version + '/' + that.name
                     )) {
                     that[version + '_url'] = baseUrl + version + '/' +
@@ -281,4 +282,4 @@
     } else {
         require('http').createServer(serve).listen(port);
     }
-}(8080));
+}(8888));
