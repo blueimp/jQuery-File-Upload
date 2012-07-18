@@ -1,5 +1,5 @@
 /*
- * jQuery File Upload Plugin Test 6.9.1
+ * jQuery File Upload Plugin Test 6.9.2
  * https://github.com/blueimp/jQuery-File-Upload
  *
  * Copyright 2010, Sebastian Tschan
@@ -1258,6 +1258,22 @@ $(function () {
                 name: 'test.txt',
                 type: 'text/plain'
             }]});
+    });
+
+    test('acceptFileTypes as HTML5 data attribute', function () {
+        expect(2);
+        var regExp = /(\.|\/)(gif|jpe?g|png)$/i;
+        $('#fileupload')
+            .attr('data-accept-file-types', regExp.toString())
+            .fileupload();
+        strictEqual(
+            $.type($('#fileupload').fileupload('option', 'acceptFileTypes')),
+            $.type(regExp)
+        );
+        strictEqual(
+            $('#fileupload').fileupload('option', 'acceptFileTypes').toString(),
+            regExp.toString()
+        );
     });
 
 });
