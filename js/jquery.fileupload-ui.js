@@ -1,5 +1,5 @@
 /*
- * jQuery File Upload User Interface Plugin 6.9.1
+ * jQuery File Upload User Interface Plugin 6.9.2
  * https://github.com/blueimp/jQuery-File-Upload
  *
  * Copyright 2010, Sebastian Tschan
@@ -664,10 +664,32 @@
             }
         },
 
+        _stringToRegExp: function (str) {
+            var parts = str.split('/'),
+                modifiers = parts.pop();
+            parts.shift();
+            return new RegExp(parts.join('/'), modifiers);
+        },
+
+        _initRegExpOptions: function () {
+            var options = this.options;
+            if ($.type(options.acceptFileTypes) === 'string') {
+                options.acceptFileTypes = this._stringToRegExp(
+                    options.acceptFileTypes
+                );
+            }
+            if ($.type(options.previewSourceFileTypes) === 'string') {
+                options.previewSourceFileTypes = this._stringToRegExp(
+                    options.previewSourceFileTypes
+                );
+            }
+        },
+
         _initSpecialOptions: function () {
             parentWidget.prototype._initSpecialOptions.call(this);
             this._initFilesContainer();
             this._initTemplates();
+            this._initRegExpOptions();
         },
 
         _create: function () {
