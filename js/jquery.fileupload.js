@@ -1,5 +1,5 @@
 /*
- * jQuery File Upload Plugin 5.12
+ * jQuery File Upload Plugin 5.13
  * https://github.com/blueimp/jQuery-File-Upload
  *
  * Copyright 2010, Sebastian Tschan
@@ -530,6 +530,10 @@
                         ub + i * mcs,
                         ub + (i + 1) * mcs
                     );
+                    // Expose the chunk index:
+                    o.chunkIndex = i;
+                    // Expose the number of chunks:
+                    o.chunksNumber = n;
                     // Store the current chunk size, as the blob itself
                     // will be dereferenced after data processing:
                     o.chunkSize = o.blob.size;
