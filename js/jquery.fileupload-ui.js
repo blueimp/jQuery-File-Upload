@@ -1,5 +1,5 @@
 /*
- * jQuery File Upload User Interface Plugin 6.9.3
+ * jQuery File Upload User Interface Plugin 6.9.4
  * https://github.com/blueimp/jQuery-File-Upload
  *
  * Copyright 2010, Sebastian Tschan
@@ -89,7 +89,7 @@
                     files = data.files;
                 $(this).fileupload('process', data).done(function () {
                     that._adjustMaxNumberOfFiles(-files.length);
-                    data.isAdjusted = true;
+                    data.maxNumberOfFilesAdjusted = true;
                     data.files.valid = data.isValidated = that._validate(files);
                     data.context = that._renderUpload(files).data('data', data);
                     options.filesContainer[
@@ -112,8 +112,9 @@
             send: function (e, data) {
                 var that = $(this).data('fileupload');
                 if (!data.isValidated) {
-                    if (!data.isAdjusted) {
+                    if (!data.maxNumberOfFilesAdjusted) {
                         that._adjustMaxNumberOfFiles(-data.files.length);
+                        data.maxNumberOfFilesAdjusted = true;
                     }
                     if (!that._validate(data.files)) {
                         return false;
@@ -163,6 +164,17 @@
                         );
                     });
                 } else {
+                    if ($.isArray(data.result)) {
+                        $.each(data.result, function (index, file) {
+                            if (data.maxNumberOfFilesAdjusted && file.error) {
+                                that._adjustMaxNumberOfFiles(1);
+                            } else if (!data.maxNumberOfFilesAdjusted &&
+                                    !file.error) {
+                                that._adjustMaxNumberOfFiles(-1);
+                            }
+                        });
+                        data.maxNumberOfFilesAdjusted = true;
+                    }
                     template = that._renderDownload(data.result)
                         .appendTo(that.options.filesContainer);
                     that._forceReflow(template);
@@ -178,7 +190,9 @@
             fail: function (e, data) {
                 var that = $(this).data('fileupload'),
                     template;
-                that._adjustMaxNumberOfFiles(data.files.length);
+                if (data.maxNumberOfFilesAdjusted) {
+                    that._adjustMaxNumberOfFiles(data.files.length);
+                }
                 if (data.context) {
                     data.context.each(function (index) {
                         if (data.errorThrown !== 'abort') {
@@ -209,7 +223,6 @@
                         }
                     });
                 } else if (data.errorThrown !== 'abort') {
-                    that._adjustMaxNumberOfFiles(-data.files.length);
                     data.context = that._renderUpload(data.files)
                         .appendTo(that.options.filesContainer)
                         .data('data', data);
