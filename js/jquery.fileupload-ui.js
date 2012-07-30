@@ -295,6 +295,7 @@
             destroy: function (e, data) {
                 var that = $(this).data('fileupload');
                 if (data.url) {
+                    data.url = data.url + "?" + new Date().getTime() + Math.random();//prevent browser from returning cached image as the response
                     $.ajax(data);
                     that._adjustMaxNumberOfFiles(1);
                 }
