@@ -1,5 +1,5 @@
 /*
- * jQuery Iframe Transport Plugin 1.4
+ * jQuery Iframe Transport Plugin 1.5
  * https://github.com/blueimp/jQuery-File-Upload
  *
  * Copyright 2011, Sebastian Tschan
@@ -42,6 +42,7 @@
             return {
                 send: function (_, completeCallback) {
                     form = $('<form style="display:none;"></form>');
+                    form.attr('accept-charset', options.formAcceptCharset);
                     // javascript:false as initial iframe src
                     // prevents warning popups on HTTPS in IE6.
                     // IE versions below IE8 cannot set the name property of
