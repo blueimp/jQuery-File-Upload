@@ -1,5 +1,5 @@
 /*
- * jQuery File Upload Plugin 5.13
+ * jQuery File Upload Plugin 5.14
  * https://github.com/blueimp/jQuery-File-Upload
  *
  * Copyright 2010, Sebastian Tschan
@@ -446,6 +446,9 @@
                 .toUpperCase();
             if (options.type !== 'POST' && options.type !== 'PUT') {
                 options.type = 'POST';
+            }
+            if (!options.formAcceptCharset) {
+                options.formAcceptCharset = options.form.attr('accept-charset');
             }
         },
 
