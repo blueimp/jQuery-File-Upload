@@ -1,5 +1,5 @@
 /*
- * jQuery File Upload Plugin 5.14
+ * jQuery File Upload Plugin 5.15
  * https://github.com/blueimp/jQuery-File-Upload
  *
  * Copyright 2010, Sebastian Tschan
@@ -751,14 +751,6 @@
             return result;
         },
 
-        // File Normalization for Gecko 1.9.1 (Firefox 3.5) support:
-        _normalizeFile: function (index, file) {
-            if (file.name === undefined && file.size === undefined) {
-                file.name = file.fileName;
-                file.size = file.fileSize;
-            }
-        },
-
         _replaceFileInput: function (input) {
             var inputClone = input.clone(true);
             $('<form></form>').append(inputClone)[0].reset();
@@ -785,7 +777,7 @@
 
         _getFileInputFiles: function (fileInput) {
             fileInput = $(fileInput);
-            var files = $.each($.makeArray(fileInput.prop('files')), this._normalizeFile),
+            var files = $.makeArray(fileInput.prop('files')),
                 value;
             if (!files.length) {
                 value = fileInput.prop('value');
@@ -837,10 +829,7 @@
             var that = e.data.fileupload,
                 dataTransfer = e.dataTransfer = e.originalEvent.dataTransfer,
                 data = {
-                    files: $.each(
-                        $.makeArray(dataTransfer && dataTransfer.files),
-                        that._normalizeFile
-                    )
+                    files: $.makeArray(dataTransfer && dataTransfer.files)
                 };
             if (that._trigger('drop', e, data) === false ||
                     that._onAdd(e, data) === false) {
@@ -946,7 +935,7 @@
             if (data.fileInput && !data.files) {
                 data.files = this._getFileInputFiles(data.fileInput);
             } else {
-                data.files = $.each($.makeArray(data.files), this._normalizeFile);
+                data.files = $.makeArray(data.files);
             }
             this._onAdd(null, data);
         },
@@ -961,7 +950,7 @@
                 if (data.fileInput && !data.files) {
                     data.files = this._getFileInputFiles(data.fileInput);
                 } else {
-                    data.files = $.each($.makeArray(data.files), this._normalizeFile);
+                    data.files = $.makeArray(data.files);
                 }
                 if (data.files.length) {
                     return this._onSend(null, data);
