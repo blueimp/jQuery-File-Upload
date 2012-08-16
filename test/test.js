@@ -1,5 +1,5 @@
 /*
- * jQuery File Upload Plugin Test 6.9.2
+ * jQuery File Upload Plugin Test 6.9.3
  * https://github.com/blueimp/jQuery-File-Upload
  *
  * Copyright 2010, Sebastian Tschan
@@ -263,9 +263,8 @@ $(function () {
     });
 
     asyncTest('add', function () {
-        expect(4);
-        var param = {files: [{name: 'test'}]},
-            param2 = {files: [{fileName: 'test', fileSize: 123}]};
+        expect(2);
+        var param = {files: [{name: 'test'}]};
         $('#fileupload').fileupload({
             add: function (e, data) {
                 strictEqual(
@@ -278,22 +277,12 @@ $(function () {
             'option',
             'add',
             function (e, data) {
-                strictEqual(
-                    data.files[0].name,
-                    param2.files[0].fileName,
-                    'Normalizes fileName'
-                );
-                strictEqual(
-                    data.files[0].size,
-                    param2.files[0].fileSize,
-                    'Normalizes fileSize'
-                );
                 data.submit().complete(function () {
                     ok(true, 'data.submit() Returns a jqXHR object');
                     start();
                 });
             }
-        ).fileupload('add', param2);
+        ).fileupload('add', param);
     });
 
     asyncTest('send', function () {
