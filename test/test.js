@@ -1,5 +1,5 @@
 /*
- * jQuery File Upload Plugin Test 6.9.3
+ * jQuery File Upload Plugin Test 6.9.4
  * https://github.com/blueimp/jQuery-File-Upload
  *
  * Copyright 2010, Sebastian Tschan
@@ -88,154 +88,141 @@ $(function () {
     });
 
     test('Event listeners initialization', function () {
-        var fu = $('#fileupload').fileupload();
-        ok(
-            fu.fileupload('option', 'fileInput')
-                .data('events').change.length,
-            'Listens to file input change events'
+        expect(
+            $.support.xhrFormDataFileUpload ? 4 : 1
         );
-        if ($.support.xhrFormDataFileUpload) {
-            ok(
-                fu.fileupload('option', 'dropZone')
-                    .data('events').drop.length,
-                'Listens to drop zone drop events'
-            );
-            ok(
-                fu.fileupload('option', 'dropZone')
-                    .data('events').dragover.length,
-                'Listens to drop zone dragover events'
-            );
-        }
+        var eo = {originalEvent: {}},
+            fu = $('#fileupload').fileupload({
+                dragover: function () {
+                    ok(true, 'Triggers dragover callback');
+                    return false;
+                },
+                drop: function () {
+                    ok(true, 'Triggers drop callback');
+                    return false;
+                },
+                paste: function () {
+                    ok(true, 'Triggers paste callback');
+                    return false;
+                },
+                change: function () {
+                    ok(true, 'Triggers change callback');
+                    return false;
+                }
+            }),
+            fileInput = fu.fileupload('option', 'fileInput'),
+            dropZone = fu.fileupload('option', 'dropZone');
+        fileInput.trigger($.Event('change', eo));
+        dropZone.trigger($.Event('dragover', eo));
+        dropZone.trigger($.Event('drop', eo));
+        dropZone.trigger($.Event('paste', eo));
     });
 
     module('API', lifecycle);
 
     test('destroy', function () {
-        var fu = $('#fileupload').fileupload(),
+        expect(4);
+        var eo = {originalEvent: {}},
+            options = {
+                dragover: function () {
+                    ok(true, 'Triggers dragover callback');
+                    return false;
+                },
+                drop: function () {
+                    ok(true, 'Triggers drop callback');
+                    return false;
+                },
+                paste: function () {
+                    ok(true, 'Triggers paste callback');
+                    return false;
+                },
+                change: function () {
+                    ok(true, 'Triggers change callback');
+                    return false;
+                }
+            },
+            fu = $('#fileupload').fileupload(options),
             fileInput = fu.fileupload('option', 'fileInput'),
             dropZone = fu.fileupload('option', 'dropZone');
-        fileInput.change($.noop);
-        dropZone.bind('drop', $.noop);
-        dropZone.bind('dragover', $.noop);
+        dropZone.bind('dragover', options.dragover);
+        dropZone.bind('drop', options.drop);
+        dropZone.bind('paste', options.paste);
+        fileInput.bind('change', options.change);
         fu.fileupload('destroy');
-        strictEqual(
-            fileInput.data('events').change.length,
-            1,
-            'Removes own file input change event listener'
-        );
-        if ($.support.xhrFormDataFileUpload) {
-            strictEqual(
-                dropZone.data('events').drop.length,
-                1,
-                'Removes own drop zone drop event listener'
-            );
-            strictEqual(
-                dropZone.data('events').dragover.length,
-                1,
-                'Removes own drop zone dragover event listener'
-            );
-        }
+        fileInput.trigger($.Event('change', eo));
+        dropZone.trigger($.Event('dragover', eo));
+        dropZone.trigger($.Event('drop', eo));
+        dropZone.trigger($.Event('paste', eo));
     });
 
-    test('disable', function () {
-        var fu = $('#fileupload').fileupload(),
+    test('disable/enable', function () {
+        expect(
+            $.support.xhrFormDataFileUpload ? 4 : 1
+        );
+        var eo = {originalEvent: {}},
+            fu = $('#fileupload').fileupload({
+                dragover: function () {
+                    ok(true, 'Triggers dragover callback');
+                    return false;
+                },
+                drop: function () {
+                    ok(true, 'Triggers drop callback');
+                    return false;
+                },
+                paste: function () {
+                    ok(true, 'Triggers paste callback');
+                    return false;
+                },
+                change: function () {
+                    ok(true, 'Triggers change callback');
+                    return false;
+                }
+            }),
             fileInput = fu.fileupload('option', 'fileInput'),
-            dropZone = fu.fileupload('option', 'dropZone'),
-            param = {files: [{name: 'test'}]};
-        fileInput.change($.noop);
-        dropZone.bind('drop', $.noop);
-        dropZone.bind('dragover', $.noop);
+            dropZone = fu.fileupload('option', 'dropZone');
         fu.fileupload('disable');
-        strictEqual(
-            fileInput.data('events').change.length,
-            1,
-            'Removes own file input change event listener'
-        );
-        if ($.support.xhrFormDataFileUpload) {
-            strictEqual(
-                dropZone.data('events').drop.length,
-                1,
-                'Removes own drop zone drop event listener'
-            );
-            strictEqual(
-                dropZone.data('events').dragover.length,
-                1,
-                'Removes own drop zone dragover event listener'
-            );
-        }
-        fu.fileupload({
-            add: function (e, data) {
-                ok(false);
-            }
-        }).fileupload('add', param);
-    });
-
-    test('enable', function () {
-        var fu = $('#fileupload').fileupload(),
-            param = {files: [{name: 'test'}]};
-        fu.fileupload('disable');
+        fileInput.trigger($.Event('change', eo));
+        dropZone.trigger($.Event('dragover', eo));
+        dropZone.trigger($.Event('drop', eo));
+        dropZone.trigger($.Event('paste', eo));
         fu.fileupload('enable');
-        ok(
-            fu.fileupload('option', 'fileInput')
-                .data('events').change.length,
-            'Listens to file input change events'
-        );
-        if ($.support.xhrFormDataFileUpload) {
-            ok(
-                fu.fileupload('option', 'dropZone')
-                    .data('events').drop.length,
-                'Listens to drop zone drop events'
-            );
-            ok(
-                fu.fileupload('option', 'dropZone')
-                    .data('events').dragover.length,
-                'Listens to drop zone dragover events'
-            );
-        }
-        $('#fileupload').fileupload({
-            send: function (e, data) {
-                strictEqual(
-                    data.files[0].name,
-                    'test',
-                    'Triggers send callback'
-                );
-                return false;
-            }
-        }).fileupload('send', param);
+        fileInput.trigger($.Event('change', eo));
+        dropZone.trigger($.Event('dragover', eo));
+        dropZone.trigger($.Event('drop', eo));
+        dropZone.trigger($.Event('paste', eo));
     });
 
     test('option', function () {
-        var fu = $('#fileupload').fileupload(),
+        expect(
+            $.support.xhrFormDataFileUpload ? 8 : 5
+        );
+        var eo = {originalEvent: {}},
+            fu = $('#fileupload').fileupload({
+                dragover: function () {
+                    ok(true, 'Triggers dragover callback');
+                    return false;
+                },
+                drop: function () {
+                    ok(true, 'Triggers drop callback');
+                    return false;
+                },
+                paste: function () {
+                    ok(true, 'Triggers paste callback');
+                    return false;
+                },
+                change: function () {
+                    ok(true, 'Triggers change callback');
+                    return false;
+                }
+            }),
             fileInput = fu.fileupload('option', 'fileInput'),
             dropZone = fu.fileupload('option', 'dropZone');
         fu.fileupload('option', 'fileInput', null);
         fu.fileupload('option', 'dropZone', null);
-        ok(
-            !fileInput.data('events'),
-            'Removes event listener after changing fileInput option'
-        );
-        if ($.support.xhrFormDataFileUpload) {
-            ok(
-                !dropZone.data('events'),
-                'Removes event listeners after changing dropZone option'
-            );
-        }
-        fu.fileupload('option', 'fileInput', fileInput);
-        fu.fileupload('option', 'dropZone', dropZone);
-        ok(
-            fileInput.data('events').change.length,
-            'Adds change event listener after setting fileInput option'
-        );
-        if ($.support.xhrFormDataFileUpload) {
-            ok(
-                dropZone.data('events').drop.length,
-                'Adds drop event listener after setting dropZone option'
-            );
-            ok(
-                dropZone.data('events').dragover.length,
-                'Adds dragover event listener after setting dropZone option'
-            );
-        }
+        fileInput.trigger($.Event('change', eo));
+        dropZone.trigger($.Event('dragover', eo));
+        dropZone.trigger($.Event('drop', eo));
+        dropZone.trigger($.Event('paste', eo));
         fu.fileupload('option', 'dropZone', 'body');
         strictEqual(
             fu.fileupload('option', 'dropZone')[0],
@@ -260,6 +247,12 @@ $(function () {
             $(':file')[0],
             'Allow a document element as parameter for the fileInput option'
         );
+        fu.fileupload('option', 'fileInput', fileInput);
+        fu.fileupload('option', 'dropZone', dropZone);
+        fileInput.trigger($.Event('change', eo));
+        dropZone.trigger($.Event('dragover', eo));
+        dropZone.trigger($.Event('drop', eo));
+        dropZone.trigger($.Event('paste', eo));
     });
 
     asyncTest('add', function () {
@@ -839,7 +832,7 @@ $(function () {
     test('Buttonbar event listeners', function () {
         var buttonbar = $('#fileupload .fileupload-buttonbar'),
             files = [{name: 'test'}];
-        expect(7);
+        expect(4);
         $('#fileupload').fileupload({
             send: function (e, data) {
                 ok(true, 'Started file upload via global start button');
@@ -852,21 +845,6 @@ $(function () {
                 ok(true, 'Delete action called via global delete button');
             }
         });
-        ok(
-            buttonbar.find('.start')
-                .data('events').click.length,
-            'Listens to start button click events'
-        );
-        ok(
-            buttonbar.find('.cancel')
-                .data('events').click.length,
-            'Listens to cancel button click events'
-        );
-        ok(
-            buttonbar.find('.delete')
-                .data('events').click.length,
-            'Listens to delete button click events'
-        );
         $('#fileupload').fileupload('add', {files: files});
         buttonbar.find('.cancel').click();
         $('#fileupload').fileupload('add', {files: files});
@@ -881,28 +859,24 @@ $(function () {
     module('UI API', lifecycleUI);
 
     test('destroy', function () {
-        var buttonbar = $('#fileupload .fileupload-buttonbar');
-        $('#fileupload').fileupload();
-        buttonbar.find('button').click($.noop);
-        $('#fileupload').fileupload('destroy');
-        strictEqual(
-            buttonbar.find('.start').data('events').click.length,
-            1,
-            'Removes own start button click event listener'
-        );
-        strictEqual(
-            buttonbar.find('.cancel').data('events').click.length,
-            1,
-            'Removes own cancel button click event listener'
-        );
-        strictEqual(
-            buttonbar.find('.delete').data('events').click.length,
-            1,
-            'Removes own delete button click event listener'
-        );
+        var buttonbar = $('#fileupload .fileupload-buttonbar'),
+            files = [{name: 'test'}];
+        expect(1);
+        $('#fileupload').fileupload({
+            send: function (e, data) {
+                ok(true, 'This test should not run');
+                return false;
+            }
+        })
+            .fileupload('add', {files: files})
+            .fileupload('destroy');
+        buttonbar.find('.start').click(function () {
+            ok(true, 'Clicked global start button');
+            return false;
+        }).click();
     });
 
-    test('disable', function () {
+    test('disable/enable', function () {
         var buttonbar = $('#fileupload .fileupload-buttonbar');
         $('#fileupload').fileupload();
         $('#fileupload').fileupload('disable');
@@ -911,14 +885,7 @@ $(function () {
             0,
             'Disables the buttonbar buttons'
         );
-    });
-
-    test('enable', function () {
-        var buttonbar = $('#fileupload .fileupload-buttonbar');
-        $('#fileupload')
-            .fileupload()
-            .fileupload('disable')
-            .fileupload('enable');
+        $('#fileupload').fileupload('enable');
         strictEqual(
             buttonbar.find('input[type=file], button').not(':disabled').length,
             4,
