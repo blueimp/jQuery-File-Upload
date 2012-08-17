@@ -1,5 +1,5 @@
 /*
- * jQuery File Upload Plugin 5.16
+ * jQuery File Upload Plugin 5.16.1
  * https://github.com/blueimp/jQuery-File-Upload
  *
  * Copyright 2010, Sebastian Tschan
@@ -666,9 +666,15 @@
                                 options.limitConcurrentUploads > that._sending) {
                             // Start the next queued upload,
                             // that has not been aborted:
-                            var nextSlot = that._slots.shift();
+                            var nextSlot = that._slots.shift(),
+                                isPending;
                             while (nextSlot) {
-                                if (!nextSlot.isRejected()) {
+                                // jQuery 1.6 doesn't provide .state(),
+                                // while jQuery 1.8+ removed .isRejected():
+                                isPending = nextSlot.state ?
+                                        nextSlot.state() === 'pending' :
+                                        !nextSlot.isRejected();
+                                if (isPending) {
                                     nextSlot.resolve();
                                     break;
                                 }
