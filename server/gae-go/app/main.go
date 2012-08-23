@@ -1,5 +1,5 @@
 /*
- * jQuery File Upload Plugin GAE Go Example 2.0
+ * jQuery File Upload Plugin GAE Go Example 2.1
  * https://github.com/blueimp/jQuery-File-Upload
  *
  * Copyright 2011, Sebastian Tschan
@@ -14,37 +14,29 @@ package app
 import (
 	"appengine"
 	"appengine/blobstore"
-	"appengine/memcache"
+	"appengine/image"
 	"appengine/taskqueue"
 	"bytes"
-	"encoding/base64"
 	"encoding/json"
 	"fmt"
-	"image"
-	"image/png"
 	"io"
 	"log"
 	"mime/multipart"
 	"net/http"
 	"net/url"
 	"regexp"
-	"resize"
 	"strings"
 	"time"
 )
 
-import _ "image/gif"
-import _ "image/jpeg"
-
 const (
-	WEBSITE              = "http://blueimp.github.com/jQuery-File-Upload/"
-	MIN_FILE_SIZE        = 1       // bytes
-	MAX_FILE_SIZE        = 5000000 // bytes
-	IMAGE_TYPES          = "image/(gif|p?jpeg|(x-)?png)"
-	ACCEPT_FILE_TYPES    = IMAGE_TYPES
-	EXPIRATION_TIME      = 300 // seconds
-	THUMBNAIL_MAX_WIDTH  = 80
-	THUMBNAIL_MAX_HEIGHT = THUMBNAIL_MAX_WIDTH
+	WEBSITE           = "http://blueimp.github.com/jQuery-File-Upload/"
+	MIN_FILE_SIZE     = 1       // bytes
+	MAX_FILE_SIZE     = 5000000 // bytes
+	IMAGE_TYPES       = "image/(gif|p?jpeg|(x-)?png)"
+	ACCEPT_FILE_TYPES = IMAGE_TYPES
+	EXPIRATION_TIME   = 300 // seconds
+	THUMBNAIL_PARAM   = "=s80"
 )
 
 var (
@@ -94,49 +86,19 @@ func (fi *FileInfo) CreateUrls(r *http.Request, c appengine.Context) {
 		escape(string(fi.Name))
 	fi.DeleteUrl = fi.Url
 	fi.DeleteType = "DELETE"
-	if fi.ThumbnailUrl != "" && -1 == strings.Index(
-		r.Header.Get("Accept"),
-		"application/json",
-	) {
-		fi.ThumbnailUrl = uString + "thumbnails/" +
-			escape(string(fi.Key))
+	if imageTypes.MatchString(fi.Type) {
+		servingUrl, err := image.ServingURL(
+			c,
+			fi.Key,
+			&image.ServingURLOptions{
+				Secure: strings.HasSuffix(u.Scheme, "s"),
+				Size:   0,
+				Crop:   false,
+			},
+		)
+		check(err)
+		fi.ThumbnailUrl = servingUrl.String() + THUMBNAIL_PARAM
 	}
-}
-
-func (fi *FileInfo) CreateThumbnail(r io.Reader, c appengine.Context) (data []byte, err error) {
-	defer func() {
-		if rec := recover(); rec != nil {
-			log.Println(rec)
-			// 1x1 pixel transparent GIf, bas64 encoded:
-			s := "R0lGODlhAQABAIAAAP///////yH5BAEKAAEALAAAAAABAAEAAAICTAEAOw=="
-			data, _ = base64.StdEncoding.DecodeString(s)
-			fi.ThumbnailUrl = "data:image/gif;base64," + s
-		}
-		memcache.Add(c, &memcache.Item{
-			Key:        string(fi.Key),
-			Value:      data,
-			Expiration: EXPIRATION_TIME,
-		})
-	}()
-	img, _, err := image.Decode(r)
-	check(err)
-	if bounds := img.Bounds(); bounds.Dx() > THUMBNAIL_MAX_WIDTH ||
-		bounds.Dy() > THUMBNAIL_MAX_HEIGHT {
-		w, h := THUMBNAIL_MAX_WIDTH, THUMBNAIL_MAX_HEIGHT
-		if bounds.Dx() > bounds.Dy() {
-			h = bounds.Dy() * h / bounds.Dx()
-		} else {
-			w = bounds.Dx() * w / bounds.Dy()
-		}
-		img = resize.Resize(img, img.Bounds(), w, h)
-	}
-	var b bytes.Buffer
-	err = png.Encode(&b, img)
-	check(err)
-	data = b.Bytes()
-	fi.ThumbnailUrl = "data:image/png;base64," +
-		base64.StdEncoding.EncodeToString(data)
-	return
 }
 
 func check(err error) {
@@ -174,7 +136,6 @@ func handleUpload(r *http.Request, p *multipart.Part) (fi *FileInfo) {
 			fi.Error = rec.(error).Error()
 		}
 	}()
-	var b bytes.Buffer
 	lr := &io.LimitedReader{R: p, N: MAX_FILE_SIZE + 1}
 	context := appengine.NewContext(r)
 	w, err := blobstore.Create(context, fi.Type)
@@ -189,17 +150,10 @@ func handleUpload(r *http.Request, p *multipart.Part) (fi *FileInfo) {
 			return
 		}
 		delayedDelete(context, fi)
-		if b.Len() > 0 {
-			fi.CreateThumbnail(&b, context)
-		}
 		fi.CreateUrls(r, context)
 	}()
 	check(err)
-	var wr io.Writer = w
-	if imageTypes.MatchString(fi.Type) {
-		wr = io.MultiWriter(&b, w)
-	}
-	_, err = io.Copy(wr, lr)
+	_, err = io.Copy(w, lr)
 	return
 }
 
@@ -253,7 +207,7 @@ func get(w http.ResponseWriter, r *http.Request) {
 						fmt.Sprintf("attachment; filename=%s;", parts[2]),
 					)
 				}
-				blobstore.Send(w, appengine.BlobKey(key))
+				blobstore.Send(w, blobKey)
 				return
 			}
 		}
@@ -285,48 +239,12 @@ func delete(w http.ResponseWriter, r *http.Request) {
 	}
 	if key := parts[1]; key != "" {
 		c := appengine.NewContext(r)
-		blobstore.Delete(c, appengine.BlobKey(key))
-		memcache.Delete(c, key)
+		blobKey := appengine.BlobKey(key)
+		err := blobstore.Delete(c, blobKey)
+		check(err)
+		err = image.DeleteServingURL(c, blobKey)
+		check(err)
 	}
-}
-
-func serveThumbnail(w http.ResponseWriter, r *http.Request) {
-	parts := strings.Split(r.URL.Path, "/")
-	if len(parts) == 3 {
-		if key := parts[2]; key != "" {
-			var data []byte
-			c := appengine.NewContext(r)
-			item, err := memcache.Get(c, key)
-			if err == nil {
-				data = item.Value
-			} else {
-				blobKey := appengine.BlobKey(key)
-				if _, err = blobstore.Stat(c, blobKey); err == nil {
-					fi := FileInfo{Key: blobKey}
-					data, _ = fi.CreateThumbnail(
-						blobstore.NewReader(c, blobKey),
-						c,
-					)
-				}
-			}
-			if err == nil && len(data) > 3 {
-				w.Header().Add(
-					"Cache-Control",
-					fmt.Sprintf("public,max-age=%d", EXPIRATION_TIME),
-				)
-				contentType := "image/png"
-				if string(data[:3]) == "GIF" {
-					contentType = "image/gif"
-				} else if string(data[1:4]) != "PNG" {
-					contentType = "image/jpeg"
-				}
-				w.Header().Set("Content-Type", contentType)
-				fmt.Fprintln(w, string(data))
-				return
-			}
-		}
-	}
-	http.Error(w, "404 Not Found", http.StatusNotFound)
 }
 
 func handle(w http.ResponseWriter, r *http.Request) {
@@ -357,5 +275,4 @@ func handle(w http.ResponseWriter, r *http.Request) {
 
 func init() {
 	http.HandleFunc("/", handle)
-	http.HandleFunc("/thumbnails/", serveThumbnail)
 }
