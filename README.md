@@ -1,3 +1,4 @@
+[![build status](https://secure.travis-ci.org/blueimp/jQuery-File-Upload.png)](http://travis-ci.org/blueimp/jQuery-File-Upload)
 # jQuery File Upload Plugin
 
 ## Demo
