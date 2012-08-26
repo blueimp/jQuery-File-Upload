@@ -850,7 +850,7 @@
                     fileInput.prop('entries'),
                 files,
                 value;
-            if (entries) {
+            if (entries && entries.length > 0) {
                 return this._handleFileTreeEntries(entries);
             }
             files = $.makeArray(fileInput.prop('files'));
