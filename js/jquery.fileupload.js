@@ -1,5 +1,5 @@
 /*
- * jQuery File Upload Plugin 5.16.1
+ * jQuery File Upload Plugin 5.16.2
  * https://github.com/blueimp/jQuery-File-Upload
  *
  * Copyright 2010, Sebastian Tschan
@@ -850,7 +850,7 @@
                     fileInput.prop('entries'),
                 files,
                 value;
-            if (entries) {
+            if (entries && entries.length) {
                 return this._handleFileTreeEntries(entries);
             }
             files = $.makeArray(fileInput.prop('files'));
