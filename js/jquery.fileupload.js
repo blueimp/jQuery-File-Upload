@@ -1,5 +1,5 @@
 /*
- * jQuery File Upload Plugin 5.16.2
+ * jQuery File Upload Plugin 5.16.3
  * https://github.com/blueimp/jQuery-File-Upload
  *
  * Copyright 2010, Sebastian Tschan
@@ -963,8 +963,8 @@
         _initSpecialOptions: function () {
             var options = this.options;
             if (options.fileInput === undefined) {
-                options.fileInput = this.element.is('input:file') ?
-                        this.element : this.element.find('input:file');
+                options.fileInput = this.element.is('input[type="file"]') ?
+                        this.element : this.element.find('input[type="file"]');
             } else if (!(options.fileInput instanceof $)) {
                 options.fileInput = $(options.fileInput);
             }
