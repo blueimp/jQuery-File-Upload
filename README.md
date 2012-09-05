@@ -3,9 +3,17 @@
 ## Demo
 [Demo File Upload](http://blueimp.github.com/jQuery-File-Upload/)
 
-## Setup instructions
+## Setup
 * [How to setup the plugin on your website](https://github.com/blueimp/jQuery-File-Upload/wiki/Setup)
 * [How to use only the basic plugin (minimal setup guide).](https://github.com/blueimp/jQuery-File-Upload/wiki/Basic-plugin)
+
+## Support
+* **Support requests** and **general discussions** about the File Upload plugin can be posted to the official [support forum](https://groups.google.com/d/forum/jquery-fileupload).  
+If your question is not directly related to the File Upload plugin, you might have a better chance to get a reply by posting to [Stack Overflow](http://stackoverflow.com/questions/tagged/blueimp+jquery+file-upload). 
+* **Bugs** in the File Upload plugin can be reported using the [issues tracker](https://github.com/blueimp/jQuery-File-Upload/issues).  
+Please provide as much details about your test setup as possible (server information, browser and operating system versions).  
+Please also provide a [JSFiddle](http://jsfiddle.net/) to allow to reproduce the problem, if possible.
+* **Feature requests** can also be posted to the [issues tracker](https://github.com/blueimp/jQuery-File-Upload/issues) if the implementation would benefit a broader use case or the plugin could be considered incomplete without that feature. Else, please post your ideas to the [support forum](https://groups.google.com/d/forum/jquery-fileupload).
 
 ## Features
 * **Multiple file upload:**  
@@ -60,7 +68,9 @@ The repository also includes the [jQuery XDomainRequest Transport plugin](https:
 
 [Cross-domain File Uploads](https://github.com/blueimp/jQuery-File-Upload/wiki/Cross-domain-uploads) using the [Iframe Transport plugin](https://github.com/blueimp/jQuery-File-Upload/blob/master/js/jquery.iframe-transport.js) require a redirect back to the origin server to retrieve the upload results. The [example implementation](https://github.com/blueimp/jQuery-File-Upload/blob/master/js/main.js) makes use of [result.html](https://github.com/blueimp/jQuery-File-Upload/blob/master/cors/result.html) as a static redirect page for the origin server.
 
-## Browser Support (tested versions)
+## Browsers
+The File Upload plugin is regularly tested with the latest browser versions and supports the following minimal versions:
+
 * Google Chrome - 7.0+
 * Apple Safari - 4.0+
 * Mozilla Firefox - 3.0+
