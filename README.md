@@ -11,7 +11,8 @@
 * **Support requests** and **general discussions** about the File Upload plugin can be posted to the official [support forum](https://groups.google.com/d/forum/jquery-fileupload).  
 If your question is not directly related to the File Upload plugin, you might have a better chance to get a reply by posting to [Stack Overflow](http://stackoverflow.com/questions/tagged/blueimp+jquery+file-upload). 
 * **Bugs** in the File Upload plugin can be reported using the [issues tracker](https://github.com/blueimp/jQuery-File-Upload/issues).  
-Please provide as much details about your test setup as possible (server information, browser and operating system versions).  
+Please try to reproduce the problem with the [Demo](http://blueimp.github.com/jQuery-File-Upload/) or with an unmodified setup. Problems with customizations should be posted to the [support forum](https://groups.google.com/d/forum/jquery-fileupload), especially for server-side problems.  
+Provide as much details about your test setup as possible (server information, browser and operating system versions).  
 Please also provide a [JSFiddle](http://jsfiddle.net/) to allow to reproduce the problem, if possible.
 * **Feature requests** can also be posted to the [issues tracker](https://github.com/blueimp/jQuery-File-Upload/issues) if the implementation would benefit a broader use case or the plugin could be considered incomplete without that feature. Else, please post your ideas to the [support forum](https://groups.google.com/d/forum/jquery-fileupload).
 
