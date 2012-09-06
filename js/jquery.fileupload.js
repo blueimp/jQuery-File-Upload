@@ -1,5 +1,5 @@
 /*
- * jQuery File Upload Plugin 5.16.3
+ * jQuery File Upload Plugin 5.16.4
  * https://github.com/blueimp/jQuery-File-Upload
  *
  * Copyright 2010, Sebastian Tschan
@@ -991,12 +991,20 @@
         },
 
         enable: function () {
+            var wasDisabled = false;
+            if (this.options.disabled) {
+                wasDisabled = true;
+            }
             $.Widget.prototype.enable.call(this);
-            this._initEventHandlers();
+            if (wasDisabled) {
+                this._initEventHandlers();
+            }
         },
 
         disable: function () {
-            this._destroyEventHandlers();
+            if (!this.options.disabled) {
+                this._destroyEventHandlers();
+            }
             $.Widget.prototype.disable.call(this);
         },
 
