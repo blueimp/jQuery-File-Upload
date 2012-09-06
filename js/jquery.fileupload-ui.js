@@ -1,5 +1,5 @@
 /*
- * jQuery File Upload User Interface Plugin 6.9.4
+ * jQuery File Upload User Interface Plugin 6.9.5
  * https://github.com/blueimp/jQuery-File-Upload
  *
  * Copyright 2010, Sebastian Tschan
@@ -720,14 +720,22 @@
         },
 
         enable: function () {
+            var wasDisabled = false;
+            if (this.options.disabled) {
+                wasDisabled = true;
+            }
             parentWidget.prototype.enable.call(this);
-            this.element.find('input, button').prop('disabled', false);
-            this._enableFileInputButton();
+            if (wasDisabled) {
+                this.element.find('input, button').prop('disabled', false);
+                this._enableFileInputButton();
+            }
         },
 
         disable: function () {
-            this.element.find('input, button').prop('disabled', true);
-            this._disableFileInputButton();
+            if (!this.options.disabled) {
+                this.element.find('input, button').prop('disabled', true);
+                this._disableFileInputButton();
+            }
             parentWidget.prototype.disable.call(this);
         }
 
