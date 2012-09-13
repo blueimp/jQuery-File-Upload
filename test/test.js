@@ -1,5 +1,5 @@
 /*
- * jQuery File Upload Plugin Test 6.9.4
+ * jQuery File Upload Plugin Test 6.9.5
  * https://github.com/blueimp/jQuery-File-Upload
  *
  * Copyright 2010, Sebastian Tschan
@@ -87,6 +87,11 @@ $(function () {
             .fileupload('option', 'dropZone').length);
     });
 
+    test('Paste zone initialization', function () {
+        ok($('#fileupload').fileupload()
+            .fileupload('option', 'pasteZone').length);
+    });
+
     test('Event listeners initialization', function () {
         expect(
             $.support.xhrFormDataFileUpload ? 4 : 1
@@ -111,11 +116,12 @@ $(function () {
                 }
             }),
             fileInput = fu.fileupload('option', 'fileInput'),
-            dropZone = fu.fileupload('option', 'dropZone');
+            dropZone = fu.fileupload('option', 'dropZone'),
+            pasteZone = fu.fileupload('option', 'pasteZone');
         fileInput.trigger($.Event('change', eo));
         dropZone.trigger($.Event('dragover', eo));
         dropZone.trigger($.Event('drop', eo));
-        dropZone.trigger($.Event('paste', eo));
+        pasteZone.trigger($.Event('paste', eo));
     });
 
     module('API', lifecycle);
@@ -143,16 +149,17 @@ $(function () {
             },
             fu = $('#fileupload').fileupload(options),
             fileInput = fu.fileupload('option', 'fileInput'),
-            dropZone = fu.fileupload('option', 'dropZone');
+            dropZone = fu.fileupload('option', 'dropZone'),
+            pasteZone = fu.fileupload('option', 'pasteZone');
         dropZone.bind('dragover', options.dragover);
         dropZone.bind('drop', options.drop);
-        dropZone.bind('paste', options.paste);
+        pasteZone.bind('paste', options.paste);
         fileInput.bind('change', options.change);
         fu.fileupload('destroy');
         fileInput.trigger($.Event('change', eo));
         dropZone.trigger($.Event('dragover', eo));
         dropZone.trigger($.Event('drop', eo));
-        dropZone.trigger($.Event('paste', eo));
+        pasteZone.trigger($.Event('paste', eo));
     });
 
     test('disable/enable', function () {
@@ -179,22 +186,23 @@ $(function () {
                 }
             }),
             fileInput = fu.fileupload('option', 'fileInput'),
-            dropZone = fu.fileupload('option', 'dropZone');
+            dropZone = fu.fileupload('option', 'dropZone'),
+            pasteZone = fu.fileupload('option', 'pasteZone');
         fu.fileupload('disable');
         fileInput.trigger($.Event('change', eo));
         dropZone.trigger($.Event('dragover', eo));
         dropZone.trigger($.Event('drop', eo));
-        dropZone.trigger($.Event('paste', eo));
+        pasteZone.trigger($.Event('paste', eo));
         fu.fileupload('enable');
         fileInput.trigger($.Event('change', eo));
         dropZone.trigger($.Event('dragover', eo));
         dropZone.trigger($.Event('drop', eo));
-        dropZone.trigger($.Event('paste', eo));
+        pasteZone.trigger($.Event('paste', eo));
     });
 
     test('option', function () {
         expect(
-            $.support.xhrFormDataFileUpload ? 8 : 5
+            $.support.xhrFormDataFileUpload ? 10 : 7
         );
         var eo = {originalEvent: {}},
             fu = $('#fileupload').fileupload({
@@ -216,13 +224,15 @@ $(function () {
                 }
             }),
             fileInput = fu.fileupload('option', 'fileInput'),
-            dropZone = fu.fileupload('option', 'dropZone');
+            dropZone = fu.fileupload('option', 'dropZone'),
+            pasteZone = fu.fileupload('option', 'pasteZone');
         fu.fileupload('option', 'fileInput', null);
         fu.fileupload('option', 'dropZone', null);
+        fu.fileupload('option', 'pasteZone', null);
         fileInput.trigger($.Event('change', eo));
         dropZone.trigger($.Event('dragover', eo));
         dropZone.trigger($.Event('drop', eo));
-        dropZone.trigger($.Event('paste', eo));
+        pasteZone.trigger($.Event('paste', eo));
         fu.fileupload('option', 'dropZone', 'body');
         strictEqual(
             fu.fileupload('option', 'dropZone')[0],
@@ -234,6 +244,18 @@ $(function () {
             fu.fileupload('option', 'dropZone')[0],
             document,
             'Allow a document element as parameter for the dropZone option'
+        );
+        fu.fileupload('option', 'pasteZone', 'body');
+        strictEqual(
+            fu.fileupload('option', 'pasteZone')[0],
+            document.body,
+            'Allow a query string as parameter for the pasteZone option'
+        );
+        fu.fileupload('option', 'pasteZone', document);
+        strictEqual(
+            fu.fileupload('option', 'pasteZone')[0],
+            document,
+            'Allow a document element as parameter for the pasteZone option'
         );
         fu.fileupload('option', 'fileInput', ':file');
         strictEqual(
@@ -249,10 +271,11 @@ $(function () {
         );
         fu.fileupload('option', 'fileInput', fileInput);
         fu.fileupload('option', 'dropZone', dropZone);
+        fu.fileupload('option', 'pasteZone', pasteZone);
         fileInput.trigger($.Event('change', eo));
         dropZone.trigger($.Event('dragover', eo));
         dropZone.trigger($.Event('drop', eo));
-        dropZone.trigger($.Event('paste', eo));
+        pasteZone.trigger($.Event('paste', eo));
     });
 
     asyncTest('add', function () {
