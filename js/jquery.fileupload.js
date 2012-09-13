@@ -1,5 +1,5 @@
 /*
- * jQuery File Upload Plugin 5.16.4
+ * jQuery File Upload Plugin 5.17
  * https://github.com/blueimp/jQuery-File-Upload
  *
  * Copyright 2010, Sebastian Tschan
@@ -44,17 +44,20 @@
     $.widget('blueimp.fileupload', {
 
         options: {
-            // The namespace used for event handler binding on the dropZone and
-            // fileInput collections.
+            // The namespace used for event handler binding on the fileInput,
+            // dropZone and pasteZone document nodes.
             // If not set, the name of the widget ("fileupload") is used.
             namespace: undefined,
-            // The drop target collection, by the default the complete document.
-            // Set to null or an empty collection to disable drag & drop support:
+            // The drop target element(s), by the default the complete document.
+            // Set to null to disable drag & drop support:
             dropZone: $(document),
-            // The file input field collection, that is listened for change events.
+            // The paste target element(s), by the default the complete document.
+            // Set to null to disable paste support:
+            pasteZone: $(document),
+            // The file input field(s), that are listened to for change events.
             // If undefined, it is set to the file input fields inside
             // of the widget element on plugin initialization.
-            // Set to null or an empty collection to disable the change listener.
+            // Set to null to disable the change listener.
             fileInput: undefined,
             // By default, the file input field is replaced with a clone after
             // each input field change event. This is required for iframe transport
@@ -159,13 +162,13 @@
             // start: function (e) {}, // .bind('fileuploadstart', func);
             // Callback for uploads stop, equivalent to the global ajaxStop event:
             // stop: function (e) {}, // .bind('fileuploadstop', func);
-            // Callback for change events of the fileInput collection:
+            // Callback for change events of the fileInput(s):
             // change: function (e, data) {}, // .bind('fileuploadchange', func);
-            // Callback for paste events to the dropZone collection:
+            // Callback for paste events to the pasteZone(s):
             // paste: function (e, data) {}, // .bind('fileuploadpaste', func);
-            // Callback for drop events of the dropZone collection:
+            // Callback for drop events of the dropZone(s):
             // drop: function (e, data) {}, // .bind('fileuploaddrop', func);
-            // Callback for dragover events of the dropZone collection:
+            // Callback for dragover events of the dropZone(s):
             // dragover: function (e) {}, // .bind('fileuploaddragover', func);
 
             // The plugin options are used as settings object for the ajax calls.
@@ -178,8 +181,9 @@
         // A list of options that require a refresh after assigning a new value:
         _refreshOptionsList: [
             'namespace',
-            'dropZone',
             'fileInput',
+            'dropZone',
+            'pasteZone',
             'multipart',
             'forceIframeTransport'
         ],
@@ -766,7 +770,7 @@
             // Avoid memory leaks with the detached file input:
             $.cleanData(input.unbind('remove'));
             // Replace the original file input element in the fileInput
-            // collection with the clone, which has been copied including
+            // elements set with the clone, which has been copied including
             // event handlers:
             this.options.fileInput = this.options.fileInput.map(function (i, el) {
                 if (el === input[0]) {
@@ -931,7 +935,8 @@
             if (this._isXHRUpload(this.options)) {
                 this.options.dropZone
                     .bind('dragover.' + ns, {fileupload: this}, this._onDragOver)
-                    .bind('drop.' + ns, {fileupload: this}, this._onDrop)
+                    .bind('drop.' + ns, {fileupload: this}, this._onDrop);
+                this.options.pasteZone
                     .bind('paste.' + ns, {fileupload: this}, this._onPaste);
             }
             this.options.fileInput
@@ -942,7 +947,8 @@
             var ns = this.options.namespace;
             this.options.dropZone
                 .unbind('dragover.' + ns, this._onDragOver)
-                .unbind('drop.' + ns, this._onDrop)
+                .unbind('drop.' + ns, this._onDrop);
+            this.options.pasteZone
                 .unbind('paste.' + ns, this._onPaste);
             this.options.fileInput
                 .unbind('change.' + ns, this._onChange);
@@ -970,6 +976,9 @@
             }
             if (!(options.dropZone instanceof $)) {
                 options.dropZone = $(options.dropZone);
+            }
+            if (!(options.pasteZone instanceof $)) {
+                options.pasteZone = $(options.pasteZone);
             }
         },
 
