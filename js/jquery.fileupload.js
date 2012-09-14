@@ -1,5 +1,5 @@
 /*
- * jQuery File Upload Plugin 5.17.1
+ * jQuery File Upload Plugin 5.17.2
  * https://github.com/blueimp/jQuery-File-Upload
  *
  * Copyright 2010, Sebastian Tschan
@@ -793,8 +793,15 @@
         _handleFileTreeEntry: function (entry, path) {
             var that = this,
                 dfd = $.Deferred(),
-                errorHandler = function () {
-                    dfd.reject();
+                errorHandler = function (e) {
+                    if (e && !e.entry) {
+                        e.entry = entry;
+                    }
+                    // Since $.when returns immediately if one
+                    // Deferred is rejected, we use resolve instead.
+                    // This allows valid files and invalid items
+                    // to be returned together in one set:
+                    dfd.resolve([e]);
                 },
                 dirReader;
             path = path || '';
@@ -814,7 +821,9 @@
                     }).fail(errorHandler);
                 }, errorHandler);
             } else {
-                errorHandler();
+                // Return an empy list for file system items
+                // other than files or directories:
+                dfd.resolve([]);
             }
             return dfd.promise();
         },
