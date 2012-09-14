@@ -1,5 +1,5 @@
 /*
- * jQuery File Upload Plugin 5.17
+ * jQuery File Upload Plugin 5.17.1
  * https://github.com/blueimp/jQuery-File-Upload
  *
  * Copyright 2010, Sebastian Tschan
@@ -440,6 +440,11 @@
             // associated form, if available:
             if (!options.form || !options.form.length) {
                 options.form = $(options.fileInput.prop('form'));
+                // If the given file input doesn't have an associated form,
+                // use the default widget file input's form:
+                if (!options.form.length) {
+                    options.form = $(this.options.fileInput.prop('form'));
+                }
             }
             options.paramName = this._getParamName(options);
             if (!options.url) {
@@ -848,7 +853,7 @@
             ).promise();
         },
 
-        _getFileInputFiles: function (fileInput) {
+        _getSingleFileInputFiles: function (fileInput) {
             fileInput = $(fileInput);
             var entries = fileInput.prop('webkitEntries') ||
                     fileInput.prop('entries'),
@@ -861,7 +866,7 @@
             if (!files.length) {
                 value = fileInput.prop('value');
                 if (!value) {
-                    return $.Deferred().reject([]).promise();
+                    return $.Deferred().resolve([]).promise();
                 }
                 // If the files property is not available, the browser does not
                 // support the File API and we add a pseudo File object with
@@ -869,6 +874,21 @@
                 files = [{name: value.replace(/^.*\\/, '')}];
             }
             return $.Deferred().resolve(files).promise();
+        },
+
+        _getFileInputFiles: function (fileInput) {
+            if (!(fileInput instanceof $) || fileInput.length === 1) {
+                return this._getSingleFileInputFiles(fileInput);
+            }
+            return $.when.apply(
+                $,
+                $.map(fileInput, this._getSingleFileInputFiles)
+            ).pipe(function () {
+                return Array.prototype.concat.apply(
+                    [],
+                    arguments
+                );
+            });
         },
 
         _onChange: function (e) {
