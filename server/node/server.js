@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /*
- * jQuery File Upload Plugin Node.js Example 1.0.2
+ * jQuery File Upload Plugin Node.js Example 1.0.3
  * https://github.com/blueimp/jQuery-File-Upload
  *
  * Copyright 2012, Sebastian Tschan
@@ -10,8 +10,8 @@
  * http://www.opensource.org/licenses/MIT
  */
 
-/*jslint nomen: true, regexp: true, unparam: true */
-/*global require, __dirname, unescape */
+/*jslint nomen: true, regexp: true, unparam: true, stupid: true */
+/*global require, __dirname, unescape, console */
 
 (function (port) {
     'use strict';
@@ -27,9 +27,9 @@
             publicDir: __dirname + '/public',
             uploadDir: __dirname + '/public/files',
             uploadUrl: '/files/',
-            maxPostSize: 500000000, // 500 MB
+            maxPostSize: 11000000000, // 11 GB
             minFileSize: 1,
-            maxFileSize: 100000000, // 100 MB
+            maxFileSize: 10000000000, // 10 GB
             acceptFileTypes: /.+/i,
             // Files not matched by this regular expression force a download dialog,
             // to prevent executing any scripts in the context of the service domain:
@@ -256,6 +256,8 @@
             tmpFiles.forEach(function (file) {
                 fs.unlink(file);
             });
+        }).on('error', function (e) {
+            console.log(e);
         }).on('progress', function (bytesReceived, bytesExpected) {
             if (bytesReceived > options.maxPostSize) {
                 handler.req.connection.destroy();
