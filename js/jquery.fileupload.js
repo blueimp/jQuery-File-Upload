@@ -1,5 +1,5 @@
 /*
- * jQuery File Upload Plugin 5.17.2
+ * jQuery File Upload Plugin 5.17.3
  * https://github.com/blueimp/jQuery-File-Upload
  *
  * Copyright 2010, Sebastian Tschan
@@ -503,9 +503,7 @@
                 fs = file.size,
                 ub = options.uploadedBytes = options.uploadedBytes || 0,
                 mcs = options.maxChunkSize || fs,
-                // Use the Blob methods with the slice implementation
-                // according to the W3C Blob API specification:
-                slice = file.webkitSlice || file.mozSlice || file.slice,
+                slice = file.slice || file.webkitSlice || file.mozSlice,
                 upload,
                 n,
                 jqXHR,
