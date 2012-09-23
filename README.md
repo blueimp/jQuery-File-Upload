@@ -38,9 +38,9 @@ Please also provide a [JSFiddle](http://jsfiddle.net/) to allow to reproduce the
 * **Graceful fallback for legacy browsers:**  
   Uploads files via XMLHttpRequests if supported and uses iframes as fallback for legacy browsers.
 * **HTML file upload form fallback:**  
-  Shows a standard HTML file upload form if JavaScript is disabled.
+  Allows progressive enhancement by using a standard HTML file upload form as widget element.
 * **Cross-site file uploads:**  
-  Supports uploading files to a different domain with Cross-site XMLHttpRequests.
+  Supports uploading files to a different domain with cross-site XMLHttpRequests or iframe redirects.
 * **Multiple plugin instances:**  
   Allows to use multiple plugin instances on the same webpage.
 * **Customizable and extensible:**  
