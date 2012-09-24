@@ -1,5 +1,5 @@
 /*
- * jQuery File Upload Plugin 5.17.4
+ * jQuery File Upload Plugin 5.17.5
  * https://github.com/blueimp/jQuery-File-Upload
  *
  * Copyright 2010, Sebastian Tschan
@@ -803,15 +803,17 @@
                 },
                 dirReader;
             path = path || '';
-            if (entry._file) {
-                // Workaround for Chrome bug #149735
-                entry._file.relativePath = path;
-                dfd.resolve(entry._file);
-            } else if (entry.isFile) {
-                entry.file(function (file) {
-                    file.relativePath = path;
-                    dfd.resolve(file);
-                }, errorHandler);
+            if (entry.isFile) {
+                if (entry._file) {
+                    // Workaround for Chrome bug #149735
+                    entry._file.relativePath = path;
+                    dfd.resolve(entry._file);
+                } else {
+                    entry.file(function (file) {
+                        file.relativePath = path;
+                        dfd.resolve(file);
+                    }, errorHandler);
+                }
             } else if (entry.isDirectory) {
                 dirReader = entry.createReader();
                 dirReader.readEntries(function (entries) {
