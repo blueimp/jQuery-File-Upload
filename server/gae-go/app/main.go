@@ -1,5 +1,5 @@
 /*
- * jQuery File Upload Plugin GAE Go Example 2.1.1
+ * jQuery File Upload Plugin GAE Go Example 2.1.2
  * https://github.com/blueimp/jQuery-File-Upload
  *
  * Copyright 2011, Sebastian Tschan
@@ -60,15 +60,15 @@ func (fi *FileInfo) ValidateType() (valid bool) {
 	if acceptFileTypes.MatchString(fi.Type) {
 		return true
 	}
-	fi.Error = "acceptFileTypes"
+	fi.Error = "Filetype not allowed"
 	return false
 }
 
 func (fi *FileInfo) ValidateSize() (valid bool) {
 	if fi.Size < MIN_FILE_SIZE {
-		fi.Error = "minFileSize"
+		fi.Error = "File is too small"
 	} else if fi.Size > MAX_FILE_SIZE {
-		fi.Error = "maxFileSize"
+		fi.Error = "File is too big"
 	} else {
 		return true
 	}

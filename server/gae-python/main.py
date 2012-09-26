@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# jQuery File Upload Plugin GAE Python Example 1.1.4
+# jQuery File Upload Plugin GAE Python Example 1.1.5
 # https://github.com/blueimp/jQuery-File-Upload
 #
 # Copyright 2011, Sebastian Tschan
@@ -38,11 +38,11 @@ class UploadHandler(webapp2.RequestHandler):
     
     def validate(self, file):
         if file['size'] < MIN_FILE_SIZE:
-            file['error'] = 'minFileSize'
+            file['error'] = 'File is too small'
         elif file['size'] > MAX_FILE_SIZE:
-            file['error'] = 'maxFileSize'
+            file['error'] = 'File is too big'
         elif not ACCEPT_FILE_TYPES.match(file['type']):
-            file['error'] = 'acceptFileTypes'
+            file['error'] = 'Filetype not allowed'
         else:
             return True
         return False

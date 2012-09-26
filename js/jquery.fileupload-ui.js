@@ -1,5 +1,5 @@
 /*
- * jQuery File Upload User Interface Plugin 6.9.5
+ * jQuery File Upload User Interface Plugin 6.9.6
  * https://github.com/blueimp/jQuery-File-Upload
  *
  * Copyright 2010, Sebastian Tschan
@@ -144,7 +144,8 @@
                 if (data.context) {
                     data.context.each(function (index) {
                         var file = ($.isArray(data.result) &&
-                                data.result[index]) || {error: 'emptyResult'};
+                                data.result[index]) ||
+                                    {error: 'Empty file upload result'};
                         if (file.error) {
                             that._adjustMaxNumberOfFiles(1);
                         }

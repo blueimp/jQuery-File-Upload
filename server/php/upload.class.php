@@ -1,6 +1,6 @@
 <?php
 /*
- * jQuery File Upload Plugin PHP Class 5.11.2
+ * jQuery File Upload Plugin PHP Class 5.12
  * https://github.com/blueimp/jQuery-File-Upload
  *
  * Copyright 2010, Sebastian Tschan
@@ -13,12 +13,31 @@
 class UploadHandler
 {
     protected $options;
+    // PHP File Upload error message codes:
+    // http://php.net/manual/en/features.file-upload.errors.php
+    protected $error_messages = array(
+        1 => 'The uploaded file exceeds the upload_max_filesize directive in php.ini',
+        2 => 'The uploaded file exceeds the MAX_FILE_SIZE directive that was specified in the HTML form',
+        3 => 'The uploaded file was only partially uploaded',
+        4 => 'No file was uploaded',
+        6 => 'Missing a temporary folder',
+        7 => 'Failed to write file to disk',
+        8 => 'A PHP extension stopped the file upload',
+        'max_file_size' => 'File is too big',
+        'min_file_size' => 'File is too small',
+        'accept_file_types' => 'Filetype not allowed',
+        'max_number_of_files' => 'Maximum number of files exceeded',
+        'max_width' => 'Image exceeds maximum width',
+        'min_width' => 'Image requires a minimum width',
+        'max_height' => 'Image exceeds maximum height',
+        'min_height' => 'Image requires a minimum height'
+    );
 
     function __construct($options=null) {
         $this->options = array(
-            'script_url' => $this->getFullUrl().'/',
+            'script_url' => $this->get_full_url().'/',
             'upload_dir' => dirname($_SERVER['SCRIPT_FILENAME']).'/files/',
-            'upload_url' => $this->getFullUrl().'/files/',
+            'upload_url' => $this->get_full_url().'/files/',
             'param_name' => 'files',
             // Set the following option to 'POST', if your server does not support
             // DELETE requests. This is a parameter sent to the client:
@@ -46,7 +65,7 @@ class UploadHandler
                 /*
                 'large' => array(
                     'upload_dir' => dirname($_SERVER['SCRIPT_FILENAME']).'/files/',
-                    'upload_url' => $this->getFullUrl().'/files/',
+                    'upload_url' => $this->get_full_url().'/files/',
                     'max_width' => 1920,
                     'max_height' => 1200,
                     'jpeg_quality' => 95
@@ -54,7 +73,7 @@ class UploadHandler
                 */
                 'thumbnail' => array(
                     'upload_dir' => dirname($_SERVER['SCRIPT_FILENAME']).'/thumbnails/',
-                    'upload_url' => $this->getFullUrl().'/thumbnails/',
+                    'upload_url' => $this->get_full_url().'/thumbnails/',
                     'max_width' => 80,
                     'max_height' => 80
                 )
@@ -65,7 +84,7 @@ class UploadHandler
         }
     }
 
-    protected function getFullUrl() {
+    protected function get_full_url() {
         $https = !empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off';
       	return
     		($https ? 'https://' : 'http://').
@@ -172,17 +191,22 @@ class UploadHandler
         return $success;
     }
 
+    protected function get_error_message($error) {
+        return array_key_exists($error, $this->error_messages) ?
+            $this->error_messages[$error] : $error;
+    }
+
     protected function validate($uploaded_file, $file, $error, $index) {
         if ($error) {
-            $file->error = $error;
+            $file->error = $this->get_error_message($error);
             return false;
         }
         if (!$file->name) {
-            $file->error = 'missingFileName';
+            $file->error = $this->get_error_message('missingFileName');
             return false;
         }
         if (!preg_match($this->options['accept_file_types'], $file->name)) {
-            $file->error = 'acceptFileTypes';
+            $file->error = $this->get_error_message('accept_file_types');
             return false;
         }
         if ($uploaded_file && is_uploaded_file($uploaded_file)) {
@@ -194,30 +218,36 @@ class UploadHandler
                 $file_size > $this->options['max_file_size'] ||
                 $file->size > $this->options['max_file_size'])
             ) {
-            $file->error = 'maxFileSize';
+            $file->error = $this->get_error_message('max_file_size');
             return false;
         }
         if ($this->options['min_file_size'] &&
             $file_size < $this->options['min_file_size']) {
-            $file->error = 'minFileSize';
+            $file->error = $this->get_error_message('min_file_size');
             return false;
         }
         if (is_int($this->options['max_number_of_files']) && (
                 count($this->get_file_objects()) >= $this->options['max_number_of_files'])
             ) {
-            $file->error = 'maxNumberOfFiles';
+            $file->error = $this->get_error_message('max_number_of_files');
             return false;
         }
         list($img_width, $img_height) = @getimagesize($uploaded_file);
         if (is_int($img_width)) {
-            if ($this->options['max_width'] && $img_width > $this->options['max_width'] ||
-                    $this->options['max_height'] && $img_height > $this->options['max_height']) {
-                $file->error = 'maxResolution';
+            if ($this->options['max_width'] && $img_width > $this->options['max_width']) {
+                $file->error = $this->get_error_message('max_width');
                 return false;
             }
-            if ($this->options['min_width'] && $img_width < $this->options['min_width'] ||
-                    $this->options['min_height'] && $img_height < $this->options['min_height']) {
-                $file->error = 'minResolution';
+            if ($this->options['max_height'] && $img_height > $this->options['max_height']) {
+                $file->error = $this->get_error_message('max_height');
+                return false;
+            }
+            if ($this->options['min_width'] && $img_width < $this->options['min_width']) {
+                $file->error = $this->get_error_message('min_width');
+                return false;
+            }
+            if ($this->options['min_height'] && $img_height < $this->options['min_height']) {
+                $file->error = $this->get_error_message('min_height');
                 return false;
             }
         }
