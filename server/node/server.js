@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /*
- * jQuery File Upload Plugin Node.js Example 1.0.3
+ * jQuery File Upload Plugin Node.js Example 1.0.4
  * https://github.com/blueimp/jQuery-File-Upload
  *
  * Copyright 2012, Sebastian Tschan
@@ -152,11 +152,11 @@
     };
     FileInfo.prototype.validate = function () {
         if (options.minFileSize && options.minFileSize > this.size) {
-            this.error = 'minFileSize';
+            this.error = 'File is too small';
         } else if (options.maxFileSize && options.maxFileSize < this.size) {
-            this.error = 'maxFileSize';
+            this.error = 'File is too big';
         } else if (!options.acceptFileTypes.test(this.name)) {
-            this.error = 'acceptFileTypes';
+            this.error = 'Filetype not allowed';
         }
         return !this.error;
     };

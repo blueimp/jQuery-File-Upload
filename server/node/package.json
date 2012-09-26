@@ -1,6 +1,6 @@
 {
     "name": "blueimp-file-upload-node",
-    "version": "1.0.3",
+    "version": "1.0.4",
     "title": "jQuery File Upload Node.js example",
     "description": "Node.js implementation example of a file upload handler for jQuery File Upload.",
     "keywords": [

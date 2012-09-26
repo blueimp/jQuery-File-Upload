@@ -1,5 +1,5 @@
 /*
- * jQuery File Upload Plugin 5.17.5
+ * jQuery File Upload Plugin 5.17.6
  * https://github.com/blueimp/jQuery-File-Upload
  *
  * Copyright 2010, Sebastian Tschan
@@ -516,7 +516,7 @@
                 return true;
             }
             if (ub >= fs) {
-                file.error = 'uploadedBytes';
+                file.error = 'Uploaded bytes exceed file size';
                 return this._getXHRPromise(
                     false,
                     options.context,
