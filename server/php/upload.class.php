@@ -1,6 +1,6 @@
 <?php
 /*
- * jQuery File Upload Plugin PHP Class 5.13
+ * jQuery File Upload Plugin PHP Class 5.13.1
  * https://github.com/blueimp/jQuery-File-Upload
  *
  * Copyright 2010, Sebastian Tschan
@@ -104,17 +104,21 @@ class UploadHandler
         }
     }
 
+    // Fix for overflowing signed 32 bit integers,
+    // works for sizes up to 2^32-1 bytes (4 GiB - 1):
+    protected function fix_integer_overflow($size) {
+        if ($size < 0) {
+            $size += 2.0 * (PHP_INT_MAX + 1);
+        }
+        return $size;
+    }
+
     protected function get_file_size($file_path, $clear_stat_cache = false) {
         if ($clear_stat_cache) {
             clearstatcache();
         }
-        $size = filesize($file_path);
-        if ($size < 0) {
-            // Fix for overflowing signed 32 bit integers,
-            // works for files up to 2^32-1 bytes (4 GiB - 1) in size:
-            $size += 2.0 * (PHP_INT_MAX + 1);
-        }
-        return $size;
+        return $this->fix_integer_overflow(filesize($file_path));
+
     }
 
     protected function get_file_object($file_name) {
@@ -336,7 +340,7 @@ class UploadHandler
     protected function handle_file_upload($uploaded_file, $name, $size, $type, $error, $index = null) {
         $file = new stdClass();
         $file->name = $this->trim_file_name($name, $type, $index);
-        $file->size = intval($size);
+        $file->size = $this->fix_integer_overflow(intval($size));
         $file->type = $type;
         if ($this->validate($uploaded_file, $file, $error, $index)) {
             $this->handle_form_data($file, $index);
