@@ -1,6 +1,6 @@
-@charset 'UTF-8';
+@charset "UTF-8";
 /*
- * jQuery File Upload Plugin CSS Example 1.1
+ * jQuery File Upload Plugin CSS Example 1.1.1
  * https://github.com/blueimp/jQuery-File-Upload
  *
  * Copyright 2012, Sebastian Tschan
@@ -51,42 +51,34 @@ ul.nav li {
 .row:after {
   clear: both;
 }
-.span5 {
-  width: 400px;
-  float: left;
-}
-.span7 {
-  width: 560px ;
+.span5, .span7 {
+  width: auto;
   float: left;
 }
 
 /* Fix for IE 6: */
-*html .nav-collapse,
-*html ul.nav,
-*html ul.nav li {
+* html .nav-collapse,
+* html ul.nav,
+* html ul.nav li {
   display: inline;
 }
-*html .navbar-fixed-top {
+* html .navbar-fixed-top {
   margin-bottom: 35px;
 }
 
 /* Fix for IE 7: */
-*+html .nav-collapse,
-*+html ul.nav,
-*+html ul.nav li {
+* + html .nav-collapse,
+* + html ul.nav,
+* + html ul.nav li {
   display: inline;
 }
-*+html .navbar-fixed-top {
+* + html .navbar-fixed-top {
   margin-bottom: 35px;
 }
 
-@media (max-width: 980px) {
+@media (max-width: 979px) {
   body {
     width: auto;
     padding: 10px;
-  }
-  .span5,
-  .span7 {
-    width: auto;
   }
 }
