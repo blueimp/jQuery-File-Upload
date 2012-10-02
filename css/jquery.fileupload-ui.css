@@ -53,13 +53,13 @@
 }
 
 /* Fix for IE 6: */
-*html .fileinput-button {
+* html .fileinput-button {
   line-height: 22px;
   margin: 1px -3px 0 0;
 }
 
 /* Fix for IE 7: */
-*+html .fileinput-button {
+* + html .fileinput-button {
   margin: 1px 0 0 0;
 }
 
