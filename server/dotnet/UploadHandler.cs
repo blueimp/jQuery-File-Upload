@@ -396,7 +396,7 @@ namespace jQueryFileUpload
             using (MemoryStream ms = new MemoryStream())
             {
                 serializer.WriteObject(ms, obj);
-                return Encoding.Default.GetString(ms.ToArray());
+                return Encoding.UTF8.GetString(ms.ToArray());
             }
         }
     }
