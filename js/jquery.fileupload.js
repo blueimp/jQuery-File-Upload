@@ -1,5 +1,5 @@
 /*
- * jQuery File Upload Plugin 5.17.6
+ * jQuery File Upload Plugin 5.17.7
  * https://github.com/blueimp/jQuery-File-Upload
  *
  * Copyright 2010, Sebastian Tschan
@@ -857,8 +857,10 @@
                         var entry;
                         if (item.webkitGetAsEntry) {
                             entry = item.webkitGetAsEntry();
-                            // Workaround for Chrome bug #149735:
-                            entry._file = item.getAsFile();
+                            if (entry) {
+                                // Workaround for Chrome bug #149735:
+                                entry._file = item.getAsFile();
+                            }
                             return entry;
                         }
                         return item.getAsEntry();
