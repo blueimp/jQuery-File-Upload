@@ -1,6 +1,6 @@
 <?php
 /*
- * jQuery File Upload Plugin PHP Class 5.13.1
+ * jQuery File Upload Plugin PHP Class 5.14
  * https://github.com/blueimp/jQuery-File-Upload
  *
  * Copyright 2010, Sebastian Tschan
@@ -33,7 +33,7 @@ class UploadHandler
         'min_height' => 'Image requires a minimum height'
     );
 
-    function __construct($options=null) {
+    function __construct($options = null, $initialize = true) {
         $this->options = array(
             'script_url' => $this->get_full_url().'/',
             'upload_dir' => dirname($_SERVER['SCRIPT_FILENAME']).'/files/',
@@ -42,6 +42,7 @@ class UploadHandler
             // Set the following option to 'POST', if your server does not support
             // DELETE requests. This is a parameter sent to the client:
             'delete_type' => 'DELETE',
+            'access_control_allow_origin' => '*',
             // The php.ini settings upload_max_filesize and post_max_size
             // take precedence over the following max_file_size setting:
             'max_file_size' => null,
@@ -81,6 +82,33 @@ class UploadHandler
         );
         if ($options) {
             $this->options = array_replace_recursive($this->options, $options);
+        }
+        if ($initialize) {
+            $this->initialize();
+        }
+    }
+
+    protected function initialize() {
+        switch ($_SERVER['REQUEST_METHOD']) {
+            case 'OPTIONS':
+            case 'HEAD':
+                $this->head();
+                break;
+            case 'GET':
+                $this->get();
+                break;
+            case 'POST':
+                if (isset($_REQUEST['_method']) && $_REQUEST['_method'] === 'DELETE') {
+                    $this->delete();
+                } else {
+                    $this->post();
+                }
+                break;
+            case 'DELETE':
+                $this->delete();
+                break;
+            default:
+                header('HTTP/1.1 405 Method Not Allowed');
         }
     }
 
@@ -392,7 +420,41 @@ class UploadHandler
         return $file;
     }
 
-    public function get() {
+    protected function generate_response($content, $print_response = true) {
+        if ($print_response) {
+            $json = json_encode($content);
+            $redirect = isset($_REQUEST['redirect']) ?
+                stripslashes($_REQUEST['redirect']) : null;
+            if ($redirect) {
+                header('Location: '.sprintf($redirect, rawurlencode($json)));
+                return;
+            }
+            $this->head();
+            echo $json;
+        }
+        return $content;
+    }
+
+    public function head() {
+        header('Pragma: no-cache');
+        header('Cache-Control: no-store, no-cache, must-revalidate');
+        header('Content-Disposition: inline; filename="files.json"');
+        header('X-Content-Type-Options: nosniff');
+        if ($this->options['access_control_allow_origin']) {
+            header('Access-Control-Allow-Origin: '.$this->options['access_control_allow_origin']);
+            header('Access-Control-Allow-Methods: OPTIONS, HEAD, GET, POST, PUT, DELETE');
+            header('Access-Control-Allow-Headers: X-File-Name, X-File-Type, X-File-Size');            
+        }
+        header('Vary: Accept');
+        if (isset($_SERVER['HTTP_ACCEPT']) &&
+            (strpos($_SERVER['HTTP_ACCEPT'], 'application/json') !== false)) {
+            header('Content-type: application/json');
+        } else {
+            header('Content-type: text/plain');
+        }
+    }
+
+    public function get($print_response = true) {
         $file_name = isset($_REQUEST['file']) ?
             basename(stripslashes($_REQUEST['file'])) : null;
         if ($file_name) {
@@ -400,11 +462,10 @@ class UploadHandler
         } else {
             $info = $this->get_file_objects();
         }
-        header('Content-type: application/json');
-        echo json_encode($info);
+        return $this->generate_response($info, $print_response);
     }
 
-    public function post() {
+    public function post($print_response = true) {
         if (isset($_REQUEST['_method']) && $_REQUEST['_method'] === 'DELETE') {
             return $this->delete();
         }
@@ -444,24 +505,10 @@ class UploadHandler
                 isset($upload['error']) ? $upload['error'] : null
             );
         }
-        header('Vary: Accept');
-        $json = json_encode($info);
-        $redirect = isset($_REQUEST['redirect']) ?
-            stripslashes($_REQUEST['redirect']) : null;
-        if ($redirect) {
-            header('Location: '.sprintf($redirect, rawurlencode($json)));
-            return;
-        }
-        if (isset($_SERVER['HTTP_ACCEPT']) &&
-            (strpos($_SERVER['HTTP_ACCEPT'], 'application/json') !== false)) {
-            header('Content-type: application/json');
-        } else {
-            header('Content-type: text/plain');
-        }
-        echo $json;
+        return $this->generate_response($info, $print_response);
     }
 
-    public function delete() {
+    public function delete($print_response = true) {
         $file_name = isset($_REQUEST['file']) ?
             basename(stripslashes($_REQUEST['file'])) : null;
         $file_path = $this->options['upload_dir'].$file_name;
@@ -474,8 +521,7 @@ class UploadHandler
                 }
             }
         }
-        header('Content-type: application/json');
-        echo json_encode($success);
+        return $this->generate_response($info, $print_response);
     }
 
 }
