@@ -1,5 +1,5 @@
 /*
- * jQuery File Upload Plugin 5.17.7
+ * jQuery File Upload Plugin 5.18
  * https://github.com/blueimp/jQuery-File-Upload
  *
  * Copyright 2010, Sebastian Tschan
@@ -305,29 +305,18 @@
                 // Ignore non-multipart setting if not supported:
                 multipart = options.multipart || !$.support.xhrFileUpload,
                 paramName = options.paramName[0];
-            if (!multipart || options.blob) {
-                // For non-multipart uploads and chunked uploads,
-                // file meta data is not part of the request body,
-                // so we transmit this data as part of the HTTP headers.
-                // For cross domain requests, these headers must be allowed
-                // via Access-Control-Allow-Headers or removed using
-                // the beforeSend callback:
-                options.headers = $.extend(options.headers, {
-                    'X-File-Name': file.name,
-                    'X-File-Type': file.type,
-                    'X-File-Size': file.size
-                });
-                if (!options.blob) {
-                    // Non-chunked non-multipart upload:
-                    options.contentType = file.type;
-                    options.data = file;
-                } else if (!multipart) {
-                    // Chunked non-multipart upload:
-                    options.contentType = 'application/octet-stream';
-                    options.data = options.blob;
-                }
+            options.headers = options.headers || {};
+            if (options.contentRange) {
+                options.headers['Content-Range'] = options.contentRange;
             }
-            if (multipart && $.support.xhrFormDataFileUpload) {
+            if (!multipart) {
+                // For cross domain requests, the X-File-Name header
+                // must be allowed via Access-Control-Allow-Headers
+                // or removed using the beforeSend callback:
+                options.headers['X-File-Name'] = file.name;
+                options.contentType = file.type;
+                options.data = options.blob || file;
+            } else if ($.support.xhrFormDataFileUpload) {
                 if (options.postMessage) {
                     // window.postMessage does not allow sending FormData
                     // objects, so we just add the File/Blob objects to
@@ -357,6 +346,11 @@
                         });
                     }
                     if (options.blob) {
+                        // For cross domain requests, the X-File-* headers
+                        // must be allowed via Access-Control-Allow-Headers
+                        // or removed using the beforeSend callback:
+                        options.headers['X-File-Name'] = file.name;
+                        options.headers['X-File-Type'] = file.type;
                         formData.append(paramName, options.blob, file.name);
                     } else {
                         $.each(options.files, function (index, file) {
@@ -492,6 +486,16 @@
             return this._enhancePromise(promise);
         },
 
+        // Parses the Range header from the server response
+        // and returns the uploaded bytes:
+        _getUploadedBytes: function (jqXHR) {
+            var range = jqXHR.getResponseHeader('Range'),
+                parts = range && range.split('-'),
+                upperBytesPos = parts && parts.length > 1 &&
+                    parseInt(parts[1], 10);
+            return upperBytesPos && upperBytesPos + 1;
+        },
+
         // Uploads a file in multiple, sequential requests
         // by splitting the file up in multiple blob chunks.
         // If the second parameter is true, only tests if the file
@@ -504,10 +508,10 @@
                 ub = options.uploadedBytes = options.uploadedBytes || 0,
                 mcs = options.maxChunkSize || fs,
                 slice = file.slice || file.webkitSlice || file.mozSlice,
-                upload,
-                n,
+                dfd = $.Deferred(),
+                promise = dfd.promise(),
                 jqXHR,
-                pipe;
+                upload;
             if (!(this._isXHRUpload(options) && slice && (ub || mcs < fs)) ||
                     options.data) {
                 return false;
@@ -523,59 +527,63 @@
                     [null, 'error', file.error]
                 );
             }
-            // n is the number of blobs to upload,
-            // calculated via filesize, uploaded bytes and max chunk size:
-            n = Math.ceil((fs - ub) / mcs);
-            // The chunk upload method accepting the chunk number as parameter:
+            // The chunk upload method:
             upload = function (i) {
-                if (!i) {
-                    return that._getXHRPromise(true, options.context);
-                }
-                // Upload the blobs in sequential order:
-                return upload(i -= 1).pipe(function () {
-                    // Clone the options object for each chunk upload:
-                    var o = $.extend({}, options);
-                    o.blob = slice.call(
-                        file,
-                        ub + i * mcs,
-                        ub + (i + 1) * mcs
-                    );
-                    // Expose the chunk index:
-                    o.chunkIndex = i;
-                    // Expose the number of chunks:
-                    o.chunksNumber = n;
-                    // Store the current chunk size, as the blob itself
-                    // will be dereferenced after data processing:
-                    o.chunkSize = o.blob.size;
-                    // Process the upload data (the blob and potential form data):
-                    that._initXHRData(o);
-                    // Add progress listeners for this chunk upload:
-                    that._initProgressListener(o);
-                    jqXHR = ($.ajax(o) || that._getXHRPromise(false, o.context))
-                        .done(function () {
-                            // Create a progress event if upload is done and
-                            // no progress event has been invoked for this chunk:
-                            if (!o.loaded) {
-                                that._onProgress($.Event('progress', {
-                                    lengthComputable: true,
-                                    loaded: o.chunkSize,
-                                    total: o.chunkSize
-                                }), o);
-                            }
-                            options.uploadedBytes = o.uploadedBytes +=
-                                o.chunkSize;
-                        });
-                    return jqXHR;
-                });
+                // Clone the options object for each chunk upload:
+                var o = $.extend({}, options);
+                o.blob = slice.call(
+                    file,
+                    ub,
+                    ub + mcs
+                );
+                // Store the current chunk size, as the blob itself
+                // will be dereferenced after data processing:
+                o.chunkSize = o.blob.size;
+                // Expose the chunk bytes position range:
+                o.contentRange = 'bytes ' + ub + '-' +
+                    (ub + o.chunkSize - 1) + '/' + fs;
+                // Process the upload data (the blob and potential form data):
+                that._initXHRData(o);
+                // Add progress listeners for this chunk upload:
+                that._initProgressListener(o);
+                jqXHR = ($.ajax(o) || that._getXHRPromise(false, o.context))
+                    .done(function (result, textStatus, jqXHR) {
+                        ub = that._getUploadedBytes(jqXHR) ||
+                            (ub + o.chunkSize);
+                        // Create a progress event if upload is done and
+                        // no progress event has been invoked for this chunk:
+                        if (!o.loaded) {
+                            that._onProgress($.Event('progress', {
+                                lengthComputable: true,
+                                loaded: ub - o.uploadedBytes,
+                                total: ub - o.uploadedBytes
+                            }), o);
+                        }
+                        options.uploadedBytes = o.uploadedBytes = ub;
+                        if (ub < fs) {
+                            // File upload not yet complete,
+                            // continue with the next chunk:
+                            upload();
+                        } else {
+                            dfd.resolveWith(
+                                o.context,
+                                [result, textStatus, jqXHR]
+                            );
+                        }
+                    })
+                    .fail(function (jqXHR, textStatus, errorThrown) {
+                        dfd.rejectWith(
+                            o.context,
+                            [jqXHR, textStatus, errorThrown]
+                        );
+                    });
             };
-            // Return the piped Promise object, enhanced with an abort method,
-            // which is delegated to the jqXHR object of the current upload,
-            // and jqXHR callbacks mapped to the equivalent Promise methods:
-            pipe = upload(n);
-            pipe.abort = function () {
+            this._enhancePromise(promise);
+            promise.abort = function () {
                 return jqXHR.abort();
             };
-            return this._enhancePromise(pipe);
+            upload();
+            return promise;
         },
 
         _beforeSend: function (e, data) {

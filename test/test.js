@@ -1,5 +1,5 @@
 /*
- * jQuery File Upload Plugin Test 6.9.5
+ * jQuery File Upload Plugin Test 6.9.6
  * https://github.com/blueimp/jQuery-File-Upload
  *
  * Copyright 2010, Sebastian Tschan
@@ -17,7 +17,7 @@ $(function () {
 
     QUnit.done = function () {
         // Delete all uploaded files:
-        var url = $('#fileupload').find('form').prop('action');
+        var url = $('#fileupload').prop('action');
         $.getJSON(url, function (files) {
             $.each(files, function (index, file) {
                 $.ajax({
@@ -802,7 +802,7 @@ $(function () {
 
     if ($.support.xhrFileUpload) {
         asyncTest('multipart', function () {
-            expect(4);
+            expect(2);
             var param = {files: [{
                     name: 'test.png',
                     size: 123,
@@ -820,16 +820,6 @@ $(function () {
                             data.headers['X-File-Name'],
                             param.files[0].name,
                             'non-multipart upload sets X-File-Name header'
-                        );
-                        strictEqual(
-                            data.headers['X-File-Type'],
-                            param.files[0].type,
-                            'non-multipart upload sets X-File-Type header'
-                        );
-                        strictEqual(
-                            data.headers['X-File-Size'],
-                            param.files[0].size,
-                            'non-multipart upload sets X-File-Size header'
                         );
                         start();
                     }
