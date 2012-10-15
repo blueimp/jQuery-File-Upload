@@ -1,6 +1,6 @@
 <?php
 /*
- * jQuery File Upload Plugin PHP Class 5.14
+ * jQuery File Upload Plugin PHP Class 5.15
  * https://github.com/blueimp/jQuery-File-Upload
  *
  * Copyright 2010, Sebastian Tschan
@@ -314,7 +314,7 @@ class UploadHandler
         );
     }
 
-    protected function trim_file_name($name, $type, $index) {
+    protected function trim_file_name($name, $type, $index, $content_range) {
         // Remove path information and dots around the filename, to prevent uploading
         // into different directories or replacing hidden system files.
         // Also remove control characters and spaces (\x00..\x20) around the filename:
@@ -324,10 +324,13 @@ class UploadHandler
             preg_match('/^image\/(gif|jpe?g|png)/', $type, $matches)) {
             $file_name .= '.'.$matches[1];
         }
-        if ($this->options['discard_aborted_uploads']) {
-            while(is_file($this->options['upload_dir'].$file_name)) {
-                $file_name = $this->upcount_name($file_name);
+        $uploaded_bytes = $this->fix_integer_overflow(intval($content_range[1]));
+        while(is_file($this->options['upload_dir'].$file_name)) {
+            if ($uploaded_bytes === $this->get_file_size(
+                    $this->options['upload_dir'].$file_name)) {
+                break;
             }
+            $file_name = $this->upcount_name($file_name);
         }
         return $file_name;
     }
@@ -365,16 +368,17 @@ class UploadHandler
           return $success;
     }
 
-    protected function handle_file_upload($uploaded_file, $name, $size, $type, $error, $index = null) {
+    protected function handle_file_upload($uploaded_file, $name, $size, $type, $error,
+            $index = null, $content_range = null) {
         $file = new stdClass();
-        $file->name = $this->trim_file_name($name, $type, $index);
+        $file->name = $this->trim_file_name($name, $type, $index, $content_range);
         $file->size = $this->fix_integer_overflow(intval($size));
         $file->type = $type;
         if ($this->validate($uploaded_file, $file, $error, $index)) {
             $this->handle_form_data($file, $index);
             $file_path = $this->options['upload_dir'].$file->name;
-            $append_file = !$this->options['discard_aborted_uploads'] &&
-                is_file($file_path) && $file->size > $this->get_file_size($file_path);
+            $append_file = $content_range && is_file($file_path) &&
+                $file->size > $this->get_file_size($file_path);
             if ($uploaded_file && is_uploaded_file($uploaded_file)) {
                 // multipart/formdata uploads (POST method uploads)
                 if ($append_file) {
@@ -410,7 +414,7 @@ class UploadHandler
                         }
                     }
                 }
-            } else if ($this->options['discard_aborted_uploads']) {
+            } else if (!$content_range && $this->options['discard_aborted_uploads']) {
                 unlink($file_path);
                 $file->error = 'abort';
             }
@@ -443,7 +447,7 @@ class UploadHandler
         if ($this->options['access_control_allow_origin']) {
             header('Access-Control-Allow-Origin: '.$this->options['access_control_allow_origin']);
             header('Access-Control-Allow-Methods: OPTIONS, HEAD, GET, POST, PUT, DELETE');
-            header('Access-Control-Allow-Headers: X-File-Name, X-File-Type, X-File-Size');            
+            header('Access-Control-Allow-Headers: X-File-Name, X-File-Type');            
         }
         header('Vary: Accept');
         if (isset($_SERVER['HTTP_ACCEPT']) &&
@@ -471,6 +475,11 @@ class UploadHandler
         }
         $upload = isset($_FILES[$this->options['param_name']]) ?
             $_FILES[$this->options['param_name']] : null;
+        // Parse the Content-Range header, which has the following form:
+        // Content-Range: bytes 0-524287/2000000
+        $content_range = isset($_SERVER['HTTP_CONTENT_RANGE']) ?
+            split('[^0-9]+', $_SERVER['HTTP_CONTENT_RANGE']) : null;
+        $size =  $content_range ? $content_range[3] : null;
         $info = array();
         if ($upload && is_array($upload['tmp_name'])) {
             // param_name is an array identifier like "files[]",
@@ -480,15 +489,15 @@ class UploadHandler
                     $upload['tmp_name'][$index],
                     isset($_SERVER['HTTP_X_FILE_NAME']) ?
                         $_SERVER['HTTP_X_FILE_NAME'] : $upload['name'][$index],
-                    isset($_SERVER['HTTP_X_FILE_SIZE']) ?
-                        $_SERVER['HTTP_X_FILE_SIZE'] : $upload['size'][$index],
+                    $size ? $size : $upload['size'][$index],
                     isset($_SERVER['HTTP_X_FILE_TYPE']) ?
                         $_SERVER['HTTP_X_FILE_TYPE'] : $upload['type'][$index],
                     $upload['error'][$index],
-                    $index
+                    $index,
+                    $content_range
                 );
             }
-        } elseif ($upload || isset($_SERVER['HTTP_X_FILE_NAME'])) {
+        } else {
             // param_name is a single object identifier like "file",
             // $_FILES is a one-dimensional array:
             $info[] = $this->handle_file_upload(
@@ -496,13 +505,14 @@ class UploadHandler
                 isset($_SERVER['HTTP_X_FILE_NAME']) ?
                     $_SERVER['HTTP_X_FILE_NAME'] : (isset($upload['name']) ?
                         $upload['name'] : null),
-                isset($_SERVER['HTTP_X_FILE_SIZE']) ?
-                    $_SERVER['HTTP_X_FILE_SIZE'] : (isset($upload['size']) ?
-                        $upload['size'] : null),
+                $size ? $size : (isset($upload['size']) ?
+                        $upload['size'] : $_SERVER['CONTENT_LENGTH']),
                 isset($_SERVER['HTTP_X_FILE_TYPE']) ?
                     $_SERVER['HTTP_X_FILE_TYPE'] : (isset($upload['type']) ?
                         $upload['type'] : null),
-                isset($upload['error']) ? $upload['error'] : null
+                isset($upload['error']) ? $upload['error'] : null,
+                null,
+                $content_range
             );
         }
         return $this->generate_response($info, $print_response);
