@@ -1,6 +1,6 @@
 <?php
 /*
- * jQuery File Upload Plugin PHP Class 5.15.1
+ * jQuery File Upload Plugin PHP Class 5.15.2
  * https://github.com/blueimp/jQuery-File-Upload
  *
  * Copyright 2010, Sebastian Tschan
@@ -61,20 +61,23 @@ class UploadHandler
             'orient_image' => false,
             'image_versions' => array(
                 // Uncomment the following version to restrict the size of
-                // uploaded images. You can also add additional versions with
-                // their own upload directories:
+                // uploaded images:
                 /*
-                'large' => array(
-                    'upload_dir' => dirname($_SERVER['SCRIPT_FILENAME']).'/files/',
-                    'upload_url' => $this->get_full_url().'/files/',
+                '' => array(
                     'max_width' => 1920,
                     'max_height' => 1200,
                     'jpeg_quality' => 95
                 ),
                 */
+                // Uncomment the following to create medium sized images:
+                /*
+                'medium' => array(
+                    'max_width' => 800,
+                    'max_height' => 600,
+                    'jpeg_quality' => 80
+                ),
+                */
                 'thumbnail' => array(
-                    'upload_dir' => dirname($_SERVER['SCRIPT_FILENAME']).'/thumbnails/',
-                    'upload_url' => $this->get_full_url().'/thumbnails/',
                     'max_width' => 80,
                     'max_height' => 80
                 )
@@ -157,9 +160,11 @@ class UploadHandler
             $file->size = $this->get_file_size($file_path);
             $file->url = $this->options['upload_url'].rawurlencode($file->name);
             foreach($this->options['image_versions'] as $version => $options) {
-                if (is_file($options['upload_dir'].$file_name)) {
-                    $file->{$version.'_url'} = $options['upload_url']
-                        .rawurlencode($file->name);
+                if (!empty($version)) {
+                    if (is_file($this->options['upload_dir'].$version.'/'.$file_name)) {
+                        $file->{$version.'_url'} = $this->options['upload_url']
+                            .$version.'/'.rawurlencode($file->name);
+                    }
                 }
             }
             $this->set_file_delete_url($file);
@@ -175,9 +180,17 @@ class UploadHandler
         )));
     }
 
-    protected function create_scaled_image($file_name, $options) {
+    protected function create_scaled_image($file_name, $version, $options) {
         $file_path = $this->options['upload_dir'].$file_name;
-        $new_file_path = $options['upload_dir'].$file_name;
+        if (!empty($version)) {
+            $version_dir = $this->options['upload_dir'].$version;
+            if (!is_dir($version_dir)) {
+                mkdir($version_dir, 0755);
+            }
+            $new_file_path = $version_dir.'/'.$file_name;
+        } else {
+            $new_file_path = $file_path;
+        }
         list($img_width, $img_height) = @getimagesize($file_path);
         if (!$img_width || !$img_height) {
             return false;
@@ -324,6 +337,9 @@ class UploadHandler
             preg_match('/^image\/(gif|jpe?g|png)/', $type, $matches)) {
             $file_name .= '.'.$matches[1];
         }
+        while(is_dir($this->options['upload_dir'].$file_name)) {
+            $file_name = $this->upcount_name($file_name);
+        }
         $uploaded_bytes = $this->fix_integer_overflow(intval($content_range[1]));
         while(is_file($this->options['upload_dir'].$file_name)) {
             if ($uploaded_bytes === $this->get_file_size(
@@ -405,10 +421,10 @@ class UploadHandler
                 }
                 $file->url = $this->options['upload_url'].rawurlencode($file->name);
                 foreach($this->options['image_versions'] as $version => $options) {
-                    if ($this->create_scaled_image($file->name, $options)) {
-                        if ($this->options['upload_dir'] !== $options['upload_dir']) {
-                            $file->{$version.'_url'} = $options['upload_url']
-                                .rawurlencode($file->name);
+                    if ($this->create_scaled_image($file->name, $version, $options)) {
+                        if (!empty($version)) {
+                            $file->{$version.'_url'} = $this->options['upload_url']
+                                .$version.'/'.rawurlencode($file->name);
                         } else {
                             $file_size = $this->get_file_size($file_path, true);
                         }
@@ -529,9 +545,11 @@ class UploadHandler
         $success = is_file($file_path) && $file_name[0] !== '.' && unlink($file_path);
         if ($success) {
             foreach($this->options['image_versions'] as $version => $options) {
-                $file = $options['upload_dir'].$file_name;
-                if (is_file($file)) {
-                    unlink($file);
+                if (!empty($version)) {
+                    $file = $this->options['upload_dir'].$version.'/'.$file_name;
+                    if (is_file($file)) {
+                        unlink($file);
+                    }
                 }
             }
         }
