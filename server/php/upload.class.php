@@ -1,6 +1,6 @@
 <?php
 /*
- * jQuery File Upload Plugin PHP Class 5.15
+ * jQuery File Upload Plugin PHP Class 5.15.1
  * https://github.com/blueimp/jQuery-File-Upload
  *
  * Copyright 2010, Sebastian Tschan
@@ -434,6 +434,10 @@ class UploadHandler
                 return;
             }
             $this->head();
+            if (isset($_SERVER['HTTP_CONTENT_RANGE']) && is_array($content) &&
+                    is_object($content[0]) && $content[0]->size) {
+                header('Range: 0-'.($this->fix_integer_overflow(intval($content[0]->size)) - 1));
+            }
             echo $json;
         }
         return $content;
