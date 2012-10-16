@@ -38,6 +38,8 @@ class UploadHandler
             'script_url' => $this->get_full_url().'/',
             'upload_dir' => dirname($_SERVER['SCRIPT_FILENAME']).'/files/',
             'upload_url' => $this->get_full_url().'/files/',
+            'user_dirs' => false,
+            'mkdir_mode' => 0755,
             'param_name' => 'files',
             // Set the following option to 'POST', if your server does not support
             // DELETE requests. This is a parameter sent to the client:
@@ -126,15 +128,29 @@ class UploadHandler
             substr($_SERVER['SCRIPT_NAME'],0, strrpos($_SERVER['SCRIPT_NAME'], '/'));
     }
 
+    protected function get_user_id() {
+        @session_start();
+        return session_id();
+    }
+
+    protected function get_user_path() {
+        if ($this->options['user_dirs']) {
+            return $this->get_user_id().'/';
+        }
+        return '';
+    }
+
     protected function get_upload_path($file_name = null, $version = null) {
         $file_name = $file_name ? $file_name : '';
         $version_path = empty($version) ? '' : $version.'/';
-        return $this->options['upload_dir'].$version_path.$file_name;
+        return $this->options['upload_dir'].$this->get_user_path()
+            .$version_path.$file_name;
     }
-    
+
     protected function get_upload_url($file_name, $version = null) {
         $version_path = empty($version) ? '' : rawurlencode($version).'/';
-        return $this->options['upload_url'].$version_path.rawurlencode($file_name);
+        return $this->options['upload_url'].$this->get_user_path()
+            .$version_path.rawurlencode($file_name);
     }
 
     protected function set_file_delete_properties($file) {
@@ -163,12 +179,21 @@ class UploadHandler
 
     }
 
-    protected function get_file_object($file_name) {
+    protected function is_file_object($file_name) {
         $file_path = $this->get_upload_path($file_name);
         if (is_file($file_path) && $file_name[0] !== '.') {
+            return true;
+        }
+        return false;
+    }
+
+    protected function get_file_object($file_name) {
+        if ($this->is_file_object($file_name)) {
             $file = new stdClass();
             $file->name = $file_name;
-            $file->size = $this->get_file_size($file_path);
+            $file->size = $this->get_file_size(
+                $this->get_upload_path($file_name)
+            );
             $file->url = $this->get_upload_url($file->name);
             foreach($this->options['image_versions'] as $version => $options) {
                 if (!empty($version)) {
@@ -186,11 +211,19 @@ class UploadHandler
         return null;
     }
 
-    protected function get_file_objects() {
+    protected function get_file_objects($iteration_method = 'get_file_object') {
+        $upload_dir = $this->get_upload_path();
+        if (!is_dir($upload_dir)) {
+            mkdir($upload_dir, $this->options['mkdir_mode']);
+        }
         return array_values(array_filter(array_map(
-            array($this, 'get_file_object'),
-            scandir($this->get_upload_path())
+            array($this, $iteration_method),
+            scandir($upload_dir)
         )));
+    }
+
+    protected function count_file_objects() {
+        return count($this->get_file_objects('is_file_object'));
     }
 
     protected function create_scaled_image($file_name, $version, $options) {
@@ -198,7 +231,7 @@ class UploadHandler
         if (!empty($version)) {
             $version_dir = $this->get_upload_path(null, $version);
             if (!is_dir($version_dir)) {
-                mkdir($version_dir, 0755);
+                mkdir($version_dir, $this->options['mkdir_mode']);
             }
             $new_file_path = $version_dir.'/'.$file_name;
         } else {
@@ -298,7 +331,7 @@ class UploadHandler
             return false;
         }
         if (is_int($this->options['max_number_of_files']) && (
-                count($this->get_file_objects()) >= $this->options['max_number_of_files'])
+                $this->count_file_objects() >= $this->options['max_number_of_files'])
             ) {
             $file->error = $this->get_error_message('max_number_of_files');
             return false;
@@ -405,6 +438,10 @@ class UploadHandler
         $file->type = $type;
         if ($this->validate($uploaded_file, $file, $error, $index)) {
             $this->handle_form_data($file, $index);
+            $upload_dir = $this->get_upload_path();
+            if (!is_dir($upload_dir)) {
+                mkdir($upload_dir, $this->options['mkdir_mode']);
+            }
             $file_path = $this->get_upload_path($file->name);
             $append_file = $content_range && is_file($file_path) &&
                 $file->size > $this->get_file_size($file_path);
