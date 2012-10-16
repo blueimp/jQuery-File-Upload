@@ -1,6 +1,6 @@
 <?php
 /*
- * jQuery File Upload Plugin PHP Class 5.15.2
+ * jQuery File Upload Plugin PHP Class 5.15.3
  * https://github.com/blueimp/jQuery-File-Upload
  *
  * Copyright 2010, Sebastian Tschan
@@ -126,7 +126,18 @@ class UploadHandler
             substr($_SERVER['SCRIPT_NAME'],0, strrpos($_SERVER['SCRIPT_NAME'], '/'));
     }
 
-    protected function set_file_delete_url($file) {
+    protected function get_upload_path($file_name = null, $version = null) {
+        $file_name = $file_name ? $file_name : '';
+        $version_path = empty($version) ? '' : $version.'/';
+        return $this->options['upload_dir'].$version_path.$file_name;
+    }
+    
+    protected function get_upload_url($file_name, $version = null) {
+        $version_path = empty($version) ? '' : rawurlencode($version).'/';
+        return $this->options['upload_url'].$version_path.rawurlencode($file_name);
+    }
+
+    protected function set_file_delete_properties($file) {
         $file->delete_url = $this->options['script_url']
             .'?file='.rawurlencode($file->name);
         $file->delete_type = $this->options['delete_type'];
@@ -153,21 +164,23 @@ class UploadHandler
     }
 
     protected function get_file_object($file_name) {
-        $file_path = $this->options['upload_dir'].$file_name;
+        $file_path = $this->get_upload_path($file_name);
         if (is_file($file_path) && $file_name[0] !== '.') {
             $file = new stdClass();
             $file->name = $file_name;
             $file->size = $this->get_file_size($file_path);
-            $file->url = $this->options['upload_url'].rawurlencode($file->name);
+            $file->url = $this->get_upload_url($file->name);
             foreach($this->options['image_versions'] as $version => $options) {
                 if (!empty($version)) {
-                    if (is_file($this->options['upload_dir'].$version.'/'.$file_name)) {
-                        $file->{$version.'_url'} = $this->options['upload_url']
-                            .$version.'/'.rawurlencode($file->name);
+                    if (is_file($this->get_upload_path($file_name, $version))) {
+                        $file->{$version.'_url'} = $this->get_upload_url(
+                            $file->name,
+                            $version
+                        );
                     }
                 }
             }
-            $this->set_file_delete_url($file);
+            $this->set_file_delete_properties($file);
             return $file;
         }
         return null;
@@ -176,14 +189,14 @@ class UploadHandler
     protected function get_file_objects() {
         return array_values(array_filter(array_map(
             array($this, 'get_file_object'),
-            scandir($this->options['upload_dir'])
+            scandir($this->get_upload_path())
         )));
     }
 
     protected function create_scaled_image($file_name, $version, $options) {
-        $file_path = $this->options['upload_dir'].$file_name;
+        $file_path = $this->get_upload_path($file_name);
         if (!empty($version)) {
-            $version_dir = $this->options['upload_dir'].$version;
+            $version_dir = $this->get_upload_path(null, $version);
             if (!is_dir($version_dir)) {
                 mkdir($version_dir, 0755);
             }
@@ -337,13 +350,13 @@ class UploadHandler
             preg_match('/^image\/(gif|jpe?g|png)/', $type, $matches)) {
             $file_name .= '.'.$matches[1];
         }
-        while(is_dir($this->options['upload_dir'].$file_name)) {
+        while(is_dir($this->get_upload_path($file_name))) {
             $file_name = $this->upcount_name($file_name);
         }
         $uploaded_bytes = $this->fix_integer_overflow(intval($content_range[1]));
-        while(is_file($this->options['upload_dir'].$file_name)) {
+        while(is_file($this->get_upload_path($file_name))) {
             if ($uploaded_bytes === $this->get_file_size(
-                    $this->options['upload_dir'].$file_name)) {
+                    $this->get_upload_path($file_name))) {
                 break;
             }
             $file_name = $this->upcount_name($file_name);
@@ -392,7 +405,7 @@ class UploadHandler
         $file->type = $type;
         if ($this->validate($uploaded_file, $file, $error, $index)) {
             $this->handle_form_data($file, $index);
-            $file_path = $this->options['upload_dir'].$file->name;
+            $file_path = $this->get_upload_path($file->name);
             $append_file = $content_range && is_file($file_path) &&
                 $file->size > $this->get_file_size($file_path);
             if ($uploaded_file && is_uploaded_file($uploaded_file)) {
@@ -419,12 +432,14 @@ class UploadHandler
                 if ($this->options['orient_image']) {
                     $this->orient_image($file_path);
                 }
-                $file->url = $this->options['upload_url'].rawurlencode($file->name);
+                $file->url = $this->get_upload_url($file->name);
                 foreach($this->options['image_versions'] as $version => $options) {
                     if ($this->create_scaled_image($file->name, $version, $options)) {
                         if (!empty($version)) {
-                            $file->{$version.'_url'} = $this->options['upload_url']
-                                .$version.'/'.rawurlencode($file->name);
+                            $file->{$version.'_url'} = $this->get_upload_url(
+                                $file->name,
+                                $version
+                            );
                         } else {
                             $file_size = $this->get_file_size($file_path, true);
                         }
@@ -435,7 +450,7 @@ class UploadHandler
                 $file->error = 'abort';
             }
             $file->size = $file_size;
-            $this->set_file_delete_url($file);
+            $this->set_file_delete_properties($file);
         }
         return $file;
     }
@@ -541,12 +556,12 @@ class UploadHandler
     public function delete($print_response = true) {
         $file_name = isset($_REQUEST['file']) ?
             basename(stripslashes($_REQUEST['file'])) : null;
-        $file_path = $this->options['upload_dir'].$file_name;
+        $file_path = $this->get_upload_path($file_name);
         $success = is_file($file_path) && $file_name[0] !== '.' && unlink($file_path);
         if ($success) {
             foreach($this->options['image_versions'] as $version => $options) {
                 if (!empty($version)) {
-                    $file = $this->options['upload_dir'].$version.'/'.$file_name;
+                    $file = $this->get_upload_path($file_name, $version);
                     if (is_file($file)) {
                         unlink($file);
                     }
