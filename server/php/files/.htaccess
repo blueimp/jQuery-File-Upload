@@ -1,4 +1,13 @@
+# The following directives force the Content-Type
+# "application/octet-stream" for all files except images.
+# This prevents executing any uploaded scripts
+# and forces a download dialog for non-image files:
 ForceType application/octet-stream
 <FilesMatch "(?i)\.(gif|jpe?g|png)$">
   ForceType none
 </FilesMatch>
+
+# Uncomment the following lines to prevent unauthorized download of files:
+#AuthName "Authorization required"
+#AuthType Basic
+#require valid-user

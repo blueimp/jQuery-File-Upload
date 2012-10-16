@@ -1,6 +1,6 @@
 <?php
 /*
- * jQuery File Upload Plugin PHP Class 5.16
+ * jQuery File Upload Plugin PHP Class 5.17
  * https://github.com/blueimp/jQuery-File-Upload
  *
  * Copyright 2010, Sebastian Tschan
@@ -45,11 +45,16 @@ class UploadHandler
             // DELETE requests. This is a parameter sent to the client:
             'delete_type' => 'DELETE',
             'access_control_allow_origin' => '*',
+            // Enable to provide file downloads via GET requests to the PHP script:
+            'download_via_php' => false,
+            // Defines which files can be displayed inline when downloaded:
+            'inline_file_types' => '/\.(gif|jpe?g|png)$/i',
+            // Defines which files (based on their names) are accepted for upload:
+            'accept_file_types' => '/.+$/i',
             // The php.ini settings upload_max_filesize and post_max_size
             // take precedence over the following max_file_size setting:
             'max_file_size' => null,
             'min_file_size' => 1,
-            'accept_file_types' => '/.+$/i',
             // The maximum number of files for the upload directory:
             'max_number_of_files' => null,
             // Image resolution restrictions:
@@ -103,11 +108,7 @@ class UploadHandler
                 $this->get();
                 break;
             case 'POST':
-                if (isset($_REQUEST['_method']) && $_REQUEST['_method'] === 'DELETE') {
-                    $this->delete();
-                } else {
-                    $this->post();
-                }
+                $this->post();
                 break;
             case 'DELETE':
                 $this->delete();
@@ -147,7 +148,14 @@ class UploadHandler
             .$version_path.$file_name;
     }
 
-    protected function get_upload_url($file_name, $version = null) {
+    protected function get_download_url($file_name, $version = null) {
+        if ($this->options['download_via_php']) {
+            $url = $this->options['script_url'].'?file='.rawurlencode($file_name);
+            if ($version) {
+                $url .= '&version='.rawurlencode($version);
+            }
+            return $url.'&download=1';
+        }
         $version_path = empty($version) ? '' : rawurlencode($version).'/';
         return $this->options['upload_url'].$this->get_user_path()
             .$version_path.rawurlencode($file_name);
@@ -179,7 +187,7 @@ class UploadHandler
 
     }
 
-    protected function is_file_object($file_name) {
+    protected function is_valid_file_object($file_name) {
         $file_path = $this->get_upload_path($file_name);
         if (is_file($file_path) && $file_name[0] !== '.') {
             return true;
@@ -188,17 +196,17 @@ class UploadHandler
     }
 
     protected function get_file_object($file_name) {
-        if ($this->is_file_object($file_name)) {
+        if ($this->is_valid_file_object($file_name)) {
             $file = new stdClass();
             $file->name = $file_name;
             $file->size = $this->get_file_size(
                 $this->get_upload_path($file_name)
             );
-            $file->url = $this->get_upload_url($file->name);
+            $file->url = $this->get_download_url($file->name);
             foreach($this->options['image_versions'] as $version => $options) {
                 if (!empty($version)) {
                     if (is_file($this->get_upload_path($file_name, $version))) {
-                        $file->{$version.'_url'} = $this->get_upload_url(
+                        $file->{$version.'_url'} = $this->get_download_url(
                             $file->name,
                             $version
                         );
@@ -223,7 +231,7 @@ class UploadHandler
     }
 
     protected function count_file_objects() {
-        return count($this->get_file_objects('is_file_object'));
+        return count($this->get_file_objects('is_valid_file_object'));
     }
 
     protected function create_scaled_image($file_name, $version, $options) {
@@ -469,11 +477,11 @@ class UploadHandler
                 if ($this->options['orient_image']) {
                     $this->orient_image($file_path);
                 }
-                $file->url = $this->get_upload_url($file->name);
+                $file->url = $this->get_download_url($file->name);
                 foreach($this->options['image_versions'] as $version => $options) {
                     if ($this->create_scaled_image($file->name, $version, $options)) {
                         if (!empty($version)) {
-                            $file->{$version.'_url'} = $this->get_upload_url(
+                            $file->{$version.'_url'} = $this->get_download_url(
                                 $file->name,
                                 $version
                             );
@@ -511,10 +519,60 @@ class UploadHandler
         return $content;
     }
 
+    protected function get_version_param() {
+        return isset($_GET['version']) ? basename(stripslashes($_GET['version'])) : null;
+    }
+
+    protected function get_file_name_param() {
+        return isset($_GET['file']) ? basename(stripslashes($_GET['file'])) : null;
+    }
+
+    protected function get_file_type($file_path) {
+        switch (strtolower(pathinfo($file_path, PATHINFO_EXTENSION))) {
+            case 'jpeg':
+            case 'jpg':
+                return 'image/jpeg';
+            case 'png':
+                return 'image/png';
+            case 'gif':
+                return 'image/gif';
+            default:
+                return '';
+        }
+    }
+
+    protected function download() {
+        if (!$this->options['download_via_php']) {
+            header('HTTP/1.1 403 Forbidden');
+            return;
+        }
+        $file_name = $this->get_file_name_param();
+        if ($this->is_valid_file_object($file_name)) {
+            $file_path = $this->get_upload_path($file_name, $this->get_version_param());
+            if (is_file($file_path)) {
+                if (!preg_match($this->options['inline_file_types'], $file_name)) {
+                    header('Content-Description: File Transfer');
+                    header('Content-Type: application/octet-stream');
+                    header('Content-Disposition: attachment; filename='.$file_name);
+                    header('Content-Transfer-Encoding: binary');
+                } else {
+                    // Prevent Internet Explorer from MIME-sniffing the content-type:
+                    header('X-Content-Type-Options: nosniff');
+                    header('Content-Type: '.$this->get_file_type($file_path));
+                    header('Content-Disposition: inline; filename="'.$file_name.'"');
+                }
+                header('Content-Length: '.$this->get_file_size($file_path));
+                header('Last-Modified: '.gmdate('D, d M Y H:i:s T', filemtime($file_path)));
+                readfile($file_path);
+            }
+        }
+    }
+
     public function head() {
         header('Pragma: no-cache');
         header('Cache-Control: no-store, no-cache, must-revalidate');
         header('Content-Disposition: inline; filename="files.json"');
+        // Prevent Internet Explorer from MIME-sniffing the content-type:
         header('X-Content-Type-Options: nosniff');
         if ($this->options['access_control_allow_origin']) {
             header('Access-Control-Allow-Origin: '.$this->options['access_control_allow_origin']);
@@ -531,8 +589,10 @@ class UploadHandler
     }
 
     public function get($print_response = true) {
-        $file_name = isset($_REQUEST['file']) ?
-            basename(stripslashes($_REQUEST['file'])) : null;
+        if ($print_response && isset($_GET['download'])) {
+            return $this->download();
+        }
+        $file_name = $this->get_file_name_param();
         if ($file_name) {
             $info = $this->get_file_object($file_name);
         } else {
@@ -543,7 +603,7 @@ class UploadHandler
 
     public function post($print_response = true) {
         if (isset($_REQUEST['_method']) && $_REQUEST['_method'] === 'DELETE') {
-            return $this->delete();
+            return $this->delete($print_response);
         }
         $upload = isset($_FILES[$this->options['param_name']]) ?
             $_FILES[$this->options['param_name']] : null;
@@ -591,8 +651,7 @@ class UploadHandler
     }
 
     public function delete($print_response = true) {
-        $file_name = isset($_REQUEST['file']) ?
-            basename(stripslashes($_REQUEST['file'])) : null;
+        $file_name = $this->get_file_name_param();
         $file_path = $this->get_upload_path($file_name);
         $success = is_file($file_path) && $file_name[0] !== '.' && unlink($file_path);
         if ($success) {
