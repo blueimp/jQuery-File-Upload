@@ -1,5 +1,5 @@
 /*
- * jQuery File Upload Plugin Test 6.9.6
+ * jQuery File Upload Plugin Test 6.10
  * https://github.com/blueimp/jQuery-File-Upload
  *
  * Copyright 2010, Sebastian Tschan
@@ -10,7 +10,7 @@
  */
 
 /*jslint nomen: true, unparam: true */
-/*global $, QUnit, document, expect, module, test, asyncTest, start, ok, strictEqual, notStrictEqual */
+/*global $, QUnit, window, document, expect, module, test, asyncTest, start, ok, strictEqual, notStrictEqual */
 
 $(function () {
     'use strict';
@@ -31,26 +31,20 @@ $(function () {
     var lifecycle = {
             setup: function () {
                 // Set the .fileupload method to the basic widget method:
-                $.widget('blueimp.fileupload', $.blueimp.fileupload, {});
+                $.widget('blueimp.fileupload', window.testBasicWidget, {});
             },
             teardown: function () {
-                // De-initialize the file input plugin:
-                $('#fileupload:blueimp-fileupload').fileupload('destroy');
                 // Remove all remaining event listeners:
-                $('#fileupload input').unbind();
                 $(document).unbind();
             }
         },
         lifecycleUI = {
             setup: function () {
                 // Set the .fileupload method to the UI widget method:
-                $.widget('blueimpUI.fileupload', $.blueimpUI.fileupload, {});
+                $.widget('blueimp.fileupload', window.testUIWidget, {});
             },
             teardown: function () {
-                // De-initialize the file input plugin:
-                $('#fileupload:blueimpUI-fileupload').fileupload('destroy');
                 // Remove all remaining event listeners:
-                $('#fileupload input, #fileupload button').unbind();
                 $(document).unbind();
             }
         };
@@ -1093,7 +1087,7 @@ $(function () {
                 maxNumberOfFiles: 0,
                 send: function (e, data) {
                     ok(
-                        !$.blueimpUI.fileupload.prototype.options
+                        !$.blueimp.fileupload.prototype.options
                             .send.call(this, e, data)
                     );
                     return false;
@@ -1132,7 +1126,7 @@ $(function () {
             .fileupload({
                 send: function (e, data) {
                     ok(
-                        !$.blueimpUI.fileupload.prototype.options
+                        !$.blueimp.fileupload.prototype.options
                             .send.call(this, e, data)
                     );
                     return false;
@@ -1174,7 +1168,7 @@ $(function () {
             .fileupload({
                 send: function (e, data) {
                     ok(
-                        !$.blueimpUI.fileupload.prototype.options
+                        !$.blueimp.fileupload.prototype.options
                             .send.call(this, e, data)
                     );
                     return false;
@@ -1217,7 +1211,7 @@ $(function () {
             .fileupload({
                 send: function (e, data) {
                     ok(
-                        !$.blueimpUI.fileupload.prototype.options
+                        !$.blueimp.fileupload.prototype.options
                             .send.call(this, e, data)
                     );
                     return false;

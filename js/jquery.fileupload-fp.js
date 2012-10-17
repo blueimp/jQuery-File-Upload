@@ -1,5 +1,5 @@
 /*
- * jQuery File Upload File Processing Plugin 1.1
+ * jQuery File Upload File Processing Plugin 1.2
  * https://github.com/blueimp/jQuery-File-Upload
  *
  * Copyright 2012, Sebastian Tschan
@@ -32,9 +32,9 @@
 }(function ($, loadImage) {
     'use strict';
 
-    // The File Upload IP version extends the basic fileupload widget
+    // The File Upload FP version extends the fileupload widget
     // with file processing functionality:
-    $.widget('blueimpFP.fileupload', $.blueimp.fileupload, {
+    $.widget('blueimp.fileupload', $.blueimp.fileupload, {
 
         options: {
             // The list of file processing actions:
@@ -209,7 +209,7 @@
         },
 
         _create: function () {
-            $.blueimp.fileupload.prototype._create.call(this);
+            this._super();
             this._processing = 0;
             this._processingQueue = $.Deferred().resolveWith(this)
                 .promise();
