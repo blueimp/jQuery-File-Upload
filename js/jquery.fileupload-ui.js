@@ -457,7 +457,7 @@
                     that._transition(node).done(function () {
                         dfd.resolveWith(node);
                     });
-                    if (!$.contains(this.document[0].body, node[0])) {
+                    if (!$.contains(that.document[0].body, node[0])) {
                         // If the element is not part of the DOM,
                         // transition events are not triggered,
                         // so we have to resolve manually:
