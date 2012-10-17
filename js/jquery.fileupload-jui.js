@@ -1,5 +1,5 @@
 /*
- * jQuery File Upload jQuery UI Plugin 1.2
+ * jQuery File Upload jQuery UI Plugin 1.3
  * https://github.com/blueimp/jQuery-File-Upload
  *
  * Copyright 2012, Sebastian Tschan
@@ -9,7 +9,7 @@
  * http://www.opensource.org/licenses/MIT
  */
 
-/*jslint nomen: true */
+/*jslint nomen: true, unparam: true */
 /*global define, window */
 
 (function (factory) {
@@ -23,7 +23,7 @@
     }
 }(function ($) {
     'use strict';
-    $.widget('blueimpJUI.fileupload', $.blueimpUI.fileupload, {
+    $.widget('blueimp.fileupload', $.blueimp.fileupload, {
         options: {
             sent: function (e, data) {
                 if (data.context && data.dataType &&
@@ -65,8 +65,7 @@
             }
         },
         _renderUpload: function (func, files) {
-            var node = $.blueimpUI.fileupload.prototype
-                ._renderUpload.call(this, func, files),
+            var node = this._super(func, files),
                 showIconText = $(window).width() > 480;
             node.find('.progress').empty().progressbar();
             node.find('.start button').button({
@@ -80,8 +79,7 @@
             return node;
         },
         _renderDownload: function (func, files) {
-            var node = $.blueimpUI.fileupload.prototype
-                ._renderDownload.call(this, func, files),
+            var node = this._super(func, files),
                 showIconText = $(window).width() > 480;
             node.find('.delete button').button({
                 icons: {primary: 'ui-icon-trash'},
@@ -90,8 +88,7 @@
             return node;
         },
         _transition: function (node) {
-            var that = this,
-                deferred = $.Deferred();
+            var deferred = $.Deferred();
             if (node.hasClass('fade')) {
                 node.fadeToggle(function () {
                     deferred.resolveWith(node);
@@ -102,7 +99,7 @@
             return deferred;
         },
         _create: function () {
-            $.blueimpUI.fileupload.prototype._create.call(this);
+            this._super();
             this.element
                 .find('.fileupload-buttonbar')
                 .find('.fileinput-button').each(function () {
@@ -119,7 +116,7 @@
                 .button({icons: {primary: 'ui-icon-trash'}})
                 .end().find('.progress').empty().progressbar();
         },
-        destroy: function () {
+        _destroy: function () {
             this.element
                 .find('.fileupload-buttonbar')
                 .find('.fileinput-button').each(function () {
@@ -135,7 +132,7 @@
                 .end().find('.delete')
                 .button('destroy')
                 .end().find('.progress').progressbar('destroy');
-            $.blueimpUI.fileupload.prototype.destroy.call(this);
+            this._super();
         }
     });
 }));
