@@ -405,15 +405,18 @@
             // matches against the acceptFileTypes regular expression, as
             // only browsers with support for the File API report the type:
             if (!(this.options.acceptFileTypes.test(file.type) ||
-                    this.options.acceptFileTypes.test(file.name))) {
+                    this.options.acceptFileTypes.test(file.name) ||
+                    this.options.acceptFileTypes.test(file.fileName))) {
                 return 'acceptFileTypes';
             }
             if (this.options.maxFileSize &&
-                    file.size > this.options.maxFileSize) {
+                    (file.size > this.options.maxFileSize ||
+                    file.fileSize > this.options.maxFileSize)) {
                 return 'maxFileSize';
             }
-            if (typeof file.size === 'number' &&
-                    file.size < this.options.minFileSize) {
+            if (this.options.minFileSize &&
+                    (file.size < this.options.minFileSize ||
+                     file.fileSize < this.options.minFileSize )) {
                 return 'minFileSize';
             }
             return null;
