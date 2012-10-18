@@ -1,6 +1,6 @@
 <?php
 /*
- * jQuery File Upload Plugin PHP Class 5.17
+ * jQuery File Upload Plugin PHP Class 5.17.1
  * https://github.com/blueimp/jQuery-File-Upload
  *
  * Copyright 2010, Sebastian Tschan
@@ -553,7 +553,7 @@ class UploadHandler
                 if (!preg_match($this->options['inline_file_types'], $file_name)) {
                     header('Content-Description: File Transfer');
                     header('Content-Type: application/octet-stream');
-                    header('Content-Disposition: attachment; filename='.$file_name);
+                    header('Content-Disposition: attachment; filename="'.$file_name.'"');
                     header('Content-Transfer-Encoding: binary');
                 } else {
                     // Prevent Internet Explorer from MIME-sniffing the content-type:
@@ -577,7 +577,8 @@ class UploadHandler
         if ($this->options['access_control_allow_origin']) {
             header('Access-Control-Allow-Origin: '.$this->options['access_control_allow_origin']);
             header('Access-Control-Allow-Methods: OPTIONS, HEAD, GET, POST, PUT, DELETE');
-            header('Access-Control-Allow-Headers: X-File-Name, X-File-Type');            
+            header('Access-Control-Allow-Headers: '
+                .'Content-Type, Content-Range, Content-Disposition, Content-Description');            
         }
         header('Vary: Accept');
         if (isset($_SERVER['HTTP_ACCEPT']) &&
@@ -607,6 +608,15 @@ class UploadHandler
         }
         $upload = isset($_FILES[$this->options['param_name']]) ?
             $_FILES[$this->options['param_name']] : null;
+        // Parse the Content-Disposition header, if available:
+        $file_name = isset($_SERVER['HTTP_CONTENT_DISPOSITION']) ?
+            rawurldecode(preg_replace(
+                '/(^[^"]+")|("$)/',
+                '',
+                $_SERVER['HTTP_CONTENT_DISPOSITION']
+            )) : null;
+        $file_type = isset($_SERVER['HTTP_CONTENT_DESCRIPTION']) ?
+            $_SERVER['HTTP_CONTENT_DESCRIPTION'] : null;
         // Parse the Content-Range header, which has the following form:
         // Content-Range: bytes 0-524287/2000000
         $content_range = isset($_SERVER['HTTP_CONTENT_RANGE']) ?
@@ -619,11 +629,9 @@ class UploadHandler
             foreach ($upload['tmp_name'] as $index => $value) {
                 $info[] = $this->handle_file_upload(
                     $upload['tmp_name'][$index],
-                    isset($_SERVER['HTTP_X_FILE_NAME']) ?
-                        $_SERVER['HTTP_X_FILE_NAME'] : $upload['name'][$index],
+                    $file_name ? $file_name : $upload['name'][$index],
                     $size ? $size : $upload['size'][$index],
-                    isset($_SERVER['HTTP_X_FILE_TYPE']) ?
-                        $_SERVER['HTTP_X_FILE_TYPE'] : $upload['type'][$index],
+                    $file_type ? $file_type : $upload['type'][$index],
                     $upload['error'][$index],
                     $index,
                     $content_range
@@ -634,14 +642,12 @@ class UploadHandler
             // $_FILES is a one-dimensional array:
             $info[] = $this->handle_file_upload(
                 isset($upload['tmp_name']) ? $upload['tmp_name'] : null,
-                isset($_SERVER['HTTP_X_FILE_NAME']) ?
-                    $_SERVER['HTTP_X_FILE_NAME'] : (isset($upload['name']) ?
+                $file_name ? $file_name : (isset($upload['name']) ?
                         $upload['name'] : null),
                 $size ? $size : (isset($upload['size']) ?
                         $upload['size'] : $_SERVER['CONTENT_LENGTH']),
-                isset($_SERVER['HTTP_X_FILE_TYPE']) ?
-                    $_SERVER['HTTP_X_FILE_TYPE'] : (isset($upload['type']) ?
-                        $upload['type'] : null),
+                $file_type ? $file_type : (isset($upload['type']) ?
+                        $upload['type'] : $_SERVER['CONTENT_TYPE']),
                 isset($upload['error']) ? $upload['error'] : null,
                 null,
                 $content_range

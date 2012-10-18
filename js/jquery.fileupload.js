@@ -1,5 +1,5 @@
 /*
- * jQuery File Upload Plugin 5.19.1
+ * jQuery File Upload Plugin 5.19.2
  * https://github.com/blueimp/jQuery-File-Upload
  *
  * Copyright 2010, Sebastian Tschan
@@ -305,10 +305,8 @@
                 options.headers['Content-Range'] = options.contentRange;
             }
             if (!multipart) {
-                // For cross domain requests, the X-File-Name header
-                // must be allowed via Access-Control-Allow-Headers
-                // or removed using the beforeSend callback:
-                options.headers['X-File-Name'] = file.name;
+                options.headers['Content-Disposition'] = 'attachment; filename="' +
+                    encodeURI(file.name) + '"';
                 options.contentType = file.type;
                 options.data = options.blob || file;
             } else if ($.support.xhrFormDataFileUpload) {
@@ -341,11 +339,9 @@
                         });
                     }
                     if (options.blob) {
-                        // For cross domain requests, the X-File-* headers
-                        // must be allowed via Access-Control-Allow-Headers
-                        // or removed using the beforeSend callback:
-                        options.headers['X-File-Name'] = file.name;
-                        options.headers['X-File-Type'] = file.type;
+                        options.headers['Content-Disposition'] = 'attachment; filename="' +
+                            encodeURI(file.name) + '"';
+                        options.headers['Content-Description'] = encodeURI(file.type);
                         formData.append(paramName, options.blob, file.name);
                     } else {
                         $.each(options.files, function (index, file) {
