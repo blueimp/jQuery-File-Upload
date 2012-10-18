@@ -1,5 +1,5 @@
 /*
- * jQuery File Upload Plugin 5.19
+ * jQuery File Upload Plugin 5.19.1
  * https://github.com/blueimp/jQuery-File-Upload
  *
  * Copyright 2010, Sebastian Tschan
@@ -894,6 +894,12 @@
                 // support the File API and we add a pseudo File object with
                 // the input value as name with path information removed:
                 files = [{name: value.replace(/^.*\\/, '')}];
+            } else if (files[0].name === undefined && files[0].fileName) {
+                // File normalization for Safari 4 and Firefox 3:
+                $.each(files, function (index, file) {
+                    file.name = file.fileName;
+                    file.size = file.fileSize;
+                });
             }
             return $.Deferred().resolve(files).promise();
         },
