@@ -55,6 +55,9 @@ ul.nav li {
   width: auto;
   float: left;
 }
+td.delete {
+  white-space: nowrap;
+}
 
 /* Fix for IE 6: */
 * html .nav-collapse,
