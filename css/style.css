@@ -56,7 +56,7 @@ ul.nav li {
   float: left;
 }
 td.delete {
-  white-space:nowrap;
+  white-space: nowrap;
 }
 
 /* Fix for IE 6: */
