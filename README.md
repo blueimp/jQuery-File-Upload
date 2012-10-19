@@ -70,6 +70,8 @@ The repository also includes the [jQuery XDomainRequest Transport plugin](https:
 [Cross-domain File Uploads](https://github.com/blueimp/jQuery-File-Upload/wiki/Cross-domain-uploads) using the [Iframe Transport plugin](https://github.com/blueimp/jQuery-File-Upload/blob/master/js/jquery.iframe-transport.js) require a redirect back to the origin server to retrieve the upload results. The [example implementation](https://github.com/blueimp/jQuery-File-Upload/blob/master/js/main.js) makes use of [result.html](https://github.com/blueimp/jQuery-File-Upload/blob/master/cors/result.html) as a static redirect page for the origin server.
 
 ## Browsers
+
+### Desktop browsers
 The File Upload plugin is regularly tested with the latest browser versions and supports the following minimal versions:
 
 * Google Chrome - 7.0+
@@ -79,8 +81,17 @@ The File Upload plugin is regularly tested with the latest browser versions and 
 * Microsoft Internet Explorer 6.0+
 
 Drag & Drop is only supported on Google Chrome, Firefox 4.0+, Safari 5.0+ and Opera 12.0+.  
-Microsoft Internet Explorer has no support for multiple file selection or upload progress.  
-[Extended browser support information](https://github.com/blueimp/jQuery-File-Upload/wiki/Browser-support).
+Microsoft Internet Explorer has no support for multiple file selection or upload progress.
+
+### Mobile browsers
+The File Upload plugin has been tested with and supports the following mobile browsers:
+
+* Apple Safari Mobile on iOS 6.0+
+* Google Chrome on iOS 6.0+
+* Default Browser on Android 2.3+
+
+### Supported features
+For a detailed overview of supported features please have a look at the [Extended browser support information](https://github.com/blueimp/jQuery-File-Upload/wiki/Browser-support).
 
 ## License
 Released under the [MIT license](http://www.opensource.org/licenses/MIT).
