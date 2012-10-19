@@ -74,14 +74,11 @@ The repository also includes the [jQuery XDomainRequest Transport plugin](https:
 ### Desktop browsers
 The File Upload plugin is regularly tested with the latest browser versions and supports the following minimal versions:
 
-* Google Chrome - 7.0+
-* Apple Safari - 4.0+
-* Mozilla Firefox - 3.0+
-* Opera - 10.0+
+* Google Chrome
+* Apple Safari 4.0+
+* Mozilla Firefox 3.0+
+* Opera 10.0+
 * Microsoft Internet Explorer 6.0+
-
-Drag & Drop is only supported on Google Chrome, Firefox 4.0+, Safari 5.0+ and Opera 12.0+.  
-Microsoft Internet Explorer has no support for multiple file selection or upload progress.
 
 ### Mobile browsers
 The File Upload plugin has been tested with and supports the following mobile browsers:
@@ -91,7 +88,7 @@ The File Upload plugin has been tested with and supports the following mobile br
 * Default Browser on Android 2.3+
 
 ### Supported features
-For a detailed overview of supported features please have a look at the [Extended browser support information](https://github.com/blueimp/jQuery-File-Upload/wiki/Browser-support).
+For a detailed overview of the features supported by each browser version please have a look at the [Extended browser support information](https://github.com/blueimp/jQuery-File-Upload/wiki/Browser-support).
 
 ## License
 Released under the [MIT license](http://www.opensource.org/licenses/MIT).
