@@ -1,6 +1,6 @@
 <?php
 /*
- * jQuery File Upload Plugin PHP Class 5.17.1
+ * jQuery File Upload Plugin PHP Class 5.17.2
  * https://github.com/blueimp/jQuery-File-Upload
  *
  * Copyright 2010, Sebastian Tschan
@@ -670,7 +670,7 @@ class UploadHandler
                 }
             }
         }
-        return $this->generate_response($info, $print_response);
+        return $this->generate_response($success, $print_response);
     }
 
 }
