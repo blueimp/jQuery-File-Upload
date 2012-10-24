@@ -52,7 +52,7 @@ Please also provide a [JSFiddle](http://jsfiddle.net/) to allow to reproduce the
 
 ## Requirements
 * [jQuery](http://jquery.com/) v. 1.6+
-* [jQuery UI widget factory](http://wiki.jqueryui.com/w/page/12138135/Widget%20factory) v. 1.8+ (included)
+* [jQuery UI widget factory](http://api.jqueryui.com/jQuery.widget/) v. 1.9+ (included)
 * [jQuery Iframe Transport plugin](https://github.com/blueimp/jQuery-File-Upload/blob/master/jquery.iframe-transport.js) (included)
 * [JavaScript Templates engine](https://github.com/blueimp/JavaScript-Templates) v. 2.1.0+ (optional)
 * [JavaScript Load Image function](https://github.com/blueimp/JavaScript-Load-Image) v. 1.2.1+ (optional)
