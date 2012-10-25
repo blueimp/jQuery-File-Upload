@@ -91,7 +91,7 @@ class UploadHandler
             )
         );
         if ($options) {
-            $this->options = array_replace_recursive($this->options, $options);
+            $this->options = array_merge($this->options, $options);
         }
         if ($initialize) {
             $this->initialize();
