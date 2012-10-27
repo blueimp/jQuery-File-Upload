@@ -1,6 +1,6 @@
 <?php
 /*
- * jQuery File Upload Plugin PHP Class 5.18
+ * jQuery File Upload Plugin PHP Class 5.18.1
  * https://github.com/blueimp/jQuery-File-Upload
  *
  * Copyright 2010, Sebastian Tschan
@@ -23,6 +23,7 @@ class UploadHandler
         6 => 'Missing a temporary folder',
         7 => 'Failed to write file to disk',
         8 => 'A PHP extension stopped the file upload',
+        'post_max_size' => 'The uploaded file exceeds the post_max_size directive in php.ini',
         'max_file_size' => 'File is too big',
         'min_file_size' => 'File is too small',
         'accept_file_types' => 'Filetype not allowed',
@@ -326,13 +327,28 @@ class UploadHandler
             $this->error_messages[$error] : $error;
     }
 
+    function get_config_bytes($val) {
+        $val = trim($val);
+        $last = strtolower($val[strlen($val)-1]);
+        switch($last) {
+            case 'g':
+                $val *= 1024;
+            case 'm':
+                $val *= 1024;
+            case 'k':
+                $val *= 1024;
+        }
+        return $this->fix_integer_overflow($val);
+    }
+
     protected function validate($uploaded_file, $file, $error, $index) {
         if ($error) {
             $file->error = $this->get_error_message($error);
             return false;
         }
-        if (!$file->name) {
-            $file->error = $this->get_error_message('missingFileName');
+        $content_length = $this->fix_integer_overflow(intval($_SERVER['CONTENT_LENGTH']));
+        if ($content_length > $this->get_config_bytes(ini_get('post_max_size'))) {
+            $file->error = $this->get_error_message('post_max_size');
             return false;
         }
         if (!preg_match($this->options['accept_file_types'], $file->name)) {
@@ -342,7 +358,7 @@ class UploadHandler
         if ($uploaded_file && is_uploaded_file($uploaded_file)) {
             $file_size = $this->get_file_size($uploaded_file);
         } else {
-            $file_size = $_SERVER['CONTENT_LENGTH'];
+            $file_size = $content_length;
         }
         if ($this->options['max_file_size'] && (
                 $file_size > $this->options['max_file_size'] ||
