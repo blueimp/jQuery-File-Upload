@@ -1,6 +1,6 @@
 <?php
 /*
- * jQuery File Upload Plugin PHP Class 5.17.2
+ * jQuery File Upload Plugin PHP Class 5.18
  * https://github.com/blueimp/jQuery-File-Upload
  *
  * Copyright 2010, Sebastian Tschan
@@ -45,6 +45,21 @@ class UploadHandler
             // DELETE requests. This is a parameter sent to the client:
             'delete_type' => 'DELETE',
             'access_control_allow_origin' => '*',
+            'access_control_allow_credentials' => false,
+            'access_control_allow_methods' => array(
+                'OPTIONS',
+                'HEAD',
+                'GET',
+                'POST',
+                'PUT',
+                'DELETE'
+            ),
+            'access_control_allow_headers' => array(
+                'Content-Type',
+                'Content-Range',
+                'Content-Disposition',
+                'Content-Description'
+            ),
             // Enable to provide file downloads via GET requests to the PHP script:
             'download_via_php' => false,
             // Defines which files can be displayed inline when downloaded:
@@ -167,6 +182,9 @@ class UploadHandler
         $file->delete_type = $this->options['delete_type'];
         if ($file->delete_type !== 'DELETE') {
             $file->delete_url .= '&_method=DELETE';
+        }
+        if ($this->options['access_control_allow_credentials']) {
+            $file->delete_with_credentials = true;
         }
     }
 
@@ -568,18 +586,7 @@ class UploadHandler
         }
     }
 
-    public function head() {
-        header('Pragma: no-cache');
-        header('Cache-Control: no-store, no-cache, must-revalidate');
-        header('Content-Disposition: inline; filename="files.json"');
-        // Prevent Internet Explorer from MIME-sniffing the content-type:
-        header('X-Content-Type-Options: nosniff');
-        if ($this->options['access_control_allow_origin']) {
-            header('Access-Control-Allow-Origin: '.$this->options['access_control_allow_origin']);
-            header('Access-Control-Allow-Methods: OPTIONS, HEAD, GET, POST, PUT, DELETE');
-            header('Access-Control-Allow-Headers: '
-                .'Content-Type, Content-Range, Content-Disposition, Content-Description');            
-        }
+    protected function send_content_type_header() {
         header('Vary: Accept');
         if (isset($_SERVER['HTTP_ACCEPT']) &&
             (strpos($_SERVER['HTTP_ACCEPT'], 'application/json') !== false)) {
@@ -587,6 +594,28 @@ class UploadHandler
         } else {
             header('Content-type: text/plain');
         }
+    }
+
+    protected function send_access_control_headers() {
+        header('Access-Control-Allow-Origin: '.$this->options['access_control_allow_origin']);
+        header('Access-Control-Allow-Credentials: '
+            .($this->options['access_control_allow_credentials'] ? 'true' : 'false'));
+        header('Access-Control-Allow-Methods: '
+            .implode(', ', $this->options['access_control_allow_methods']));
+        header('Access-Control-Allow-Headers: '
+            .implode(', ', $this->options['access_control_allow_headers']));
+    }
+
+    public function head() {
+        header('Pragma: no-cache');
+        header('Cache-Control: no-store, no-cache, must-revalidate');
+        header('Content-Disposition: inline; filename="files.json"');
+        // Prevent Internet Explorer from MIME-sniffing the content-type:
+        header('X-Content-Type-Options: nosniff');
+        if ($this->options['access_control_allow_origin']) {
+           $this->send_access_control_headers();
+        }
+        $this->send_content_type_header();
     }
 
     public function get($print_response = true) {

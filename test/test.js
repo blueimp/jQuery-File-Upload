@@ -1,5 +1,5 @@
 /*
- * jQuery File Upload Plugin Test 6.10
+ * jQuery File Upload Plugin Test 6.11
  * https://github.com/blueimp/jQuery-File-Upload
  *
  * Copyright 2010, Sebastian Tschan
@@ -811,9 +811,9 @@ $(function () {
                             'non-multipart upload sets file type as contentType'
                         );
                         strictEqual(
-                            data.headers['X-File-Name'],
-                            param.files[0].name,
-                            'non-multipart upload sets X-File-Name header'
+                            data.headers['Content-Disposition'],
+                            'attachment; filename="' + param.files[0].name + '"',
+                            'non-multipart upload sets Content-Disposition header'
                         );
                         start();
                     }

@@ -1,5 +1,5 @@
 /*
- * jQuery File Upload User Interface Plugin 6.10
+ * jQuery File Upload User Interface Plugin 6.11
  * https://github.com/blueimp/jQuery-File-Upload
  *
  * Copyright 2010, Sebastian Tschan
@@ -533,12 +533,11 @@
         _deleteHandler: function (e) {
             e.preventDefault();
             var button = $(e.currentTarget);
-            this._trigger('destroy', e, {
+            this._trigger('destroy', e, $.extend({
                 context: button.closest('.template-download'),
-                url: button.attr('data-url'),
-                type: button.attr('data-type') || 'DELETE',
+                type: 'DELETE',
                 dataType: this.options.dataType
-            });
+            }, button.data()));
         },
 
         _forceReflow: function (node) {
