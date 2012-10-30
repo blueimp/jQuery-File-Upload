@@ -1,5 +1,5 @@
 /*
- * jQuery File Upload Plugin 5.19.2
+ * jQuery File Upload Plugin 5.19.3
  * https://github.com/blueimp/jQuery-File-Upload
  *
  * Copyright 2010, Sebastian Tschan
@@ -644,18 +644,18 @@
         _onSend: function (e, data) {
             var that = this,
                 jqXHR,
+                aborted,
                 slot,
                 pipe,
                 options = that._getAJAXSettings(data),
-                send = function (resolve, args) {
+                send = function () {
                     that._sending += 1;
                     // Set timer for bitrate progress calculation:
                     options._bitrateTimer = new that._BitrateTimer();
                     jqXHR = jqXHR || (
-                        (resolve !== false &&
-                        that._trigger('send', e, options) !== false &&
-                        (that._chunkedUpload(options) || $.ajax(options))) ||
-                        that._getXHRPromise(false, options.context, args)
+                        ((aborted || that._trigger('send', e, options) === false) &&
+                        that._getXHRPromise(false, options.context, aborted)) ||
+                        that._chunkedUpload(options) || $.ajax(options)
                     ).done(function (result, textStatus, jqXHR) {
                         that._onDone(result, textStatus, jqXHR, options);
                     }).fail(function (jqXHR, textStatus, errorThrown) {
@@ -705,12 +705,12 @@
                 // which is delegated to the jqXHR object of the current upload,
                 // and jqXHR callbacks mapped to the equivalent Promise methods:
                 pipe.abort = function () {
-                    var args = [undefined, 'abort', 'abort'];
+                    aborted = [undefined, 'abort', 'abort'];
                     if (!jqXHR) {
                         if (slot) {
-                            slot.rejectWith(pipe, args);
+                            slot.rejectWith(options.context, aborted);
                         }
-                        return send(false, args);
+                        return send();
                     }
                     return jqXHR.abort();
                 };
