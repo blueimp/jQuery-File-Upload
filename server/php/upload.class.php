@@ -1,6 +1,6 @@
 <?php
 /*
- * jQuery File Upload Plugin PHP Class 5.18.2
+ * jQuery File Upload Plugin PHP Class 5.18.3
  * https://github.com/blueimp/jQuery-File-Upload
  *
  * Copyright 2010, Sebastian Tschan
@@ -665,7 +665,7 @@ class UploadHandler
         // Parse the Content-Range header, which has the following form:
         // Content-Range: bytes 0-524287/2000000
         $content_range = isset($_SERVER['HTTP_CONTENT_RANGE']) ?
-            preg_split("/[^0-9]+/", $_SERVER['HTTP_CONTENT_RANGE']) : null;
+            preg_split('/[^0-9]+/', $_SERVER['HTTP_CONTENT_RANGE']) : null;
         $size =  $content_range ? $content_range[3] : null;
         $info = array();
         if ($upload && is_array($upload['tmp_name'])) {
