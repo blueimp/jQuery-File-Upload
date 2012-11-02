@@ -83,9 +83,10 @@ The File Upload plugin is regularly tested with the latest browser versions and 
 ### Mobile browsers
 The File Upload plugin has been tested with and supports the following mobile browsers:
 
-* Apple Safari Mobile on iOS 6.0+
+* Apple Safari on iOS 6.0+
 * Google Chrome on iOS 6.0+
 * Default Browser on Android 2.3+
+* Opera Mobile 12.0+
 
 ### Supported features
 For a detailed overview of the features supported by each browser version please have a look at the [Extended browser support information](https://github.com/blueimp/jQuery-File-Upload/wiki/Browser-support).
