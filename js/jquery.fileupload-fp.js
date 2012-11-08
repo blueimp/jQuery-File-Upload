@@ -1,5 +1,5 @@
 /*
- * jQuery File Upload File Processing Plugin 1.2
+ * jQuery File Upload File Processing Plugin 1.2.1
  * https://github.com/blueimp/jQuery-File-Upload
  *
  * Copyright 2012, Sebastian Tschan
@@ -86,6 +86,9 @@
                     loadImage(
                         file,
                         function (img) {
+                            if (!img.src) {
+                                return dfd.rejectWith(that, [data]);
+                            }
                             data.img = img;
                             dfd.resolveWith(that, [data]);
                         }
