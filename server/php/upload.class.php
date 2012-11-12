@@ -444,7 +444,12 @@ class UploadHandler
     }
 
     protected function orient_image($file_path) {
-          $exif = @exif_read_data($file_path);
+        if (!function_exists('exif_read_data')) {
+            return false;
+        }
+
+        $exif = @exif_read_data($file_path);
+
         if ($exif === false) {
             return false;
         }
