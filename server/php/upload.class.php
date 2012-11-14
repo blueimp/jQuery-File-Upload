@@ -115,23 +115,25 @@ class UploadHandler
     }
 
     protected function initialize() {
+        $content = null;
         switch ($_SERVER['REQUEST_METHOD']) {
             case 'OPTIONS':
             case 'HEAD':
-                $this->head();
+                $content = $this->head();
                 break;
             case 'GET':
-                $this->get();
+                $content = $this->get();
                 break;
             case 'POST':
-                $this->post();
+                $content = $this->post();
                 break;
             case 'DELETE':
-                $this->delete();
+                $content = $this->delete();
                 break;
             default:
                 header('HTTP/1.1 405 Method Not Allowed');
         }
+        $this->request_completed($_SERVER['REQUEST_METHOD'], $content);
     }
 
     protected function get_full_url() {
@@ -721,4 +723,7 @@ class UploadHandler
         return $this->generate_response($success, $print_response);
     }
 
+    protected function request_completed($method, $content) {
+        // Meant to be overriden
+    }
 }
