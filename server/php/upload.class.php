@@ -1,6 +1,6 @@
 <?php
 /*
- * jQuery File Upload Plugin PHP Class 5.18.5
+ * jQuery File Upload Plugin PHP Class 5.18.6
  * https://github.com/blueimp/jQuery-File-Upload
  *
  * Copyright 2010, Sebastian Tschan
@@ -241,7 +241,7 @@ class UploadHandler
     protected function get_file_objects($iteration_method = 'get_file_object') {
         $upload_dir = $this->get_upload_path();
         if (!is_dir($upload_dir)) {
-            mkdir($upload_dir, $this->options['mkdir_mode'], true);
+            return array();
         }
         return array_values(array_filter(array_map(
             array($this, $iteration_method),
