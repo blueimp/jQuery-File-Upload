@@ -635,7 +635,7 @@ class UploadHandler
         // Prevent Internet Explorer from MIME-sniffing the content-type:
         header('X-Content-Type-Options: nosniff');
         if ($this->options['access_control_allow_origin']) {
-           $this->send_access_control_headers();
+            $this->send_access_control_headers();
         }
         $this->send_content_type_header();
     }
