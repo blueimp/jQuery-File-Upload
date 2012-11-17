@@ -1,0 +1,24 @@
+{
+    "name": "blueimp/jquery-file-upload",
+    "type": "library",
+    "description": "library to upload files and automaticaly resize images using jquery ajax api",
+    "keywords": ["jquery","upload","ajax","php","js","node.js"],
+    "homepage": "https://github.com/blueimp/jQuery-File-Upload",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Sebastian Tschan",
+            "email": "mail@blueimp.net",
+            "homepage": "https://blueimp.net/",
+            "role": "Developer"
+        }
+    ],
+    "require": {
+        "php": ">=5.3.0"
+    },
+    "autoload": {
+        "psr-0": {
+            "JQueryFileUpload": "src"
+        }
+    }
+}
