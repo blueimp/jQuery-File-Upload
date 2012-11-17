@@ -1,4 +1,7 @@
 <?php
+
+namespace PunkAve\FileUploaderBundle\BlueImp;
+
 /*
  * jQuery File Upload Plugin PHP Class 5.18.6
  * https://github.com/blueimp/jQuery-File-Upload
@@ -9,6 +12,7 @@
  * Licensed under the MIT license:
  * http://www.opensource.org/licenses/MIT
  */
+
 
 class UploadHandler
 {
@@ -33,8 +37,12 @@ class UploadHandler
         'max_height' => 'Image exceeds maximum height',
         'min_height' => 'Image requires a minimum height'
     );
+    public $header;
+    public $content;
 
-    function __construct($options = null, $initialize = true) {
+    function __construct($options = array(), $initialize = true) {
+        $this->header = '';
+        $this->content = '';
         $this->options = array(
             'script_url' => $this->get_full_url().'/',
             'upload_dir' => dirname($_SERVER['SCRIPT_FILENAME']).'/files/',
@@ -130,8 +138,10 @@ class UploadHandler
                 $this->delete();
                 break;
             default:
-                header('HTTP/1.1 405 Method Not Allowed');
+                $this->header .= 'HTTP/1.1 405 Method Not Allowed';
         }
+        header($this->header);
+        echo $this->content;
     }
 
     protected function get_full_url() {
@@ -216,7 +226,7 @@ class UploadHandler
 
     protected function get_file_object($file_name) {
         if ($this->is_valid_file_object($file_name)) {
-            $file = new stdClass();
+            $file = new \stdClass();
             $file->name = $file_name;
             $file->size = $this->get_file_size(
                 $this->get_upload_path($file_name)
@@ -306,6 +316,8 @@ class UploadHandler
                 break;
             default:
                 $src_img = null;
+                $write_image = null;
+                $image_quality = null;
         }
         $success = $src_img && @imagecopyresampled(
             $new_img,
@@ -341,7 +353,7 @@ class UploadHandler
         return $this->fix_integer_overflow($val);
     }
 
-    protected function validate($uploaded_file, $file, $error, $index) {
+    protected function validate($uploaded_file, $file, $error) {
         if ($error) {
             $file->error = $this->get_error_message($error);
             return false;
@@ -361,9 +373,9 @@ class UploadHandler
             $file_size = $content_length;
         }
         if ($this->options['max_file_size'] && (
-                $file_size > $this->options['max_file_size'] ||
+            $file_size > $this->options['max_file_size'] ||
                 $file->size > $this->options['max_file_size'])
-            ) {
+        ) {
             $file->error = $this->get_error_message('max_file_size');
             return false;
         }
@@ -373,8 +385,8 @@ class UploadHandler
             return false;
         }
         if (is_int($this->options['max_number_of_files']) && (
-                $this->count_file_objects() >= $this->options['max_number_of_files'])
-            ) {
+            $this->count_file_objects() >= $this->options['max_number_of_files'])
+        ) {
             $file->error = $this->get_error_message('max_number_of_files');
             return false;
         }
@@ -415,7 +427,7 @@ class UploadHandler
         );
     }
 
-    protected function trim_file_name($name, $type, $index, $content_range) {
+    protected function trim_file_name($name, $type, $content_range) {
         // Remove path information and dots around the filename, to prevent uploading
         // into different directories or replacing hidden system files.
         // Also remove control characters and spaces (\x00..\x20) around the filename:
@@ -431,7 +443,7 @@ class UploadHandler
         $uploaded_bytes = $this->fix_integer_overflow(intval($content_range[1]));
         while(is_file($this->get_upload_path($file_name))) {
             if ($uploaded_bytes === $this->get_file_size(
-                    $this->get_upload_path($file_name))) {
+                $this->get_upload_path($file_name))) {
                 break;
             }
             $file_name = $this->upcount_name($file_name);
@@ -458,16 +470,16 @@ class UploadHandler
         $image = @imagecreatefromjpeg($file_path);
         switch ($orientation) {
             case 3:
-            $image = @imagerotate($image, 180, 0);
-            break;
+                $image = @imagerotate($image, 180, 0);
+                break;
             case 6:
-            $image = @imagerotate($image, 270, 0);
-            break;
+                $image = @imagerotate($image, 270, 0);
+                break;
             case 8:
-            $image = @imagerotate($image, 90, 0);
-            break;
+                $image = @imagerotate($image, 90, 0);
+                break;
             default:
-            return false;
+                return false;
         }
         $success = imagejpeg($image, $file_path);
         // Free up memory (imagedestroy does not delete files):
@@ -476,12 +488,12 @@ class UploadHandler
     }
 
     protected function handle_file_upload($uploaded_file, $name, $size, $type, $error,
-            $index = null, $content_range = null) {
-        $file = new stdClass();
-        $file->name = $this->trim_file_name($name, $type, $index, $content_range);
+                                          $index = null, $content_range = null) {
+        $file = new \stdClass();
+        $file->name = $this->trim_file_name($name, $type, $content_range);
         $file->size = $this->fix_integer_overflow(intval($size));
         $file->type = $type;
-        if ($this->validate($uploaded_file, $file, $error, $index)) {
+        if ($this->validate($uploaded_file, $file, $error)) {
             $this->handle_form_data($file, $index);
             $upload_dir = $this->get_upload_path();
             if (!is_dir($upload_dir)) {
@@ -543,15 +555,15 @@ class UploadHandler
             $redirect = isset($_REQUEST['redirect']) ?
                 stripslashes($_REQUEST['redirect']) : null;
             if ($redirect) {
-                header('Location: '.sprintf($redirect, rawurlencode($json)));
-                return;
+                $this->header .= 'Location: '.sprintf($redirect, rawurlencode($json));
+                return $content;
             }
             $this->head();
             if (isset($_SERVER['HTTP_CONTENT_RANGE']) && is_array($content) &&
-                    is_object($content[0]) && $content[0]->size) {
-                header('Range: 0-'.($this->fix_integer_overflow(intval($content[0]->size)) - 1));
+                is_object($content[0]) && $content[0]->size) {
+                $this->header .= 'Range: 0-'.($this->fix_integer_overflow(intval($content[0]->size)) - 1);
             }
-            echo $json;
+            $this->content .= $json;
         }
         return $content;
     }
@@ -580,7 +592,7 @@ class UploadHandler
 
     protected function download() {
         if (!$this->options['download_via_php']) {
-            header('HTTP/1.1 403 Forbidden');
+            $this->header .= 'HTTP/1.1 403 Forbidden';
             return;
         }
         $file_name = $this->get_file_name_param();
@@ -588,58 +600,58 @@ class UploadHandler
             $file_path = $this->get_upload_path($file_name, $this->get_version_param());
             if (is_file($file_path)) {
                 if (!preg_match($this->options['inline_file_types'], $file_name)) {
-                    header('Content-Description: File Transfer');
-                    header('Content-Type: application/octet-stream');
-                    header('Content-Disposition: attachment; filename="'.$file_name.'"');
-                    header('Content-Transfer-Encoding: binary');
+                    $this->header .= 'Content-Description: File Transfer';
+                    $this->header .= 'Content-Type: application/octet-stream';
+                    $this->header .= 'Content-Disposition: attachment; filename="'.$file_name.'"';
+                    $this->header .= 'Content-Transfer-Encoding: binary';
                 } else {
                     // Prevent Internet Explorer from MIME-sniffing the content-type:
-                    header('X-Content-Type-Options: nosniff');
-                    header('Content-Type: '.$this->get_file_type($file_path));
-                    header('Content-Disposition: inline; filename="'.$file_name.'"');
+                    $this->header .= 'X-Content-Type-Options: nosniff';
+                    $this->header .= 'Content-Type: '.$this->get_file_type($file_path);
+                    $this->header .= 'Content-Disposition: inline; filename="'.$file_name.'"';
                 }
-                header('Content-Length: '.$this->get_file_size($file_path));
-                header('Last-Modified: '.gmdate('D, d M Y H:i:s T', filemtime($file_path)));
+                $this->header .= 'Content-Length: '.$this->get_file_size($file_path);
+                $this->header .= 'Last-Modified: '.gmdate('D, d M Y H:i:s T', filemtime($file_path));
                 readfile($file_path);
             }
         }
     }
 
     protected function send_content_type_header() {
-        header('Vary: Accept');
+        $this->header .= 'Vary: Accept';
         if (isset($_SERVER['HTTP_ACCEPT']) &&
             (strpos($_SERVER['HTTP_ACCEPT'], 'application/json') !== false)) {
-            header('Content-type: application/json');
+            $this->header .= 'Content-type: application/json';
         } else {
-            header('Content-type: text/plain');
+            $this->header .= 'Content-type: text/plain';
         }
     }
 
     protected function send_access_control_headers() {
-        header('Access-Control-Allow-Origin: '.$this->options['access_control_allow_origin']);
-        header('Access-Control-Allow-Credentials: '
-            .($this->options['access_control_allow_credentials'] ? 'true' : 'false'));
-        header('Access-Control-Allow-Methods: '
-            .implode(', ', $this->options['access_control_allow_methods']));
-        header('Access-Control-Allow-Headers: '
-            .implode(', ', $this->options['access_control_allow_headers']));
+        $this->header .= 'Access-Control-Allow-Origin: '.$this->options['access_control_allow_origin'];
+        $this->header .= 'Access-Control-Allow-Credentials: '
+            .($this->options['access_control_allow_credentials'] ? 'true' : 'false');
+        $this->header .= 'Access-Control-Allow-Methods: '
+            .implode(', ', $this->options['access_control_allow_methods']);
+        $this->header .= 'Access-Control-Allow-Headers: '
+            .implode(', ', $this->options['access_control_allow_headers']);
     }
 
     public function head() {
-        header('Pragma: no-cache');
-        header('Cache-Control: no-store, no-cache, must-revalidate');
-        header('Content-Disposition: inline; filename="files.json"');
+        $this->header .= 'Pragma: no-cache';
+        $this->header .= 'Cache-Control: no-store, no-cache, must-revalidate';
+        $this->header .= 'Content-Disposition: inline; filename="files.json"';
         // Prevent Internet Explorer from MIME-sniffing the content-type:
-        header('X-Content-Type-Options: nosniff');
+        $this->header .= 'X-Content-Type-Options: nosniff';
         if ($this->options['access_control_allow_origin']) {
-           $this->send_access_control_headers();
+            $this->send_access_control_headers();
         }
         $this->send_content_type_header();
     }
 
     public function get($print_response = true) {
         if ($print_response && isset($_GET['download'])) {
-            return $this->download();
+            return null;
         }
         $file_name = $this->get_file_name_param();
         if ($file_name) {
@@ -691,11 +703,11 @@ class UploadHandler
             $info[] = $this->handle_file_upload(
                 isset($upload['tmp_name']) ? $upload['tmp_name'] : null,
                 $file_name ? $file_name : (isset($upload['name']) ?
-                        $upload['name'] : null),
+                    $upload['name'] : null),
                 $size ? $size : (isset($upload['size']) ?
-                        $upload['size'] : $_SERVER['CONTENT_LENGTH']),
+                    $upload['size'] : $_SERVER['CONTENT_LENGTH']),
                 $file_type ? $file_type : (isset($upload['type']) ?
-                        $upload['type'] : $_SERVER['CONTENT_TYPE']),
+                    $upload['type'] : $_SERVER['CONTENT_TYPE']),
                 isset($upload['error']) ? $upload['error'] : null,
                 null,
                 $content_range
