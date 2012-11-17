@@ -1,6 +1,6 @@
 <?php
 /*
- * jQuery File Upload Plugin PHP Class 5.18.7
+ * jQuery File Upload Plugin PHP Class 5.19
  * https://github.com/blueimp/jQuery-File-Upload
  *
  * Copyright 2010, Sebastian Tschan
@@ -133,7 +133,7 @@ class UploadHandler
                 $this->delete();
                 break;
             default:
-                header('HTTP/1.1 405 Method Not Allowed');
+                $this->header('HTTP/1.1 405 Method Not Allowed');
         }
     }
 
@@ -540,21 +540,33 @@ class UploadHandler
         return $file;
     }
 
+	protected function readfile($file_path) {
+		return readfile($file_path);
+	}
+
+	protected function body($str) {
+		echo $str;
+	}
+	
+	protected function header($str) {
+		header($str);
+	}
+
     protected function generate_response($content, $print_response = true) {
         if ($print_response) {
             $json = json_encode($content);
             $redirect = isset($_REQUEST['redirect']) ?
                 stripslashes($_REQUEST['redirect']) : null;
             if ($redirect) {
-                header('Location: '.sprintf($redirect, rawurlencode($json)));
+                $this->header('Location: '.sprintf($redirect, rawurlencode($json)));
                 return;
             }
             $this->head();
             if (isset($_SERVER['HTTP_CONTENT_RANGE']) && is_array($content) &&
                     is_object($content[0]) && $content[0]->size) {
-                header('Range: 0-'.($this->fix_integer_overflow(intval($content[0]->size)) - 1));
+                $this->header('Range: 0-'.($this->fix_integer_overflow(intval($content[0]->size)) - 1));
             }
-            echo $json;
+            $this->body($json);
         }
         return $content;
     }
@@ -583,7 +595,7 @@ class UploadHandler
 
     protected function download() {
         if (!$this->options['download_via_php']) {
-            header('HTTP/1.1 403 Forbidden');
+            $this->header('HTTP/1.1 403 Forbidden');
             return;
         }
         $file_name = $this->get_file_name_param();
@@ -591,49 +603,49 @@ class UploadHandler
             $file_path = $this->get_upload_path($file_name, $this->get_version_param());
             if (is_file($file_path)) {
                 if (!preg_match($this->options['inline_file_types'], $file_name)) {
-                    header('Content-Description: File Transfer');
-                    header('Content-Type: application/octet-stream');
-                    header('Content-Disposition: attachment; filename="'.$file_name.'"');
-                    header('Content-Transfer-Encoding: binary');
+                    $this->header('Content-Description: File Transfer');
+                    $this->header('Content-Type: application/octet-stream');
+                    $this->header('Content-Disposition: attachment; filename="'.$file_name.'"');
+                    $this->header('Content-Transfer-Encoding: binary');
                 } else {
                     // Prevent Internet Explorer from MIME-sniffing the content-type:
-                    header('X-Content-Type-Options: nosniff');
-                    header('Content-Type: '.$this->get_file_type($file_path));
-                    header('Content-Disposition: inline; filename="'.$file_name.'"');
+                    $this->header('X-Content-Type-Options: nosniff');
+                    $this->header('Content-Type: '.$this->get_file_type($file_path));
+                    $this->header('Content-Disposition: inline; filename="'.$file_name.'"');
                 }
-                header('Content-Length: '.$this->get_file_size($file_path));
-                header('Last-Modified: '.gmdate('D, d M Y H:i:s T', filemtime($file_path)));
-                readfile($file_path);
+                $this->header('Content-Length: '.$this->get_file_size($file_path));
+                $this->header('Last-Modified: '.gmdate('D, d M Y H:i:s T', filemtime($file_path)));
+                $this->readfile($file_path);
             }
         }
     }
 
     protected function send_content_type_header() {
-        header('Vary: Accept');
+        $this->header('Vary: Accept');
         if (isset($_SERVER['HTTP_ACCEPT']) &&
             (strpos($_SERVER['HTTP_ACCEPT'], 'application/json') !== false)) {
-            header('Content-type: application/json');
+            $this->header('Content-type: application/json');
         } else {
-            header('Content-type: text/plain');
+            $this->header('Content-type: text/plain');
         }
     }
 
     protected function send_access_control_headers() {
-        header('Access-Control-Allow-Origin: '.$this->options['access_control_allow_origin']);
-        header('Access-Control-Allow-Credentials: '
+        $this->header('Access-Control-Allow-Origin: '.$this->options['access_control_allow_origin']);
+        $this->header('Access-Control-Allow-Credentials: '
             .($this->options['access_control_allow_credentials'] ? 'true' : 'false'));
-        header('Access-Control-Allow-Methods: '
+        $this->header('Access-Control-Allow-Methods: '
             .implode(', ', $this->options['access_control_allow_methods']));
-        header('Access-Control-Allow-Headers: '
+        $this->header('Access-Control-Allow-Headers: '
             .implode(', ', $this->options['access_control_allow_headers']));
     }
 
     public function head() {
-        header('Pragma: no-cache');
-        header('Cache-Control: no-store, no-cache, must-revalidate');
-        header('Content-Disposition: inline; filename="files.json"');
+        $this->header('Pragma: no-cache');
+        $this->header('Cache-Control: no-store, no-cache, must-revalidate');
+        $this->header('Content-Disposition: inline; filename="files.json"');
         // Prevent Internet Explorer from MIME-sniffing the content-type:
-        header('X-Content-Type-Options: nosniff');
+        $this->header('X-Content-Type-Options: nosniff');
         if ($this->options['access_control_allow_origin']) {
             $this->send_access_control_headers();
         }
