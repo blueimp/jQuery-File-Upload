@@ -1,6 +1,6 @@
 <?php
 
-namespace PunkAve\FileUploaderBundle\BlueImp;
+namespace BlueImp\FileUploaderBundle;
 
 /*
  * jQuery File Upload Plugin PHP Class 5.18.6
