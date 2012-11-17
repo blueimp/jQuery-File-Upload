@@ -53,6 +53,7 @@ class UploadHandler
                 'GET',
                 'POST',
                 'PUT',
+				'PATCH',
                 'DELETE'
             ),
             'access_control_allow_headers' => array(
@@ -123,6 +124,8 @@ class UploadHandler
             case 'GET':
                 $this->get();
                 break;
+			case 'PATCH':
+			case 'PUT':
             case 'POST':
                 $this->post();
                 break;
@@ -458,16 +461,16 @@ class UploadHandler
         $image = @imagecreatefromjpeg($file_path);
         switch ($orientation) {
             case 3:
-            $image = @imagerotate($image, 180, 0);
-            break;
+            	$image = @imagerotate($image, 180, 0);
+            	break;
             case 6:
-            $image = @imagerotate($image, 270, 0);
-            break;
+            	$image = @imagerotate($image, 270, 0);
+            	break;
             case 8:
-            $image = @imagerotate($image, 90, 0);
-            break;
+            	$image = @imagerotate($image, 90, 0);
+            	break;
             default:
-            return false;
+            	return false;
         }
         $success = imagejpeg($image, $file_path);
         // Free up memory (imagedestroy does not delete files):
