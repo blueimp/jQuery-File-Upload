@@ -482,6 +482,11 @@ class UploadHandler
             $index = null, $content_range = null) {
         $file = new stdClass();
         $file->name = $this->trim_file_name($name, $type, $index, $content_range);
+        
+        // Cleans up filename, removing spaces etc.
+        $file->name = preg_replace(array('/\s/','/\.[\.]+/','/[^\w_\.\-]/'),array('_','.',''),$file->name);
+        $file->name = strtolower($file->name);
+        
         $file->size = $this->fix_integer_overflow(intval($size));
         $file->type = $type;
         if ($this->validate($uploaded_file, $file, $error, $index)) {
