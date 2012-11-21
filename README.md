@@ -73,7 +73,7 @@ The File Upload plugin is regularly tested with the latest browser versions and 
 * Google Chrome
 * Apple Safari 4.0+
 * Mozilla Firefox 3.0+
-* Opera 10.0+
+* Opera 11.0+
 * Microsoft Internet Explorer 6.0+
 
 ### Mobile browsers
