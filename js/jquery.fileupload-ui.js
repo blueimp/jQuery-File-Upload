@@ -361,7 +361,7 @@
             if (bits >= 1000) {
                 return (bits / 1000).toFixed(2) + ' kbit/s';
             }
-            return bits + ' bit/s';
+            return bits.toFixed(2) + ' bit/s';
         },
 
         _formatTime: function (seconds) {
