@@ -716,7 +716,13 @@ class UploadHandler
                 $content_range
             );
         }
+        $info = $this->post_completed($info);
         return $this->generate_response($info, $print_response);
+    }
+
+    protected function post_completed($content) {
+        // Meant to be overriden
+        return $content;
     }
 
     public function delete($print_response = true) {
