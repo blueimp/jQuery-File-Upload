@@ -952,7 +952,7 @@
         },
 
         _onDrop: function (e) {
-            e.preventDefault();
+            this._maybePreventDefault(e);
             var that = this,
                 dataTransfer = e.dataTransfer = e.originalEvent.dataTransfer,
                 data = {};
@@ -972,7 +972,7 @@
             if (dataTransfer) {
                 dataTransfer.dropEffect = 'copy';
             }
-            e.preventDefault();
+            this._maybePreventDefault(e);
         },
 
         _initEventHandlers: function () {
@@ -1021,6 +1021,26 @@
             }
             if (!(options.pasteZone instanceof $)) {
                 options.pasteZone = $(options.pasteZone);
+            }
+        },
+
+        // Prevent default action when dragging and dropping files
+        _maybePreventDefault: function(e) {
+            var tagName = e.target.tagName.toLowerCase(),
+                dataTransfer = e.dataTransfer = e.originalEvent.dataTransfer;
+
+            function containsFiles() {
+                var i;
+                for(i = 0; i < dataTransfer.types.length; i++){
+                    if(dataTransfer.types[i] === "Files") {
+                        return true;
+                    }
+                }
+                return false;
+            }
+
+            if (containsFiles() || ["textarea", "input"].indexOf(tagName) == -1) {
+                e.preventDefault()
             }
         },
 
