@@ -1,6 +1,6 @@
 <?php
 /*
- * jQuery File Upload Plugin PHP Class 5.19
+ * jQuery File Upload Plugin PHP Class 5.19.1
  * https://github.com/blueimp/jQuery-File-Upload
  *
  * Copyright 2010, Sebastian Tschan
@@ -59,8 +59,7 @@ class UploadHandler
             'access_control_allow_headers' => array(
                 'Content-Type',
                 'Content-Range',
-                'Content-Disposition',
-                'Content-Description'
+                'Content-Disposition'
             ),
             // Enable to provide file downloads via GET requests to the PHP script:
             'download_via_php' => false,
@@ -678,8 +677,6 @@ class UploadHandler
                 '',
                 $_SERVER['HTTP_CONTENT_DISPOSITION']
             )) : null;
-        $file_type = isset($_SERVER['HTTP_CONTENT_DESCRIPTION']) ?
-            $_SERVER['HTTP_CONTENT_DESCRIPTION'] : null;
         // Parse the Content-Range header, which has the following form:
         // Content-Range: bytes 0-524287/2000000
         $content_range = isset($_SERVER['HTTP_CONTENT_RANGE']) ?
@@ -694,7 +691,7 @@ class UploadHandler
                     $upload['tmp_name'][$index],
                     $file_name ? $file_name : $upload['name'][$index],
                     $size ? $size : $upload['size'][$index],
-                    $file_type ? $file_type : $upload['type'][$index],
+                    $upload['type'][$index],
                     $upload['error'][$index],
                     $index,
                     $content_range
@@ -709,8 +706,8 @@ class UploadHandler
                         $upload['name'] : null),
                 $size ? $size : (isset($upload['size']) ?
                         $upload['size'] : $_SERVER['CONTENT_LENGTH']),
-                $file_type ? $file_type : (isset($upload['type']) ?
-                        $upload['type'] : $_SERVER['CONTENT_TYPE']),
+                isset($upload['type']) ?
+                        $upload['type'] : $_SERVER['CONTENT_TYPE'],
                 isset($upload['error']) ? $upload['error'] : null,
                 null,
                 $content_range

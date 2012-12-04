@@ -1,5 +1,5 @@
 /*
- * jQuery File Upload Plugin 5.19.6
+ * jQuery File Upload Plugin 5.19.7
  * https://github.com/blueimp/jQuery-File-Upload
  *
  * Copyright 2010, Sebastian Tschan
@@ -341,7 +341,6 @@
                     if (options.blob) {
                         options.headers['Content-Disposition'] = 'attachment; filename="' +
                             encodeURI(file.name) + '"';
-                        options.headers['Content-Description'] = encodeURI(file.type);
                         formData.append(paramName, options.blob, file.name);
                     } else {
                         $.each(options.files, function (index, file) {
@@ -527,7 +526,8 @@
                 o.blob = slice.call(
                     file,
                     ub,
-                    ub + mcs
+                    ub + mcs,
+                    file.type
                 );
                 // Store the current chunk size, as the blob itself
                 // will be dereferenced after data processing:
