@@ -1,6 +1,6 @@
 <?php
 /*
- * jQuery File Upload Plugin PHP Class 5.19.1
+ * jQuery File Upload Plugin PHP Class 5.19.2
  * https://github.com/blueimp/jQuery-File-Upload
  *
  * Copyright 2010, Sebastian Tschan
@@ -202,7 +202,7 @@ class UploadHandler
 
     protected function get_file_size($file_path, $clear_stat_cache = false) {
         if ($clear_stat_cache) {
-            clearstatcache();
+            clearstatcache(true, $file_path);
         }
         return $this->fix_integer_overflow(filesize($file_path));
 
