@@ -112,6 +112,10 @@
             progressInterval: 100,
             // Interval in milliseconds to calculate progress bitrate:
             bitrateInterval: 500,
+            // By default, Content-Disposition header is added when multipart is 
+            // set to false. However, that header is not supported by some servers
+            // and therefore should be configures to false.
+            contentDisposition: true,
 
             // Additional form data to be sent along with the file uploads can be set
             // using this option, which accepts an array of objects with name and
@@ -299,14 +303,17 @@
                 file = options.files[0],
                 // Ignore non-multipart setting if not supported:
                 multipart = options.multipart || !$.support.xhrFileUpload,
-                paramName = options.paramName[0];
+                paramName = options.paramName[0],
+                contentDisposition = options.contentDisposition;
             options.headers = options.headers || {};
             if (options.contentRange) {
                 options.headers['Content-Range'] = options.contentRange;
             }
             if (!multipart) {
-                options.headers['Content-Disposition'] = 'attachment; filename="' +
-                    encodeURI(file.name) + '"';
+                if (contentDisposition) {
+                    options.headers['Content-Disposition'] = 'attachment; filename="' +
+                        encodeURI(file.name) + '"';
+                }
                 options.contentType = file.type;
                 options.data = options.blob || file;
             } else if ($.support.xhrFormDataFileUpload) {
