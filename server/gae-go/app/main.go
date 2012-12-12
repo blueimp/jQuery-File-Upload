@@ -1,5 +1,5 @@
 /*
- * jQuery File Upload Plugin GAE Go Example 2.1.3
+ * jQuery File Upload Plugin GAE Go Example 3.0
  * https://github.com/blueimp/jQuery-File-Upload
  *
  * Copyright 2011, Sebastian Tschan
@@ -216,7 +216,9 @@ func get(w http.ResponseWriter, r *http.Request) {
 }
 
 func post(w http.ResponseWriter, r *http.Request) {
-	b, err := json.Marshal(handleUploads(r))
+    result := make(map[string][]*FileInfo, 1)
+    result["files"] = handleUploads(r)
+	b, err := json.Marshal(result)
 	check(err)
 	if redirect := r.FormValue("redirect"); redirect != "" {
 	    if strings.Contains(redirect, "%s") {

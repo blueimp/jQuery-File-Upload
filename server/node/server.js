@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /*
- * jQuery File Upload Plugin Node.js Example 1.0.4
+ * jQuery File Upload Plugin Node.js Example 2.0
  * https://github.com/blueimp/jQuery-File-Upload
  *
  * Copyright 2012, Sebastian Tschan
@@ -200,7 +200,7 @@
                     files.push(fileInfo);
                 }
             });
-            handler.callback(files);
+            handler.callback({files: files});
         });
     };
     UploadHandler.prototype.post = function () {
@@ -217,7 +217,7 @@
                     files.forEach(function (fileInfo) {
                         fileInfo.initUrls(handler.req);
                     });
-                    handler.callback(files, redirect);
+                    handler.callback({files: files}, redirect);
                 }
             };
         form.uploadDir = options.tmpDir;
@@ -273,10 +273,10 @@
                 Object.keys(options.imageVersions).forEach(function (version) {
                     fs.unlink(options.uploadDir + '/' + version + '/' + fileName);
                 });
-                handler.callback(!ex);
+                handler.callback({success: !ex});
             });
         } else {
-            handler.callback(false);
+            handler.callback({success: false});
         }
     };
     if (options.ssl) {

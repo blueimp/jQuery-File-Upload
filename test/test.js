@@ -1,5 +1,5 @@
 /*
- * jQuery File Upload Plugin Test 6.11
+ * jQuery File Upload Plugin Test 7.0
  * https://github.com/blueimp/jQuery-File-Upload
  *
  * Copyright 2010, Sebastian Tschan
@@ -18,8 +18,8 @@ $(function () {
     QUnit.done = function () {
         // Delete all uploaded files:
         var url = $('#fileupload').prop('action');
-        $.getJSON(url, function (files) {
-            $.each(files, function (index, file) {
+        $.getJSON(url, function (result) {
+            $.each(result.files, function (index, file) {
                 $.ajax({
                     url: url + '?file=' + encodeURIComponent(file.name),
                     type: 'DELETE'

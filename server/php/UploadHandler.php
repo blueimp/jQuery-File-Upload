@@ -1,6 +1,6 @@
 <?php
 /*
- * jQuery File Upload Plugin PHP Class 5.19.2
+ * jQuery File Upload Plugin PHP Class 6.0
  * https://github.com/blueimp/jQuery-File-Upload
  *
  * Copyright 2010, Sebastian Tschan
@@ -657,11 +657,11 @@ class UploadHandler
         }
         $file_name = $this->get_file_name_param();
         if ($file_name) {
-            $info = $this->get_file_object($file_name);
+            $response = array('file' => $this->get_file_object($file_name));
         } else {
-            $info = $this->get_file_objects();
+            $response = array('files' => $this->get_file_objects());
         }
-        return $this->generate_response($info, $print_response);
+        return $this->generate_response($response, $print_response);
     }
 
     public function post($print_response = true) {
@@ -682,12 +682,12 @@ class UploadHandler
         $content_range = isset($_SERVER['HTTP_CONTENT_RANGE']) ?
             preg_split('/[^0-9]+/', $_SERVER['HTTP_CONTENT_RANGE']) : null;
         $size =  $content_range ? $content_range[3] : null;
-        $info = array();
+        $files = array();
         if ($upload && is_array($upload['tmp_name'])) {
             // param_name is an array identifier like "files[]",
             // $_FILES is a multi-dimensional array:
             foreach ($upload['tmp_name'] as $index => $value) {
-                $info[] = $this->handle_file_upload(
+                $files[] = $this->handle_file_upload(
                     $upload['tmp_name'][$index],
                     $file_name ? $file_name : $upload['name'][$index],
                     $size ? $size : $upload['size'][$index],
@@ -700,7 +700,7 @@ class UploadHandler
         } else {
             // param_name is a single object identifier like "file",
             // $_FILES is a one-dimensional array:
-            $info[] = $this->handle_file_upload(
+            $files[] = $this->handle_file_upload(
                 isset($upload['tmp_name']) ? $upload['tmp_name'] : null,
                 $file_name ? $file_name : (isset($upload['name']) ?
                         $upload['name'] : null),
@@ -713,7 +713,7 @@ class UploadHandler
                 $content_range
             );
         }
-        return $this->generate_response($info, $print_response);
+        return $this->generate_response(array('files' => $files), $print_response);
     }
 
     public function delete($print_response = true) {
@@ -730,7 +730,7 @@ class UploadHandler
                 }
             }
         }
-        return $this->generate_response($success, $print_response);
+        return $this->generate_response(array('success' => $success), $print_response);
     }
 
 }

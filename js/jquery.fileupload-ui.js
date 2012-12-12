@@ -1,5 +1,5 @@
 /*
- * jQuery File Upload User Interface Plugin 6.11.1
+ * jQuery File Upload User Interface Plugin 7.0
  * https://github.com/blueimp/jQuery-File-Upload
  *
  * Copyright 2010, Sebastian Tschan
@@ -139,12 +139,12 @@
             // Callback for successful uploads:
             done: function (e, data) {
                 var that = $(this).data('fileupload'),
+                    files = that._getFilesFromResponse(data),
                     template;
                 if (data.context) {
                     data.context.each(function (index) {
-                        var file = ($.isArray(data.result) &&
-                                data.result[index]) ||
-                                    {error: 'Empty file upload result'};
+                        var file = files[index] ||
+                                {error: 'Empty file upload result'};
                         if (file.error) {
                             that._adjustMaxNumberOfFiles(1);
                         }
@@ -164,8 +164,8 @@
                         );
                     });
                 } else {
-                    if ($.isArray(data.result)) {
-                        $.each(data.result, function (index, file) {
+                    if (files.length) {
+                        $.each(files, function (index, file) {
                             if (data.maxNumberOfFilesAdjusted && file.error) {
                                 that._adjustMaxNumberOfFiles(1);
                             } else if (!data.maxNumberOfFilesAdjusted &&
@@ -175,7 +175,7 @@
                         });
                         data.maxNumberOfFilesAdjusted = true;
                     }
-                    template = that._renderDownload(data.result)
+                    template = that._renderDownload(files)
                         .appendTo(that.options.filesContainer);
                     that._forceReflow(template);
                     that._transition(template).done(
@@ -305,6 +305,13 @@
                     }
                 );
             }
+        },
+
+        _getFilesFromResponse: function (data) {
+            if (data.result && $.isArray(data.result.files)) {
+                return data.result.files;
+            }
+            return [];
         },
 
         // Link handler, that allows to download files
