@@ -1,0 +1,126 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<title>INFANTICIDE</title>
+<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+<link href="style.css" rel="stylesheet" type="text/css" />
+
+
+
+<link type="text/css" href="development-bundle/themes/base/jquery.ui.all.css" rel="stylesheet" />   
+
+    <script type="text/javascript" src="development-bundle/jquery-1.4.2.js"></script>
+    <script type="text/javascript" src="development-bundle/ui/jquery.ui.core.js"></script>
+  <script type="text/javascript" src="development-bundle/ui/jquery.ui.widget.js"></script>
+	<script type="text/javascript" src="development-bundle/ui/jquery.ui.accordion.js"></script>
+	<script type="text/javascript" src="development-bundle/ui/jquery.effects.core.js"></script>
+	<script type="text/javascript"> 
+	$(document).ready(function(){
+		$("#accordion").accordion({
+		autoHeight: false, 
+		event: "mouseover"
+		});
+		
+		$("#accordions").accordion({
+			autoHeight: false,
+			event: "mouseover"
+		});
+		
+		
+		$("#ball").click(function() {
+$(this).effect("bounce", { distance: 140 });
+});
+      });
+
+
+    </script>
+
+</head>
+<body>
+<div id="container">
+  <div id="banner">
+  </div>
+  <div id="navcontainer">
+    <ul id="navlist">
+    <li><a href="index.html">Homepage</a></li>
+    <li><a href="biography.html">Biography</a></li>
+    <li><a href="discography.html">Discography</a></li>
+    <li><a href="showDates.html">ShowDates</a></li>
+    <li><a href="photo.html">Photo</a></li>
+    <li><a href="merchandise.html">Merchandise</a></li>
+    <li><a href="contact.html">Contact</a></li>
+    
+    
+    </ul>
+  </div>
+  
+  <div id="sidebar">
+  	<div id="accordions">
+  		
+	<h3><a href="#">LINKS</a></h3>
+
+<div>
+
+    <div class="navlist">
+      <ul>
+        <li><a href="http://facebook.com/">Facebook</a></li>
+        <li><a href="http://twitter.com/">Twitter</a></li>
+        <li><a href="http://youtube.com/">Youtube</a></li>
+        <li><a href="http://reverbnation.com/">Reverbnation</a></li>
+      </ul>
+    </div>
+</div>
+
+<h3><a href="#">PLAYER</a></h3>
+
+<div>
+Contac on Social Network
+    <div class="navlist">
+      <ul>
+        <li><a href="http://facebook.com/">Mr Odick</a></li>
+        <li><a href="http://facebook.com/">Nur Sick</a></li>
+        <li><a href="http://facebook.com/">Arul</a></li>
+        <li><a href="http://facebook.com/">Ega</a></li>
+      </ul>
+    </div>
+</div>
+
+<h3><a href="#">PLAY MUSIC</a></h3>
+
+<div>
+      Dalam Masa perbaikan.
+</div>
+
+<h3><a href="#">ADMIN</a></h3>
+
+<div>
+<p> Ega Wahyu</p>
+<p> E-mail : ega@infanticide-death.com</p>
+      <img  src="img/ndolo.jpg" alt="ikon" title="ega wahyu"/>
+</div>
+</div>
+
+
+	<p></p>
+<div id=""><img src=""></div>
+</div>
+	
+  	
+  	
+<div id="content">
+  
+    <h2>-----------------------------------------------------------------</h2>
+    
+    <p class="info"><img class="noborder" src="img/ikon.jpg" alt="ikon" title="ikon"/><b>COMING SOON</b></p>
+    <p>Tunggu next album kami bertittle " WHEN THE WORLD IS RULLED DAJJAL "</p>
+    <p class="post"> <a href="http://www.infanticide-death.com.com/" class="readmore">Read more</a> </p>
+  </div>
+    
+  		<div id="container-foot">
+  			<div id="footer">
+      <p><a href="www.infanticide-death.com"> www.infanticide-death.com </a> | site code and layout by Ega Wahyu | 2013 all rights reserved</p>
+    </div>
+  </div>
+</div>
+</body>
+</html>
