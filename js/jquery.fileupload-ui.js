@@ -579,7 +579,13 @@
             this._on(fileUploadButtonBar.find('.start'), {
                 click: function (e) {
                     e.preventDefault();
-                    filesList.find('.start button').click();
+                    filesList.find('.start button').each(function(index) {
+                        // fire upload one file after another with a 500 ms delay inbetween
+                        var button = this;
+                        setTimeout(function() {
+                            button.click();
+                        }, (index * 500));
+                    });
                 }
             });
             this._on(fileUploadButtonBar.find('.cancel'), {
