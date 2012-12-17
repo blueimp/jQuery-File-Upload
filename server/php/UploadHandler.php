@@ -1,6 +1,6 @@
 <?php
 /*
- * jQuery File Upload Plugin PHP Class 6.0
+ * jQuery File Upload Plugin PHP Class 6.0.1
  * https://github.com/blueimp/jQuery-File-Upload
  *
  * Copyright 2010, Sebastian Tschan
@@ -561,9 +561,10 @@ class UploadHandler
                 return;
             }
             $this->head();
-            if (isset($_SERVER['HTTP_CONTENT_RANGE']) && is_array($content) &&
-                    is_object($content[0]) && $content[0]->size) {
-                $this->header('Range: 0-'.($this->fix_integer_overflow(intval($content[0]->size)) - 1));
+            $files = $content[$this->options['param_name']];
+            if (isset($_SERVER['HTTP_CONTENT_RANGE']) && is_array($files) &&
+                    is_object($files[0]) && $files[0]->size) {
+                $this->header('Range: 0-'.($this->fix_integer_overflow(intval($files[0]->size)) - 1));
             }
             $this->body($json);
         }
@@ -657,9 +658,13 @@ class UploadHandler
         }
         $file_name = $this->get_file_name_param();
         if ($file_name) {
-            $response = array('file' => $this->get_file_object($file_name));
+            $response = array(
+                substr($this->options['param_name'], 0, -1) => $this->get_file_object($file_name)
+            );
         } else {
-            $response = array('files' => $this->get_file_objects());
+            $response = array(
+                $this->options['param_name'] => $this->get_file_objects()
+            );
         }
         return $this->generate_response($response, $print_response);
     }
@@ -713,7 +718,10 @@ class UploadHandler
                 $content_range
             );
         }
-        return $this->generate_response(array('files' => $files), $print_response);
+        return $this->generate_response(
+            array($this->options['param_name'] => $files),
+            $print_response
+        );
     }
 
     public function delete($print_response = true) {
