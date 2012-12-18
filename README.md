@@ -3,6 +3,10 @@
 ## Demo
 [Demo File Upload](http://blueimp.github.com/jQuery-File-Upload/)
 
+## Download
+* [Master branch (Bootstrap UI)](https://github.com/blueimp/jQuery-File-Upload/archive/master.zip)
+* [jQuery UI branch](https://github.com/blueimp/jQuery-File-Upload/archive/jquery-ui.zip)
+
 ## Setup
 * [How to setup the plugin on your website](https://github.com/blueimp/jQuery-File-Upload/wiki/Setup)
 * [How to use only the basic plugin (minimal setup guide).](https://github.com/blueimp/jQuery-File-Upload/wiki/Basic-plugin)
