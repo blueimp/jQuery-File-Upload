@@ -1,6 +1,6 @@
 <?php
 /*
- * jQuery File Upload Plugin PHP Class 6.0.4
+ * jQuery File Upload Plugin PHP Class 6.1
  * https://github.com/blueimp/jQuery-File-Upload
  *
  * Copyright 2010, Sebastian Tschan
@@ -417,32 +417,46 @@ class UploadHandler
         );
     }
 
+    protected function get_unique_filename($name, $type, $index, $content_range) {
+        while(is_dir($this->get_upload_path($name))) {
+            $name = $this->upcount_name($name);
+        }
+        // Keep an existing filename if this is part of a chunked upload:
+        $uploaded_bytes = $this->fix_integer_overflow(intval($content_range[1]));
+        while(is_file($this->get_upload_path($name))) {
+            if ($uploaded_bytes === $this->get_file_size(
+                    $this->get_upload_path($name))) {
+                break;
+            }
+            $name = $this->upcount_name($name);
+        }
+        return $name;
+    }
+
     protected function trim_file_name($name, $type, $index, $content_range) {
         // Remove path information and dots around the filename, to prevent uploading
         // into different directories or replacing hidden system files.
         // Also remove control characters and spaces (\x00..\x20) around the filename:
-        $file_name = trim(basename(stripslashes($name)), ".\x00..\x20");
+        $name = trim(basename(stripslashes($name)), ".\x00..\x20");
         // Use a timestamp for empty filenames:
-        if (!$file_name) {
-            $file_name = str_replace('.', '-', microtime(true));
+        if (!$name) {
+            $name = str_replace('.', '-', microtime(true));
         }
         // Add missing file extension for known image types:
-        if (strpos($file_name, '.') === false &&
+        if (strpos($name, '.') === false &&
             preg_match('/^image\/(gif|jpe?g|png)/', $type, $matches)) {
-            $file_name .= '.'.$matches[1];
+            $name .= '.'.$matches[1];
         }
-        while(is_dir($this->get_upload_path($file_name))) {
-            $file_name = $this->upcount_name($file_name);
-        }
-        $uploaded_bytes = $this->fix_integer_overflow(intval($content_range[1]));
-        while(is_file($this->get_upload_path($file_name))) {
-            if ($uploaded_bytes === $this->get_file_size(
-                    $this->get_upload_path($file_name))) {
-                break;
-            }
-            $file_name = $this->upcount_name($file_name);
-        }
-        return $file_name;
+        return $name;
+    }
+
+    protected function get_file_name($name, $type, $index, $content_range) {
+        return $this->get_unique_filename(
+            $this->trim_file_name($name, $type, $index, $content_range),
+            $type,
+            $index,
+            $content_range
+        );
     }
 
     protected function handle_form_data($file, $index) {
@@ -484,7 +498,7 @@ class UploadHandler
     protected function handle_file_upload($uploaded_file, $name, $size, $type, $error,
             $index = null, $content_range = null) {
         $file = new stdClass();
-        $file->name = $this->trim_file_name($name, $type, $index, $content_range);
+        $file->name = $this->get_file_name($name, $type, $index, $content_range);
         $file->size = $this->fix_integer_overflow(intval($size));
         $file->type = $type;
         if ($this->validate($uploaded_file, $file, $error, $index)) {
