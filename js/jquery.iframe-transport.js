@@ -1,5 +1,5 @@
 /*
- * jQuery Iframe Transport Plugin 1.5
+ * jQuery Iframe Transport Plugin 1.6
  * https://github.com/blueimp/jQuery-File-Upload
  *
  * Copyright 2011, Sebastian Tschan
@@ -155,24 +155,16 @@
     $.ajaxSetup({
         converters: {
             'iframe text': function (iframe) {
-                if (iframe) {
-                  return $(iframe[0].body).text();
-                }
+                return iframe && $(iframe[0].body).text();
             },
             'iframe json': function (iframe) {
-                if (iframe) {
-                  return $.parseJSON($(iframe[0].body).text());
-                }
+                return iframe && $.parseJSON($(iframe[0].body).text());
             },
             'iframe html': function (iframe) {
-                if (iframe) {
-                  return $(iframe[0].body).html();
-                }
+                return iframe && $(iframe[0].body).html();
             },
             'iframe script': function (iframe) {
-                if (iframe) {
-                  return $.globalEval($(iframe[0].body).text());
-                }
+                return iframe && $.globalEval($(iframe[0].body).text());
             }
         }
     });
