@@ -155,16 +155,24 @@
     $.ajaxSetup({
         converters: {
             'iframe text': function (iframe) {
-                return $(iframe[0].body).text();
+                if (iframe) {
+                  return $(iframe[0].body).text();
+                }
             },
             'iframe json': function (iframe) {
-                return $.parseJSON($(iframe[0].body).text());
+                if (iframe) {
+                  return $.parseJSON($(iframe[0].body).text());
+                }
             },
             'iframe html': function (iframe) {
-                return $(iframe[0].body).html();
+                if (iframe) {
+                  return $(iframe[0].body).html();
+                }
             },
             'iframe script': function (iframe) {
-                return $.globalEval($(iframe[0].body).text());
+                if (iframe) {
+                  return $.globalEval($(iframe[0].body).text());
+                }
             }
         }
     });
