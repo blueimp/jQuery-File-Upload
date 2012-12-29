@@ -731,8 +731,9 @@
                 paramNameSlice,
                 fileSet,
                 i;
+            data.isXHRUpload = this._isXHRUpload(options);
             if (!(options.singleFileUploads || limit) ||
-                    !this._isXHRUpload(options)) {
+                    !data.isXHRUpload) {
                 fileSet = [data.files];
                 paramNameSet = [paramName];
             } else if (!options.singleFileUploads && limit) {
