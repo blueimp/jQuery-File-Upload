@@ -1,5 +1,5 @@
 /*
- * jQuery File Upload User Interface Plugin 7.1
+ * jQuery File Upload User Interface Plugin 7.1.1
  * https://github.com/blueimp/jQuery-File-Upload
  *
  * Copyright 2010, Sebastian Tschan
@@ -343,7 +343,7 @@
             this._finishedUploads.push(deferred);
             return deferred;
         },
-        
+
         _getFinishedDeferreds: function () {
             return this._finishedUploads;
         },
@@ -737,6 +737,13 @@
             this._initFilesContainer();
             this._initTemplates();
             this._initRegExpOptions();
+        },
+
+        _setOption: function (key, value) {
+            this._super(key, value);
+            if (key === 'maxNumberOfFiles') {
+                this._adjustMaxNumberOfFiles(0);
+            }
         },
 
         _create: function () {
