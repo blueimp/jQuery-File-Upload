@@ -1,5 +1,5 @@
 /*
- * jQuery Iframe Transport Plugin 1.6
+ * jQuery Iframe Transport Plugin 1.6.1
  * https://github.com/blueimp/jQuery-File-Upload
  *
  * Copyright 2011, Sebastian Tschan
@@ -36,13 +36,26 @@
     //  equivalent to the return data of .serializeArray(), e.g.:
     //  [{name: 'a', value: 1}, {name: 'b', value: 2}]
     $.ajaxTransport('iframe', function (options) {
-        if (options.async && (options.type === 'POST' || options.type === 'GET')) {
+        if (options.async) {
             var form,
-                iframe;
+                iframe,
+                addParamChar;
             return {
                 send: function (_, completeCallback) {
                     form = $('<form style="display:none;"></form>');
                     form.attr('accept-charset', options.formAcceptCharset);
+                    addParamChar = /\?/.test(options.url) ? '&' : '?';
+                    // XDomainRequest only supports GET and POST:
+                    if (options.type === 'DELETE') {
+                        options.url = options.url + addParamChar + '_method=DELETE';
+                        options.type = 'POST';
+                    } else if (options.type === 'PUT') {
+                        options.url = options.url + addParamChar + '_method=PUT';
+                        options.type = 'POST';
+                    } else if (options.type === 'PATCH') {
+                        options.url = options.url + addParamChar + '_method=PATCH';
+                        options.type = 'POST';
+                    }
                     // javascript:false as initial iframe src
                     // prevents warning popups on HTTPS in IE6.
                     // IE versions below IE8 cannot set the name property of

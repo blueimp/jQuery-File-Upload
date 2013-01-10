@@ -1,5 +1,5 @@
 /*
- * jQuery File Upload Plugin 5.19.7
+ * jQuery File Upload Plugin 5.19.8
  * https://github.com/blueimp/jQuery-File-Upload
  *
  * Copyright 2010, Sebastian Tschan
@@ -439,7 +439,8 @@
             // The HTTP request method must be "POST" or "PUT":
             options.type = (options.type || options.form.prop('method') || '')
                 .toUpperCase();
-            if (options.type !== 'POST' && options.type !== 'PUT') {
+            if (options.type !== 'POST' && options.type !== 'PUT' &&
+                    options.type !== 'PATCH') {
                 options.type = 'POST';
             }
             if (!options.formAcceptCharset) {
