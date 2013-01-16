@@ -1,5 +1,5 @@
 /*
- * jQuery File Upload User Interface Plugin 7.1.1
+ * jQuery File Upload User Interface Plugin 7.2
  * https://github.com/blueimp/jQuery-File-Upload
  *
  * Copyright 2010, Sebastian Tschan
@@ -94,7 +94,7 @@
                     options.filesContainer[
                         options.prependFiles ? 'prepend' : 'append'
                     ](data.context);
-                    that._renderPreviews(files, data.context);
+                    that._renderPreviews(data);
                     that._forceReflow(data.context);
                     that._transition(data.context).done(
                         function () {
@@ -520,18 +520,22 @@
             )) || dfd.resolveWith(node)) && dfd;
         },
 
-        _renderPreviews: function (files, nodes) {
+        _renderPreviews: function (data) {
             var that = this,
                 options = this.options;
-            nodes.find('.preview span').each(function (index, element) {
-                var file = files[index];
+            data.context.find('.preview span').each(function (index, element) {
+                var file = data.files[index];
                 if (options.previewSourceFileTypes.test(file.type) &&
                         ($.type(options.previewSourceMaxFileSize) !== 'number' ||
                         file.size < options.previewSourceMaxFileSize)) {
                     that._processingQueue = that._processingQueue.pipe(function () {
-                        var dfd = $.Deferred();
+                        var dfd = $.Deferred(),
+                            ev = $.Event('previewdone', {
+                                target: element
+                            });
                         that._renderPreview(file, $(element)).done(
                             function () {
+                                that._trigger(ev.type, ev, data);
                                 dfd.resolveWith(that);
                             }
                         );
