@@ -2,6 +2,20 @@
     "name": "blueimp-file-upload",
     "version": "7.2.0",
     "title": "jQuery File Upload",
+    "author": {
+        "name": "Sebastian Tschan",
+        "url": "https://blueimp.net"
+    },
+    "licenses": [
+        {
+            "type": "MIT",
+            "url": "http://www.opensource.org/licenses/MIT"
+        }
+    ],
+    "dependencies": {
+        "jquery": ">=1.6",
+        "jquery.ui.widget": ">=1.8"
+    },
     "description": "File Upload widget with multiple file selection, drag&drop support, progress bars and preview images for jQuery. Supports cross-domain, chunked and resumable file uploads and client-side image resizing. Works with any server-side platform (PHP, Python, Ruby on Rails, Java, Node.js, Go etc.) that supports standard HTML form file uploads.",
     "keywords": [
         "jquery",
@@ -25,32 +39,13 @@
         "bootstrap"
     ],
     "homepage": "https://github.com/blueimp/jQuery-File-Upload",
-    "author": {
-        "name": "Sebastian Tschan",
-        "url": "https://blueimp.net"
-    },
+    "docs": "https://github.com/blueimp/jQuery-File-Upload/wiki",
+    "demo": "http://blueimp.github.com/jQuery-File-Upload/",
+    "bugs": "https://github.com/blueimp/jQuery-File-Upload/issues",
     "maintainers": [
         {
             "name": "Sebastian Tschan",
             "url": "https://blueimp.net"
         }
-    ],
-    "repository": {
-        "type": "git",
-        "url": "git://github.com/blueimp/jQuery-File-Upload.git"
-    },
-    "bugs": "https://github.com/blueimp/jQuery-File-Upload/issues",
-    "licenses": [
-        {
-            "type": "MIT",
-            "url": "http://www.opensource.org/licenses/MIT"
-        }
-    ],
-    "dependencies": {
-        "jquery": ">=1.6",
-        "jquery.ui.widget": ">=1.8",
-        "blueimp-tmpl": ">=2.1.0",
-        "blueimp-load-image": ">=1.2.3",
-        "blueimp-canvas-to-blob": ">=2.0.5"
-    }
+    ]
 }
