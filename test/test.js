@@ -1,5 +1,5 @@
 /*
- * jQuery File Upload Plugin Test 7.0
+ * jQuery File Upload Plugin Test 7.3
  * https://github.com/blueimp/jQuery-File-Upload
  *
  * Copyright 2010, Sebastian Tschan
@@ -52,7 +52,8 @@ $(function () {
     module('Initialization', lifecycle);
 
     test('Widget initialization', function () {
-        ok($('#fileupload').fileupload().data('fileupload'));
+        var fu = $('#fileupload').fileupload();
+        ok(fu.data('blueimp-fileupload') || fu.data('fileupload'));
     });
 
     test('Data attribute options', function () {
@@ -372,9 +373,10 @@ $(function () {
                     start();
                 }
             });
-        fu.data('fileupload')._isXHRUpload = function () {
-            return true;
-        };
+        (fu.data('blueimp-fileupload') || fu.data('fileupload'))
+            ._isXHRUpload = function () {
+                return true;
+            };
         fu.fileupload('send', param);
     });
 
@@ -392,9 +394,10 @@ $(function () {
                     }
                 }
             });
-        fu.data('fileupload')._isXHRUpload = function () {
-            return true;
-        };
+        (fu.data('blueimp-fileupload') || fu.data('fileupload'))
+            ._isXHRUpload = function () {
+                return true;
+            };
         fu.fileupload('add', param).fileupload(
             'option',
             'url',
@@ -471,7 +474,7 @@ $(function () {
 
     test('change', function () {
         var fu = $('#fileupload').fileupload(),
-            fuo = fu.data('fileupload'),
+            fuo = fu.data('blueimp-fileupload') || fu.data('fileupload'),
             fileInput = fu.fileupload('option', 'fileInput');
         expect(2);
         fu.fileupload({
@@ -493,7 +496,7 @@ $(function () {
 
     test('paste', function () {
         var fu = $('#fileupload').fileupload(),
-            fuo = fu.data('fileupload');
+            fuo = fu.data('blueimp-fileupload') || fu.data('fileupload');
         expect(1);
         fu.fileupload({
             paste: function (e, data) {
@@ -510,7 +513,7 @@ $(function () {
 
     test('drop', function () {
         var fu = $('#fileupload').fileupload(),
-            fuo = fu.data('fileupload');
+            fuo = fu.data('blueimp-fileupload') || fu.data('fileupload');
         expect(1);
         fu.fileupload({
             drop: function (e, data) {
@@ -527,7 +530,7 @@ $(function () {
 
     test('dragover', function () {
         var fu = $('#fileupload').fileupload(),
-            fuo = fu.data('fileupload');
+            fuo = fu.data('blueimp-fileupload') || fu.data('fileupload');
         expect(1);
         fu.fileupload({
             dragover: function (e, data) {
@@ -605,7 +608,7 @@ $(function () {
 
     test('replaceFileInput', function () {
         var fu = $('#fileupload').fileupload(),
-            fuo = fu.data('fileupload'),
+            fuo = fu.data('blueimp-fileupload') || fu.data('fileupload'),
             fileInput = fu.fileupload('option', 'fileInput'),
             fileInputElement = fileInput[0];
         expect(2);
@@ -662,9 +665,10 @@ $(function () {
         var fu = $('#fileupload').fileupload(),
             param = {files: [{name: '1'}, {name: '2'}]},
             index = 1;
-        fu.data('fileupload')._isXHRUpload = function () {
-            return true;
-        };
+        (fu.data('blueimp-fileupload') || fu.data('fileupload'))
+            ._isXHRUpload = function () {
+                return true;
+            };
         $('#fileupload').fileupload({
             singleFileUploads: true,
             add: function (e, data) {
@@ -689,9 +693,10 @@ $(function () {
                 {name: '5'}
             ]},
             index = 1;
-        fu.data('fileupload')._isXHRUpload = function () {
-            return true;
-        };
+        (fu.data('blueimp-fileupload') || fu.data('fileupload'))
+            ._isXHRUpload = function () {
+                return true;
+            };
         $('#fileupload').fileupload({
             singleFileUploads: false,
             limitMultiFileUploads: 2,
@@ -739,9 +744,10 @@ $(function () {
                     start();
                 }
             });
-        fu.data('fileupload')._isXHRUpload = function () {
-            return true;
-        };
+        (fu.data('blueimp-fileupload') || fu.data('fileupload'))
+            ._isXHRUpload = function () {
+                return true;
+            };
         fu.fileupload('add', param);
     });
 
@@ -788,9 +794,10 @@ $(function () {
                     start();
                 }
             });
-        fu.data('fileupload')._isXHRUpload = function () {
-            return true;
-        };
+        (fu.data('blueimp-fileupload') || fu.data('fileupload'))
+            ._isXHRUpload = function () {
+                return true;
+            };
         fu.fileupload('add', param);
     });
 
@@ -825,7 +832,8 @@ $(function () {
     module('UI Initialization', lifecycleUI);
 
     test('Widget initialization', function () {
-        ok($('#fileupload').fileupload().data('fileupload'));
+        var fu = $('#fileupload').fileupload();
+        ok(fu.data('blueimp-fileupload') || fu.data('fileupload'));
         ok(
             $('#fileupload').fileupload('option', 'uploadTemplate').length,
             'Initialized upload template'
@@ -857,7 +865,9 @@ $(function () {
         $('#fileupload').fileupload('add', {files: files});
         buttonbar.find('.start').click();
         buttonbar.find('.cancel').click();
-        $('#fileupload').data('fileupload')._renderDownload(files)
+        ($('#fileupload').data('blueimp-fileupload') ||
+                $('#fileupload').data('fileupload'))
+            ._renderDownload(files)
             .appendTo($('#fileupload .files')).show()
             .find('.delete input').click();
         buttonbar.find('.delete').click();
@@ -919,11 +929,15 @@ $(function () {
                 );
             }
         });
-        $('#fileupload').data('fileupload')._renderDownload([{
-            name: 'test',
-            delete_url: 'test',
-            delete_type: 'DELETE'
-        }]).appendTo($('#fileupload .files')).show()
+        ($('#fileupload').data('blueimp-fileupload') ||
+                $('#fileupload').data('fileupload'))
+            ._renderDownload([{
+                name: 'test',
+                delete_url: 'test',
+                delete_type: 'DELETE'
+            }])
+            .appendTo($('#fileupload .files'))
+            .show()
             .find('.delete input').click();
         $('#fileupload .fileupload-buttonbar .delete').click();
     });
@@ -1021,11 +1035,15 @@ $(function () {
                 ok(true, 'Triggers destroyed callback');
             }
         });
-        $('#fileupload').data('fileupload')._renderDownload([{
-            name: 'test',
-            delete_url: 'test',
-            delete_type: 'DELETE'
-        }]).appendTo($('#fileupload .files')).show()
+        ($('#fileupload').data('blueimp-fileupload') ||
+                $('#fileupload').data('fileupload'))
+            ._renderDownload([{
+                name: 'test',
+                delete_url: 'test',
+                delete_type: 'DELETE'
+            }])
+            .appendTo($('#fileupload .files'))
+            .show()
             .find('.delete input').click();
         $('#fileupload .fileupload-buttonbar .delete').click();
     });
