@@ -570,9 +570,10 @@
                     .done(function (result, textStatus, jqXHR) {
                         ub = that._getUploadedBytes(jqXHR) ||
                             (ub + o.chunkSize);
-                        // Create a progress event if upload is done and
-                        // no progress event has been invoked for this chunk:
-                        if (!o.loaded) {
+                        // Create a progress event if upload is done and no progress
+                        // event has been invoked for this chunk, or there has been
+                        // no progress event with loaded equaling total:
+                        if (!o.loaded || o.loaded < o.total) {
                             that._onProgress($.Event('progress', {
                                 lengthComputable: true,
                                 loaded: ub - o.uploadedBytes,
@@ -632,12 +633,16 @@
         },
 
         _onDone: function (result, textStatus, jqXHR, options) {
-            if (!this._isXHRUpload(options)) {
-                // Create a progress event for each iframe load:
+            if (!this._isXHRUpload(options) || !options.loaded ||
+                    options.loaded < options.total) {
+                var total = this._getTotal(options.files) || 1;
+                // Create a progress event for each iframe load,
+                // or if there has been no progress event with
+                // loaded equaling total for XHR uploads:
                 this._onProgress($.Event('progress', {
                     lengthComputable: true,
-                    loaded: 1,
-                    total: 1
+                    loaded: total,
+                    total: total
                 }), options);
             }
             options.result = result;
