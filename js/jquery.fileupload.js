@@ -1,5 +1,5 @@
 /*
- * jQuery File Upload Plugin 5.19.8
+ * jQuery File Upload Plugin 5.20
  * https://github.com/blueimp/jQuery-File-Upload
  *
  * Copyright 2010, Sebastian Tschan
@@ -140,32 +140,57 @@
             },
 
             // Other callbacks:
+
             // Callback for the submit event of each file upload:
             // submit: function (e, data) {}, // .bind('fileuploadsubmit', func);
+
             // Callback for the start of each file upload request:
             // send: function (e, data) {}, // .bind('fileuploadsend', func);
+
             // Callback for successful uploads:
             // done: function (e, data) {}, // .bind('fileuploaddone', func);
+
             // Callback for failed (abort or error) uploads:
             // fail: function (e, data) {}, // .bind('fileuploadfail', func);
+
             // Callback for completed (success, abort or error) requests:
             // always: function (e, data) {}, // .bind('fileuploadalways', func);
+
             // Callback for upload progress events:
             // progress: function (e, data) {}, // .bind('fileuploadprogress', func);
+
             // Callback for global upload progress events:
             // progressall: function (e, data) {}, // .bind('fileuploadprogressall', func);
+
             // Callback for uploads start, equivalent to the global ajaxStart event:
             // start: function (e) {}, // .bind('fileuploadstart', func);
+
             // Callback for uploads stop, equivalent to the global ajaxStop event:
             // stop: function (e) {}, // .bind('fileuploadstop', func);
+
             // Callback for change events of the fileInput(s):
             // change: function (e, data) {}, // .bind('fileuploadchange', func);
+
             // Callback for paste events to the pasteZone(s):
             // paste: function (e, data) {}, // .bind('fileuploadpaste', func);
+
             // Callback for drop events of the dropZone(s):
             // drop: function (e, data) {}, // .bind('fileuploaddrop', func);
+
             // Callback for dragover events of the dropZone(s):
             // dragover: function (e) {}, // .bind('fileuploaddragover', func);
+
+            // Callback for the start of each chunk upload request:
+            // chunksend: function (e, data) {}, // .bind('fileuploadchunksend', func);
+
+            // Callback for successful chunk uploads:
+            // chunkdone: function (e, data) {}, // .bind('fileuploadchunkdone', func);
+
+            // Callback for failed (abort or error) chunk uploads:
+            // chunkfail: function (e, data) {}, // .bind('fileuploadchunkfail', func);
+
+            // Callback for completed (success, abort or error) chunk upload requests:
+            // chunkalways: function (e, data) {}, // .bind('fileuploadchunkalways', func);
 
             // The plugin options are used as settings object for the ajax calls.
             // The following are jQuery ajax settings required for the file uploads:
@@ -540,7 +565,8 @@
                 that._initXHRData(o);
                 // Add progress listeners for this chunk upload:
                 that._initProgressListener(o);
-                jqXHR = ($.ajax(o) || that._getXHRPromise(false, o.context))
+                jqXHR = ((that._trigger('chunksend', null, o) !== false && $.ajax(o)) ||
+                        that._getXHRPromise(false, o.context))
                     .done(function (result, textStatus, jqXHR) {
                         ub = that._getUploadedBytes(jqXHR) ||
                             (ub + o.chunkSize);
@@ -554,6 +580,11 @@
                             }), o);
                         }
                         options.uploadedBytes = o.uploadedBytes = ub;
+                        o.result = result;
+                        o.textStatus = textStatus;
+                        o.jqXHR = jqXHR;
+                        that._trigger('chunkdone', null, o);
+                        that._trigger('chunkalways', null, o);
                         if (ub < fs) {
                             // File upload not yet complete,
                             // continue with the next chunk:
@@ -566,6 +597,11 @@
                         }
                     })
                     .fail(function (jqXHR, textStatus, errorThrown) {
+                        o.jqXHR = jqXHR;
+                        o.textStatus = textStatus;
+                        o.errorThrown = errorThrown;
+                        that._trigger('chunkfail', null, o);
+                        that._trigger('chunkalways', null, o);
                         dfd.rejectWith(
                             o.context,
                             [jqXHR, textStatus, errorThrown]
@@ -624,15 +660,9 @@
         },
 
         _onAlways: function (jqXHRorResult, textStatus, jqXHRorError, options) {
+            // jqXHRorResult, textStatus and jqXHRorError are added to the
+            // options object via done and fail callbacks
             this._active -= 1;
-            options.textStatus = textStatus;
-            if (jqXHRorError && jqXHRorError.always) {
-                options.jqXHR = jqXHRorError;
-                options.result = jqXHRorResult;
-            } else {
-                options.jqXHR = jqXHRorResult;
-                options.errorThrown = jqXHRorError;
-            }
             this._trigger('always', null, options);
             if (this._active === 0) {
                 // The stop callback is triggered when all uploads have
