@@ -1,5 +1,5 @@
 /*
- * jQuery File Upload Plugin 5.20
+ * jQuery File Upload Plugin 5.21
  * https://github.com/blueimp/jQuery-File-Upload
  *
  * Copyright 2010, Sebastian Tschan
@@ -34,14 +34,14 @@
     $.support.xhrFormDataFileUpload = !!window.FormData;
 
     // The form.elements propHook is added to filter serialized elements
-    // to not include file inputs in jQuery 1.9.0
-    // This hooks directly into jQuery.fn.serializeArray
+    // to not include file inputs in jQuery 1.9.0.
+    // This hooks directly into jQuery.fn.serializeArray.
     // For more info, see http://bugs.jquery.com/ticket/13306
     $.propHooks.elements = {
-        get: function(form) {
-            if (jQuery.nodeName(form, "form")) {
-                return jQuery.grep(form.elements, function(elem) {
-                    return !jQuery.nodeName(elem, "input") || elem.type !== "file";
+        get: function (form) {
+            if ($.nodeName(form, 'form')) {
+                return $.grep(form.elements, function (elem) {
+                    return !$.nodeName(elem, 'input') || elem.type !== 'file';
                 });
             }
             return null;
