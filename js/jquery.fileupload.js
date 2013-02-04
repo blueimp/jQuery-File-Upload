@@ -1,5 +1,5 @@
 /*
- * jQuery File Upload Plugin 5.21
+ * jQuery File Upload Plugin 5.21.1
  * https://github.com/blueimp/jQuery-File-Upload
  *
  * Copyright 2010, Sebastian Tschan
@@ -561,7 +561,7 @@
                 );
             }
             // The chunk upload method:
-            upload = function (i) {
+            upload = function () {
                 // Clone the options object for each chunk upload:
                 var o = $.extend({}, options);
                 o.blob = slice.call(
