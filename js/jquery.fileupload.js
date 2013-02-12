@@ -710,7 +710,7 @@
                         that._getXHRPromise(false, options.context, aborted)) ||
                         that._chunkedUpload(options) || $.ajax(options)
                     ).done(function (result, textStatus, jqXHR, doneOptions) {
-                        that._onDone(result, textStatus, jqXHR, doneOptions);
+                        that._onDone(result, textStatus, jqXHR, doneOptions || options);
                     }).fail(function (jqXHR, textStatus, errorThrown) {
                         that._onFail(jqXHR, textStatus, errorThrown, options);
                     }).always(function (jqXHRorResult, textStatus, jqXHRorError) {
