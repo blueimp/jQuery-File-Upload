@@ -485,7 +485,7 @@
         // object and the file that triggered the error.
         _getErrorMessage: function (errorMsg, file){
             if (typeof errorMsg === 'function'){
-                return errorMsg(this, file);
+                return errorMsg(file, this.options);
             } else {
                 return errorMsg;
             }
