@@ -47,11 +47,17 @@
             maxNumberOfFiles: undefined,
             // The maximum allowed file size:
             maxFileSize: undefined,
+            // Default error message for files that exceed the max file size
+            maxFileSizeError: 'File is too big',
             // The minimum allowed file size:
             minFileSize: undefined,
+            // Default error message for files smaller than the min file size
+            minFileSizeError: 'File is too small',
             // The regular expression for allowed file types, matches
             // against either file type or file name:
             acceptFileTypes:  /.+$/i,
+            // Default error for files that don't satisfy the fileType regexp
+            acceptFileTypesError: 'Filetype not allowed',
             // The regular expression to define for which files a preview
             // image is shown, matched against the file type:
             previewSourceFileTypes: /^image\/(gif|jpeg|png)$/,
@@ -461,19 +467,29 @@
             // only browsers with support for the File API report the type:
             if (!(this.options.acceptFileTypes.test(file.type) ||
                     this.options.acceptFileTypes.test(file.name))) {
-                return 'Filetype not allowed';
+                return this._getErrorMessage(this.options.acceptFileTypesError, file);
             }
             if (this.options.maxFileSize &&
                     file.size > this.options.maxFileSize) {
-                return 'File is too big';
+                return this._getErrorMessage(this.options.maxFileSizeError, file);
             }
             if (typeof file.size === 'number' &&
                     file.size < this.options.minFileSize) {
-                return 'File is too small';
+                return this._getErrorMessage(this.options.minFileSizeError, file);
             }
             return null;
         },
 
+        // Receives an error message that han be a function or other type.
+        // When is a function, it is evaluated, receiving the current
+        // object and the file that triggered the error.
+        _getErrorMessage: function (errorMsg, file){
+            if (typeof errorMsg === 'function'){
+                return errorMsg(this, file);
+            } else {
+                return errorMsg;
+            }
+        },
         _validate: function (files) {
             var that = this,
                 valid = !!files.length;
