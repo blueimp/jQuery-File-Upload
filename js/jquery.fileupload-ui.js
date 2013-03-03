@@ -1,5 +1,5 @@
 /*
- * jQuery File Upload User Interface Plugin 7.3
+ * jQuery File Upload User Interface Plugin 7.3.1
  * https://github.com/blueimp/jQuery-File-Upload
  *
  * Copyright 2010, Sebastian Tschan
@@ -519,6 +519,12 @@
                         // so we have to resolve manually:
                         dfd.resolveWith(node);
                     }
+                    node.on('remove', function () {
+                        // If the element is removed before the
+                        // transition finishes, transition events are
+                        // not triggered, resolve manually:
+                        dfd.resolveWith(node);
+                    });
                 },
                 {
                     maxWidth: options.previewMaxWidth,
