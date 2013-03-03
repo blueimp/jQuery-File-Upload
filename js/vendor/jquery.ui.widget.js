@@ -1,5 +1,5 @@
 /*
- * jQuery UI Widget 1.10.0+amd
+ * jQuery UI Widget 1.10.1+amd
  * https://github.com/blueimp/jQuery-File-Upload
  *
  * Copyright 2013 jQuery Foundation and other contributors
