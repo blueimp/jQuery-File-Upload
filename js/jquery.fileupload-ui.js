@@ -1,5 +1,5 @@
 /*
- * jQuery File Upload User Interface Plugin 7.3.2
+ * jQuery File Upload User Interface Plugin 7.4
  * https://github.com/blueimp/jQuery-File-Upload
  *
  * Copyright 2010, Sebastian Tschan
@@ -638,27 +638,28 @@
             this._on(fileUploadButtonBar.find('.start'), {
                 click: function (e) {
                     e.preventDefault();
-                    filesList.find('.start button').click();
+                    filesList.find('.start').click();
                 }
             });
             this._on(fileUploadButtonBar.find('.cancel'), {
                 click: function (e) {
                     e.preventDefault();
-                    filesList.find('.cancel button').click();
+                    filesList.find('.cancel').click();
                 }
             });
             this._on(fileUploadButtonBar.find('.delete'), {
                 click: function (e) {
                     e.preventDefault();
-                    filesList.find('.delete input:checked')
-                        .siblings('button').click();
+                    filesList.find('.toggle:checked')
+                        .closest('.template-download')
+                        .find('.delete').click();
                     fileUploadButtonBar.find('.toggle')
                         .prop('checked', false);
                 }
             });
             this._on(fileUploadButtonBar.find('.toggle'), {
                 change: function (e) {
-                    filesList.find('.delete input').prop(
+                    filesList.find('.toggle').prop(
                         'checked',
                         $(e.currentTarget).is(':checked')
                     );
@@ -668,7 +669,8 @@
 
         _destroyButtonBarEventHandlers: function () {
             this._off(
-                this.element.find('.fileupload-buttonbar button'),
+                this.element.find('.fileupload-buttonbar')
+                    .find('.start, .cancel, .delete'),
                 'click'
             );
             this._off(
@@ -680,9 +682,9 @@
         _initEventHandlers: function () {
             this._super();
             this._on(this.options.filesContainer, {
-                'click .start button': this._startHandler,
-                'click .cancel button': this._cancelHandler,
-                'click .delete button': this._deleteHandler
+                'click .start': this._startHandler,
+                'click .cancel': this._cancelHandler,
+                'click .delete': this._deleteHandler
             });
             this._initButtonBarEventHandlers();
         },
