@@ -1,5 +1,5 @@
 /*
- * jQuery File Upload Plugin 5.21.1
+ * jQuery File Upload Plugin 5.21.2
  * https://github.com/blueimp/jQuery-File-Upload
  *
  * Copyright 2010, Sebastian Tschan
@@ -648,8 +648,8 @@
         },
 
         _onDone: function (result, textStatus, jqXHR, options) {
-            if (!this._isXHRUpload(options) || !options.loaded ||
-                    options.loaded < options.total) {
+            if (!options.uploadedBytes && (!this._isXHRUpload(options) ||
+                    !options.loaded || options.loaded < options.total)) {
                 var total = this._getTotal(options.files) || 1;
                 // Create a progress event for each iframe load,
                 // or if there has been no progress event with
