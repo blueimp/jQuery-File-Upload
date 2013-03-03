@@ -1,5 +1,5 @@
 /*
- * jQuery File Upload User Interface Plugin 7.3.1
+ * jQuery File Upload User Interface Plugin 7.3.2
  * https://github.com/blueimp/jQuery-File-Upload
  *
  * Copyright 2010, Sebastian Tschan
@@ -613,7 +613,7 @@
 
         _transition: function (node) {
             var dfd = $.Deferred();
-            if ($.support.transition && node.hasClass('fade')) {
+            if ($.support.transition && node.hasClass('fade') && node.is(':visible')) {
                 node.bind(
                     $.support.transition.end,
                     function (e) {
