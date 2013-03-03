@@ -4,6 +4,7 @@
 [Demo File Upload](http://blueimp.github.com/jQuery-File-Upload/)
 
 ## Download
+* [Releases (all versions)](https://github.com/blueimp/jQuery-File-Upload/tags)
 * [Master branch (Bootstrap UI)](https://github.com/blueimp/jQuery-File-Upload/archive/master.zip)
 * [jQuery UI branch](https://github.com/blueimp/jQuery-File-Upload/archive/jquery-ui.zip)
 
@@ -12,9 +13,15 @@
 * [How to use only the basic plugin (minimal setup guide).](https://github.com/blueimp/jQuery-File-Upload/wiki/Basic-plugin)
 
 ## Support
-* **Support requests** and **general discussions** about the File Upload plugin can be posted to the official [support forum](https://groups.google.com/d/forum/jquery-fileupload).  
-If your question is not directly related to the File Upload plugin, you might have a better chance to get a reply by posting to [Stack Overflow](http://stackoverflow.com/questions/tagged/blueimp+jquery+file-upload). 
-* **Bugs** and **Feature requests** can be reported using the [issues tracker](https://github.com/blueimp/jQuery-File-Upload/issues). Please read the [issue guidelines](https://github.com/blueimp/jQuery-File-Upload/blob/master/CONTRIBUTING.md) before posting.
+
+* **[Support Forum](https://groups.google.com/d/forum/jquery-fileupload)**  
+**Support requests** and **general discussions** about the File Upload plugin can be posted to the official
+[Support Forum](https://groups.google.com/d/forum/jquery-fileupload).  
+If your question is not directly related to the File Upload plugin, you might have a better chance to get a reply by posting to [Stack Overflow](http://stackoverflow.com/questions/tagged/blueimp+jquery+file-upload).
+
+* Bugs and Feature requests  
+**Bugs** and **Feature requests** can be reported using the [issues tracker](https://github.com/blueimp/jQuery-File-Upload/issues).  
+Please read the [issue guidelines](https://github.com/blueimp/jQuery-File-Upload/blob/master/CONTRIBUTING.md) before posting.
 
 ## Features
 * **Multiple file upload:**  
