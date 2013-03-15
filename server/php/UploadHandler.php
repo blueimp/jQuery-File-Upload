@@ -1,6 +1,6 @@
 <?php
 /*
- * jQuery File Upload Plugin PHP Class 6.1.2
+ * jQuery File Upload Plugin PHP Class 6.2
  * https://github.com/blueimp/jQuery-File-Upload
  *
  * Copyright 2010, Sebastian Tschan
@@ -34,7 +34,7 @@ class UploadHandler
         'min_height' => 'Image requires a minimum height'
     );
 
-    function __construct($options = null, $initialize = true) {
+    function __construct($options = null, $initialize = true, $error_messages = null) {
         $this->options = array(
             'script_url' => $this->get_full_url().'/',
             'upload_dir' => dirname($_SERVER['SCRIPT_FILENAME']).'/files/',
@@ -108,6 +108,9 @@ class UploadHandler
         );
         if ($options) {
             $this->options = array_merge($this->options, $options);
+        }
+        if ($error_messages) {
+            $this->error_messages = array_merge($this->error_messages, $error_messages);
         }
         if ($initialize) {
             $this->initialize();
