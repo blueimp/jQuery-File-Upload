@@ -138,6 +138,37 @@
                 }
                 return that._trigger('sent', e, data);
             },
+            // Callback for reloading the list:
+            reload: function (e, data) {
+                var that = $(this).data('blueimp-fileupload') ||
+		                $(this).data('fileupload'),
+		            files = that._getFilesFromResponse(data),
+		            template,
+		            deferred;
+	            if (files.length) {
+	                $.each(files, function (index, file) {
+	                    if (data.maxNumberOfFilesAdjusted && file.error) {
+	                        that._adjustMaxNumberOfFiles(1);
+	                    } else if (!data.maxNumberOfFilesAdjusted &&
+	                            !file.error) {
+	                        that._adjustMaxNumberOfFiles(-1);
+	                    }
+	                });
+	                data.maxNumberOfFilesAdjusted = true;
+	            }
+                template = that._renderDownload(files);
+                that.options.filesContainer.html(template);
+	            that._forceReflow(template);
+	            deferred = that._addFinishedDeferreds();
+	            that._transition(template).done(
+	                function () {
+	                    data.context = $(this);
+	                    that._trigger('completed', e, data);
+	                    that._trigger('finished', e, data);
+	                    deferred.resolve();
+	                }
+	            );
+		    },
             // Callback for successful uploads:
             done: function (e, data) {
                 var that = $(this).data('blueimp-fileupload') ||
