@@ -1,5 +1,5 @@
 /*
- * jQuery File Upload Plugin 5.21.4
+ * jQuery File Upload Plugin 5.22
  * https://github.com/blueimp/jQuery-File-Upload
  *
  * Copyright 2010, Sebastian Tschan
@@ -112,6 +112,8 @@
             progressInterval: 100,
             // Interval in milliseconds to calculate progress bitrate:
             bitrateInterval: 500,
+            // By default, uploads are started automatically when adding files:
+            autoUpload: true,
 
             // Additional form data to be sent along with the file uploads can be set
             // using this option, which accepts an array of objects with name and
@@ -136,7 +138,11 @@
             // handlers using jQuery's Deferred callbacks:
             // data.submit().done(func).fail(func).always(func);
             add: function (e, data) {
-                data.submit();
+                if (data.autoUpload || (data.autoUpload !== false &&
+                        ($(this).data('blueimp-fileupload') ||
+                        $(this).data('fileupload')).options.autoUpload)) {
+                    data.submit();
+                }
             },
 
             // Other callbacks:
