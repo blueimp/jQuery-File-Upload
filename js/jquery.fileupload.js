@@ -520,6 +520,30 @@
             return this._enhancePromise(promise);
         },
 
+        // Adds convenience methods to the callback arguments:
+        _addConvenienceMethods: function (e, data) {
+            var that = this;
+            data.submit = function () {
+                if (this.state() !== 'pending') {
+                    data.jqXHR = this.jqXHR =
+                        (that._trigger('submit', e, this) !== false) &&
+                        that._onSend(e, this);
+                }
+                return this.jqXHR || that._getXHRPromise();
+            };
+            data.abort = function () {
+                if (this.jqXHR) {
+                    return this.jqXHR.abort();
+                }
+                return this._getXHRPromise();
+            };
+            data.state = function () {
+                if (this.jqXHR) {
+                    return that._getDeferredState(this.jqXHR);
+                }
+            };
+        },
+
         // Parses the Range header from the server response
         // and returns the uploaded bytes:
         _getUploadedBytes: function (jqXHR) {
@@ -802,25 +826,7 @@
                 var newData = $.extend({}, data);
                 newData.files = fileSet ? element : [element];
                 newData.paramName = paramNameSet[index];
-                newData.submit = function () {
-                    if (this.state() === 'pending') {
-                        return this.jqXHR;
-                    }
-                    newData.jqXHR = this.jqXHR =
-                        (that._trigger('submit', e, this) !== false) &&
-                        that._onSend(e, this);
-                    return this.jqXHR;
-                };
-                newData.abort = function () {
-                    if (this.jqXHR) {
-                        return this.jqXHR.abort();
-                    }
-                };
-                newData.state = function () {
-                    if (this.jqXHR) {
-                        return that._getDeferredState(this.jqXHR);
-                    }
-                };
+                that._addConvenienceMethods(e, newData);
                 result = that._trigger('add', e, newData);
                 return result;
             });
