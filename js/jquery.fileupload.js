@@ -1,5 +1,5 @@
 /*
- * jQuery File Upload Plugin 5.21.3
+ * jQuery File Upload Plugin 5.21.4
  * https://github.com/blueimp/jQuery-File-Upload
  *
  * Copyright 2010, Sebastian Tschan
@@ -267,9 +267,8 @@
                 }
                 data._time = now;
                 total = data.total || this._getTotal(data.files);
-                loaded = parseInt(
-                    e.loaded / e.total * (data.chunkSize || total),
-                    10
+                loaded = Math.floor(
+                    e.loaded / e.total * (data.chunkSize || total)
                 ) + (data.uploadedBytes || 0);
                 this._loaded += loaded - (data.loaded || data.uploadedBytes || 0);
                 data.lengthComputable = true;

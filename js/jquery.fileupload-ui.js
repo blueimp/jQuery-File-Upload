@@ -1,5 +1,5 @@
 /*
- * jQuery File Upload User Interface Plugin 7.4
+ * jQuery File Upload User Interface Plugin 7.4.1
  * https://github.com/blueimp/jQuery-File-Upload
  *
  * Copyright 2010, Sebastian Tschan
@@ -263,7 +263,7 @@
             // Callback for upload progress events:
             progress: function (e, data) {
                 if (data.context) {
-                    var progress = parseInt(data.loaded / data.total * 100, 10);
+                    var progress = Math.floor(data.loaded / data.total * 100);
                     data.context.find('.progress')
                         .attr('aria-valuenow', progress)
                         .find('.bar').css(
@@ -275,7 +275,7 @@
             // Callback for global upload progress events:
             progressall: function (e, data) {
                 var $this = $(this),
-                    progress = parseInt(data.loaded / data.total * 100, 10),
+                    progress = Math.floor(data.loaded / data.total * 100),
                     globalProgressNode = $this.find('.fileupload-progress'),
                     extendedProgressNode = globalProgressNode
                         .find('.progress-extended');
@@ -422,7 +422,7 @@
 
         _formatTime: function (seconds) {
             var date = new Date(seconds * 1000),
-                days = parseInt(seconds / 86400, 10);
+                days = Math.floor(seconds / 86400);
             days = days ? days + 'd ' : '';
             return days +
                 ('0' + date.getUTCHours()).slice(-2) + ':' +
