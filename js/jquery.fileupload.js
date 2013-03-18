@@ -1,5 +1,5 @@
 /*
- * jQuery File Upload Plugin 5.24
+ * jQuery File Upload Plugin 5.25
  * https://github.com/blueimp/jQuery-File-Upload
  *
  * Copyright 2010, Sebastian Tschan
@@ -276,13 +276,18 @@
                 loaded = Math.floor(
                     e.loaded / e.total * (data.chunkSize || total)
                 ) + (data.uploadedBytes || 0);
-                this._loaded += loaded - (data.loaded || data.uploadedBytes || 0);
-                data.lengthComputable = true;
+                this._progress.loaded += loaded -
+                    (data.loaded || data.uploadedBytes || 0);
                 data.loaded = loaded;
                 data.total = total;
                 data.bitrate = data._bitrateTimer.getBitrate(
                     now,
                     loaded,
+                    data.bitrateInterval
+                );
+                this._progress.bitrate = this._bitrateTimer.getBitrate(
+                    now,
+                    this._progress.loaded,
                     data.bitrateInterval
                 );
                 // Trigger a custom progress event with a total data property set
@@ -291,16 +296,7 @@
                 this._trigger('progress', e, data);
                 // Trigger a global progress event for all current file uploads,
                 // including ajax calls queued for sequential file uploads:
-                this._trigger('progressall', e, {
-                    lengthComputable: true,
-                    loaded: this._loaded,
-                    total: this._total,
-                    bitrate: this._bitrateTimer.getBitrate(
-                        now,
-                        this._loaded,
-                        data.bitrateInterval
-                    )
-                });
+                this._trigger('progressall', e, this._progress);
             }
         },
 
@@ -645,11 +641,14 @@
                 this._trigger('start');
                 // Set timer for global bitrate progress calculation:
                 this._bitrateTimer = new this._BitrateTimer();
+                // Reset the global progress values:
+                this._progress.loaded = this._progress.total = 0;
+                this._progress.bitrate = 0;
             }
             this._active += 1;
             // Initialize the global progress values:
-            this._loaded += data.uploadedBytes || 0;
-            this._total += this._getTotal(data.files);
+            this._progress.loaded += data.uploadedBytes || 0;
+            this._progress.total += this._getTotal(data.files);
         },
 
         _onDone: function (result, textStatus, jqXHR, options) {
@@ -679,8 +678,10 @@
             if (options.recalculateProgress) {
                 // Remove the failed (error or abort) file upload from
                 // the global progress calculation:
-                this._loaded -= options.loaded || options.uploadedBytes || 0;
-                this._total -= options.total || this._getTotal(options.files);
+                this._progress.loaded -= options.loaded ||
+                    options.uploadedBytes || 0;
+                this._progress.total -= options.total ||
+                    this._getTotal(options.files);
             }
         },
 
@@ -693,9 +694,6 @@
                 // The stop callback is triggered when all uploads have
                 // been completed, equivalent to the global ajaxStop event:
                 this._trigger('stop');
-                // Reset the global progress values:
-                this._loaded = this._total = 0;
-                this._bitrateTimer = null;
             }
         },
 
@@ -1093,8 +1091,21 @@
             this._initSpecialOptions();
             this._slots = [];
             this._sequence = this._getXHRPromise(true);
-            this._sending = this._active = this._loaded = this._total = 0;
+            this._sending = this._active = 0;
+            this._progress = {
+                loaded: 0,
+                total: 0,
+                bitrate: 0
+            };
             this._initEventHandlers();
+        },
+
+        // This method is exposed to the widget API and allows to query
+        // the widget upload progress.
+        // It returns an object with loaded, total and bitrate properties
+        // for the running uploads:
+        progress: function () {
+            return this._progress;
         },
 
         // This method is exposed to the widget API and allows adding files
