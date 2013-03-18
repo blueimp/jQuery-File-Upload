@@ -1,5 +1,5 @@
 /*
- * jQuery File Upload Plugin 5.25
+ * jQuery File Upload Plugin 5.25.1
  * https://github.com/blueimp/jQuery-File-Upload
  *
  * Copyright 2010, Sebastian Tschan
@@ -803,6 +803,9 @@
                 newData.files = fileSet ? element : [element];
                 newData.paramName = paramNameSet[index];
                 newData.submit = function () {
+                    if (this.state() === 'pending') {
+                        return this.jqXHR;
+                    }
                     newData.jqXHR = this.jqXHR =
                         (that._trigger('submit', e, this) !== false) &&
                         that._onSend(e, this);
