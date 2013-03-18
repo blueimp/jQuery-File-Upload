@@ -1,5 +1,5 @@
 /*
- * jQuery File Upload Plugin 5.22
+ * jQuery File Upload Plugin 5.22.1
  * https://github.com/blueimp/jQuery-File-Upload
  *
  * Copyright 2010, Sebastian Tschan
@@ -1076,10 +1076,6 @@
             this._sequence = this._getXHRPromise(true);
             this._sending = this._active = this._loaded = this._total = 0;
             this._initEventHandlers();
-        },
-
-        _destroy: function () {
-            this._destroyEventHandlers();
         },
 
         // This method is exposed to the widget API and allows adding files
