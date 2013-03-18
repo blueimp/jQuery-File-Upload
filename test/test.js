@@ -1,5 +1,5 @@
 /*
- * jQuery File Upload Plugin Test 7.3
+ * jQuery File Upload Plugin Test 7.4.1
  * https://github.com/blueimp/jQuery-File-Upload
  *
  * Copyright 2010, Sebastian Tschan
@@ -869,7 +869,7 @@ $(function () {
                 $('#fileupload').data('fileupload'))
             ._renderDownload(files)
             .appendTo($('#fileupload .files')).show()
-            .find('.delete input').click();
+            .find('.toggle').click();
         buttonbar.find('.delete').click();
     });
 
@@ -938,7 +938,7 @@ $(function () {
             }])
             .appendTo($('#fileupload .files'))
             .show()
-            .find('.delete input').click();
+            .find('.toggle').click();
         $('#fileupload .fileupload-buttonbar .delete').click();
     });
 
@@ -1044,7 +1044,7 @@ $(function () {
             }])
             .appendTo($('#fileupload .files'))
             .show()
-            .find('.delete input').click();
+            .find('.toggle').click();
         $('#fileupload .fileupload-buttonbar .delete').click();
     });
 
