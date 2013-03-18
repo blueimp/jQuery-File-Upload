@@ -1,5 +1,5 @@
 /*
- * jQuery File Upload Plugin 5.23
+ * jQuery File Upload Plugin 5.24
  * https://github.com/blueimp/jQuery-File-Upload
  *
  * Copyright 2010, Sebastian Tschan
@@ -485,6 +485,21 @@
             return options;
         },
 
+        // jQuery 1.6 doesn't provide .state(),
+        // while jQuery 1.8+ removed .isRejected() and .isResolved():
+        _getDeferredState: function (deferred) {
+            if (deferred.state) {
+                return deferred.state();
+            }
+            if (deferred.isResolved()) {
+                return 'resolved';
+            }
+            if (deferred.isRejected()) {
+                return 'rejected';
+            }
+            return 'pending';
+        },
+
         // Maps jqXHR callbacks to the equivalent
         // methods of the given Promise object:
         _enhancePromise: function (promise) {
@@ -715,15 +730,9 @@
                                 options.limitConcurrentUploads > that._sending) {
                             // Start the next queued upload,
                             // that has not been aborted:
-                            var nextSlot = that._slots.shift(),
-                                isPending;
+                            var nextSlot = that._slots.shift();
                             while (nextSlot) {
-                                // jQuery 1.6 doesn't provide .state(),
-                                // while jQuery 1.8+ removed .isRejected():
-                                isPending = nextSlot.state ?
-                                        nextSlot.state() === 'pending' :
-                                        !nextSlot.isRejected();
-                                if (isPending) {
+                                if (that._getDeferredState(nextSlot) === 'pending') {
                                     nextSlot.resolve();
                                     break;
                                 }
@@ -804,6 +813,11 @@
                 newData.abort = function () {
                     if (this.jqXHR) {
                         return this.jqXHR.abort();
+                    }
+                };
+                newData.state = function () {
+                    if (this.jqXHR) {
+                        return that._getDeferredState(this.jqXHR);
                     }
                 };
                 result = that._trigger('add', e, newData);
