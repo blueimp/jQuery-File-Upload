@@ -1,5 +1,5 @@
 /*
- * jQuery File Upload Plugin 5.26
+ * jQuery File Upload Plugin 5.26.1
  * https://github.com/blueimp/jQuery-File-Upload
  *
  * Copyright 2010, Sebastian Tschan
@@ -541,7 +541,7 @@
                 if (this.jqXHR) {
                     return this.jqXHR.abort();
                 }
-                return this._getXHRPromise();
+                return that._getXHRPromise();
             };
             data.state = function () {
                 if (this.jqXHR) {
