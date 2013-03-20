@@ -1,5 +1,5 @@
 /*
- * jQuery File Upload Plugin 5.27
+ * jQuery File Upload Plugin 5.28
  * https://github.com/blueimp/jQuery-File-Upload
  *
  * Copyright 2010, Sebastian Tschan
@@ -551,6 +551,9 @@
             data.progress = function () {
                 return this._progress;
             };
+            data.response = function () {
+                return this._response;
+            };
         },
 
         // Parses the Range header from the server response
@@ -679,6 +682,13 @@
                 this._progress.loaded = this._progress.total = 0;
                 this._progress.bitrate = 0;
             }
+            // Make sure the container objects for the .response() and
+            // .progress() methods on the data object are available.
+            // They are set in the add callback, but files might have
+            // been sent via send API call:
+            if (!data._response) {
+                data._response = {};
+            }
             if (!data._progress) {
                 data._progress = {};
             }
@@ -692,7 +702,8 @@
         },
 
         _onDone: function (result, textStatus, jqXHR, options) {
-            var total = options._progress.total;
+            var total = options._progress.total,
+                response = options._response;
             if (options._progress.loaded < total) {
                 // Create a progress event if no final progress event
                 // with loaded equaling total has been triggered:
@@ -702,16 +713,17 @@
                     total: total
                 }), options);
             }
-            options.result = result;
-            options.textStatus = textStatus;
-            options.jqXHR = jqXHR;
+            response.result = options.result = result;
+            response.textStatus = options.textStatus = textStatus;
+            response.jqXHR = options.jqXHR = jqXHR;
             this._trigger('done', null, options);
         },
 
         _onFail: function (jqXHR, textStatus, errorThrown, options) {
-            options.jqXHR = jqXHR;
-            options.textStatus = textStatus;
-            options.errorThrown = errorThrown;
+            var response = options._response;
+            response.jqXHR = options.jqXHR = jqXHR;
+            response.textStatus = options.textStatus = textStatus;
+            response.errorThrown = options.errorThrown = errorThrown;
             this._trigger('fail', null, options);
             if (options.recalculateProgress) {
                 // Remove the failed (error or abort) file upload from
@@ -841,6 +853,7 @@
                 var newData = $.extend({}, data);
                 newData.files = fileSet ? element : [element];
                 newData.paramName = paramNameSet[index];
+                newData._response = {};
                 that._initProgressObject(newData);
                 that._addConvenienceMethods(e, newData);
                 result = that._trigger('add', e, newData);
