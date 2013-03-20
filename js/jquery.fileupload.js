@@ -1,5 +1,5 @@
 /*
- * jQuery File Upload Plugin 5.26.1
+ * jQuery File Upload Plugin 5.27
  * https://github.com/blueimp/jQuery-File-Upload
  *
  * Copyright 2010, Sebastian Tschan
@@ -1119,6 +1119,12 @@
             this._sending = this._active = 0;
             this._initProgressObject(this);
             this._initEventHandlers();
+        },
+
+        // This method is exposed to the widget API and allows to query
+        // the number of active uploads:
+        active: function () {
+            return this._active;
         },
 
         // This method is exposed to the widget API and allows to query
