@@ -1,5 +1,5 @@
 /*
- * jQuery File Upload Plugin 5.28
+ * jQuery File Upload Plugin 5.28.1
  * https://github.com/blueimp/jQuery-File-Upload
  *
  * Copyright 2010, Sebastian Tschan
@@ -262,11 +262,29 @@
         },
 
         _initProgressObject: function (obj) {
-            obj._progress = {
+            var progress = {
                 loaded: 0,
                 total: 0,
                 bitrate: 0
             };
+            if (obj._progress) {
+                $.extend(obj._progress, progress);
+            } else {
+                obj._progress = progress;
+            }
+        },
+
+        _initResponseObject: function (obj) {
+            var prop;
+            if (obj._response) {
+                for (prop in obj._response) {
+                    if (obj._response.hasOwnProperty(prop)) {
+                        delete obj._response[prop];
+                    }
+                }
+            } else {
+                obj._response = {};
+            }
         },
 
         _onProgress: function (e, data) {
@@ -683,15 +701,10 @@
                 this._progress.bitrate = 0;
             }
             // Make sure the container objects for the .response() and
-            // .progress() methods on the data object are available.
-            // They are set in the add callback, but files might have
-            // been sent via send API call:
-            if (!data._response) {
-                data._response = {};
-            }
-            if (!data._progress) {
-                data._progress = {};
-            }
+            // .progress() methods on the data object are available
+            // and reset to their initial state:
+            this._initResponseObject(data);
+            this._initProgressObject(data);
             data._progress.loaded = data.loaded = data.uploadedBytes || 0;
             data._progress.total = data.total = this._getTotal(data.files) || 1;
             data._progress.bitrate = data.bitrate = 0;
@@ -853,7 +866,7 @@
                 var newData = $.extend({}, data);
                 newData.files = fileSet ? element : [element];
                 newData.paramName = paramNameSet[index];
-                newData._response = {};
+                that._initResponseObject(newData);
                 that._initProgressObject(newData);
                 that._addConvenienceMethods(e, newData);
                 result = that._trigger('add', e, newData);
