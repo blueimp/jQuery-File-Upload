@@ -1,5 +1,5 @@
 /*
- * jQuery File Upload Plugin 5.28.3
+ * jQuery File Upload Plugin 5.28.4
  * https://github.com/blueimp/jQuery-File-Upload
  *
  * Copyright 2010, Sebastian Tschan
@@ -215,7 +215,7 @@
         ],
 
         _BitrateTimer: function () {
-            this.timestamp = +(new Date());
+            this.timestamp = (new Date()).getTime();
             this.loaded = 0;
             this.bitrate = 0;
             this.getBitrate = function (now, loaded, interval) {
@@ -289,7 +289,7 @@
 
         _onProgress: function (e, data) {
             if (e.lengthComputable) {
-                var now = +(new Date()),
+                var now = (new Date()).getTime(),
                     loaded;
                 if (data._time && data.progressInterval &&
                         (now - data._time < data.progressInterval) &&
