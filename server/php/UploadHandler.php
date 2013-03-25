@@ -83,6 +83,8 @@ class UploadHandler
             // Set to true to rotate images based on EXIF meta data, if available:
             'orient_image' => false,
             'random_file_name' => false,
+            'random_file_name_prefix' => time() . "-",
+            'random_file_name_lenght' => 10,
             'image_versions' => array(
                 // Uncomment the following version to restrict the size of
                 // uploaded images:
@@ -463,12 +465,9 @@ class UploadHandler
     }
 
     protected function random_file_name($name, $type, $index, $content_range) {
-		
-//      $alphanum = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
         $alphanum = 'abcdefghijklmnopqrstuvwxyz0123456789';
-		$len = 10;
-		$name= time() . "-";
-		for ($i=0; $i<$len; $i++) $name .= $alphanum[rand(0,strlen($alphanum)-1)];
+	$name= $this->options['random_file_name_prefix'];
+	for ($i=0; $i< $this->options['random_file_name_lenght']; $i++) $name .= $alphanum[rand(0,strlen($alphanum)-1)];
         // Add missing file extension for known image types:
         if (strpos($name, '.') === false &&
             preg_match('/^image\/(gif|jpe?g|png)/', $type, $matches)) {
