@@ -82,6 +82,7 @@ class UploadHandler
             'discard_aborted_uploads' => true,
             // Set to true to rotate images based on EXIF meta data, if available:
             'orient_image' => false,
+            'random_file_name' => false,
             'image_versions' => array(
                 // Uncomment the following version to restrict the size of
                 // uploaded images:
@@ -461,13 +462,32 @@ class UploadHandler
         return $name;
     }
 
+    protected function random_file_name($name, $type, $index, $content_range) {
+		
+//      $alphanum = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+        $alphanum = 'abcdefghijklmnopqrstuvwxyz0123456789';
+		$len = 10;
+		$name= time() . "-";
+		for ($i=0; $i<$len; $i++) $name .= $alphanum[rand(0,strlen($alphanum)-1)];
+        // Add missing file extension for known image types:
+        if (strpos($name, '.') === false &&
+            preg_match('/^image\/(gif|jpe?g|png)/', $type, $matches)) {
+            $name .= '.'.$matches[1];
+		}
+        return strtolower($name);
+	}
+
     protected function get_file_name($name, $type, $index, $content_range) {
+    	if (!$this->options['random_file_name']) {
         return $this->get_unique_filename(
             $this->trim_file_name($name, $type, $index, $content_range),
             $type,
             $index,
             $content_range
         );
+		} else {
+			return $this->random_file_name($name, $type, $index, $content_range);
+		}
     }
 
     protected function handle_form_data($file, $index) {
