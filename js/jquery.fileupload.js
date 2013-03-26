@@ -215,7 +215,7 @@
         ],
 
         _BitrateTimer: function () {
-            this.timestamp = (new Date()).getTime();
+            this.timestamp = ((Date.now) ? Date.now() : (new Date()).getTime());
             this.loaded = 0;
             this.bitrate = 0;
             this.getBitrate = function (now, loaded, interval) {
@@ -289,7 +289,7 @@
 
         _onProgress: function (e, data) {
             if (e.lengthComputable) {
-                var now = (new Date()).getTime(),
+                var now = ((Date.now) ? Date.now() : (new Date()).getTime()),
                     loaded;
                 if (data._time && data.progressInterval &&
                         (now - data._time < data.progressInterval) &&
