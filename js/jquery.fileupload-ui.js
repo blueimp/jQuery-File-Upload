@@ -328,15 +328,16 @@
                 var that = $(this).data('blueimp-fileupload') ||
                         $(this).data('fileupload');
                 if (data.url) {
-                    $.ajax(data);
+                    $.ajax(data).done(function() {
+                        that._transition(data.context).done(
+                            function () {
+                                $(this).remove();
+                                that._trigger('destroyed', e, data);
+                            }
+                        );
+                    });
                     that._adjustMaxNumberOfFiles(1);
                 }
-                that._transition(data.context).done(
-                    function () {
-                        $(this).remove();
-                        that._trigger('destroyed', e, data);
-                    }
-                );
             }
         },
 
