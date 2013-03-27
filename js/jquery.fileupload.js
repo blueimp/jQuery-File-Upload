@@ -1,5 +1,5 @@
 /*
- * jQuery File Upload Plugin 5.28.4
+ * jQuery File Upload Plugin 5.28.5
  * https://github.com/blueimp/jQuery-File-Upload
  *
  * Copyright 2010, Sebastian Tschan
