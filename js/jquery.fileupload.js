@@ -1,5 +1,5 @@
 /*
- * jQuery File Upload Plugin 5.28.5
+ * jQuery File Upload Plugin 5.28.6
  * https://github.com/blueimp/jQuery-File-Upload
  *
  * Copyright 2010, Sebastian Tschan
@@ -344,8 +344,14 @@
             }
         },
 
+        _isInstanceOf: function (type, obj) {
+            // Cross-frame instanceof check
+            return Object.prototype.toString.call(obj) === '[object ' + type + ']';
+        },
+
         _initXHRData: function (options) {
-            var formData,
+            var that = this,
+                formData,
                 file = options.files[0],
                 // Ignore non-multipart setting if not supported:
                 multipart = options.multipart || !$.support.xhrFileUpload,
@@ -380,7 +386,7 @@
                         });
                     }
                 } else {
-                    if (options.formData instanceof FormData) {
+                    if (that._isInstanceOf('FormData', options.formData)) {
                         formData = options.formData;
                     } else {
                         formData = new FormData();
@@ -394,12 +400,10 @@
                         formData.append(paramName, options.blob, file.name);
                     } else {
                         $.each(options.files, function (index, file) {
-                            // Files are also Blob instances, but some browsers
-                            // (Firefox 3.6) support the File API but not Blobs.
                             // This check allows the tests to run with
                             // dummy objects:
-                            if ((window.Blob && file instanceof Blob) ||
-                                    (window.File && file instanceof File)) {
+                            if (that._isInstanceOf('File', file) ||
+                                    that._isInstanceOf('Blob', file)) {
                                 formData.append(
                                     options.paramName[index] || paramName,
                                     file,
