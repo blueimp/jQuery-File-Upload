@@ -1,5 +1,5 @@
 /*
- * jQuery File Upload Plugin 5.28.6
+ * jQuery File Upload Plugin 5.28.7
  * https://github.com/blueimp/jQuery-File-Upload
  *
  * Copyright 2010, Sebastian Tschan
@@ -1049,44 +1049,50 @@
         },
 
         _onPaste: function (e) {
-            var cbd = e.originalEvent.clipboardData,
-                items = (cbd && cbd.items) || [],
+            var items = e.originalEvent && e.originalEvent.clipboardData &&
+                    e.originalEvent.clipboardData.items,
                 data = {files: []};
-            $.each(items, function (index, item) {
-                var file = item.getAsFile && item.getAsFile();
-                if (file) {
-                    data.files.push(file);
+            if (items && items.length) {
+                $.each(items, function (index, item) {
+                    var file = item.getAsFile && item.getAsFile();
+                    if (file) {
+                        data.files.push(file);
+                    }
+                });
+                if (this._trigger('paste', e, data) === false ||
+                        this._onAdd(e, data) === false) {
+                    return false;
                 }
-            });
-            if (this._trigger('paste', e, data) === false ||
-                    this._onAdd(e, data) === false) {
-                return false;
             }
         },
 
         _onDrop: function (e) {
             var that = this,
-                dataTransfer = e.dataTransfer = e.originalEvent.dataTransfer,
+                dataTransfer = e.dataTransfer = e.originalEvent &&
+                    e.originalEvent.dataTransfer,
                 data = {};
             if (dataTransfer && dataTransfer.files && dataTransfer.files.length) {
                 e.preventDefault();
+                this._getDroppedFiles(dataTransfer).always(function (files) {
+                    data.files = files;
+                    if (that._trigger('drop', e, data) !== false) {
+                        that._onAdd(e, data);
+                    }
+                });
             }
-            this._getDroppedFiles(dataTransfer).always(function (files) {
-                data.files = files;
-                if (that._trigger('drop', e, data) !== false) {
-                    that._onAdd(e, data);
-                }
-            });
         },
 
         _onDragOver: function (e) {
-            var dataTransfer = e.dataTransfer = e.originalEvent.dataTransfer;
-            if (this._trigger('dragover', e) === false) {
-                return false;
-            }
-            if (dataTransfer && $.inArray('Files', dataTransfer.types) !== -1) {
-                dataTransfer.dropEffect = 'copy';
-                e.preventDefault();
+            var dataTransfer = e.dataTransfer = e.originalEvent &&
+                e.originalEvent.dataTransfer;
+            if (dataTransfer) {
+                if (this._trigger('dragover', e) === false) {
+                    return false;
+                }
+                if ($.inArray('Files', dataTransfer.types) !== -1) {
+                    dataTransfer.dropEffect = 'copy';
+                    e.preventDefault();
+                }
             }
         },
 
