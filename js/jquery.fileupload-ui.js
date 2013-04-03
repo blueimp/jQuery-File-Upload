@@ -1,5 +1,5 @@
 /*
- * jQuery File Upload User Interface Plugin 7.4.2
+ * jQuery File Upload User Interface Plugin 7.4.3
  * https://github.com/blueimp/jQuery-File-Upload
  *
  * Copyright 2010, Sebastian Tschan
@@ -602,8 +602,7 @@
             var button = $(e.currentTarget);
             this._trigger('destroy', e, $.extend({
                 context: button.closest('.template-download'),
-                type: 'DELETE',
-                dataType: this.options.dataType
+                type: 'DELETE'
             }, button.data()));
         },
 
