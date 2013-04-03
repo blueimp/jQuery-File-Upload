@@ -530,7 +530,6 @@
                     this._apcProgress(options);
                 }
                 this._initIframeSettings(options);
-                this._initIframeSettings(options);
             }
         },
 
