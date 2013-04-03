@@ -1,5 +1,5 @@
 /*
- * jQuery File Upload Plugin 5.28.4
+ * jQuery File Upload Plugin 5.28.8
  * https://github.com/blueimp/jQuery-File-Upload
  *
  * Copyright 2010, Sebastian Tschan
@@ -251,7 +251,7 @@
         },
 
         _BitrateTimer: function () {
-            this.timestamp = (new Date()).getTime();
+            this.timestamp = ((Date.now) ? Date.now() : (new Date()).getTime());
             this.loaded = 0;
             this.bitrate = 0;
             this.getBitrate = function (now, loaded, interval) {
@@ -325,7 +325,7 @@
 
         _onProgress: function (e, data) {
             if (e.lengthComputable) {
-                var now = (new Date()).getTime(),
+                var now = ((Date.now) ? Date.now() : (new Date()).getTime()),
                     loaded;
                 if (data._time && data.progressInterval &&
                         (now - data._time < data.progressInterval) &&
@@ -418,8 +418,14 @@
             }
         },
 
+        _isInstanceOf: function (type, obj) {
+            // Cross-frame instanceof check
+            return Object.prototype.toString.call(obj) === '[object ' + type + ']';
+        },
+
         _initXHRData: function (options) {
-            var formData,
+            var that = this,
+                formData,
                 file = options.files[0],
                 // Ignore non-multipart setting if not supported:
                 multipart = options.multipart || !$.support.xhrFileUpload,
@@ -454,7 +460,7 @@
                         });
                     }
                 } else {
-                    if (options.formData instanceof FormData) {
+                    if (that._isInstanceOf('FormData', options.formData)) {
                         formData = options.formData;
                     } else {
                         formData = new FormData();
@@ -468,12 +474,10 @@
                         formData.append(paramName, options.blob, file.name);
                     } else {
                         $.each(options.files, function (index, file) {
-                            // Files are also Blob instances, but some browsers
-                            // (Firefox 3.6) support the File API but not Blobs.
                             // This check allows the tests to run with
                             // dummy objects:
-                            if ((window.Blob && file instanceof Blob) ||
-                                    (window.File && file instanceof File)) {
+                            if (that._isInstanceOf('File', file) ||
+                                    that._isInstanceOf('Blob', file)) {
                                 formData.append(
                                     options.paramName[index] || paramName,
                                     file,
@@ -525,7 +529,8 @@
                     // If we're using APC, set the APC progress listener.
                     this._apcProgress(options);
                 }
-                this._initIframeSettings(options, 'iframe');
+                this._initIframeSettings(options);
+                this._initIframeSettings(options);
             }
         },
 
@@ -1131,44 +1136,50 @@
         },
 
         _onPaste: function (e) {
-            var cbd = e.originalEvent.clipboardData,
-                items = (cbd && cbd.items) || [],
+            var items = e.originalEvent && e.originalEvent.clipboardData &&
+                    e.originalEvent.clipboardData.items,
                 data = {files: []};
-            $.each(items, function (index, item) {
-                var file = item.getAsFile && item.getAsFile();
-                if (file) {
-                    data.files.push(file);
+            if (items && items.length) {
+                $.each(items, function (index, item) {
+                    var file = item.getAsFile && item.getAsFile();
+                    if (file) {
+                        data.files.push(file);
+                    }
+                });
+                if (this._trigger('paste', e, data) === false ||
+                        this._onAdd(e, data) === false) {
+                    return false;
                 }
-            });
-            if (this._trigger('paste', e, data) === false ||
-                    this._onAdd(e, data) === false) {
-                return false;
             }
         },
 
         _onDrop: function (e) {
             var that = this,
-                dataTransfer = e.dataTransfer = e.originalEvent.dataTransfer,
+                dataTransfer = e.dataTransfer = e.originalEvent &&
+                    e.originalEvent.dataTransfer,
                 data = {};
             if (dataTransfer && dataTransfer.files && dataTransfer.files.length) {
                 e.preventDefault();
+                this._getDroppedFiles(dataTransfer).always(function (files) {
+                    data.files = files;
+                    if (that._trigger('drop', e, data) !== false) {
+                        that._onAdd(e, data);
+                    }
+                });
             }
-            this._getDroppedFiles(dataTransfer).always(function (files) {
-                data.files = files;
-                if (that._trigger('drop', e, data) !== false) {
-                    that._onAdd(e, data);
-                }
-            });
         },
 
         _onDragOver: function (e) {
-            var dataTransfer = e.dataTransfer = e.originalEvent.dataTransfer;
-            if (this._trigger('dragover', e) === false) {
-                return false;
-            }
-            if (dataTransfer && $.inArray('Files', dataTransfer.types) !== -1) {
-                dataTransfer.dropEffect = 'copy';
-                e.preventDefault();
+            var dataTransfer = e.dataTransfer = e.originalEvent &&
+                e.originalEvent.dataTransfer;
+            if (dataTransfer) {
+                if (this._trigger('dragover', e) === false) {
+                    return false;
+                }
+                if ($.inArray('Files', dataTransfer.types) !== -1) {
+                    dataTransfer.dropEffect = 'copy';
+                    e.preventDefault();
+                }
             }
         },
 
