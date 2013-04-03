@@ -223,20 +223,17 @@
             'multipart',
             'forceIframeTransport'
         ],
-                
+
         _apcProgress: function(options) {
             var that = this;
-            
             // Generate a random APC key.
             if (!options.apccode) {
                 options.apccode = options.apccode || 'apc' + (new Date()).getTime();
                 options.formData = this._getFormData(options);
                 options.formData.push({ name: options.apcVarname, value: options.apccode });
             }
-            
-            return this.apct = setTimeout(function() {
-                var self = that;
-                var opts = options;
+            this.apct = setTimeout(function() {
+                var self = that, opts = options;
                 $.ajax({
                     url: options.url,
                     type: "POST",
@@ -359,11 +356,15 @@
                 this._trigger('progressall', e, this._progress);
             }
         },
-                
+
         _onAPCProgress: function (apcdata, data) {
             if (apcdata) {
                 apcdata = apcdata.apc_data;
-                var now = (new Date()).getTime(), loaded = Math.floor(apcdata.current);
+                var e = $.Event('progress', {
+                    lengthComputable: true,
+                    loaded: apcdata.current,
+                    total: apcdata.total
+                }), now = (new Date()).getTime(), loaded = Math.floor(apcdata.current);
                 // Add the difference from the previously loaded state
                 // to the global loaded counter:
                 this._progress.total = apcdata.total;
@@ -381,13 +382,7 @@
                 );
                 data._time = now;
                 data.total = apcdata.total;
-                
-                var e = $.Event('progress', {
-                    lengthComputable: true,
-                    loaded: apcdata.current,
-                    total: apcdata.total
-                });
-                
+
                 // Trigger a custom progress event with a total data property set
                 // to the file size(s) of the current upload and a loaded data
                 // property calculated accordingly:
@@ -720,7 +715,7 @@
                 // Process the upload data (the blob and potential form data):
                 that._initXHRData(o);
                 // Add progress listeners for this chunk upload:
-                
+
                 that._initProgressListener(o);
                 jqXHR = ((that._trigger('chunksend', null, o) !== false && $.ajax(o)) ||
                         that._getXHRPromise(false, o.context))
@@ -801,7 +796,9 @@
         },
 
         _onDone: function (result, textStatus, jqXHR, options) {
-            if (this.apct) clearTimeout(this.apct);
+            if (this.apct) {
+                clearTimeout(this.apct);
+            }
             var total = options._progress.total,
                 response = options._response;
             if (options._progress.loaded < total) {
@@ -820,7 +817,9 @@
         },
 
         _onFail: function (jqXHR, textStatus, errorThrown, options) {
-            if (this.apct) clearTimeout(this.apct);
+            if (this.apct) {
+                clearTimeout(this.apct);
+            }
             var response = options._response;
             if (options.recalculateProgress) {
                 // Remove the failed (error or abort) file upload from
@@ -835,7 +834,9 @@
         },
 
         _onAlways: function (jqXHRorResult, textStatus, jqXHRorError, options) {
-            if (this.apct) clearTimeout(this.apct);
+            if (this.apct) {
+                clearTimeout(this.apct);
+            }
             // jqXHRorResult, textStatus and jqXHRorError are added to the
             // options object via done and fail callbacks
             this._trigger('always', null, options);
@@ -845,7 +846,7 @@
             if (!data.submit) {
                 this._addConvenienceMethods(e, data);
             }
-            
+
             var that = this,
                 jqXHR,
                 aborted,
