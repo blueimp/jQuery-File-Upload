@@ -1096,11 +1096,16 @@
             }
         },
 
+        _onDragLeave: function (e) {
+            this._trigger('dragleave', e);
+        },
+
         _initEventHandlers: function () {
             if (this._isXHRUpload(this.options)) {
                 this._on(this.options.dropZone, {
                     dragover: this._onDragOver,
-                    drop: this._onDrop
+                    drop: this._onDrop,
+                    dragleave: this._onDragLeave
                 });
                 this._on(this.options.pasteZone, {
                     paste: this._onPaste
@@ -1112,7 +1117,7 @@
         },
 
         _destroyEventHandlers: function () {
-            this._off(this.options.dropZone, 'dragover drop');
+            this._off(this.options.dropZone, 'dragover drop dragleave');
             this._off(this.options.pasteZone, 'paste');
             this._off(this.options.fileInput, 'change');
         },
