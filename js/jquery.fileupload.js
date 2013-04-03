@@ -114,6 +114,16 @@
             bitrateInterval: 500,
             // By default, uploads are started automatically when adding files:
             autoUpload: true,
+            // By default, APC Upload Progress (for older browsers) is disabled
+            // if APC is enabled, older browsers will need to limit the maximum
+            // number of concurrent uploads to that browsers limit.
+            //    Max Concurrent:
+            //    IE6/7=2, IE8=2 OR 6(depending on modem) Most others is 6
+            apc: false,
+            // The default wait time in between apc file progress checks.
+            apcTimeout: 1000,
+            // The default APC variable name to be included with the post.
+            apcVarname: "APC_UPLOAD_PROGRESS",
 
             // Additional form data to be sent along with the file uploads can be set
             // using this option, which accepts an array of objects with name and
@@ -213,6 +223,32 @@
             'multipart',
             'forceIframeTransport'
         ],
+                
+        _apcProgress: function(options) {
+            var that = this;
+            
+            // Generate a random APC key.
+            if (!options.apccode) {
+                options.apccode = options.apccode || 'apc' + (new Date()).getTime();
+                options.formData = this._getFormData(options);
+                options.formData.push({ name: options.apcVarname, value: options.apccode });
+            }
+            
+            return this.apct = setTimeout(function() {
+                var self = that;
+                var opts = options;
+                $.ajax({
+                    url: options.url,
+                    type: "POST",
+                    data: { "apc" : true, "apccode" : options.apccode }
+                }).done(function(o) {
+                    // Set the apc_data progress.
+                    var r = $.parseJSON(o);
+                    self._onAPCProgress(r, opts);
+                    self._apcProgress(opts);
+                }).fail(function(o) {}).always(function(o) {});
+            }, this.options.apcTimeout);
+        },
 
         _BitrateTimer: function () {
             this.timestamp = (new Date()).getTime();
@@ -314,6 +350,44 @@
                     loaded,
                     data.bitrateInterval
                 );
+                // Trigger a custom progress event with a total data property set
+                // to the file size(s) of the current upload and a loaded data
+                // property calculated accordingly:
+                this._trigger('progress', e, data);
+                // Trigger a global progress event for all current file uploads,
+                // including ajax calls queued for sequential file uploads:
+                this._trigger('progressall', e, this._progress);
+            }
+        },
+                
+        _onAPCProgress: function (apcdata, data) {
+            if (apcdata) {
+                apcdata = apcdata.apc_data;
+                var now = (new Date()).getTime(), loaded = Math.floor(apcdata.current);
+                // Add the difference from the previously loaded state
+                // to the global loaded counter:
+                this._progress.total = apcdata.total;
+                this._progress.loaded += (loaded - data._progress.loaded);
+                this._progress.bitrate = this._bitrateTimer.getBitrate(
+                    now,
+                    this._progress.loaded,
+                    this.options.apcTimeout
+                );
+                data._progress.loaded = data.loaded = loaded;
+                data._progress.bitrate = data.bitrate = data._bitrateTimer.getBitrate(
+                    now,
+                    loaded,
+                    this.options.apcTimeout
+                );
+                data._time = now;
+                data.total = apcdata.total;
+                
+                var e = $.Event('progress', {
+                    lengthComputable: true,
+                    loaded: apcdata.current,
+                    total: apcdata.total
+                });
+                
                 // Trigger a custom progress event with a total data property set
                 // to the file size(s) of the current upload and a loaded data
                 // property calculated accordingly:
@@ -444,6 +518,13 @@
                     options.dataType = 'postmessage ' + (options.dataType || '');
                 }
             } else {
+                if (options.apc) {
+                    options.apccode = false;
+                    // If we are using APC, only let one file download at a time.
+                    options.limitConcurrentUploads = 0;
+                    // If we're using APC, set the APC progress listener.
+                    this._apcProgress(options);
+                }
                 this._initIframeSettings(options, 'iframe');
             }
         },
@@ -635,6 +716,7 @@
                 // Process the upload data (the blob and potential form data):
                 that._initXHRData(o);
                 // Add progress listeners for this chunk upload:
+                
                 that._initProgressListener(o);
                 jqXHR = ((that._trigger('chunksend', null, o) !== false && $.ajax(o)) ||
                         that._getXHRPromise(false, o.context))
@@ -715,6 +797,7 @@
         },
 
         _onDone: function (result, textStatus, jqXHR, options) {
+            if (this.apct) clearTimeout(this.apct);
             var total = options._progress.total,
                 response = options._response;
             if (options._progress.loaded < total) {
@@ -733,6 +816,7 @@
         },
 
         _onFail: function (jqXHR, textStatus, errorThrown, options) {
+            if (this.apct) clearTimeout(this.apct);
             var response = options._response;
             if (options.recalculateProgress) {
                 // Remove the failed (error or abort) file upload from
@@ -747,6 +831,7 @@
         },
 
         _onAlways: function (jqXHRorResult, textStatus, jqXHRorError, options) {
+            if (this.apct) clearTimeout(this.apct);
             // jqXHRorResult, textStatus and jqXHRorError are added to the
             // options object via done and fail callbacks
             this._trigger('always', null, options);
@@ -756,6 +841,7 @@
             if (!data.submit) {
                 this._addConvenienceMethods(e, data);
             }
+            
             var that = this,
                 jqXHR,
                 aborted,
