@@ -54,7 +54,8 @@ class UploadHandler
                 'POST',
                 'PUT',
                 'PATCH',
-                'DELETE'
+                'DELETE',
+                'APC',
             ),
             'access_control_allow_headers' => array(
                 'Content-Type',
@@ -129,10 +130,14 @@ class UploadHandler
             case 'PATCH':
             case 'PUT':
             case 'POST':
-                $this->post();
+                if (!empty($_POST['apc'])) $this->apc();
+                else $this->post();
                 break;
             case 'DELETE':
                 $this->delete();
+                break;
+            case 'APC':
+                $this->apc();
                 break;
             default:
                 $this->header('HTTP/1.1 405 Method Not Allowed');
@@ -770,6 +775,18 @@ class UploadHandler
             }
         }
         return $this->generate_response(array('success' => $success), $print_response);
+    }
+    
+    public function apc($print_response = true) {
+        $success = false;
+        $status = false;
+        
+        if (isset($_REQUEST['apccode'])) {
+            $status = apc_fetch("upload_" . $_REQUEST['apccode']);
+            $success = true;
+         }
+         
+        return $this->generate_response(array('success' => $success, 'apc_data' => $status), $print_response);
     }
 
 }

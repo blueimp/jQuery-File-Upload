@@ -122,7 +122,7 @@
                     }
                 }
                 if (data.context && data.dataType &&
-                        data.dataType.substr(0, 6) === 'iframe') {
+                        data.dataType.substr(0, 6) === 'iframe' && !data.apc) {
                     // Iframe Transport does not support progress events.
                     // In lack of an indeterminate progress bar, we set
                     // the progress to 100%, showing the full animated bar:
