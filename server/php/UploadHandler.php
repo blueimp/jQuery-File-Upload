@@ -1,6 +1,6 @@
 <?php
 /*
- * jQuery File Upload Plugin PHP Class 6.2
+ * jQuery File Upload Plugin PHP Class 6.3
  * https://github.com/blueimp/jQuery-File-Upload
  *
  * Copyright 2010, Sebastian Tschan
@@ -101,6 +101,9 @@ class UploadHandler
                 ),
                 */
                 'thumbnail' => array(
+                    // Uncomment the following to force the max
+                    // dimensions and e.g. create square thumbnails:
+                    //'crop' => true,
                     'max_width' => 80,
                     'max_height' => 80
                 )
@@ -280,9 +283,11 @@ class UploadHandler
         if (!$img_width || !$img_height) {
             return false;
         }
+        $max_width = $options['max_width'];
+        $max_height = $options['max_height'];
         $scale = min(
-            $options['max_width'] / $img_width,
-            $options['max_height'] / $img_height
+            $max_width / $img_width,
+            $max_height / $img_height
         );
         if ($scale >= 1) {
             if ($file_path !== $new_file_path) {
@@ -290,9 +295,24 @@ class UploadHandler
             }
             return true;
         }
-        $new_width = $img_width * $scale;
-        $new_height = $img_height * $scale;
-        $new_img = @imagecreatetruecolor($new_width, $new_height);
+        if (empty($options['crop'])) {
+            $new_width = $img_width * $scale;
+            $new_height = $img_height * $scale;
+            $dst_x = 0;
+            $dst_y = 0;
+            $new_img = @imagecreatetruecolor($new_width, $new_height);
+        } else {
+            if (($img_width / $img_height) >= ($max_width / $max_height)) {
+                $new_width = $img_width / ($img_height / $max_height);
+                $new_height = $max_height;
+            } else {
+                $new_width = $max_width;
+                $new_height = $img_height / ($img_width / $max_width);
+            }
+            $dst_x = 0 - ($new_width - $max_width) / 2;
+            $dst_y = 0 - ($new_height - $max_height) / 2;
+            $new_img = @imagecreatetruecolor($max_width, $max_height);
+        }
         switch (strtolower(substr(strrchr($file_name, '.'), 1))) {
             case 'jpg':
             case 'jpeg':
@@ -322,7 +342,10 @@ class UploadHandler
         $success = $src_img && @imagecopyresampled(
             $new_img,
             $src_img,
-            0, 0, 0, 0,
+            $dst_x,
+            $dst_y,
+            0,
+            0,
             $new_width,
             $new_height,
             $img_width,
