@@ -101,6 +101,7 @@ class UploadHandler
                 ),
                 */
                 'thumbnail' => array(
+                    'cropped' => true,
                     'max_width' => 80,
                     'max_height' => 80
                 )
@@ -280,9 +281,12 @@ class UploadHandler
         if (!$img_width || !$img_height) {
             return false;
         }
+        // Get thumb width & height
+        $thumb_width = $options['max_width'];
+        $thumb_height = $options['max_height'];
         $scale = min(
-            $options['max_width'] / $img_width,
-            $options['max_height'] / $img_height
+            $thumb_width / $img_width,
+            $thumb_height / $img_height
         );
         if ($scale >= 1) {
             if ($file_path !== $new_file_path) {
@@ -290,8 +294,25 @@ class UploadHandler
             }
             return true;
         }
-        $new_width = $img_width * $scale;
-        $new_height = $img_height * $scale;
+        // Cropped image
+        if ($options['cropped'] === true) {
+            // Get aspect ratio
+            $img_ratio = $img_width / $img_height;
+            $thumb_aspect = $thumb_width / $thumb_height;
+
+            if ($img_ratio >= $thumb_aspect) {
+                // If image is wider than thumbnail (in aspect ratio sense)
+                $new_height = $thumb_height;
+                $new_width = (int) ($thumb_height * $img_ratio);
+            } else {
+                // If the thumbnail is wider than the image
+                $new_width = $thumb_width;
+                $new_height = (int) ($thumb_width / $img_ratio);
+            }
+        } else {
+            $new_width = $img_width * $scale;
+            $new_height = $img_height * $scale;
+        }
         $new_img = @imagecreatetruecolor($new_width, $new_height);
         switch (strtolower(substr(strrchr($file_name, '.'), 1))) {
             case 'jpg':
@@ -319,20 +340,53 @@ class UploadHandler
             default:
                 $src_img = null;
         }
-        $success = $src_img && @imagecopyresampled(
-            $new_img,
-            $src_img,
-            0, 0, 0, 0,
-            $new_width,
-            $new_height,
-            $img_width,
-            $img_height
-        ) && $write_image($new_img, $new_file_path, $image_quality);
+
+        if ($options['cropped'] === true) {
+            // Center horizontaly and verticaly
+            $horiz_pos = ($new_width - $thumb_width) / 2;
+            $verti_pos = ($new_height - $thumb_height) / 2;
+
+            $temp_img = @imagecreatetruecolor($new_width, $new_height);
+            @imagecopyresampled(
+                $temp_img,
+                $src_img,
+                0, 0,
+                0, 0,
+                $new_width,
+                $new_height,
+                $img_width,
+                $img_height
+            );
+            $cropped_img = @imagecreatetruecolor($thumb_width, $thumb_height);
+            $success = $temp_img && @imagecopy(
+                $cropped_img,
+                $temp_img,
+                0, 0,
+                $horiz_pos,
+                $verti_pos,
+                $thumb_width,
+                $thumb_height
+            ) && $write_image($cropped_img, $new_file_path, $image_quality);
+        } else {
+            $success = $src_img && @imagecopyresampled(
+                $new_img,
+                $src_img,
+                0, 0, 0, 0,
+                $new_width,
+                $new_height,
+                $img_width,
+                $img_height
+            ) && $write_image($new_img, $new_file_path, $image_quality);
+        }
+
         // Free up memory (imagedestroy does not delete files):
+        @imagedestroy($temp_img);
+        @imagedestroy($cropped_gdim);
         @imagedestroy($src_img);
         @imagedestroy($new_img);
         return $success;
     }
+
 
     protected function get_error_message($error) {
         return array_key_exists($error, $this->error_messages) ?
