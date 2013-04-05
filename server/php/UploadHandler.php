@@ -578,6 +578,7 @@ class UploadHandler
                     $this->orient_image($file_path);
                 }
                 $file->url = $this->get_download_url($file->name);
+                $failed_versions = array();
                 foreach($this->options['image_versions'] as $version => $options) {
                     if ($this->create_scaled_image($file->name, $version, $options)) {
                         if (!empty($version)) {
@@ -588,7 +589,19 @@ class UploadHandler
                         } else {
                             $file_size = $this->get_file_size($file_path, true);
                         }
+                    } else {
+                        $failed_versions[] = $version;
                     }
+                }
+                switch (count($failed_versions)) {
+                    case 0:
+                        break;
+                    case 1:
+                        $file->error = 'Failed to create scaled version: '.$failed_versions[0];
+                        break;
+                    default:
+                        $file->error = 'Failed to create scaled versions: '.implode($failed_versions,', ');
+                        break;
                 }
             } else if (!$content_range && $this->options['discard_aborted_uploads']) {
                 unlink($file_path);
