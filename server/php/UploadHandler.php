@@ -279,6 +279,10 @@ class UploadHandler
         } else {
             $new_file_path = $file_path;
         }
+        if (!function_exists('getimagesize')) {
+            error_log('Function not found: getimagesize');
+            return false;
+        }
         list($img_width, $img_height) = @getimagesize($file_path);
         if (!$img_width || !$img_height) {
             return false;
@@ -294,6 +298,11 @@ class UploadHandler
                 return copy($file_path, $new_file_path);
             }
             return true;
+        }
+
+        if (!function_exists('imagecreatetruecolor')) {
+            error_log('Function not found: imagecreatetruecolor');
+            return false;
         }
         if (empty($options['crop'])) {
             $new_width = $img_width * $scale;
