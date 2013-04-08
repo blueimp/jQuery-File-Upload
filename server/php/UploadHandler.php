@@ -279,6 +279,10 @@ class UploadHandler
         } else {
             $new_file_path = $file_path;
         }
+        if (!function_exists('getimagesize')) {
+            error_log('Function not found: getimagesize');
+            return false;
+        }
         list($img_width, $img_height) = @getimagesize($file_path);
         if (!$img_width || !$img_height) {
             return false;
@@ -294,6 +298,11 @@ class UploadHandler
                 return copy($file_path, $new_file_path);
             }
             return true;
+        }
+
+        if (!function_exists('imagecreatetruecolor')) {
+            error_log('Function not found: imagecreatetruecolor');
+            return false;
         }
         if (empty($options['crop'])) {
             $new_width = $img_width * $scale;
@@ -569,6 +578,7 @@ class UploadHandler
                     $this->orient_image($file_path);
                 }
                 $file->url = $this->get_download_url($file->name);
+                $failed_versions = array();
                 foreach($this->options['image_versions'] as $version => $options) {
                     if ($this->create_scaled_image($file->name, $version, $options)) {
                         if (!empty($version)) {
@@ -579,7 +589,19 @@ class UploadHandler
                         } else {
                             $file_size = $this->get_file_size($file_path, true);
                         }
+                    } else {
+                        $failed_versions[] = $version;
                     }
+                }
+                switch (count($failed_versions)) {
+                    case 0:
+                        break;
+                    case 1:
+                        $file->error = 'Failed to create scaled version: '.$failed_versions[0];
+                        break;
+                    default:
+                        $file->error = 'Failed to create scaled versions: '.implode($failed_versions,', ');
+                        break;
                 }
             } else if (!$content_range && $this->options['discard_aborted_uploads']) {
                 unlink($file_path);
