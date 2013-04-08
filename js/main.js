@@ -1,5 +1,5 @@
 /*
- * jQuery File Upload Plugin JS Example 7.1
+ * jQuery File Upload Plugin JS Example 7.1.1
  * https://github.com/blueimp/jQuery-File-Upload
  *
  * Copyright 2010, Sebastian Tschan
@@ -32,7 +32,8 @@ $(function () {
         )
     );
 
-    if (window.location.hostname === 'blueimp.github.com') {
+    if (window.location.hostname === 'blueimp.github.com' ||
+            window.location.hostname === 'blueimp.github.io') {
         // Demo settings:
         $('#fileupload').fileupload('option', {
             url: '//jquery-file-upload.appspot.com/',
@@ -75,10 +76,10 @@ $(function () {
             url: $('#fileupload').fileupload('option', 'url'),
             dataType: 'json',
             context: $('#fileupload')[0]
+        }).always(function (result) {
+            $(this).removeClass('fileupload-processing');
         }).done(function (result) {
-            $(this)
-                .removeClass('fileupload-processing')
-                .fileupload('option', 'done')
+            $(this).fileupload('option', 'done')
                 .call(this, null, {result: result});
         });
     }
