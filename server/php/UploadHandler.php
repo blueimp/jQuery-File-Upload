@@ -1,6 +1,6 @@
 <?php
 /*
- * jQuery File Upload Plugin PHP Class 6.4
+ * jQuery File Upload Plugin PHP Class 6.4.1
  * https://github.com/blueimp/jQuery-File-Upload
  *
  * Copyright 2010, Sebastian Tschan
@@ -537,6 +537,38 @@ class UploadHandler
         return $success;
     }
 
+    protected function handle_image_file($file_path, $file) {
+        if ($this->options['orient_image']) {
+            $this->orient_image($file_path);
+        }
+        $failed_versions = array();
+        foreach($this->options['image_versions'] as $version => $options) {
+            if ($this->create_scaled_image($file->name, $version, $options)) {
+                if (!empty($version)) {
+                    $file->{$version.'_url'} = $this->get_download_url(
+                        $file->name,
+                        $version
+                    );
+                } else {
+                    $file->size = $this->get_file_size($file_path, true);
+                }
+            } else {
+                $failed_versions[] = $version;
+            }
+        }
+        switch (count($failed_versions)) {
+            case 0:
+                break;
+            case 1:
+                $file->error = 'Failed to create scaled version: '
+                    .$failed_versions[0];
+                break;
+            default:
+                $file->error = 'Failed to create scaled versions: '
+                    .implode($failed_versions,', ');
+        }
+    }
+
     protected function handle_file_upload($uploaded_file, $name, $size, $type, $error,
             $index = null, $content_range = null) {
         $file = new stdClass();
@@ -573,40 +605,18 @@ class UploadHandler
             }
             $file_size = $this->get_file_size($file_path, $append_file);
             if ($file_size === $file->size) {
-                if ($this->options['orient_image']) {
-                    $this->orient_image($file_path);
-                }
                 $file->url = $this->get_download_url($file->name);
-                $failed_versions = array();
-                foreach($this->options['image_versions'] as $version => $options) {
-                    if ($this->create_scaled_image($file->name, $version, $options)) {
-                        if (!empty($version)) {
-                            $file->{$version.'_url'} = $this->get_download_url(
-                                $file->name,
-                                $version
-                            );
-                        } else {
-                            $file_size = $this->get_file_size($file_path, true);
-                        }
-                    } else {
-                        $failed_versions[] = $version;
-                    }
+                list($img_width, $img_height) = @getimagesize($file_path);
+                if (is_int($img_width)) {
+                    $this->handle_image_file($file_path, $file);
                 }
-                switch (count($failed_versions)) {
-                    case 0:
-                        break;
-                    case 1:
-                        $file->error = 'Failed to create scaled version: '.$failed_versions[0];
-                        break;
-                    default:
-                        $file->error = 'Failed to create scaled versions: '.implode($failed_versions,', ');
-                        break;
+            } else {
+                $file->size = $file_size;
+                if (!$content_range && $this->options['discard_aborted_uploads']) {
+                    unlink($file_path);
+                    $file->error = 'abort';
                 }
-            } else if (!$content_range && $this->options['discard_aborted_uploads']) {
-                unlink($file_path);
-                $file->error = 'abort';
             }
-            $file->size = $file_size;
             $this->set_file_delete_properties($file);
         }
         return $file;
