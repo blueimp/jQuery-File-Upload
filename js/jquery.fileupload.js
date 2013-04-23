@@ -202,6 +202,7 @@
             // The following are jQuery ajax settings required for the file uploads:
             processData: false,
             contentType: false,
+            contentLength: true,
             cache: false
         },
 
@@ -357,6 +358,11 @@
                 multipart = options.multipart || !$.support.xhrFileUpload,
                 paramName = options.paramName[0];
             options.headers = options.headers || {};
+            
+            if (options.contentLength) {
+                options.headers['Content-Length'] = file.size;
+            }
+            
             if (options.contentRange) {
                 options.headers['Content-Range'] = options.contentRange;
             }
