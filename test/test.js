@@ -1,5 +1,5 @@
 /*
- * jQuery File Upload Plugin Test 7.4.1
+ * jQuery File Upload Plugin Test 7.4.2
  * https://github.com/blueimp/jQuery-File-Upload
  *
  * Copyright 2010, Sebastian Tschan
@@ -91,7 +91,12 @@ $(function () {
         expect(
             $.support.xhrFormDataFileUpload ? 4 : 1
         );
-        var eo = {originalEvent: {}},
+        var eo = {
+                originalEvent: {
+                    dataTransfer: {files: [{}]},
+                    clipboardData: {items: [{}]}
+                }
+            },
             fu = $('#fileupload').fileupload({
                 dragover: function () {
                     ok(true, 'Triggers dragover callback');
@@ -123,7 +128,12 @@ $(function () {
 
     test('destroy', function () {
         expect(4);
-        var eo = {originalEvent: {}},
+        var eo = {
+                originalEvent: {
+                    dataTransfer: {files: [{}]},
+                    clipboardData: {items: [{}]}
+                }
+            },
             options = {
                 dragover: function () {
                     ok(true, 'Triggers dragover callback');
@@ -161,7 +171,12 @@ $(function () {
         expect(
             $.support.xhrFormDataFileUpload ? 4 : 1
         );
-        var eo = {originalEvent: {}},
+        var eo = {
+                originalEvent: {
+                    dataTransfer: {files: [{}]},
+                    clipboardData: {items: [{}]}
+                }
+            },
             fu = $('#fileupload').fileupload({
                 dragover: function () {
                     ok(true, 'Triggers dragover callback');
@@ -199,7 +214,12 @@ $(function () {
         expect(
             $.support.xhrFormDataFileUpload ? 10 : 7
         );
-        var eo = {originalEvent: {}},
+        var eo = {
+                originalEvent: {
+                    dataTransfer: {files: [{}]},
+                    clipboardData: {items: [{}]}
+                }
+            },
             fu = $('#fileupload').fileupload({
                 dragover: function () {
                     ok(true, 'Triggers dragover callback');
@@ -506,7 +526,10 @@ $(function () {
         });
         fuo._onPaste({
             data: {fileupload: fuo},
-            originalEvent: {clipboardData: {}},
+            originalEvent: {
+                dataTransfer: {files: [{}]},
+                clipboardData: {items: [{}]}
+            },
             preventDefault: $.noop
         });
     });
@@ -523,7 +546,10 @@ $(function () {
         });
         fuo._onDrop({
             data: {fileupload: fuo},
-            originalEvent: {dataTransfer: {}},
+            originalEvent: {
+                dataTransfer: {files: [{}]},
+                clipboardData: {items: [{}]}
+            },
             preventDefault: $.noop
         });
     });
@@ -1039,8 +1065,8 @@ $(function () {
                 $('#fileupload').data('fileupload'))
             ._renderDownload([{
                 name: 'test',
-                delete_url: 'test',
-                delete_type: 'DELETE'
+                delete_url: '.',
+                delete_type: 'GET'
             }])
             .appendTo($('#fileupload .files'))
             .show()
