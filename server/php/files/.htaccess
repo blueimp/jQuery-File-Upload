@@ -7,6 +7,9 @@ ForceType application/octet-stream
   ForceType none
 </FilesMatch>
 
+# Prevent IE from MIME-sniffing:
+Header set X-Content-Type-Options "nosniff"
+
 # Uncomment the following lines to prevent unauthorized download of files:
 #AuthName "Authorization required"
 #AuthType Basic
