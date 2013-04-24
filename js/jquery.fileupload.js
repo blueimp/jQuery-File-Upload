@@ -1,5 +1,5 @@
 /*
- * jQuery File Upload Plugin 5.28.8
+ * jQuery File Upload Plugin 5.29
  * https://github.com/blueimp/jQuery-File-Upload
  *
  * Copyright 2010, Sebastian Tschan
@@ -139,9 +139,10 @@
             // data.submit().done(func).fail(func).always(func);
             add: function (e, data) {
                 if (data.autoUpload || (data.autoUpload !== false &&
-                        ($(this).data('blueimp-fileupload') ||
-                        $(this).data('fileupload')).options.autoUpload)) {
-                    data.submit();
+                        $(this).fileupload('option', 'autoUpload'))) {
+                    data.process().done(function () {
+                        data.submit();
+                    });
                 }
             },
 
@@ -548,9 +549,20 @@
             return this._enhancePromise(promise);
         },
 
-        // Adds convenience methods to the callback arguments:
+        // Adds convenience methods to the data callback argument:
         _addConvenienceMethods: function (e, data) {
-            var that = this;
+            var that = this,
+                getPromise = function (data) {
+                    return $.Deferred().resolveWith(that, [data]).promise();
+                };
+            data.process = function (func) {
+                if (func) {
+                    data._processQueue = this._processQueue =
+                        (this._processQueue || getPromise(this))
+                            .pipe(func);
+                }
+                return this._processQueue || getPromise(this);
+            };
             data.submit = function () {
                 if (this.state() !== 'pending') {
                     data.jqXHR = this.jqXHR =
@@ -568,6 +580,9 @@
             data.state = function () {
                 if (this.jqXHR) {
                     return that._getDeferredState(this.jqXHR);
+                }
+                if (this._processQueue) {
+                    return that._getDeferredState(this._processQueue);
                 }
             };
             data.progress = function () {
