@@ -555,11 +555,11 @@
                 getPromise = function (data) {
                     return $.Deferred().resolveWith(that, [data]).promise();
                 };
-            data.process = function (func) {
-                if (func) {
+            data.process = function (resolveFunc, rejectFunc) {
+                if (resolveFunc || rejectFunc) {
                     data._processQueue = this._processQueue =
                         (this._processQueue || getPromise(this))
-                            .pipe(func);
+                            .pipe(resolveFunc, rejectFunc);
                 }
                 return this._processQueue || getPromise(this);
             };
