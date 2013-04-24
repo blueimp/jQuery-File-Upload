@@ -44,6 +44,10 @@
     $.widget('blueimp.fileupload', {
 
         options: {
+            // Error and info messages:
+            messages: {
+                uploadedBytes: 'Uploaded bytes exceed file size'
+            },
             // The drop target element(s), by the default the complete document.
             // Set to null to disable drag & drop support:
             dropZone: $(document),
@@ -627,7 +631,7 @@
                 return true;
             }
             if (ub >= fs) {
-                file.error = 'Uploaded bytes exceed file size';
+                file.error = options.messages.uploadedBytes;
                 return this._getXHRPromise(
                     false,
                     options.context,
