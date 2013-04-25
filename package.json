@@ -50,7 +50,7 @@
         "jquery": ">=1.6",
         "jquery.ui.widget": ">=1.8",
         "blueimp-tmpl": ">=2.1.0",
-        "blueimp-load-image": ">=1.2.3",
+        "blueimp-load-image": ">=1.4.1",
         "blueimp-canvas-to-blob": ">=2.0.5"
     }
 }
