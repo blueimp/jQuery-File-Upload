@@ -1,5 +1,5 @@
 /*
- * jQuery File Upload Plugin GAE Go Example 3.0
+ * jQuery File Upload Plugin GAE Go Example 3.0.1
  * https://github.com/blueimp/jQuery-File-Upload
  *
  * Copyright 2011, Sebastian Tschan
@@ -260,6 +260,10 @@ func handle(w http.ResponseWriter, r *http.Request) {
 	w.Header().Add(
 		"Access-Control-Allow-Methods",
 		"OPTIONS, HEAD, GET, POST, PUT, DELETE",
+	)
+	w.Header().Add(
+		"Access-Control-Allow-Headers",
+		"Content-Type, Content-Range, Content-Disposition",
 	)
 	switch r.Method {
 	case "OPTIONS":
