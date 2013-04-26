@@ -31,6 +31,10 @@
                     var files = data.result && data.result.files;
                     if (files) {
                         data.scope().replace(data.files, files);
+                    } else if (data.errorThrown ||
+                            data.textStatus === 'error') {
+                        data.files[0].error = data.errorThrown ||
+                            data.textStatus;
                     }
                 },
                 add: function (e, data) {
