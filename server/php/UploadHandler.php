@@ -1,6 +1,6 @@
 <?php
 /*
- * jQuery File Upload Plugin PHP Class 6.4.1
+ * jQuery File Upload Plugin PHP Class 6.4.2
  * https://github.com/blueimp/jQuery-File-Upload
  *
  * Copyright 2010, Sebastian Tschan
@@ -37,7 +37,7 @@ class UploadHandler
     function __construct($options = null, $initialize = true, $error_messages = null) {
         $this->options = array(
             'script_url' => $this->get_full_url().'/',
-            'upload_dir' => dirname($_SERVER['SCRIPT_FILENAME']).'/files/',
+            'upload_dir' => dirname($this->get_server_var('SCRIPT_FILENAME')).'/files/',
             'upload_url' => $this->get_full_url().'/files/',
             'user_dirs' => false,
             'mkdir_mode' => 0755,
@@ -121,7 +121,7 @@ class UploadHandler
     }
 
     protected function initialize() {
-        switch ($_SERVER['REQUEST_METHOD']) {
+        switch ($this->get_server_var('REQUEST_METHOD')) {
             case 'OPTIONS':
             case 'HEAD':
                 $this->head();
@@ -389,7 +389,9 @@ class UploadHandler
             $file->error = $this->get_error_message($error);
             return false;
         }
-        $content_length = $this->fix_integer_overflow(intval($_SERVER['CONTENT_LENGTH']));
+        $content_length = $this->fix_integer_overflow(intval(
+            $this->get_server_var('CONTENT_LENGTH')
+        ));
         $post_max_size = $this->get_config_bytes(ini_get('post_max_size'));
         if ($post_max_size && ($content_length > $post_max_size)) {
             $file->error = $this->get_error_message('post_max_size');
@@ -634,6 +636,10 @@ class UploadHandler
         header($str);
     }
 
+    protected function get_server_var($id) {
+        return isset($_SERVER[$id]) ? $_SERVER[$id] : '';
+    }
+
     protected function generate_response($content, $print_response = true) {
         if ($print_response) {
             $json = json_encode($content);
@@ -644,11 +650,13 @@ class UploadHandler
                 return;
             }
             $this->head();
-            if (isset($_SERVER['HTTP_CONTENT_RANGE'])) {
+            if ($this->get_server_var('HTTP_CONTENT_RANGE')) {
                 $files = isset($content[$this->options['param_name']]) ?
                     $content[$this->options['param_name']] : null;
                 if ($files && is_array($files) && is_object($files[0]) && $files[0]->size) {
-                    $this->header('Range: 0-'.($this->fix_integer_overflow(intval($files[0]->size)) - 1));
+                    $this->header('Range: 0-'.(
+                        $this->fix_integer_overflow(intval($files[0]->size)) - 1
+                    ));
                 }
             }
             $this->body($json);
@@ -707,8 +715,7 @@ class UploadHandler
 
     protected function send_content_type_header() {
         $this->header('Vary: Accept');
-        if (isset($_SERVER['HTTP_ACCEPT']) &&
-            (strpos($_SERVER['HTTP_ACCEPT'], 'application/json') !== false)) {
+        if (strpos($this->get_server_var('HTTP_ACCEPT'), 'application/json') !== false) {
             $this->header('Content-type: application/json');
         } else {
             $this->header('Content-type: text/plain');
@@ -761,16 +768,16 @@ class UploadHandler
         $upload = isset($_FILES[$this->options['param_name']]) ?
             $_FILES[$this->options['param_name']] : null;
         // Parse the Content-Disposition header, if available:
-        $file_name = isset($_SERVER['HTTP_CONTENT_DISPOSITION']) ?
+        $file_name = $this->get_server_var('HTTP_CONTENT_DISPOSITION') ?
             rawurldecode(preg_replace(
                 '/(^[^"]+")|("$)/',
                 '',
-                $_SERVER['HTTP_CONTENT_DISPOSITION']
+                $this->get_server_var('HTTP_CONTENT_DISPOSITION')
             )) : null;
         // Parse the Content-Range header, which has the following form:
         // Content-Range: bytes 0-524287/2000000
-        $content_range = isset($_SERVER['HTTP_CONTENT_RANGE']) ?
-            preg_split('/[^0-9]+/', $_SERVER['HTTP_CONTENT_RANGE']) : null;
+        $content_range = $this->get_server_var('HTTP_CONTENT_RANGE') ?
+            preg_split('/[^0-9]+/', $this->get_server_var('HTTP_CONTENT_RANGE')) : null;
         $size =  $content_range ? $content_range[3] : null;
         $files = array();
         if ($upload && is_array($upload['tmp_name'])) {
@@ -795,9 +802,9 @@ class UploadHandler
                 $file_name ? $file_name : (isset($upload['name']) ?
                         $upload['name'] : null),
                 $size ? $size : (isset($upload['size']) ?
-                        $upload['size'] : $_SERVER['CONTENT_LENGTH']),
+                        $upload['size'] : $this->get_server_var('CONTENT_LENGTH')),
                 isset($upload['type']) ?
-                        $upload['type'] : $_SERVER['CONTENT_TYPE'],
+                        $upload['type'] : $this->get_server_var('CONTENT_TYPE'),
                 isset($upload['error']) ? $upload['error'] : null,
                 null,
                 $content_range
