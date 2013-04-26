@@ -40,10 +40,15 @@
             function ($scope, $http) {
                 $scope.loadingFiles = true;
                 $http.get(url)
-                    .then(function (response) {
-                        $scope.loadingFiles = false;
-                        $scope.queue = response.data.files;
-                    });
+                    .then(
+                        function (response) {
+                            $scope.loadingFiles = false;
+                            $scope.queue = response.data.files;
+                        },
+                        function () {
+                            $scope.loadingFiles = false;
+                        }
+                    );
             }
         ])
 
