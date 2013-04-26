@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /*
- * jQuery File Upload Plugin Node.js Example 2.0
+ * jQuery File Upload Plugin Node.js Example 2.0.1
  * https://github.com/blueimp/jQuery-File-Upload
  *
  * Copyright 2012, Sebastian Tschan
@@ -43,7 +43,8 @@
             },
             accessControl: {
                 allowOrigin: '*',
-                allowMethods: 'OPTIONS, HEAD, GET, POST, PUT, DELETE'
+                allowMethods: 'OPTIONS, HEAD, GET, POST, PUT, DELETE',
+                allowHeaders: 'Content-Type, Content-Range, Content-Disposition'
             },
             /* Uncomment and edit this section to provide the service via HTTPS:
             ssl: {
@@ -82,6 +83,10 @@
             res.setHeader(
                 'Access-Control-Allow-Methods',
                 options.accessControl.allowMethods
+            );
+            res.setHeader(
+                'Access-Control-Allow-Headers',
+                options.accessControl.allowHeaders
             );
             var handleResult = function (result, redirect) {
                     if (redirect) {
