@@ -35,6 +35,9 @@ class UploadHandler(webapp2.RequestHandler):
         self.response.headers[
             'Access-Control-Allow-Methods'
         ] = 'OPTIONS, HEAD, GET, POST, PUT, DELETE'
+        self.response.headers[
+            'Access-Control-Allow-Headers'
+        ] = 'Content-Type, Content-Range, Content-Disposition'
     
     def validate(self, file):
         if file['size'] < MIN_FILE_SIZE:
