@@ -1,0 +1,125 @@
+<!DOCTYPE HTML>
+<!--
+/*
+ * jQuery File Upload Plugin Basic Demo 1.0
+ * https://github.com/blueimp/jQuery-File-Upload
+ *
+ * Copyright 2013, Sebastian Tschan
+ * https://blueimp.net
+ *
+ * Licensed under the MIT license:
+ * http://www.opensource.org/licenses/MIT
+ */
+-->
+<html lang="en">
+<head>
+<!-- Force latest IE rendering engine or ChromeFrame if installed -->
+<!--[if IE]><meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1"><![endif]-->
+<meta charset="utf-8">
+<title>jQuery File Upload Demo - Basic version</title>
+<meta name="description" content="File Upload widget with multiple file selection, drag&amp;drop support, progress bar and preview images for jQuery. Supports cross-domain, chunked and resumable file uploads. Works with any server-side platform (Google App Engine, PHP, Python, Ruby on Rails, Java, etc.) that supports standard HTML form file uploads.">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<!-- Bootstrap CSS Toolkit styles -->
+<link rel="stylesheet" href="http://blueimp.github.com/cdn/css/bootstrap.min.css">
+<!-- Generic page styles -->
+<link rel="stylesheet" href="css/style.css">
+<!-- Bootstrap styles for responsive website layout, supporting different screen sizes -->
+<link rel="stylesheet" href="http://blueimp.github.com/cdn/css/bootstrap-responsive.min.css">
+<!-- Bootstrap CSS fixes for IE6 -->
+<!--[if lt IE 7]><link rel="stylesheet" href="http://blueimp.github.com/cdn/css/bootstrap-ie6.min.css"><![endif]-->
+</head>
+<body>
+<div class="navbar navbar-fixed-top">
+    <div class="navbar-inner">
+        <div class="container">
+            <a class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </a>
+            <a class="brand" href="https://github.com/blueimp/jQuery-File-Upload">jQuery File Upload</a>
+            <div class="nav-collapse">
+                <ul class="nav">
+                    <li class="active"><a href="http://blueimp.github.com/jQuery-File-Upload/">Demo</a></li>
+                    <li><a href="https://github.com/blueimp/jQuery-File-Upload#download">Download</a></li>
+                    <li><a href="https://github.com/blueimp/jQuery-File-Upload">Source Code</a></li>
+                    <li><a href="https://github.com/blueimp/jQuery-File-Upload/wiki">Documentation</a></li>
+                    <li><a href="https://github.com/blueimp/jQuery-File-Upload#support">Support</a></li>
+                    <li><a href="https://blueimp.net">&copy; Sebastian Tschan</a></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="container">
+    <div class="page-header">
+        <h1>jQuery File Upload Demo</h1>
+        <h2 class="lead">Basic version</h2>
+        <ul class="nav nav-tabs">
+            <li><a href="index.html">Default</a></li>
+            <li class="active"><a href="basic.html">Basic</a></li>
+            <li><a href="angularjs.html">Angular JS</a></li>
+        </ul>
+        <blockquote>
+            <p>File Upload widget with multiple file selection, drag&amp;drop support, progress bars and preview images for jQuery.<br>
+            Supports cross-domain, chunked and resumable file uploads and client-side image resizing.<br>
+            Works with any server-side platform (PHP, Python, Ruby on Rails, Java, Node.js, Go etc.) that supports standard HTML form file uploads.</p>
+        </blockquote>
+    </div>
+    <!-- The file input field used as target for the file upload widget -->
+    <input id="fileupload" type="file" name="files[]" multiple>
+    <!-- The global progress bar -->
+    <div id="progress" class="progress progress-success progress-striped">
+        <div class="bar"></div>
+    </div>
+    <!-- The container for the uploaded files -->
+    <div id="files"></div>
+    <br>
+    <div class="well">
+        <h3>Demo Notes</h3>
+        <ul>
+            <li>The maximum file size for uploads in this demo is <strong>5 MB</strong> (default file size is unlimited).</li>
+            <li>Only image files (<strong>JPG, GIF, PNG</strong>) are allowed in this demo (by default there is no file type restriction).</li>
+            <li>Uploaded files will be deleted automatically after <strong>5 minutes</strong> (demo setting).</li>
+            <li>You can <strong>drag &amp; drop</strong> files from your desktop on this webpage with Google Chrome, Mozilla Firefox and Apple Safari.</li>
+            <li>Please refer to the <a href="https://github.com/blueimp/jQuery-File-Upload">project website</a> and <a href="https://github.com/blueimp/jQuery-File-Upload/wiki">documentation</a> for more information.</li>
+            <li>Built with Twitter's <a href="http://twitter.github.com/bootstrap/">Bootstrap</a> toolkit and Icons from <a href="http://glyphicons.com/">Glyphicons</a>.</li>
+        </ul>
+    </div>
+</div>
+<script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+<!-- The jQuery UI widget factory, can be omitted if jQuery UI is already included -->
+<script src="js/vendor/jquery.ui.widget.js"></script>
+<!-- The Iframe Transport is required for browsers without support for XHR file uploads -->
+<script src="js/jquery.iframe-transport.js"></script>
+<!-- The basic File Upload plugin -->
+<script src="js/jquery.fileupload.js"></script>
+<script>
+/*jslint unparam: true */
+/*global window, $ */
+$(function () {
+    'use strict';
+    // Change this to the location of your server-side upload handler:
+    var url = (window.location.hostname === 'blueimp.github.com' ||
+                window.location.hostname === 'blueimp.github.io') ?
+                '//jquery-file-upload.appspot.com/' : 'server/php/';
+    $('#fileupload').fileupload({
+        url: url,
+        dataType: 'json',
+        done: function (e, data) {
+            $.each(data.result.files, function (index, file) {
+                $('<p/>').text(file.name).appendTo('#files');
+            });
+        },
+        progressall: function (e, data) {
+            var progress = parseInt(data.loaded / data.total * 100, 10);
+            $('#progress .bar').css(
+                'width',
+                progress + '%'
+            );
+        }
+    });
+});
+</script>
+</body> 
+</html>
