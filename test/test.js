@@ -1,5 +1,5 @@
 /*
- * jQuery File Upload Plugin Test 7.4.2
+ * jQuery File Upload Plugin Test 8.0
  * https://github.com/blueimp/jQuery-File-Upload
  *
  * Copyright 2010, Sebastian Tschan
@@ -1092,13 +1092,13 @@ $(function () {
     });
 
     test('maxNumberOfFiles', function () {
-        expect(4);
+        expect(3);
         var addIndex = 0,
             sendIndex = 0;
         $('#fileupload')
             .fileupload({
                 autoUpload: true,
-                maxNumberOfFiles: 1,
+                maxNumberOfFiles: 3,
                 singleFileUploads: false,
                 send: function (e, data) {
                     strictEqual(
@@ -1112,36 +1112,13 @@ $(function () {
                 stop: $.noop
             })
             .fileupload('add', {files: [{name: (addIndex += 1)}]})
-            .fileupload('add', {files: [{name: 'test'}]})
-            .fileupload('option', 'maxNumberOfFiles', 1)
-            .fileupload('add', {files: [{name: 1}, {name: 2}]})
-            .fileupload({
-                maxNumberOfFiles: 1,
-                send: function (e, data) {
-                    strictEqual(
-                        sendIndex += 1,
-                        addIndex
-                    );
-                    return false;
-                }
-            })
             .fileupload('add', {files: [{name: (addIndex += 1)}]})
             .fileupload('add', {files: [{name: (addIndex += 1)}]})
-            .fileupload({
-                maxNumberOfFiles: 0,
-                send: function (e, data) {
-                    ok(
-                        !$.blueimp.fileupload.prototype.options
-                            .send.call(this, e, data)
-                    );
-                    return false;
-                }
-            })
-            .fileupload('send', {files: [{name: 'test'}]});
+            .fileupload('add', {files: [{name: 'test'}]});
     });
 
     test('maxFileSize', function () {
-        expect(3);
+        expect(2);
         var addIndex = 0,
             sendIndex = 0;
         $('#fileupload')
@@ -1175,15 +1152,11 @@ $(function () {
                     );
                     return false;
                 }
-            })
-            .fileupload('send', {files: [{
-                name: 'test',
-                size: 1001
-            }]});
+            });
     });
 
     test('minFileSize', function () {
-        expect(3);
+        expect(2);
         var addIndex = 0,
             sendIndex = 0;
         $('#fileupload')
@@ -1217,15 +1190,11 @@ $(function () {
                     );
                     return false;
                 }
-            })
-            .fileupload('send', {files: [{
-                name: 'test',
-                size: 999
-            }]});
+            });
     });
 
     test('acceptFileTypes', function () {
-        expect(3);
+        expect(2);
         var addIndex = 0,
             sendIndex = 0;
         $('#fileupload')
@@ -1260,11 +1229,7 @@ $(function () {
                     );
                     return false;
                 }
-            })
-            .fileupload('send', {files: [{
-                name: 'test.txt',
-                type: 'text/plain'
-            }]});
+            });
     });
 
     test('acceptFileTypes as HTML5 data attribute', function () {

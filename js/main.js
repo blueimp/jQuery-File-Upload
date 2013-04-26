@@ -1,5 +1,5 @@
 /*
- * jQuery File Upload Plugin JS Example 7.1.1
+ * jQuery File Upload Plugin JS Example 8.0
  * https://github.com/blueimp/jQuery-File-Upload
  *
  * Copyright 2010, Sebastian Tschan
@@ -37,23 +37,9 @@ $(function () {
         // Demo settings:
         $('#fileupload').fileupload('option', {
             url: '//jquery-file-upload.appspot.com/',
+            disableImageResize: false,
             maxFileSize: 5000000,
-            acceptFileTypes: /(\.|\/)(gif|jpe?g|png)$/i,
-            process: [
-                {
-                    action: 'load',
-                    fileTypes: /^image\/(gif|jpeg|png)$/,
-                    maxFileSize: 20000000 // 20MB
-                },
-                {
-                    action: 'resize',
-                    maxWidth: 1440,
-                    maxHeight: 900
-                },
-                {
-                    action: 'save'
-                }
-            ]
+            acceptFileTypes: /(\.|\/)(gif|jpe?g|png)$/i
         });
         // Upload server status check for browsers with CORS support:
         if ($.support.cors) {
