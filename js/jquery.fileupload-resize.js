@@ -1,5 +1,5 @@
 /*
- * jQuery File Upload Image Resize Plugin 1.1.1
+ * jQuery File Upload Image Resize Plugin 1.1.2
  * https://github.com/blueimp/jQuery-File-Upload
  *
  * Copyright 2013, Sebastian Tschan
@@ -113,23 +113,22 @@
                 }
                 var that = this,
                     file = data.files[data.index],
-                    dfd = $.Deferred(),
-                    fileTypes = options.fileTypes;
-                if (($.type(options.maxFileSize) !== 'number' ||
-                            file.size < options.maxFileSize) &&
-                        (!fileTypes || fileTypes.test(file.type))) {
-                    loadImage(
-                        file,
-                        function (img) {
-                            if (!img.src) {
-                                return dfd.rejectWith(that, [data]);
-                            }
-                            data.img = img;
-                            dfd.resolveWith(that, [data]);
-                        },
-                        options
-                    );
-                } else {
+                    dfd = $.Deferred();
+                if (($.type(options.maxFileSize) === 'number' &&
+                            file.size > options.maxFileSize) ||
+                        (options.fileTypes &&
+                            !options.fileTypes.test(file.type)) ||
+                        !loadImage(
+                            file,
+                            function (img) {
+                                if (!img.src) {
+                                    return dfd.rejectWith(that, [data]);
+                                }
+                                data.img = img;
+                                dfd.resolveWith(that, [data]);
+                            },
+                            options
+                        )) {
                     dfd.rejectWith(that, [data]);
                 }
                 return dfd.promise();
@@ -188,8 +187,10 @@
                                 'blob') + '.png',
                         file.type
                     ));
-                } else {
+                } else if (data.canvas.toBlob) {
                     data.canvas.toBlob(callback, file.type);
+                } else {
+                    return data;
                 }
                 return dfd.promise();
             },
