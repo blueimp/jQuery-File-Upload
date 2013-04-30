@@ -1,5 +1,5 @@
 /*
- * jQuery File Upload Image Resize Plugin 1.1
+ * jQuery File Upload Image Resize Plugin 1.1.1
  * https://github.com/blueimp/jQuery-File-Upload
  *
  * Copyright 2013, Sebastian Tschan
@@ -38,7 +38,8 @@
             action: 'loadImage',
             fileTypes: '@loadImageFileTypes',
             maxFileSize: '@loadImageMaxFileSize',
-            noRevoke: '@loadImageNoRevoke'
+            noRevoke: '@loadImageNoRevoke',
+            disabled: '@disableImageLoad'
         },
         {
             action: 'resizeImage',
