@@ -1,5 +1,5 @@
 /*
- * jQuery File Upload Plugin 5.30.1
+ * jQuery File Upload Plugin 5.31
  * https://github.com/blueimp/jQuery-File-Upload
  *
  * Copyright 2010, Sebastian Tschan
@@ -223,8 +223,9 @@
             cache: false
         },
 
-        // A list of options that require a refresh after assigning a new value:
-        _refreshOptionsList: [
+        // A list of options that require reinitializing event listeners and/or
+        // special initialization code:
+        _specialOptions: [
             'fileInput',
             'dropZone',
             'pasteZone',
@@ -1150,12 +1151,12 @@
         },
 
         _setOption: function (key, value) {
-            var refresh = $.inArray(key, this._refreshOptionsList) !== -1;
-            if (refresh) {
+            var reinit = $.inArray(key, this._specialOptions) !== -1;
+            if (reinit) {
                 this._destroyEventHandlers();
             }
             this._super(key, value);
-            if (refresh) {
+            if (reinit) {
                 this._initSpecialOptions();
                 this._initEventHandlers();
             }
