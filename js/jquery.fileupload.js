@@ -1,5 +1,5 @@
 /*
- * jQuery File Upload Plugin 5.30
+ * jQuery File Upload Plugin 5.30.1
  * https://github.com/blueimp/jQuery-File-Upload
  *
  * Copyright 2010, Sebastian Tschan
@@ -1184,6 +1184,11 @@
             return new RegExp(parts.join('/'), modifiers);
         },
 
+        _isRegExpOption: function (key, value) {
+            return key !== 'url' && $.type(value) === 'string' &&
+                /^\/.*\/[igm]{0,3}$/.test(value);
+        },
+
         _initDataAttributes: function () {
             var that = this,
                 options = this.options;
@@ -1191,9 +1196,7 @@
             $.each(
                 $(this.element[0].cloneNode(false)).data(),
                 function (key, value) {
-                    // Initialize RegExp options:
-                    if ($.type(value) === 'string' &&
-                            value.charAt(0) === '/') {
+                    if (that._isRegExpOption(key, value)) {
                         value = that._getRegExp(value);
                     }
                     options[key] = value;
