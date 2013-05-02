@@ -1,5 +1,5 @@
 /*
- * jQuery File Upload AngularJS Plugin 1.0
+ * jQuery File Upload AngularJS Plugin 1.0.1
  * https://github.com/blueimp/jQuery-File-Upload
  *
  * Copyright 2013, Sebastian Tschan
@@ -280,13 +280,14 @@
                 var fn = $parse($attrs.progress),
                     update = function () {
                         var progress = fn($scope);
-                        if (!progress) {
+                        if (!progress || !progress.total) {
                             return;
                         }
                         $scope.num = Math.floor(
                             progress.loaded / progress.total * 100
                         );
                     };
+                update();
                 $scope.$watch(
                     $attrs.progress + '.loaded',
                     function (newValue, oldValue) {
