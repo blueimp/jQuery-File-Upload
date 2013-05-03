@@ -1,5 +1,5 @@
 /*
- * jQuery File Upload Validation Plugin 1.0.1
+ * jQuery File Upload Validation Plugin 1.0.2
  * https://github.com/blueimp/jQuery-File-Upload
  *
  * Copyright 2013, Sebastian Tschan
@@ -55,7 +55,7 @@
             // against either file type or file name:
             acceptFileTypes: /(\.|\/)(gif|jpe?g|png)$/i,
             // The maximum allowed file size in bytes:
-            maxFileSize: 10000000, // 10 MB,
+            maxFileSize: 10000000, // 10 MB
             // The minimum allowed file size in bytes:
             minFileSize: undefined, // No minimal file size
             // The limit of files to be uploaded:
@@ -100,7 +100,7 @@
                 } else {
                     delete file.error;
                 }
-                if (file.error) {
+                if (file.error || data.files.error) {
                     data.files.error = true;
                     dfd.rejectWith(this, [data]);
                 } else {
