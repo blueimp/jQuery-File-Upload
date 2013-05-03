@@ -1,7 +1,7 @@
 <!DOCTYPE HTML>
 <!--
 /*
- * jQuery File Upload Plugin Basic Demo 1.0
+ * jQuery File Upload Plugin Basic Plus Demo 1.0
  * https://github.com/blueimp/jQuery-File-Upload
  *
  * Copyright 2013, Sebastian Tschan
@@ -16,8 +16,8 @@
 <!-- Force latest IE rendering engine or ChromeFrame if installed -->
 <!--[if IE]><meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1"><![endif]-->
 <meta charset="utf-8">
-<title>jQuery File Upload Demo - Basic version</title>
-<meta name="description" content="File Upload widget with multiple file selection, drag&amp;drop support and progress bar for jQuery. Supports cross-domain, chunked and resumable file uploads. Works with any server-side platform (PHP, Python, Ruby on Rails, Java, Node.js, Go etc.) that supports standard HTML form file uploads.">
+<title>jQuery File Upload Demo - Basic Plus version</title>
+<meta name="description" content="File Upload widget with multiple file selection, drag&amp;drop support, progress bar, validation and preview images for jQuery. Supports cross-domain, chunked and resumable file uploads. Works with any server-side platform (Google App Engine, PHP, Python, Ruby on Rails, Java, etc.) that supports standard HTML form file uploads.">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <!-- Bootstrap CSS Toolkit styles -->
 <link rel="stylesheet" href="http://blueimp.github.com/cdn/css/bootstrap.min.css">
@@ -56,23 +56,23 @@
 <div class="container">
     <div class="page-header">
         <h1>jQuery File Upload Demo</h1>
-        <h2 class="lead">Basic version</h2>
+        <h2 class="lead">Basic Plus version</h2>
         <ul class="nav nav-tabs">
-            <li class="active"><a href="basic.html">Basic</a></li>
-            <li><a href="basic-plus.html">Basic Plus</a></li>
+            <li><a href="basic.html">Basic</a></li>
+            <li class="active"><a href="basic-plus.html">Basic Plus</a></li>
             <li><a href="index.html">Basic Plus UI</a></li>
             <li><a href="angularjs.html">AngularJS</a></li>
         </ul>
         <blockquote>
-            <p>File Upload widget with multiple file selection, drag&amp;drop support and progress bar for jQuery.<br>
-            Supports cross-domain, chunked and resumable file uploads.<br>
+            <p>File Upload widget with multiple file selection, drag&amp;drop support, progress bar, validation and preview images for jQuery.<br>
+            Supports cross-domain, chunked and resumable file uploads and client-side image resizing.<br>
             Works with any server-side platform (PHP, Python, Ruby on Rails, Java, Node.js, Go etc.) that supports standard HTML form file uploads.</p>
         </blockquote>
     </div>
     <!-- The fileinput-button span is used to style the file input field as button -->
     <span class="btn btn-success fileinput-button">
         <i class="icon-plus icon-white"></i>
-        <span>Select files...</span>
+        <span>Add files...</span>
         <!-- The file input field used as target for the file upload widget -->
         <input id="fileupload" type="file" name="files[]" multiple>
     </span>
@@ -100,10 +100,20 @@
 <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
 <!-- The jQuery UI widget factory, can be omitted if jQuery UI is already included -->
 <script src="js/vendor/jquery.ui.widget.js"></script>
+<!-- The Load Image plugin is included for the preview images and image resizing functionality -->
+<script src="http://blueimp.github.com/JavaScript-Load-Image/load-image.min.js"></script>
+<!-- The Canvas to Blob plugin is included for image resizing functionality -->
+<script src="http://blueimp.github.com/JavaScript-Canvas-to-Blob/canvas-to-blob.min.js"></script>
 <!-- The Iframe Transport is required for browsers without support for XHR file uploads -->
 <script src="js/jquery.iframe-transport.js"></script>
 <!-- The basic File Upload plugin -->
 <script src="js/jquery.fileupload.js"></script>
+<!-- The File Upload processing plugin -->
+<script src="js/jquery.fileupload-process.js"></script>
+<!-- The File Upload image resize plugin -->
+<script src="js/jquery.fileupload-resize.js"></script>
+<!-- The File Upload validation plugin -->
+<script src="js/jquery.fileupload-validate.js"></script>
 <script>
 /*jslint unparam: true */
 /*global window, $ */
@@ -112,22 +122,88 @@ $(function () {
     // Change this to the location of your server-side upload handler:
     var url = (window.location.hostname === 'blueimp.github.com' ||
                 window.location.hostname === 'blueimp.github.io') ?
-                '//jquery-file-upload.appspot.com/' : 'server/php/';
+                '//jquery-file-upload.appspot.com/' : 'server/php/',
+        uploadButton = $('<button/>')
+            .addClass('btn')
+            .prop('disabled', true)
+            .text('Processing...')
+            .on('click', function () {
+                var $this = $(this),
+                    data = $this.data();
+                $this
+                    .off('click')
+                    .text('Abort')
+                    .on('click', function () {
+                        $this.remove();
+                        data.abort();
+                    });
+                data.submit().always(function () {
+                    $this.remove();
+                });
+            });
     $('#fileupload').fileupload({
         url: url,
         dataType: 'json',
-        done: function (e, data) {
-            $.each(data.result.files, function (index, file) {
-                $('<p/>').text(file.name).appendTo('#files');
-            });
-        },
-        progressall: function (e, data) {
-            var progress = parseInt(data.loaded / data.total * 100, 10);
-            $('#progress .bar').css(
-                'width',
-                progress + '%'
-            );
+        autoUpload: false,
+        acceptFileTypes: /(\.|\/)(gif|jpe?g|png)$/i,
+        maxFileSize: 5000000, // 5 MB
+        loadImageMaxFileSize: 15000000, // 15MB
+        disableImageResize: false,
+        previewMaxWidth: 100,
+        previewMaxHeight: 100,
+        previewCrop: true
+    }).on('fileuploadadd', function (e, data) {
+        data.context = $('<div/>').appendTo('#files');
+        $.each(data.files, function (index, file) {
+            var node = $('<p/>')
+                    .append($('<span/>').text(file.name));
+            if (!index) {
+                node
+                    .append('<br>')
+                    .append(uploadButton.clone(true).data(data));
+            }
+            node.appendTo(data.context);
+        });
+    }).on('fileuploadprocessalways', function (e, data) {
+        var index = data.index,
+            file = data.files[index],
+            node = $(data.context.children()[index]);
+        if (file.preview) {
+            node
+                .prepend('<br>')
+                .prepend(file.preview);
         }
+        if (file.error) {
+            node
+                .append('<br>')
+                .append(file.error);
+        }
+        if (index + 1 === data.files.length) {
+            data.context.find('button')
+                .text('Upload')
+                .prop('disabled', !!data.files.error);
+        }
+    }).on('fileuploadprogressall', function (e, data) {
+        var progress = parseInt(data.loaded / data.total * 100, 10);
+        $('#progress .bar').css(
+            'width',
+            progress + '%'
+        );
+    }).on('fileuploaddone', function (e, data) {
+        $.each(data.result.files, function (index, file) {
+            var link = $('<a>')
+                .attr('target', '_blank')
+                .prop('href', file.url);
+            $(data.context.children()[index])
+                .wrap(link);
+        });
+    }).on('fileuploadfail', function (e, data) {
+        $.each(data.result.files, function (index, file) {
+            var error = $('<span/>').text(file.error);
+            $(data.context.children()[index])
+                .append('<br>')
+                .append(error);
+        });
     });
 });
 </script>
