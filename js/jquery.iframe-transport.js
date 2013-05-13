@@ -1,5 +1,5 @@
 /*
- * jQuery Iframe Transport Plugin 1.6.1
+ * jQuery Iframe Transport Plugin 1.6.2
  * https://github.com/blueimp/jQuery-File-Upload
  *
  * Copyright 2011, Sebastian Tschan
@@ -61,9 +61,10 @@
                     // IE versions below IE8 cannot set the name property of
                     // elements that have already been added to the DOM,
                     // so we set the name along with the iframe HTML markup:
+                    counter += 1;
                     iframe = $(
                         '<iframe src="javascript:false;" name="iframe-transport-' +
-                            (counter += 1) + '"></iframe>'
+                            counter + '"></iframe>'
                     ).bind('load', function () {
                         var fileInputClones,
                             paramNames = $.isArray(options.paramName) ?
@@ -96,7 +97,12 @@
                                 // (happens on form submits to iframe targets):
                                 $('<iframe src="javascript:false;"></iframe>')
                                     .appendTo(form);
-                                form.remove();
+                                window.setTimeout(function () {
+                                    // Removing the form in a setTimeout call
+                                    // allows Chrome's developer tools to display
+                                    // the response result
+                                    form.remove();
+                                }, 0);
                             });
                         form
                             .prop('target', iframe.prop('name'))
