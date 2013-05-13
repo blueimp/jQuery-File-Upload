@@ -1,5 +1,5 @@
 /*
- * jQuery File Upload Plugin 5.31
+ * jQuery File Upload Plugin 5.31.1
  * https://github.com/blueimp/jQuery-File-Upload
  *
  * Copyright 2010, Sebastian Tschan
@@ -681,7 +681,7 @@
                         // Create a progress event if no final progress event
                         // with loaded equaling total has been triggered
                         // for this chunk:
-                        if (o._progress.loaded === currentLoaded) {
+                        if (currentLoaded + o.chunkSize - o._progress.loaded) {
                             that._onProgress($.Event('progress', {
                                 lengthComputable: true,
                                 loaded: ub - o.uploadedBytes,
