@@ -121,7 +121,7 @@
             done: function (e, data) {
                 var that = $(this).data('blueimp-fileupload') ||
                         $(this).data('fileupload'),
-                    files = that._getFilesFromResponse(data),
+                    files = that.options.getFilesFromResponse(data),
                     template,
                     deferred;
                 if (data.context) {
@@ -160,6 +160,13 @@
                         }
                     );
                 }
+            },
+            // Callback to retrieve the list of files from an upload
+            getFilesFromResponse: function (data) {
+                if (data.result && $.isArray(data.result.files)) {
+                    return data.result.files;
+                }
+                return [];
             },
             // Callback for failed (abort or error) uploads:
             fail: function (e, data) {
@@ -322,13 +329,6 @@
 
         _getFinishedDeferreds: function () {
             return this._finishedUploads;
-        },
-
-        _getFilesFromResponse: function (data) {
-            if (data.result && $.isArray(data.result.files)) {
-                return data.result.files;
-            }
-            return [];
         },
 
         // Link handler, that allows to download files
