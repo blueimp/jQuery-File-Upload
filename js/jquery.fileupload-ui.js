@@ -1,5 +1,5 @@
 /*
- * jQuery File Upload User Interface Plugin 8.1
+ * jQuery File Upload User Interface Plugin 8.2
  * https://github.com/blueimp/jQuery-File-Upload
  *
  * Copyright 2010, Sebastian Tschan
@@ -67,6 +67,14 @@
                 return this.filesContainer.children().length;
             },
 
+            // Callback to retrieve the list of files from the server response:
+            getFilesFromResponse: function (data) {
+                if (data.result && $.isArray(data.result.files)) {
+                    return data.result.files;
+                }
+                return [];
+            },
+
             // The add callback is invoked as soon as files are added to the fileupload
             // widget (via file input selection, drag & drop or add API call).
             // See the basic file upload widget for more information:
@@ -121,7 +129,7 @@
             done: function (e, data) {
                 var that = $(this).data('blueimp-fileupload') ||
                         $(this).data('fileupload'),
-                    files = that.options.getFilesFromResponse(data),
+                    files = data.getFilesFromResponse(data),
                     template,
                     deferred;
                 if (data.context) {
@@ -160,13 +168,6 @@
                         }
                     );
                 }
-            },
-            // Callback to retrieve the list of files from an upload
-            getFilesFromResponse: function (data) {
-                if (data.result && $.isArray(data.result.files)) {
-                    return data.result.files;
-                }
-                return [];
             },
             // Callback for failed (abort or error) uploads:
             fail: function (e, data) {
@@ -344,7 +345,7 @@
                         'DownloadURL',
                         [type, name, url].join(':')
                     );
-                } catch (err) {}
+                } catch (ignore) {}
             });
         },
 
