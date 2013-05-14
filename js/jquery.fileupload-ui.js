@@ -1,5 +1,5 @@
 /*
- * jQuery File Upload User Interface Plugin 8.2
+ * jQuery File Upload User Interface Plugin 8.2.1
  * https://github.com/blueimp/jQuery-File-Upload
  *
  * Copyright 2010, Sebastian Tschan
@@ -129,7 +129,9 @@
             done: function (e, data) {
                 var that = $(this).data('blueimp-fileupload') ||
                         $(this).data('fileupload'),
-                    files = data.getFilesFromResponse(data),
+                    getFilesFromResponse = data.getFilesFromResponse ||
+                        that.options.getFilesFromResponse,
+                    files = getFilesFromResponse(data),
                     template,
                     deferred;
                 if (data.context) {
