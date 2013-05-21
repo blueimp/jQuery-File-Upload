@@ -1,5 +1,5 @@
 /*
- * jQuery File Upload AngularJS Plugin 1.0.1
+ * jQuery File Upload AngularJS Plugin 1.1
  * https://github.com/blueimp/jQuery-File-Upload
  *
  * Copyright 2013, Sebastian Tschan
@@ -10,9 +10,22 @@
  */
 
 /*jslint nomen: true, unparam: true */
-/*global angular */
+/*global define, angular */
 
-(function () {
+(function (factory) {
+    'use strict';
+    if (typeof define === 'function' && define.amd) {
+        // Register as an anonymous AMD module:
+        define([
+            'jquery',
+            'angular',
+            './jquery.fileupload-resize',
+            './jquery.fileupload-validate'
+        ], factory);
+    } else {
+        factory();
+    }
+}(function () {
     'use strict';
 
     angular.module('blueimp.fileupload', [])
@@ -99,7 +112,7 @@
                     if (data.dataType.indexOf('json') === data.dataType.length - 4) {
                         try {
                             data.result = angular.fromJson(data.jqXHR.responseText);
-                        } catch (err) {}
+                        } catch (ignore) {}
                     }
                     data.scope().$apply(function () {
                         data.handleResponse.call(that, e, data);
@@ -340,9 +353,9 @@
                                 elm.prop('href')
                             ].join(':')
                         );
-                    } catch (err) {}
+                    } catch (ignore) {}
                 });
             };
         });
 
-}());
+}));
