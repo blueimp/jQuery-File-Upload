@@ -114,6 +114,8 @@
             bitrateInterval: 500,
             // By default, uploads are started automatically when adding files:
             autoUpload: true,
+            // if special chunk header does not supported - False by default
+            ignoreChunkHeader: false,
 
             // Error and info messages:
             messages: {
@@ -376,12 +378,15 @@
                 multipart = options.multipart || !$.support.xhrFileUpload,
                 paramName = options.paramName[0];
             options.headers = options.headers || {};
-            if (options.contentRange) {
+            if (options.contentRange && !options.ignoreChunkHeader) {
                 options.headers['Content-Range'] = options.contentRange;
             }
             if (!multipart) {
-                options.headers['Content-Disposition'] = 'attachment; filename="' +
+                if (!options.ignoreChunkHeader)
+                {
+                    options.headers['Content-Disposition'] = 'attachment; filename="' +
                     encodeURI(file.name) + '"';
+                }
                 options.contentType = file.type;
                 options.data = options.blob || file;
             } else if ($.support.xhrFormDataFileUpload) {
@@ -414,8 +419,11 @@
                         });
                     }
                     if (options.blob) {
+                        if (!options.ignoreChunkHeader)
+                        {
                         options.headers['Content-Disposition'] = 'attachment; filename="' +
                             encodeURI(file.name) + '"';
+                        }
                         formData.append(paramName, options.blob, file.name);
                     } else {
                         $.each(options.files, function (index, file) {
@@ -669,6 +677,7 @@
                 // Expose the chunk bytes position range:
                 o.contentRange = 'bytes ' + ub + '-' +
                     (ub + o.chunkSize - 1) + '/' + fs;
+                that._trigger('chunkbefore',null,o);
                 // Process the upload data (the blob and potential form data):
                 that._initXHRData(o);
                 // Add progress listeners for this chunk upload:
