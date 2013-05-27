@@ -1,6 +1,6 @@
 <?php
 /*
- * jQuery File Upload Plugin PHP Class 6.4.2
+ * jQuery File Upload Plugin PHP Class 6.4.3
  * https://github.com/blueimp/jQuery-File-Upload
  *
  * Copyright 2010, Sebastian Tschan
@@ -191,7 +191,7 @@ class UploadHandler
             .$version_path.rawurlencode($file_name);
     }
 
-    protected function set_file_delete_properties($file) {
+    protected function set_additional_file_properties($file) {
         $file->delete_url = $this->options['script_url']
             .$this->get_query_separator($this->options['script_url'])
             .'file='.rawurlencode($file->name);
@@ -247,7 +247,7 @@ class UploadHandler
                     }
                 }
             }
-            $this->set_file_delete_properties($file);
+            $this->set_additional_file_properties($file);
             return $file;
         }
         return null;
@@ -619,7 +619,7 @@ class UploadHandler
                     $file->error = 'abort';
                 }
             }
-            $this->set_file_delete_properties($file);
+            $this->set_additional_file_properties($file);
         }
         return $file;
     }
