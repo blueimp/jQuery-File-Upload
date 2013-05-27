@@ -1,6 +1,6 @@
 <?php
 /*
- * jQuery File Upload Plugin PHP Class 6.4.3
+ * jQuery File Upload Plugin PHP Class 6.4.4
  * https://github.com/blueimp/jQuery-File-Upload
  *
  * Copyright 2010, Sebastian Tschan
@@ -461,7 +461,8 @@ class UploadHandler
         );
     }
 
-    protected function get_unique_filename($name, $type, $index, $content_range) {
+    protected function get_unique_filename($name,
+            $type = null, $index = null, $content_range = null) {
         while(is_dir($this->get_upload_path($name))) {
             $name = $this->upcount_name($name);
         }
@@ -477,7 +478,8 @@ class UploadHandler
         return $name;
     }
 
-    protected function trim_file_name($name, $type, $index, $content_range) {
+    protected function trim_file_name($name,
+            $type = null, $index = null, $content_range = null) {
         // Remove path information and dots around the filename, to prevent uploading
         // into different directories or replacing hidden system files.
         // Also remove control characters and spaces (\x00..\x20) around the filename:
@@ -494,7 +496,8 @@ class UploadHandler
         return $name;
     }
 
-    protected function get_file_name($name, $type, $index, $content_range) {
+    protected function get_file_name($name,
+            $type = null, $index = null, $content_range = null) {
         return $this->get_unique_filename(
             $this->trim_file_name($name, $type, $index, $content_range),
             $type,
