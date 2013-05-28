@@ -61,6 +61,7 @@
     <div class="page-header">
         <h1>jQuery File Upload Demo</h1>
         <h2 class="lead">Basic Plus UI version</h2>
+        <div id="hostedAuthWidget"></div>
         <ul class="nav nav-tabs">
             <li><a href="basic.html">Basic</a></li>
             <li><a href="basic-plus.html">Basic Plus</a></li>
@@ -84,7 +85,7 @@
                 <span class="btn btn-success fileinput-button">
                     <i class="icon-plus icon-white"></i>
                     <span>Add files...</span>
-                    <input type="file" name="files[]" multiple>
+                    <input  type="file" name="fileData" multiple>
                 </span>
                 <button type="submit" class="btn btn-primary start">
                     <i class="icon-upload icon-white"></i>
@@ -247,8 +248,37 @@
 <!-- The File Upload user interface plugin -->
 <script src="js/jquery.fileupload-ui.js"></script>
 <!-- The main application script -->
-<script src="js/main.js"></script>
+
 <!-- The XDomainRequest Transport is included for cross-domain file deletion for IE8+ -->
 <!--[if gte IE 8]><script src="js/cors/jquery.xdr-transport.js"></script><![endif]-->
+
+<script src="js/jquery.fileupload-kaltura.js"></script>
+<script src="http://html5video.org/kaltura-player/mwEmbedLoader.php"></script>
+<script src="http://html5video.org/kaltura-player/kWidget/kWidget.auth.js"></script>
+<script>
+    var ks = null;
+    kWidget.auth.getWidget( "hostedAuthWidget", function( userObject ){
+        ks = userObject["ks"];
+    });
+
+    $('#fileupload').fileupload({
+        maxChunkSize: 500000,
+        ignoreChunkHeader:true,
+
+        //if you want to resume
+        //      uploadTokenId:'0_6fccfd020a1ec43d1f7015147ea92574',
+        url: 'http://www.kaltura.com/api_v3/?service=uploadToken&action=upload&format=1',
+        dataType: 'json',
+        autoUpload: false,
+        // acceptFileTypes: /(\.|\/)(gif|jpe?g|png)$/i,
+
+        disableImageResize: false,
+        previewMaxWidth: 100,
+        previewMaxHeight: 100,
+        previewCrop: true
+    })
+
+</script>
+
 </body> 
 </html>

@@ -678,6 +678,7 @@
                 o.contentRange = 'bytes ' + ub + '-' +
                     (ub + o.chunkSize - 1) + '/' + fs;
                 that._trigger('chunkbefore',null,o);
+
                 // Process the upload data (the blob and potential form data):
                 that._initXHRData(o);
                 // Add progress listeners for this chunk upload:
@@ -733,7 +734,6 @@
             upload();
             return promise;
         },
-
         _beforeSend: function (e, data) {
             if (this._active === 0) {
                 // the start callback is triggered when an upload starts
@@ -909,14 +909,18 @@
             }
             data.originalFiles = data.files;
             $.each(fileSet || data.files, function (index, element) {
+
                 var newData = $.extend({}, data);
                 newData.files = fileSet ? element : [element];
                 newData.paramName = paramNameSet[index];
                 that._initResponseObject(newData);
                 that._initProgressObject(newData);
                 that._addConvenienceMethods(e, newData);
-                result = that._trigger('add', e, newData);
-                return result;
+                $.when( that.beforeAdd(e, newData) ).then(function(value) {
+
+                    result = that._trigger('add', e, value);
+
+                });
             });
             return result;
         },
@@ -1256,6 +1260,10 @@
                 data.files = $.makeArray(data.files);
                 this._onAdd(null, data);
             }
+        },
+        beforeAdd:function(data)
+        {
+
         },
 
         // This method is exposed to the widget API and allows sending files
