@@ -1,5 +1,5 @@
 /*
- * jQuery File Upload Plugin Angular JS Example 1.0
+ * jQuery File Upload Plugin Angular JS Example 1.0.1
  * https://github.com/blueimp/jQuery-File-Upload
  *
  * Copyright 2013, Sebastian Tschan
@@ -81,6 +81,10 @@
                                 state = 'rejected';
                             }
                         );
+                    };
+                } else if (!file.$cancel) {
+                    file.$cancel = function () {
+                        $scope.clear(file);
                     };
                 }
             }
