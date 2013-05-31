@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /*
- * jQuery File Upload Plugin Node.js Example 2.0.1
+ * jQuery File Upload Plugin Node.js Example 2.0.3
  * https://github.com/blueimp/jQuery-File-Upload
  *
  * Copyright 2012, Sebastian Tschan
@@ -196,7 +196,7 @@
             list.forEach(function (name) {
                 var stats = fs.statSync(options.uploadDir + '/' + name),
                     fileInfo;
-                if (stats.isFile()) {
+                if (stats.isFile() && name[0] !== '.') {
                     fileInfo = new FileInfo({
                         name: name,
                         size: stats.size
@@ -274,15 +274,17 @@
             fileName;
         if (handler.req.url.slice(0, options.uploadUrl.length) === options.uploadUrl) {
             fileName = path.basename(decodeURIComponent(handler.req.url));
-            fs.unlink(options.uploadDir + '/' + fileName, function (ex) {
-                Object.keys(options.imageVersions).forEach(function (version) {
-                    fs.unlink(options.uploadDir + '/' + version + '/' + fileName);
+            if (fileName[0] !== '.') {
+                fs.unlink(options.uploadDir + '/' + fileName, function (ex) {
+                    Object.keys(options.imageVersions).forEach(function (version) {
+                        fs.unlink(options.uploadDir + '/' + version + '/' + fileName);
+                    });
+                    handler.callback({success: !ex});
                 });
-                handler.callback({success: !ex});
-            });
-        } else {
-            handler.callback({success: false});
+                return;
+            }
         }
+        handler.callback({success: false});
     };
     if (options.ssl) {
         require('https').createServer(options.ssl, serve).listen(port);
