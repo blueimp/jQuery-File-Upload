@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /*
- * jQuery File Upload Plugin Node.js Example 2.0.1
+ * jQuery File Upload Plugin Node.js Example 2.0.2
  * https://github.com/blueimp/jQuery-File-Upload
  *
  * Copyright 2012, Sebastian Tschan
@@ -196,7 +196,7 @@
             list.forEach(function (name) {
                 var stats = fs.statSync(options.uploadDir + '/' + name),
                     fileInfo;
-                if (stats.isFile()) {
+                if (stats.isFile() && name[0] !== '.') {
                     fileInfo = new FileInfo({
                         name: name,
                         size: stats.size
