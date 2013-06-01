@@ -259,24 +259,27 @@
     var ks = null;
     kWidget.auth.getWidget( "hostedAuthWidget", function( userObject ){
         ks = userObject["ks"];
+       // $('#fileupload').fileupload({disabled:false,ks:ks});
+        $('#fileupload').fileupload({
+            maxChunkSize: 500000,
+            ks: userObject["ks"],
+            ignoreChunkHeader:true,
+          //  disabled:true,
+            //if you want to resume
+            uploadTokenId:'0_f13a43831dd3d20d1286f3b9c77ffb25',
+            url: 'http://www.kaltura.com/api_v3/?service=uploadToken&action=upload&format=1',
+            dataType: 'json',
+            autoUpload: false,
+            // acceptFileTypes: /(\.|\/)(gif|jpe?g|png)$/i,
+
+            disableImageResize: false,
+            previewMaxWidth: 100,
+            previewMaxHeight: 100,
+            previewCrop: true
+        })
     });
 
-    $('#fileupload').fileupload({
-        maxChunkSize: 500000,
-        ignoreChunkHeader:true,
 
-        //if you want to resume
-        //      uploadTokenId:'0_6fccfd020a1ec43d1f7015147ea92574',
-        url: 'http://www.kaltura.com/api_v3/?service=uploadToken&action=upload&format=1',
-        dataType: 'json',
-        autoUpload: false,
-        // acceptFileTypes: /(\.|\/)(gif|jpe?g|png)$/i,
-
-        disableImageResize: false,
-        previewMaxWidth: 100,
-        previewMaxHeight: 100,
-        previewCrop: true
-    })
 
 </script>
 

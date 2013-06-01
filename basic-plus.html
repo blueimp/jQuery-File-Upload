@@ -123,6 +123,7 @@
     var ks = null;
     kWidget.auth.getWidget( "hostedAuthWidget", function( userObject ){
         ks = userObject["ks"];
+        $('#fileupload').fileupload({ks:ks});
     });
 
 

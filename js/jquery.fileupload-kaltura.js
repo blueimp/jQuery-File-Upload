@@ -39,6 +39,7 @@
     $.widget('blueimp.fileupload', $.blueimp.fileupload, {
 
         options: {
+            ks:null,
             chunkbefore: function (e, data) {
 
                 var isLastChunk = data.maxChunkSize -  data.chunkSize >  0;
@@ -50,39 +51,35 @@
                 if (isLastChunk) {
                     data.formData["finalChunk"] = 1;
                 }
-                console.log("LastChunk:" + isLastChunk + "; FirstChunk:" + isFirstChunk);
 
 
             },
             getFilesFromResponse:function (data) {
-              //  data.result.files =  data.result.files || [];
-             //   data.result.files.push(
                 return    [
                     { "name": data.result.fileName,
                         "size": data.result.fileSize,
-                        "url": "http://www.kaltura.com/api_v3/?service=uploadToken&action=get&ks=" + ks +"&uploadTokenId=" + data.result.id ,
+                        "url": "http://www.kaltura.com/api_v3/?service=uploadToken&action=get&ks=" + this.option.ks +"&uploadTokenId=" + data.result.id ,
                         "thumbnail_url": 'http://123.com',
-                        "delete_url": "http://www.kaltura.com/api_v3/?service=uploadToken&action=delete&ks=" + ks +"&uploadTokenId=" + data.result.id ,
+                        "delete_url": "http://www.kaltura.com/api_v3/?service=uploadToken&action=delete&ks=" + this.option.ks +"&uploadTokenId=" + data.result.id ,
                         "delete_type": "GET"
                     }]
-
-
                 }
-
-
-
     },
 
         beforeAdd: function (e, data) {
 
             var masterdfd = new jQuery.Deferred();
-
             var that = this;
+            if (!this.options.ks)
+            {
+                alert("Missing KS");
+                return;
+            }
             var getUpload = function(tokenId) {
                 var dfd = new jQuery.Deferred();
                 $.ajax({
                     url:'http://www.kaltura.com/api_v3/?service=uploadToken&action=get&format=1',
-                    data:{uploadTokenId:tokenId,ks:ks},
+                    data:{uploadTokenId:tokenId,ks:that.options.ks},
                     type: "POST"
                 }).done(function(response)
                     {
@@ -94,28 +91,60 @@
             var addFile = function(fileName,size) {
                 var dfd = new jQuery.Deferred();
                 $.ajax({
-                    url:'http://www.kaltura.com/api_v3/?service=uploadToken&action=add&format=1',
-                    data:{"uploadToken:fileName":fileName,
-                        "uploadToken:fileSize":size,
-                        ks:ks},
+                    url:'http://www.kaltura.com/api_v3/?service=uploadToken&action=list&format=1',
+                    //TODO:filter is not working need to check it
+                    data:{
+                        'filter:objectType':'KalturaUploadTokenFilter',
+                        'filter:advancedSearch:objectType':'KalturaSearchCondition',
+                        'filter:advancedSearch:field':'fileName',
+                        'filter:advancedSearch:value':fileName,
+                        ks:that.options.ks},
                     type:"POST"
                 }).done(function(response)
                     {
-                        dfd.resolve(response)
+                        if (response && response.objects && response.objects.length > 0)
+                        {
+                            for (var index = 0 ; index < response.objects.length ; index ++)
+                            {
+                                var currentObject = response.objects[index];
+                                if (fileName == currentObject.fileName && size == currentObject.fileSize && currentObject.uploadedFileSize != size)
+                                {
+                                    dfd.resolve(currentObject);
+                                    return;
+                                }
+                            }
+                        }
+                        addFileToKaltura();
                     });
+
+                var addFileToKaltura = function(){
+                    $.ajax({
+                        url:'http://www.kaltura.com/api_v3/?service=uploadToken&action=add&format=1',
+                        data:{"uploadToken:fileName":fileName,
+                            "uploadToken:fileSize":size,
+                            ks:that.options.ks},
+                        type:"POST"
+                    }).done(function(response)
+                        {
+                            dfd.resolve(response)
+                        });
+                }
+
 
                 return dfd;
             };
 
             var connectFileToToken = function( kalturaUploadToken, file, data, index )  {
                 data.firstChunk=true;
+                data.uploadTokenId = kalturaUploadToken.id;
                 //should resume
                 if (kalturaUploadToken.uploadedFileSize)
                 {
+                    data.uploadedBytes =  parseInt(kalturaUploadToken.uploadedFileSize);
                     var lastChunk = (parseInt(kalturaUploadToken.fileSize) -
                         parseInt(kalturaUploadToken.uploadedFileSize)  <=
-                        $(that).fileupload('option','maxChunkSize'));
-                    data.formData = {ks:ks,
+                        $.blueimp.fileupload.prototype.option.maxChunkSize);
+                    data.formData = {ks:that.options.ks,
                         uploadTokenId:kalturaUploadToken.id,
                         resume:1,
                         finalChunk:lastChunk ? 1:0,
@@ -123,39 +152,21 @@
                     };
                 }
                 else {
-                    data.formData = {ks:ks,
+                    data.formData = {ks:that.options.ks,
                         uploadTokenId:kalturaUploadToken.id,
                         resume:0,
                         finalChunk:0,
                         resumeAt:0};
                 }
-
-
-
                 masterdfd.resolve(data);
             }
-
-            //if we're is resume mode
-            if ($.blueimp.fileupload.prototype.option.uploadTokenId)
-            {
-                $.when(getUpload($.blueimp.fileupload.prototype.option.uploadTokenId)).then(function(kalturaUploadToken)
-                {
-                    $.each(data.files, function (index, file) {
-                        connectFileToToken(kalturaUploadToken, file, data , index);
+            $.each(data.files, function (index, file) {
+                $.when(addFile(file.name,file.size)).then(
+                    function(kalturaUploadToken){
+                        connectFileToToken(kalturaUploadToken, file, data, index);
                     });
-                })
-            }
-            else {
-
-                $.each(data.files, function (index, file) {
-                    $.when(addFile(file.name,file.size)).then(
-                        function(kalturaUploadToken){
-                            connectFileToToken(kalturaUploadToken, file, data, index);
-                        });
-                });
-            }
+            });
             return masterdfd;
         }
-
     })
 }));
