@@ -75,7 +75,7 @@
         </blockquote>
     </div>
     <!-- The file upload form used as target for the file upload widget -->
-    <form id="fileupload" action="//jquery-file-upload.appspot.com/" method="POST" enctype="multipart/form-data">
+    <form id="fileupload" action="//jquery-file-upload.appspot.com/" method="POST" enctype="multipart/form-data" style="display:none">
         <!-- Redirect browsers with JavaScript disabled to the origin page -->
         <noscript><input type="hidden" name="redirect" value="http://blueimp.github.com/jQuery-File-Upload/"></noscript>
         <!-- The fileupload-buttonbar contains buttons to add/delete files and start/cancel the upload -->
@@ -262,16 +262,13 @@
 <script>
     var ks = null;
     kWidget.auth.getWidget( "hostedAuthWidget", function( userObject ){
+        $("#fileupload").show();
         ks = userObject["ks"];
        // $('#fileupload').fileupload({disabled:false,ks:ks});
         $('#fileupload').fileupload({
             maxChunkSize: 500000,
             ks: userObject["ks"],
             ignoreChunkHeader:true,
-          //  disabled:true,
-            //if you want to resume
-            uploadTokenId:'0_f13a43831dd3d20d1286f3b9c77ffb25',
-            url: 'http://www.kaltura.com/api_v3/?service=uploadToken&action=upload&format=1',
             dataType: 'json',
             autoUpload: false,
             // acceptFileTypes: /(\.|\/)(gif|jpe?g|png)$/i,

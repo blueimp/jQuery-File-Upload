@@ -40,6 +40,8 @@
 
         options: {
             ks:null,
+            apiURL:'http://www.kaltura.com/api_v3/',
+            url: 'http://www.kaltura.com/api_v3/?service=uploadToken&action=upload&format=1',
             chunkbefore: function (e, data) {
 
                 var isLastChunk = data.maxChunkSize -  data.chunkSize >  0;
@@ -78,7 +80,7 @@
             var getUpload = function(tokenId) {
                 var dfd = new jQuery.Deferred();
                 $.ajax({
-                    url:'http://www.kaltura.com/api_v3/?service=uploadToken&action=get&format=1',
+                    url:that.options.apiURL +  '?service=uploadToken&action=get&format=1',
                     data:{uploadTokenId:tokenId,ks:that.options.ks},
                     type: "POST"
                 }).done(function(response)
@@ -91,9 +93,9 @@
             var addFile = function(fileName,size) {
                 var dfd = new jQuery.Deferred();
                 $.ajax({
-                    url:'http://www.kaltura.com/api_v3/?service=uploadToken&action=list&format=1',
+                    url:that.options.apiURL + '?service=uploadToken&action=list&format=1',
                     //TODO:filter is not working need to check it
-                    data:{
+                    data:{   'filter:statusEqual':1,
                         'filter:objectType':'KalturaUploadTokenFilter',
                         'filter:advancedSearch:objectType':'KalturaSearchCondition',
                         'filter:advancedSearch:field':'fileName',
@@ -119,7 +121,7 @@
 
                 var addFileToKaltura = function(){
                     $.ajax({
-                        url:'http://www.kaltura.com/api_v3/?service=uploadToken&action=add&format=1',
+                        url:that.options.apiURL + '?service=uploadToken&action=add&format=1',
                         data:{"uploadToken:fileName":fileName,
                             "uploadToken:fileSize":size,
                             ks:that.options.ks},
