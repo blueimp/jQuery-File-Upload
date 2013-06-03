@@ -265,7 +265,14 @@
         var ks =   $("#tb_KS").val();
         var useChunk = $("#cb_chunk").val();
         var chunkSize = $("#tb_chunkSize").val();
-        initUpload(ks,parseInt(chunkSize));
+        if (useChunk)
+        {
+            initUpload(ks,parseInt(chunkSize));
+        }
+        else
+        {
+            initUpload(ks);
+        }
     })
     function initUpload(ks,chunkSize)
     {
