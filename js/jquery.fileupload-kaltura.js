@@ -49,10 +49,14 @@
                 if (!isFirstChunk)   {
                     data.formData["resume"] = 1;
                     data.formData["resumeAt"] = data.uploadedBytes;
-                    data.formData["finalChunk"] = 0;
+
                 }
                 if (isLastChunk) {
                     data.formData["finalChunk"] = 1;
+                }
+                else
+                {
+                    data.formData["finalChunk"] = 0;
                 }
 
 
