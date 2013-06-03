@@ -1,6 +1,6 @@
 <?php
 /*
- * jQuery File Upload Plugin PHP Class 6.4.4
+ * jQuery File Upload Plugin PHP Class 6.4.5
  * https://github.com/blueimp/jQuery-File-Upload
  *
  * Copyright 2010, Sebastian Tschan
@@ -525,13 +525,13 @@ class UploadHandler
         $image = @imagecreatefromjpeg($file_path);
         switch ($orientation) {
             case 3:
-                $image = @imagerotate($image, 180, 0);
+                $image = imagerotate($image, 180, 0);
                 break;
             case 6:
-                $image = @imagerotate($image, 270, 0);
+                $image = imagerotate($image, 270, 0);
                 break;
             case 8:
-                $image = @imagerotate($image, 90, 0);
+                $image = imagerotate($image, 90, 0);
                 break;
             default:
                 return false;
