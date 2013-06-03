@@ -59,7 +59,7 @@
 </div>
 <div class="container">
     <div class="page-header">
-        <h1>jQuery File Upload Demo - with Kaltura plugin</h1>
+        <h1>jQuery File Upload Demo - with Kaltura plugin </h1>
         <h2 class="lead">Basic Plus UI version</h2>
         <div id="hostedAuthWidget"></div>
         <div id="initSection">
@@ -263,7 +263,8 @@
     {
         $("#initSection").hide();
         var ks =   $("#tb_KS").val();
-        var useChunk = $("#cb_chunk").val();
+        var useChunk = $("#cb_chunk").get(0).checked;
+
         var chunkSize = $("#tb_chunkSize").val();
         if (useChunk)
         {
