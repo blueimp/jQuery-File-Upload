@@ -49,6 +49,7 @@
                 if (!isFirstChunk)   {
                     data.formData["resume"] = 1;
                     data.formData["resumeAt"] = data.uploadedBytes;
+                    data.formData["finalChunk"] = 0;
                 }
                 if (isLastChunk) {
                     data.formData["finalChunk"] = 1;
@@ -157,7 +158,7 @@
                     data.formData = {ks:that.options.ks,
                         uploadTokenId:kalturaUploadToken.id,
                         resume:0,
-                        finalChunk:0,
+                        finalChunk:1,
                         resumeAt:0};
                 }
                 masterdfd.resolve(data);

@@ -62,7 +62,12 @@
         <h1>jQuery File Upload Demo - with Kaltura plugin</h1>
         <h2 class="lead">Basic Plus UI version</h2>
         <div id="hostedAuthWidget"></div>
-
+        <div id="initSection">
+            KS:<input id="tb_KS" type="text" title="ks" placeholder="insert ks here or use the login above" style="width:400px">  <br/>
+            <input id="cb_chunk" type="checkbox">Use Chunk with size <input id="tb_chunkSize" type="text" value="500000"> bytes
+            <br/>
+            <input id="init" type="button" value="init" class="btn-large btn-block btn-primary ">
+        </div>
         <blockquote>
             <p>File Upload widget with multiple file selection, drag&amp;drop support, progress bars, validation and preview images for jQuery.<br>
             Supports cross-domain, chunked and resumable file uploads and client-side image resizing.<br>
@@ -112,17 +117,7 @@
         <table role="presentation" class="table table-striped"><tbody class="files" data-toggle="modal-gallery" data-target="#modal-gallery"></tbody></table>
     </form>
     <br>
-    <div class="well">
-        <h3>Demo Notes</h3>
-        <ul>
-            <li>The maximum file size for uploads in this demo is <strong>5 MB</strong> (default file size is unlimited).</li>
-            <li>Only image files (<strong>JPG, GIF, PNG</strong>) are allowed in this demo (by default there is no file type restriction).</li>
-            <li>Uploaded files will be deleted automatically after <strong>5 minutes</strong> (demo setting).</li>
-            <li>You can <strong>drag &amp; drop</strong> files from your desktop on this webpage with Google Chrome, Mozilla Firefox and Apple Safari.</li>
-            <li>Please refer to the <a href="https://github.com/blueimp/jQuery-File-Upload">project website</a> and <a href="https://github.com/blueimp/jQuery-File-Upload/wiki">documentation</a> for more information.</li>
-            <li>Built with Twitter's <a href="http://twitter.github.com/bootstrap/">Bootstrap</a> toolkit and Icons from <a href="http://glyphicons.com/">Glyphicons</a>.</li>
-        </ul>
-    </div>
+
 </div>
 <!-- modal-gallery is the modal dialog used for the image gallery -->
 <div id="modal-gallery" class="modal modal-gallery hide fade" data-filter=":odd" tabindex="-1">
@@ -255,14 +250,29 @@
 <script src="http://html5video.org/kaltura-player/mwEmbedLoader.php"></script>
 <script src="http://html5video.org/kaltura-player/kWidget/kWidget.auth.js"></script>
 <script>
-    var ks = null;
     kWidget.auth.getWidget( "hostedAuthWidget", function( userObject ){
-        $("#fileupload").show();
-        ks = userObject["ks"];
+
+        var ks = userObject["ks"];
        // $('#fileupload').fileupload({disabled:false,ks:ks});
+        $("#tb_KS").val(ks);
+    });
+
+
+
+    $("#init").click(function()
+    {
+        $("#initSection").hide();
+        var ks =   $("#tb_KS").val();
+        var useChunk = $("#cb_chunk").val();
+        var chunkSize = $("#tb_chunkSize").val();
+        initUpload(ks,parseInt(chunkSize));
+    })
+    function initUpload(ks,chunkSize)
+    {
+        $("#fileupload").show();
         $('#fileupload').fileupload({
-            maxChunkSize: 500000,
-            ks: userObject["ks"],
+
+            ks: ks,
             ignoreChunkHeader:true,
             dataType: 'json',
             autoUpload: false,
@@ -272,8 +282,14 @@
             previewMaxWidth: 100,
             previewMaxHeight: 100,
             previewCrop: true
-        })
-    });
+        });
+        if (chunkSize)
+        {
+            $('#fileupload').fileupload({
+                maxChunkSize: chunkSize
+            });
+        }
+    }
 
 
 
