@@ -104,7 +104,10 @@
             var that = this;
             if (!this.options.ks)
             {
-                alert("Missing KS");
+                if (window && window.console && window.console.log)
+                {
+                 console.log("Missing KS");
+                }
                 return;
             }
             var getUpload = function(tokenId) {
