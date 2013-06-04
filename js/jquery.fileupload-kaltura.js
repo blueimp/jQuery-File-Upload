@@ -112,6 +112,7 @@
             }
             var getUpload = function(tokenId) {
                 var dfd = new jQuery.Deferred();
+
                 $.ajax({
                     url:that.options.apiURL +  '?service=uploadToken&action=get&format=1',
                     data:{uploadTokenId:tokenId,ks:that.options.ks},
@@ -223,6 +224,136 @@
                     });
             });
             return masterdfd;
+        },
+        _getSignture: function(params){
+            params = this.ksort(params);
+            var str = "";
+            for(var v in params) {
+                var k = params[v];
+                str += k + v;
+            }
+            return MD5(str);
+
+
+        },
+        ksort: function(arr)
+        {
+            var sArr = [];
+            var tArr = [];
+            var n = 0;
+            for (i in arr)
+                tArr[n++] = i+" |"+arr[i];
+            tArr = tArr.sort();
+            for (var i=0; i<tArr.length; i++) {
+                var x = tArr[i].split(" |");
+                sArr[x[0]] = x[1];
+            }
+            return sArr;
+        },
+        _create: function () {
+            var that = this;
+            $.ajaxPrefilter( function( options, originalOptions, jqXHR ) {
+
+                var urlParams = $.String.deparam(options.url.split("?")[1]);
+                if (urlParams.action)
+                {
+                    delete urlParams.action;
+                }
+                if (urlParams.service)
+                {
+                }
+                if (typeof options.data == "String")
+                {
+                    var dataParams = $.String.deparam(options.data);
+                    if (dataParams.fileData)
+                    {
+                        delete dataParams.fileData;
+                    }
+                    $.extend(urlParams,dataParams);
+                }
+                if (options.formData)
+                {
+                    $.extend(urlParams,options.formData);
+                }
+                var signature = that._getSignture(urlParams);
+                options.url = options.url + "&kalsig=" + signature;
+
+
+            });
+            this._super();
+
         }
     })
 }));
+
+(function($){
+
+    var digitTest = /^\d+$/,
+        keyBreaker = /([^\[\]]+)|(\[\])/g,
+        plus = /\+/g,
+        paramTest = /([^?#]*)(#.*)?$/;
+
+    /**
+     * @add jQuery.String
+     */
+    $.String = $.extend($.String || {}, {
+
+        /**
+         * @function deparam
+         *
+         * Takes a string of name value pairs and returns a Object literal that represents those params.
+         *
+         * @param {String} params a string like <code>"foo=bar&person[age]=3"</code>
+         * @return {Object} A JavaScript Object that represents the params:
+         *
+         *     {
+		 *       foo: "bar",
+		 *       person: {
+		 *         age: "3"
+		 *       }
+		 *     }
+         */
+        deparam: function(params){
+
+            if(! params || ! paramTest.test(params) ) {
+                return {};
+            }
+
+
+            var data = {},
+                pairs = params.split('&'),
+                current;
+
+            for(var i=0; i < pairs.length; i++){
+                current = data;
+                var pair = pairs[i].split('=');
+
+                // if we find foo=1+1=2
+                if(pair.length != 2) {
+                    pair = [pair[0], pair.slice(1).join("=")]
+                }
+
+                var key = decodeURIComponent(pair[0].replace(plus, " ")),
+                    value = decodeURIComponent(pair[1].replace(plus, " ")),
+                    parts = key.match(keyBreaker);
+
+                for ( var j = 0; j < parts.length - 1; j++ ) {
+                    var part = parts[j];
+                    if (!current[part] ) {
+                        // if what we are pointing to looks like an array
+                        current[part] = digitTest.test(parts[j+1]) || parts[j+1] == "[]" ? [] : {}
+                    }
+                    current = current[part];
+                }
+                lastPart = parts[parts.length - 1];
+                if(lastPart == "[]"){
+                    current.push(value)
+                }else{
+                    current[lastPart] = value;
+                }
+            }
+            return data;
+        }
+    });
+
+})(jQuery)
