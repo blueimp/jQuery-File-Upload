@@ -622,6 +622,7 @@
         // Parses the Range header from the server response
         // and returns the uploaded bytes:
         _getUploadedBytes: function (jqXHR) {
+
             var range = jqXHR.getResponseHeader('Range'),
                 parts = range && range.split('-'),
                 upperBytesPos = parts && parts.length > 1 &&
@@ -686,6 +687,11 @@
                 jqXHR = ((that._trigger('chunksend', null, o) !== false && $.ajax(o)) ||
                         that._getXHRPromise(false, o.context))
                     .done(function (result, textStatus, jqXHR) {
+                        if (!that._verifyResult(result))
+                        {
+                            failHandler(jqXHR,result,result.message);
+                            return;
+                        }
                         ub = that._getUploadedBytes(jqXHR) ||
                             (ub + o.chunkSize);
                         // Create a progress event if no final progress event
@@ -726,6 +732,18 @@
                             [jqXHR, textStatus, errorThrown]
                         );
                     });
+
+                var failHandler = function (jqXHR, textStatus, errorThrown) {
+                    o.jqXHR = jqXHR;
+                    o.textStatus = textStatus;
+                    o.errorThrown = errorThrown;
+                    that._trigger('chunkfail', null, o);
+                    that._trigger('chunkalways', null, o);
+                    dfd.rejectWith(
+                        o.context,
+                        [jqXHR, textStatus, errorThrown]
+                    );
+                }
             };
             this._enhancePromise(promise);
             promise.abort = function () {
@@ -759,7 +777,9 @@
             this._progress.loaded += data.loaded;
             this._progress.total += data.total;
         },
-
+        _verifyResult: function(result){
+           return true;
+        },
         _onDone: function (result, textStatus, jqXHR, options) {
             var total = options._progress.total,
                 response = options._response;
@@ -817,7 +837,14 @@
                         that._getXHRPromise(false, options.context, aborted)) ||
                         that._chunkedUpload(options) || $.ajax(options)
                     ).done(function (result, textStatus, jqXHR) {
-                        that._onDone(result, textStatus, jqXHR, options);
+                            if (!that._verifyResult(result))
+                            {
+                                that._onFail(jqXHR, textStatus, result.message, options)
+                            }
+                            else
+                            {
+                                that._onDone(result, textStatus, jqXHR, options);
+                            }
                     }).fail(function (jqXHR, textStatus, errorThrown) {
                         that._onFail(jqXHR, textStatus, errorThrown, options);
                     }).always(function (jqXHRorResult, textStatus, jqXHRorError) {
@@ -920,7 +947,10 @@
 
                     result = that._trigger('add', e, value);
 
-                });
+                }).fail(function(value)
+                    {
+                        that._trigger('addfail',e,value);
+                    });
             });
             return result;
         },

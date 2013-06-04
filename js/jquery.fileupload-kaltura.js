@@ -61,6 +61,17 @@
 
 
             },
+            chunkdone: function(e, data){
+
+            },
+            chunksend:function(e, data){
+            } ,
+            addfail:function(e,data){
+                 if (window && window.console && window.console.log)
+                 {
+                     console.log("addfail:",data);
+                 }
+            },
             getFilesFromResponse:function (data) {
                 return    [
                     { "name": data.result.fileName,
@@ -72,7 +83,21 @@
                     }]
                 }
     },
-
+        _getUploadedBytes: function (jqXHR) {
+            if (jqXHR && jqXHR.responseText && jqXHR.responseText.indexOf("uploadedFileSize") > 0)
+            {
+                var upperBytesPos = parseInt(JSON.parse(jqXHR.responseText).uploadedFileSize);
+                return upperBytesPos;
+            }
+            return null;
+        },
+        _verifyResult: function (result){
+            if (result && result.code)
+            {
+                return false;
+            }
+            return true;
+         },
         beforeAdd: function (e, data) {
 
             var masterdfd = new jQuery.Deferred();
@@ -90,7 +115,14 @@
                     type: "POST"
                 }).done(function(response)
                     {
-                        dfd.resolve(response);
+                        if (that._verifyResult(response))
+                        {
+                            dfd.resolve(response);
+                        }
+                        else
+                        {
+                            dfd.reject(response);
+                        }
                     });
                 return dfd;
             };
@@ -109,6 +141,11 @@
                     type:"POST"
                 }).done(function(response)
                     {
+                        if (!that._verifyResult(response))
+                        {
+                            dfd.reject(response);
+                            return;
+                        }
                         if (response && response.objects && response.objects.length > 0)
                         {
                             for (var index = 0 ; index < response.objects.length ; index ++)
@@ -133,6 +170,12 @@
                         type:"POST"
                     }).done(function(response)
                         {
+
+                            if (!that._verifyResult(response))
+                            {
+                                dfd.reject(response);
+                                return;
+                            }
                             dfd.resolve(response)
                         });
                 }
@@ -171,6 +214,9 @@
                 $.when(addFile(file.name,file.size)).then(
                     function(kalturaUploadToken){
                         connectFileToToken(kalturaUploadToken, file, data, index);
+                    }).fail(function(result)
+                    {
+                        masterdfd.reject(result);
                     });
             });
             return masterdfd;
