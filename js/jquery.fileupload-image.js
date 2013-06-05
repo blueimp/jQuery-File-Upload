@@ -36,6 +36,9 @@
     $.blueimp.fileupload.prototype.options.processQueue.unshift(
         {
             action: 'loadImage',
+            // Always trigger this action,
+            // even if the previous action was rejected: 
+            always: true,
             fileTypes: '@loadImageFileTypes',
             maxFileSize: '@loadImageMaxFileSize',
             noRevoke: '@loadImageNoRevoke',
