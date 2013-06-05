@@ -38,8 +38,8 @@ Please read the [issue guidelines](https://github.com/blueimp/jQuery-File-Upload
   Large files can be uploaded in smaller chunks with browsers supporting the Blob API.
 * **Client-side image resizing:**  
   Images can be automatically resized on client-side with browsers supporting the required JS APIs.
-* **Preview images:**  
-  A preview of image files can be displayed before uploading with browsers supporting the required JS APIs.
+* **Preview images, audio and video:**  
+  A preview of image, audio and video files can be displayed before uploading with browsers supporting the required APIs.
 * **No browser plugins (e.g. Adobe Flash) required:**  
   The implementation is based on open standards like HTML5 and JavaScript and requires no additional browser plugins.
 * **Graceful fallback for legacy browsers:**  
@@ -62,7 +62,7 @@ Please read the [issue guidelines](https://github.com/blueimp/jQuery-File-Upload
 * [jQuery UI widget factory](http://api.jqueryui.com/jQuery.widget/) v. 1.9+ (included)
 * [jQuery Iframe Transport plugin](https://github.com/blueimp/jQuery-File-Upload/blob/master/js/jquery.iframe-transport.js) (included)
 * [JavaScript Templates engine](https://github.com/blueimp/JavaScript-Templates) v. 2.1.0+ (optional)
-* [JavaScript Load Image function](https://github.com/blueimp/JavaScript-Load-Image) v. 1.5.0+ (optional)
+* [JavaScript Load Image function](https://github.com/blueimp/JavaScript-Load-Image) v. 1.6.0+ (optional)
 * [JavaScript Canvas to Blob function](https://github.com/blueimp/JavaScript-Canvas-to-Blob) v. 2.0.5+ (optional)
 * [Bootstrap CSS Toolkit](https://github.com/twitter/bootstrap/) v. 2.3+ (optional)
 
