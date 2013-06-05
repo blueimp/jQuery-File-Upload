@@ -1,5 +1,5 @@
 /*
- * jQuery File Upload Image Resize Plugin 1.1.2
+ * jQuery File Upload Image Preview & Resize Plugin 1.0
  * https://github.com/blueimp/jQuery-File-Upload
  *
  * Copyright 2013, Sebastian Tschan
@@ -36,6 +36,9 @@
     $.blueimp.fileupload.prototype.options.processQueue.unshift(
         {
             action: 'loadImage',
+            // Always trigger this action,
+            // even if the previous action was rejected: 
+            always: true,
             fileTypes: '@loadImageFileTypes',
             maxFileSize: '@loadImageMaxFileSize',
             noRevoke: '@loadImageNoRevoke',
@@ -66,9 +69,7 @@
         },
         {
             action: 'setImage',
-            // The name of the property the resized image
-            // is saved as on the associated file object:
-            name: 'preview',
+            name: '@imagePreviewName',
             disabled: '@disableImagePreview'
         }
     );
@@ -200,7 +201,7 @@
             setImage: function (data, options) {
                 var img = data.canvas || data.img;
                 if (img && !options.disabled) {
-                    data.files[data.index][options.name] = img;
+                    data.files[data.index][options.name || 'preview'] = img;
                 }
                 return data;
             }

@@ -1,5 +1,5 @@
 /*
- * jQuery File Upload Plugin Angular JS Example 1.0.1
+ * jQuery File Upload Plugin Angular JS Example 1.0.2
  * https://github.com/blueimp/jQuery-File-Upload
  *
  * Copyright 2013, Sebastian Tschan
@@ -48,7 +48,7 @@
                         .then(
                             function (response) {
                                 $scope.loadingFiles = false;
-                                $scope.queue = response.data.files;
+                                $scope.queue = response.data.files || [];
                             },
                             function () {
                                 $scope.loadingFiles = false;

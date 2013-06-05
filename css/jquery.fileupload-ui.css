@@ -1,6 +1,6 @@
 @charset "UTF-8";
 /*
- * jQuery File Upload UI Plugin CSS 8.0
+ * jQuery File Upload UI Plugin CSS 8.1
  * https://github.com/blueimp/jQuery-File-Upload
  *
  * Copyright 2010, Sebastian Tschan
@@ -45,6 +45,10 @@
 .fileupload-processing .fileupload-loading {
   display: block;
 }
+.files audio,
+.files video {
+  max-width: 300px;
+}
 
 @media (max-width: 767px) {
   .fileupload-buttonbar .toggle,
@@ -55,5 +59,9 @@
   .files .name {
     width: 80px;
     word-wrap: break-word;
+  }
+  .files audio,
+  .files video {
+    max-width: 80px;
   }
 }
