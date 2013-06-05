@@ -64,7 +64,8 @@
         <div id="hostedAuthWidget"></div>
         <div id="initSection">
             KS:<input id="tb_KS" type="text" title="ks" placeholder="insert ks here or use the login above" style="width:400px">  <br/>
-            <input id="cb_chunk" type="checkbox">Use Chunk with size <input id="tb_chunkSize" type="text" value="500000"> bytes
+            <input id="cb_chunk" type="checkbox">Use Chunk with size <input id="tb_chunkSize" type="text" value="500000"> bytes    <br/>
+            <input id="cb_lbd" type=checkbox>Use lbd.kaltura.com
             <br/>
             <input id="init" type="button" value="init" class="btn-large btn-block btn-primary ">
         </div>
@@ -266,6 +267,7 @@
         var useChunk = $("#cb_chunk").get(0).checked;
 
         var chunkSize = $("#tb_chunkSize").val();
+
         if (useChunk)
         {
             initUpload(ks,parseInt(chunkSize));
@@ -277,6 +279,7 @@
     })
     function initUpload(ks,chunkSize)
     {
+        var lbd =  $("#cb_lbd").get(0).checked;
         $("#fileupload").show();
         $('#fileupload').fileupload({
 
@@ -295,6 +298,13 @@
         {
             $('#fileupload').fileupload({
                 maxChunkSize: chunkSize
+            });
+        }
+        if (lbd)
+        {
+            $('#fileupload').fileupload({
+                apiURL:'http://lbd.kaltura.com/api_v3/',
+                url: 'http://lbd.kaltura.com/api_v3/?service=uploadToken&action=upload&format=1'
             });
         }
     }
