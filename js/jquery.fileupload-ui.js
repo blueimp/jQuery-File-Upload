@@ -472,6 +472,16 @@
             }, button.data()));
         },
 
+        _createHandler:function (e){
+            e.preventDefault();
+            var button = $(e.currentTarget);
+            this._trigger('destroy', e, $.extend({
+                context: button.closest('.template-download'),
+                type: 'CREATE'
+            }, button.data()));
+
+        },
+
         _forceReflow: function (node) {
             return $.support.transition && node.length &&
                 node[0].offsetWidth;
@@ -550,7 +560,8 @@
             this._on(this.options.filesContainer, {
                 'click .start': this._startHandler,
                 'click .cancel': this._cancelHandler,
-                'click .delete': this._deleteHandler
+                'click .delete': this._deleteHandler,
+                'click .create': this._createHandler
             });
             this._initButtonBarEventHandlers();
         },

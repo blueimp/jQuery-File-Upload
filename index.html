@@ -100,6 +100,11 @@
                     <i class="icon-trash icon-white"></i>
                     <span>Delete</span>
                 </button>
+
+                <button type="button" class="btn btn-primary Create">
+                    <i class="icon-ban-circle icon-white"></i>
+                    <span>Create</span>
+                </button>
                 <input type="checkbox" class="toggle">
                 <!-- The loading indicator is shown during file processing -->
                 <span class="fileupload-loading"></span>
@@ -209,7 +214,11 @@
                 <i class="icon-trash icon-white"></i>
                 <span>Delete</span>
             </button>
-            <input type="checkbox" name="delete" value="1" class="toggle">
+            <button class="btn  btn-primary create" data-type="{%=file.create_type%}" data-url="{%=file.create_url%}"{% if (file.delete_with_credentials) { %} data-xhr-fields='{"withCredentials":true}'{% } %}>
+            <i class="icon-ban-circle icon-white"></i>
+            <span>CREATE</span>
+            </button>
+            <input type="checkbox" name="create" value="1" class="toggle">
         </td>
     </tr>
 {% } %}

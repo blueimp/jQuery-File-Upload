@@ -76,10 +76,12 @@
                 return    [
                     { "name": data.result.fileName,
                         "size": data.result.fileSize,
-                        "url": "http://www.kaltura.com/api_v3/?service=uploadToken&action=get&ks=" + data.ks +"&uploadTokenId=" + data.result.id ,
+                        "url": data.apiURL + "?service=uploadToken&action=get&ks=" + data.ks +"&uploadTokenId=" + data.result.id ,
                         "thumbnail_url": 'http://123.com',
-                        "delete_url": "http://www.kaltura.com/api_v3/?service=uploadToken&action=delete&ks=" + data.ks +"&uploadTokenId=" + data.result.id ,
-                        "delete_type": "GET"
+                        "delete_url": data.apiURL + "?service=uploadToken&action=delete&ks=" + data.ks +"&uploadTokenId=" + data.result.id ,
+                        "delete_type": "GET",
+                        "create_url":data.apiURL + "?service=baseEntry&action=addfromuploadedfile&format=1&entry:objectType=KalturaBaseEntry&entry:type=-1&entry:name="+data.result.fileName+"&ks=" + data.ks +"&uploadTokenId=" + data.result.id ,
+                        "create_type":"GET"
                     }]
                 }
     },
