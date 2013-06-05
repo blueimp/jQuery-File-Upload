@@ -1,6 +1,6 @@
 <?php
 /*
- * jQuery File Upload Plugin PHP Class 6.4.2
+ * jQuery File Upload Plugin PHP Class 6.4.5
  * https://github.com/blueimp/jQuery-File-Upload
  *
  * Copyright 2010, Sebastian Tschan
@@ -191,7 +191,7 @@ class UploadHandler
             .$version_path.rawurlencode($file_name);
     }
 
-    protected function set_file_delete_properties($file) {
+    protected function set_additional_file_properties($file) {
         $file->delete_url = $this->options['script_url']
             .$this->get_query_separator($this->options['script_url'])
             .'file='.rawurlencode($file->name);
@@ -247,7 +247,7 @@ class UploadHandler
                     }
                 }
             }
-            $this->set_file_delete_properties($file);
+            $this->set_additional_file_properties($file);
             return $file;
         }
         return null;
@@ -461,7 +461,8 @@ class UploadHandler
         );
     }
 
-    protected function get_unique_filename($name, $type, $index, $content_range) {
+    protected function get_unique_filename($name,
+            $type = null, $index = null, $content_range = null) {
         while(is_dir($this->get_upload_path($name))) {
             $name = $this->upcount_name($name);
         }
@@ -477,7 +478,8 @@ class UploadHandler
         return $name;
     }
 
-    protected function trim_file_name($name, $type, $index, $content_range) {
+    protected function trim_file_name($name,
+            $type = null, $index = null, $content_range = null) {
         // Remove path information and dots around the filename, to prevent uploading
         // into different directories or replacing hidden system files.
         // Also remove control characters and spaces (\x00..\x20) around the filename:
@@ -494,7 +496,8 @@ class UploadHandler
         return $name;
     }
 
-    protected function get_file_name($name, $type, $index, $content_range) {
+    protected function get_file_name($name,
+            $type = null, $index = null, $content_range = null) {
         return $this->get_unique_filename(
             $this->trim_file_name($name, $type, $index, $content_range),
             $type,
@@ -522,13 +525,13 @@ class UploadHandler
         $image = @imagecreatefromjpeg($file_path);
         switch ($orientation) {
             case 3:
-                $image = @imagerotate($image, 180, 0);
+                $image = imagerotate($image, 180, 0);
                 break;
             case 6:
-                $image = @imagerotate($image, 270, 0);
+                $image = imagerotate($image, 270, 0);
                 break;
             case 8:
-                $image = @imagerotate($image, 90, 0);
+                $image = imagerotate($image, 90, 0);
                 break;
             default:
                 return false;
@@ -619,7 +622,7 @@ class UploadHandler
                     $file->error = 'abort';
                 }
             }
-            $this->set_file_delete_properties($file);
+            $this->set_additional_file_properties($file);
         }
         return $file;
     }
