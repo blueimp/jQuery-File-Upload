@@ -1,6 +1,6 @@
 <?php
 /*
- * jQuery File Upload Plugin PHP Class 6.4.5
+ * jQuery File Upload Plugin PHP Class 6.4.6
  * https://github.com/blueimp/jQuery-File-Upload
  *
  * Copyright 2010, Sebastian Tschan
@@ -63,6 +63,9 @@ class UploadHandler
             ),
             // Enable to provide file downloads via GET requests to the PHP script:
             'download_via_php' => false,
+            // Read files in chunks to avoid memory limits when download_via_php
+            // is enabled, set to 0 to disable chunked reading of files:
+            'readfile_chunk_size' => 10 * 1024 * 1024, // 10 MiB
             // Defines which files can be displayed inline when downloaded:
             'inline_file_types' => '/\.(gif|jpe?g|png)$/i',
             // Defines which files (based on their names) are accepted for upload:
@@ -628,6 +631,18 @@ class UploadHandler
     }
 
     protected function readfile($file_path) {
+        $file_size = $this->get_file_size($file_path);
+        $chunk_size = $this->options['readfile_chunk_size'];
+        if ($chunk_size && $file_size > $chunk_size) {
+            $handle = fopen($file_path, 'rb'); 
+            while (!feof($handle)) { 
+                echo fread($handle, $chunk_size); 
+                ob_flush(); 
+                flush(); 
+            } 
+            fclose($handle); 
+            return $file_size;
+        }
         return readfile($file_path);
     }
 
