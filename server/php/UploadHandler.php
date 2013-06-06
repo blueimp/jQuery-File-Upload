@@ -1,6 +1,6 @@
 <?php
 /*
- * jQuery File Upload Plugin PHP Class 6.4.6
+ * jQuery File Upload Plugin PHP Class 6.5
  * https://github.com/blueimp/jQuery-File-Upload
  *
  * Copyright 2010, Sebastian Tschan
@@ -62,6 +62,11 @@ class UploadHandler
                 'Content-Disposition'
             ),
             // Enable to provide file downloads via GET requests to the PHP script:
+            //     1. Set to 1 to download files via readfile method through PHP
+            //     2. Set to 2 to send a X-Sendfile header for lighttpd/Apache
+            //     3. Set to 3 to send a X-Accel-Redirect header for nginx
+            // If set to 2 or 3, adjust the upload_url option to the base path of
+            // the redirect parameter, e.g. '/files/'.
             'download_via_php' => false,
             // Read files in chunks to avoid memory limits when download_via_php
             // is enabled, set to 0 to disable chunked reading of files:
@@ -179,8 +184,8 @@ class UploadHandler
         return strpos($url, '?') === false ? '?' : '&';
     }
 
-    protected function get_download_url($file_name, $version = null) {
-        if ($this->options['download_via_php']) {
+    protected function get_download_url($file_name, $version = null, $direct = false) {
+        if (!$direct && $this->options['download_via_php']) {
             $url = $this->options['script_url']
                 .$this->get_query_separator($this->options['script_url'])
                 .'file='.rawurlencode($file_name);
@@ -705,30 +710,47 @@ class UploadHandler
     }
 
     protected function download() {
-        if (!$this->options['download_via_php']) {
-            $this->header('HTTP/1.1 403 Forbidden');
-            return;
+        switch ($this->options['download_via_php']) {
+            case 1:
+                $redirect_header = null;
+                break;
+            case 2:
+                $redirect_header = 'X-Sendfile';
+                break;
+            case 3:
+                $redirect_header = 'X-Accel-Redirect';
+                break;
+            default:
+                return $this->header('HTTP/1.1 403 Forbidden');
         }
         $file_name = $this->get_file_name_param();
-        if ($this->is_valid_file_object($file_name)) {
-            $file_path = $this->get_upload_path($file_name, $this->get_version_param());
-            if (is_file($file_path)) {
-                if (!preg_match($this->options['inline_file_types'], $file_name)) {
-                    $this->header('Content-Description: File Transfer');
-                    $this->header('Content-Type: application/octet-stream');
-                    $this->header('Content-Disposition: attachment; filename="'.$file_name.'"');
-                    $this->header('Content-Transfer-Encoding: binary');
-                } else {
-                    // Prevent Internet Explorer from MIME-sniffing the content-type:
-                    $this->header('X-Content-Type-Options: nosniff');
-                    $this->header('Content-Type: '.$this->get_file_type($file_path));
-                    $this->header('Content-Disposition: inline; filename="'.$file_name.'"');
-                }
-                $this->header('Content-Length: '.$this->get_file_size($file_path));
-                $this->header('Last-Modified: '.gmdate('D, d M Y H:i:s T', filemtime($file_path)));
-                $this->readfile($file_path);
-            }
+        if (!$this->is_valid_file_object($file_name)) {
+            return $this->header('HTTP/1.1 404 Not Found');
         }
+        if ($redirect_header) {
+            return $this->header(
+                $redirect_header.': '.$this->get_download_url(
+                    $file_name,
+                    $this->get_version_param(),
+                    true
+                )
+            );
+        }
+        $file_path = $this->get_upload_path($file_name, $this->get_version_param());
+        if (!preg_match($this->options['inline_file_types'], $file_name)) {
+            $this->header('Content-Description: File Transfer');
+            $this->header('Content-Type: application/octet-stream');
+            $this->header('Content-Disposition: attachment; filename="'.$file_name.'"');
+            $this->header('Content-Transfer-Encoding: binary');
+        } else {
+            // Prevent Internet Explorer from MIME-sniffing the content-type:
+            $this->header('X-Content-Type-Options: nosniff');
+            $this->header('Content-Type: '.$this->get_file_type($file_path));
+            $this->header('Content-Disposition: inline; filename="'.$file_name.'"');
+        }
+        $this->header('Content-Length: '.$this->get_file_size($file_path));
+        $this->header('Last-Modified: '.gmdate('D, d M Y H:i:s T', filemtime($file_path)));
+        $this->readfile($file_path);
     }
 
     protected function send_content_type_header() {
