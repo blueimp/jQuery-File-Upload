@@ -1,6 +1,6 @@
 <?php
 /*
- * jQuery File Upload Plugin PHP Class 6.5
+ * jQuery File Upload Plugin PHP Class 6.6
  * https://github.com/blueimp/jQuery-File-Upload
  *
  * Copyright 2010, Sebastian Tschan
@@ -518,6 +518,48 @@ class UploadHandler
         // Handle form data, e.g. $_REQUEST['description'][$index]
     }
 
+    protected function imageflip($image, $mode) {
+        if (function_exists('imageflip')) {
+            return imageflip($image, $mode);
+        }
+        $new_width = $src_width = imagesx($image);
+        $new_height = $src_height = imagesy($image);
+        $new_img = imagecreatetruecolor($new_width, $new_height);
+        $src_x = 0;
+        $src_y = 0;
+        switch ($mode) {
+            case '1': // flip on the horizontal axis
+                $src_y = $new_height - 1;
+                $src_height = -$new_height;
+                break;
+            case '2': // flip on the vertical axis
+                $src_x  = $new_width - 1;
+                $src_width = -$new_width;
+                break;
+            case '3': // flip on both axes
+                $src_y = $new_height - 1;
+                $src_height = -$new_height;
+                $src_x  = $new_width - 1;
+                $src_width = -$new_width;
+                break;
+            default:
+                return $image;
+        }
+        imagecopyresampled(
+            $new_img,
+            $image,
+            0,
+            0,
+            $src_x,
+            $src_y,
+            $new_width,
+            $new_height,
+            $src_width,
+            $src_height
+        );
+        return $new_img;
+    }
+
     protected function orient_image($file_path) {
         if (!function_exists('exif_read_data')) {
             return false;
@@ -527,15 +569,41 @@ class UploadHandler
             return false;
         }
         $orientation = intval(@$exif['Orientation']);
-        if (!in_array($orientation, array(3, 6, 8))) {
+        if ($orientation < 2 || $orientation > 8) {
             return false;
         }
-        $image = @imagecreatefromjpeg($file_path);
+        $image = imagecreatefromjpeg($file_path);
         switch ($orientation) {
+            case 2:
+                $image = $this->imageflip(
+                    $image,
+                    defined('IMG_FLIP_VERTICAL') ? IMG_FLIP_VERTICAL : 2
+                );
+                break;
             case 3:
                 $image = imagerotate($image, 180, 0);
                 break;
+            case 4:
+                $image = $this->imageflip(
+                    $image,
+                    defined('IMG_FLIP_HORIZONTAL') ? IMG_FLIP_HORIZONTAL : 1
+                );
+                break;
+            case 5:
+                $image = $this->imageflip(
+                    $image,
+                    defined('IMG_FLIP_HORIZONTAL') ? IMG_FLIP_HORIZONTAL : 1
+                );
+                $image = imagerotate($image, 270, 0);
+                break;
             case 6:
+                $image = imagerotate($image, 270, 0);
+                break;
+            case 7:
+                $image = $this->imageflip(
+                    $image,
+                    defined('IMG_FLIP_VERTICAL') ? IMG_FLIP_VERTICAL : 2
+                );
                 $image = imagerotate($image, 270, 0);
                 break;
             case 8:
