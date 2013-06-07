@@ -1,6 +1,6 @@
 <?php
 /*
- * jQuery File Upload Plugin PHP Class 6.6.1
+ * jQuery File Upload Plugin PHP Class 6.6.2
  * https://github.com/blueimp/jQuery-File-Upload
  *
  * Copyright 2010, Sebastian Tschan
@@ -353,9 +353,10 @@ class UploadHandler
                     $options['png_quality'] : 9;
                 break;
             default:
-                $src_img = null;
+                imagedestroy($new_img);
+                return false;
         }
-        $success = $src_img && imagecopyresampled(
+        $success = imagecopyresampled(
             $new_img,
             $src_img,
             $dst_x,
@@ -368,9 +369,7 @@ class UploadHandler
             $img_height
         ) && $write_image($new_img, $new_file_path, $image_quality);
         // Free up memory (imagedestroy does not delete files):
-        if ($src_img) {
-            imagedestroy($src_img);
-        }
+        imagedestroy($src_img);
         imagedestroy($new_img);
         return $success;
     }
@@ -692,7 +691,8 @@ class UploadHandler
             if ($file_size === $file->size) {
                 $file->url = $this->get_download_url($file->name);
                 list($img_width, $img_height) = @getimagesize($file_path);
-                if (is_int($img_width)) {
+                if (is_int($img_width) &&
+                        preg_match($this->options['inline_file_types'], $file->name)) {
                     $this->handle_image_file($file_path, $file);
                 }
             } else {
