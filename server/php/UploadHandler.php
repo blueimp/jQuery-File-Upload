@@ -1,6 +1,6 @@
 <?php
 /*
- * jQuery File Upload Plugin PHP Class 6.6
+ * jQuery File Upload Plugin PHP Class 6.6.1
  * https://github.com/blueimp/jQuery-File-Upload
  *
  * Copyright 2010, Sebastian Tschan
@@ -316,7 +316,7 @@ class UploadHandler
             $new_height = $img_height * $scale;
             $dst_x = 0;
             $dst_y = 0;
-            $new_img = @imagecreatetruecolor($new_width, $new_height);
+            $new_img = imagecreatetruecolor($new_width, $new_height);
         } else {
             if (($img_width / $img_height) >= ($max_width / $max_height)) {
                 $new_width = $img_width / ($img_height / $max_height);
@@ -327,27 +327,27 @@ class UploadHandler
             }
             $dst_x = 0 - ($new_width - $max_width) / 2;
             $dst_y = 0 - ($new_height - $max_height) / 2;
-            $new_img = @imagecreatetruecolor($max_width, $max_height);
+            $new_img = imagecreatetruecolor($max_width, $max_height);
         }
         switch (strtolower(substr(strrchr($file_name, '.'), 1))) {
             case 'jpg':
             case 'jpeg':
-                $src_img = @imagecreatefromjpeg($file_path);
+                $src_img = imagecreatefromjpeg($file_path);
                 $write_image = 'imagejpeg';
                 $image_quality = isset($options['jpeg_quality']) ?
                     $options['jpeg_quality'] : 75;
                 break;
             case 'gif':
-                @imagecolortransparent($new_img, @imagecolorallocate($new_img, 0, 0, 0));
-                $src_img = @imagecreatefromgif($file_path);
+                imagecolortransparent($new_img, imagecolorallocate($new_img, 0, 0, 0));
+                $src_img = imagecreatefromgif($file_path);
                 $write_image = 'imagegif';
                 $image_quality = null;
                 break;
             case 'png':
-                @imagecolortransparent($new_img, @imagecolorallocate($new_img, 0, 0, 0));
-                @imagealphablending($new_img, false);
-                @imagesavealpha($new_img, true);
-                $src_img = @imagecreatefrompng($file_path);
+                imagecolortransparent($new_img, imagecolorallocate($new_img, 0, 0, 0));
+                imagealphablending($new_img, false);
+                imagesavealpha($new_img, true);
+                $src_img = imagecreatefrompng($file_path);
                 $write_image = 'imagepng';
                 $image_quality = isset($options['png_quality']) ?
                     $options['png_quality'] : 9;
@@ -355,7 +355,7 @@ class UploadHandler
             default:
                 $src_img = null;
         }
-        $success = $src_img && @imagecopyresampled(
+        $success = $src_img && imagecopyresampled(
             $new_img,
             $src_img,
             $dst_x,
@@ -368,8 +368,10 @@ class UploadHandler
             $img_height
         ) && $write_image($new_img, $new_file_path, $image_quality);
         // Free up memory (imagedestroy does not delete files):
-        @imagedestroy($src_img);
-        @imagedestroy($new_img);
+        if ($src_img) {
+            imagedestroy($src_img);
+        }
+        imagedestroy($new_img);
         return $success;
     }
 
@@ -557,6 +559,8 @@ class UploadHandler
             $src_width,
             $src_height
         );
+        // Free up memory (imagedestroy does not delete files):
+        imagedestroy($image);
         return $new_img;
     }
 
@@ -614,7 +618,7 @@ class UploadHandler
         }
         $success = imagejpeg($image, $file_path);
         // Free up memory (imagedestroy does not delete files):
-        @imagedestroy($image);
+        imagedestroy($image);
         return $success;
     }
 
