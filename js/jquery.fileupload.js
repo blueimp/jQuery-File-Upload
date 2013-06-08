@@ -1,5 +1,5 @@
 /*
- * jQuery File Upload Plugin 5.31.3
+ * jQuery File Upload Plugin 5.31.4
  * https://github.com/blueimp/jQuery-File-Upload
  *
  * Copyright 2010, Sebastian Tschan
@@ -232,6 +232,9 @@
             'multipart',
             'forceIframeTransport'
         ],
+
+        _blobSlice: window.Blob && (Blob.prototype.slice ||
+            Blob.prototype.webkitSlice || Blob.prototype.mozSlice),
 
         _BitrateTimer: function () {
             this.timestamp = ((Date.now) ? Date.now() : (new Date()).getTime());
@@ -632,7 +635,7 @@
                 fs = file.size,
                 ub = options.uploadedBytes = options.uploadedBytes || 0,
                 mcs = options.maxChunkSize || fs,
-                slice = file.slice || file.webkitSlice || file.mozSlice,
+                slice = this._blobSlice,
                 dfd = $.Deferred(),
                 promise = dfd.promise(),
                 jqXHR,
