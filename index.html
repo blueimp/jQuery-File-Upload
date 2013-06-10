@@ -66,6 +66,7 @@
             KS:<input id="tb_KS" type="text" title="ks" placeholder="insert ks here or use the login above" style="width:400px">  <br/>
             <input id="cb_chunk" type="checkbox">Use Chunk with size <input id="tb_chunkSize" type="text" value="500000"> bytes    <br/>
             <input id="cb_lbd" type=checkbox>Use lbd.kaltura.com
+            <input id="cb_testing" type=checkbox>Use www.kaltura.co.cc
             <br/>
             <input id="init" type="button" value="init" class="btn-large btn-block btn-primary ">
         </div>
@@ -294,6 +295,8 @@
     function initUpload(ks,chunkSize)
     {
         var lbd =  $("#cb_lbd").get(0).checked;
+        var testing = $("#cb_testing").get(0).checked;
+
         $("#fileupload").show();
         $('#fileupload').fileupload({
 
@@ -319,6 +322,13 @@
             $('#fileupload').fileupload({
                 apiURL:'http://lbd.kaltura.com/api_v3/',
                 url: 'http://lbd.kaltura.com/api_v3/?service=uploadToken&action=upload&format=1'
+            });
+        }
+        if (testing)
+        {
+            $('#fileupload').fileupload({
+                apiURL:'http://www.kaltura.co.cc/api_v3/',
+                url: 'http://www.kaltura.co.cc/api_v3/?service=uploadToken&action=upload&format=1'
             });
         }
     }
