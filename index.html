@@ -266,6 +266,14 @@
 <script src="http://html5video.org/kaltura-player/mwEmbedLoader.php"></script>
 <script src="http://html5video.org/kaltura-player/kWidget/kWidget.auth.js"></script>
 <script>
+    $(document).ready(function(){
+        if (document.location.href.indexOf("ks=") > -1)
+        {
+            var ks =  document.location.href.match(/ks=(.*)[&]/)[1];
+            $("#tb_KS").val(ks);
+
+        }
+    })
     kWidget.auth.getWidget( "hostedAuthWidget", function( userObject ){
 
         var ks = userObject["ks"];
