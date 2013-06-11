@@ -42,7 +42,7 @@
             prefix: true,
             fileTypes: '@',
             maxFileSize: '@',
-            disabled: '@disableAudioLoad'
+            disabled: '@disableAudioPreview'
         },
         {
             action: 'setAudio',

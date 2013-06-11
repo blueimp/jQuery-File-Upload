@@ -42,7 +42,7 @@
             prefix: true,
             fileTypes: '@',
             maxFileSize: '@',
-            disabled: '@disableVideoLoad'
+            disabled: '@disableVideoPreview'
         },
         {
             action: 'setVideo',
