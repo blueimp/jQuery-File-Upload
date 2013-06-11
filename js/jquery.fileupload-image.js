@@ -1,5 +1,5 @@
 /*
- * jQuery File Upload Image Preview & Resize Plugin 1.1
+ * jQuery File Upload Image Preview & Resize Plugin 1.2
  * https://github.com/blueimp/jQuery-File-Upload
  *
  * Copyright 2013, Sebastian Tschan
@@ -35,31 +35,35 @@
     // Prepend to the default processQueue:
     $.blueimp.fileupload.prototype.options.processQueue.unshift(
         {
-            action: 'loadImage',
+            action: 'loadImageMetaData',
             // Always trigger this action,
             // even if the previous action was rejected: 
             always: true,
-            fileTypes: '@loadImageFileTypes',
-            maxFileSize: '@loadImageMaxFileSize',
-            noRevoke: '@loadImageNoRevoke',
+            disableImageHead: '@',
+            disableExif: '@',
+            disableExifThumbnail: '@',
+            disableExifSub: '@',
+            disableExifGps: '@',
+            disabled: '@disableImageMetaDataLoad'
+        },
+        {
+            action: 'loadImage',
+            // Use the action as prefix for the "@" options:
+            prefix: true,
+            fileTypes: '@',
+            maxFileSize: '@',
+            noRevoke: '@',
             disabled: '@disableImageLoad'
         },
         {
-            action: 'loadImageMetaData',
-            disabled: '@disableImageMetaDataLoad',
-            disableImageHead: '@disableImageHead',
-            disableExif: '@disableExif',
-            disableExifThumbnail: '@disableExifThumbnail',
-            disableExifSub: '@disableExifSub',
-            disableExifGps: '@disableExifGps'
-        },
-        {
             action: 'resizeImage',
-            maxWidth: '@imageMaxWidth',
-            maxHeight: '@imageMaxHeight',
-            minWidth: '@imageMinWidth',
-            minHeight: '@imageMinHeight',
-            crop: '@imageCrop',
+            // Use "image" as prefix for the "@" options:
+            prefix: 'image',
+            maxWidth: '@',
+            maxHeight: '@',
+            minWidth: '@',
+            minHeight: '@',
+            crop: '@',
             disabled: '@disableImageResize'
         },
         {
@@ -72,14 +76,19 @@
         },
         {
             action: 'resizeImage',
-            maxWidth: '@previewMaxWidth',
-            maxHeight: '@previewMaxHeight',
-            minWidth: '@previewMinWidth',
-            minHeight: '@previewMinHeight',
-            crop: '@previewCrop',
-            orientation: '@previewOrientation',
-            thumbnail: '@previewThumbnail',
-            canvas: '@previewAsCanvas',
+            // Always trigger this action,
+            // even if the previous action was rejected: 
+            always: true,
+            // Use "preview" as prefix for the "@" options:
+            prefix: 'preview',
+            maxWidth: '@',
+            maxHeight: '@',
+            minWidth: '@',
+            minHeight: '@',
+            crop: '@',
+            orientation: '@',
+            thumbnail: '@',
+            canvas: '@',
             disabled: '@disableImagePreview'
         },
         {
@@ -98,7 +107,7 @@
             // matched against the file type:
             loadImageFileTypes: /^image\/(gif|jpeg|png)$/,
             // The maximum file size of images to load:
-            loadImageMaxFileSize: 5000000, // 5MB
+            loadImageMaxFileSize: 10000000, // 10MB
             // The maximum width of resized images:
             imageMaxWidth: 1920,
             // The maximum height of resized images:
@@ -119,7 +128,7 @@
             // Define if preview images should be cropped or only scaled:
             previewCrop: false,
             // Define if preview images should be resized as canvas elements:
-            previewAsCanvas: true
+            previewCanvas: true
         },
 
         processActions: {
