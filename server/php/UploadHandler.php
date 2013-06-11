@@ -1,6 +1,6 @@
 <?php
 /*
- * jQuery File Upload Plugin PHP Class 6.5
+ * jQuery File Upload Plugin PHP Class 6.6.3
  * https://github.com/blueimp/jQuery-File-Upload
  *
  * Copyright 2010, Sebastian Tschan
@@ -88,8 +88,8 @@ class UploadHandler
             'min_height' => 1,
             // Set the following option to false to enable resumable uploads:
             'discard_aborted_uploads' => true,
-            // Set to true to rotate images based on EXIF meta data, if available:
-            'orient_image' => false,
+            // Set to false to disable rotating images based on EXIF meta data:
+            'orient_image' => true,
             'image_versions' => array(
                 // Uncomment the following version to restrict the size of
                 // uploaded images:
@@ -316,7 +316,7 @@ class UploadHandler
             $new_height = $img_height * $scale;
             $dst_x = 0;
             $dst_y = 0;
-            $new_img = @imagecreatetruecolor($new_width, $new_height);
+            $new_img = imagecreatetruecolor($new_width, $new_height);
         } else {
             if (($img_width / $img_height) >= ($max_width / $max_height)) {
                 $new_width = $img_width / ($img_height / $max_height);
@@ -327,35 +327,36 @@ class UploadHandler
             }
             $dst_x = 0 - ($new_width - $max_width) / 2;
             $dst_y = 0 - ($new_height - $max_height) / 2;
-            $new_img = @imagecreatetruecolor($max_width, $max_height);
+            $new_img = imagecreatetruecolor($max_width, $max_height);
         }
         switch (strtolower(substr(strrchr($file_name, '.'), 1))) {
             case 'jpg':
             case 'jpeg':
-                $src_img = @imagecreatefromjpeg($file_path);
+                $src_img = imagecreatefromjpeg($file_path);
                 $write_image = 'imagejpeg';
                 $image_quality = isset($options['jpeg_quality']) ?
                     $options['jpeg_quality'] : 75;
                 break;
             case 'gif':
-                @imagecolortransparent($new_img, @imagecolorallocate($new_img, 0, 0, 0));
-                $src_img = @imagecreatefromgif($file_path);
+                imagecolortransparent($new_img, imagecolorallocate($new_img, 0, 0, 0));
+                $src_img = imagecreatefromgif($file_path);
                 $write_image = 'imagegif';
                 $image_quality = null;
                 break;
             case 'png':
-                @imagecolortransparent($new_img, @imagecolorallocate($new_img, 0, 0, 0));
-                @imagealphablending($new_img, false);
-                @imagesavealpha($new_img, true);
-                $src_img = @imagecreatefrompng($file_path);
+                imagecolortransparent($new_img, imagecolorallocate($new_img, 0, 0, 0));
+                imagealphablending($new_img, false);
+                imagesavealpha($new_img, true);
+                $src_img = imagecreatefrompng($file_path);
                 $write_image = 'imagepng';
                 $image_quality = isset($options['png_quality']) ?
                     $options['png_quality'] : 9;
                 break;
             default:
-                $src_img = null;
+                imagedestroy($new_img);
+                return false;
         }
-        $success = $src_img && @imagecopyresampled(
+        $success = imagecopyresampled(
             $new_img,
             $src_img,
             $dst_x,
@@ -368,8 +369,8 @@ class UploadHandler
             $img_height
         ) && $write_image($new_img, $new_file_path, $image_quality);
         // Free up memory (imagedestroy does not delete files):
-        @imagedestroy($src_img);
-        @imagedestroy($new_img);
+        imagedestroy($src_img);
+        imagedestroy($new_img);
         return $success;
     }
 
@@ -518,6 +519,50 @@ class UploadHandler
         // Handle form data, e.g. $_REQUEST['description'][$index]
     }
 
+    protected function imageflip($image, $mode) {
+        if (function_exists('imageflip')) {
+            return imageflip($image, $mode);
+        }
+        $new_width = $src_width = imagesx($image);
+        $new_height = $src_height = imagesy($image);
+        $new_img = imagecreatetruecolor($new_width, $new_height);
+        $src_x = 0;
+        $src_y = 0;
+        switch ($mode) {
+            case '1': // flip on the horizontal axis
+                $src_y = $new_height - 1;
+                $src_height = -$new_height;
+                break;
+            case '2': // flip on the vertical axis
+                $src_x  = $new_width - 1;
+                $src_width = -$new_width;
+                break;
+            case '3': // flip on both axes
+                $src_y = $new_height - 1;
+                $src_height = -$new_height;
+                $src_x  = $new_width - 1;
+                $src_width = -$new_width;
+                break;
+            default:
+                return $image;
+        }
+        imagecopyresampled(
+            $new_img,
+            $image,
+            0,
+            0,
+            $src_x,
+            $src_y,
+            $new_width,
+            $new_height,
+            $src_width,
+            $src_height
+        );
+        // Free up memory (imagedestroy does not delete files):
+        imagedestroy($image);
+        return $new_img;
+    }
+
     protected function orient_image($file_path) {
         if (!function_exists('exif_read_data')) {
             return false;
@@ -527,15 +572,41 @@ class UploadHandler
             return false;
         }
         $orientation = intval(@$exif['Orientation']);
-        if (!in_array($orientation, array(3, 6, 8))) {
+        if ($orientation < 2 || $orientation > 8) {
             return false;
         }
-        $image = @imagecreatefromjpeg($file_path);
+        $image = imagecreatefromjpeg($file_path);
         switch ($orientation) {
+            case 2:
+                $image = $this->imageflip(
+                    $image,
+                    defined('IMG_FLIP_VERTICAL') ? IMG_FLIP_VERTICAL : 2
+                );
+                break;
             case 3:
                 $image = imagerotate($image, 180, 0);
                 break;
+            case 4:
+                $image = $this->imageflip(
+                    $image,
+                    defined('IMG_FLIP_HORIZONTAL') ? IMG_FLIP_HORIZONTAL : 1
+                );
+                break;
+            case 5:
+                $image = $this->imageflip(
+                    $image,
+                    defined('IMG_FLIP_HORIZONTAL') ? IMG_FLIP_HORIZONTAL : 1
+                );
+                $image = imagerotate($image, 270, 0);
+                break;
             case 6:
+                $image = imagerotate($image, 270, 0);
+                break;
+            case 7:
+                $image = $this->imageflip(
+                    $image,
+                    defined('IMG_FLIP_VERTICAL') ? IMG_FLIP_VERTICAL : 2
+                );
                 $image = imagerotate($image, 270, 0);
                 break;
             case 8:
@@ -546,7 +617,7 @@ class UploadHandler
         }
         $success = imagejpeg($image, $file_path);
         // Free up memory (imagedestroy does not delete files):
-        @imagedestroy($image);
+        imagedestroy($image);
         return $success;
     }
 
@@ -620,7 +691,8 @@ class UploadHandler
             if ($file_size === $file->size) {
                 $file->url = $this->get_download_url($file->name);
                 list($img_width, $img_height) = @getimagesize($file_path);
-                if (is_int($img_width)) {
+                if (is_int($img_width) &&
+                        preg_match($this->options['inline_file_types'], $file->name)) {
                     $this->handle_image_file($file_path, $file);
                 }
             } else {
