@@ -1,6 +1,6 @@
 <?php
 /*
- * jQuery File Upload Plugin PHP Class 6.6.3
+ * jQuery File Upload Plugin PHP Class 6.7
  * https://github.com/blueimp/jQuery-File-Upload
  *
  * Copyright 2010, Sebastian Tschan
@@ -109,6 +109,13 @@ class UploadHandler
                 ),
                 */
                 'thumbnail' => array(
+                    // Uncomment the following to use a defined directory for the thumbnails
+                    // instead of a subdirectory based on the version identifier.
+                    // Make sure that this directory doesn't allow execution of files if you
+                    // don't pose any restrictions on the type of uploaded files, e.g. by
+                    // copying the .htaccess file from the files directory for Apache:
+                    //'upload_dir' => dirname($this->get_server_var('SCRIPT_FILENAME')).'/thumb/',
+                    //'upload_url' => $this->get_full_url().'/thumb/',
                     // Uncomment the following to force the max
                     // dimensions and e.g. create square thumbnails:
                     //'crop' => true,
@@ -175,7 +182,15 @@ class UploadHandler
 
     protected function get_upload_path($file_name = null, $version = null) {
         $file_name = $file_name ? $file_name : '';
-        $version_path = empty($version) ? '' : $version.'/';
+        if (empty($version)) {
+            $version_path = '';
+        } else {
+            $version_dir = @$this->options['image_versions'][$version]['upload_dir'];
+            if ($version_dir) {
+                return $version_dir.$this->get_user_path().$file_name;
+            }
+            $version_path = $version.'/';
+        }
         return $this->options['upload_dir'].$this->get_user_path()
             .$version_path.$file_name;
     }
@@ -194,7 +209,15 @@ class UploadHandler
             }
             return $url.'&download=1';
         }
-        $version_path = empty($version) ? '' : rawurlencode($version).'/';
+        if (empty($version)) {
+            $version_path = '';
+        } else {
+            $version_url = @$this->options['image_versions'][$version]['upload_url'];
+            if ($version_url) {
+                return $version_url.$this->get_user_path().rawurlencode($file_name);
+            }
+            $version_path = rawurlencode($version).'/';
+        }
         return $this->options['upload_url'].$this->get_user_path()
             .$version_path.rawurlencode($file_name);
     }
