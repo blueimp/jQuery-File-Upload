@@ -1,5 +1,5 @@
 /*
- * jQuery File Upload Validation Plugin 1.0.2
+ * jQuery File Upload Validation Plugin 1.1
  * https://github.com/blueimp/jQuery-File-Upload
  *
  * Copyright 2013, Sebastian Tschan
@@ -37,10 +37,10 @@
             // even if the previous action was rejected: 
             always: true,
             // Options taken from the global options map:
-            acceptFileTypes: '@acceptFileTypes',
-            maxFileSize: '@maxFileSize',
-            minFileSize: '@minFileSize',
-            maxNumberOfFiles: '@maxNumberOfFiles',
+            acceptFileTypes: '@',
+            maxFileSize: '@',
+            minFileSize: '@',
+            maxNumberOfFiles: '@',
             disabled: '@disableValidation'
         }
     );
