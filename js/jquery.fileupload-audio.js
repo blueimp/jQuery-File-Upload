@@ -1,5 +1,5 @@
 /*
- * jQuery File Upload Audio Preview Plugin 1.0
+ * jQuery File Upload Audio Preview Plugin 1.0.1
  * https://github.com/blueimp/jQuery-File-Upload
  *
  * Copyright 2013, Sebastian Tschan
@@ -38,9 +38,11 @@
             // Always trigger this action,
             // even if the previous action was rejected: 
             always: true,
-            fileTypes: '@loadAudioFileTypes',
-            maxFileSize: '@loadAudioMaxFileSize',
-            disabled: '@disableAudioLoad'
+            // Use the action as prefix for the "@" options:
+            prefix: true,
+            fileTypes: '@',
+            maxFileSize: '@',
+            disabled: '@disableAudioPreview'
         },
         {
             action: 'setAudio',
