@@ -1,5 +1,5 @@
 /*
- * jQuery File Upload Plugin JS Example 8.0
+ * jQuery File Upload Plugin JS Example 8.0.1
  * https://github.com/blueimp/jQuery-File-Upload
  *
  * Copyright 2010, Sebastian Tschan
@@ -9,8 +9,8 @@
  * http://www.opensource.org/licenses/MIT
  */
 
-/*jslint nomen: true, unparam: true, regexp: true */
-/*global $, window, document */
+/*jslint nomen: true, regexp: true */
+/*global $, window, navigator */
 
 $(function () {
     'use strict';
@@ -37,7 +37,11 @@ $(function () {
         // Demo settings:
         $('#fileupload').fileupload('option', {
             url: '//jquery-file-upload.appspot.com/',
-            disableImageResize: false,
+            // Enable image resizing, except for Android and Opera,
+            // which actually support image resizing, but fail to
+            // send Blob objects via XHR requests:
+            disableImageResize: /Android(?!.*Chrome)|Opera/
+                .test(window.navigator && navigator.userAgent),
             maxFileSize: 5000000,
             acceptFileTypes: /(\.|\/)(gif|jpe?g|png)$/i
         });
@@ -62,7 +66,7 @@ $(function () {
             url: $('#fileupload').fileupload('option', 'url'),
             dataType: 'json',
             context: $('#fileupload')[0]
-        }).always(function (result) {
+        }).always(function () {
             $(this).removeClass('fileupload-processing');
         }).done(function (result) {
             $(this).fileupload('option', 'done')
