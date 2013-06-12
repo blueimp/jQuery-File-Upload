@@ -1,5 +1,5 @@
 /*
- * jQuery File Upload Plugin 5.31.5
+ * jQuery File Upload Plugin 5.31.6
  * https://github.com/blueimp/jQuery-File-Upload
  *
  * Copyright 2010, Sebastian Tschan
@@ -10,7 +10,7 @@
  */
 
 /*jslint nomen: true, unparam: true, regexp: true */
-/*global define, window, document, File, Blob, FormData, location */
+/*global define, window, document, location, File, Blob, FormData */
 
 (function (factory) {
     'use strict';
@@ -32,6 +32,10 @@
     // but not non-multipart XHR file uploads:
     $.support.xhrFileUpload = !!(window.XMLHttpRequestUpload && window.FileReader);
     $.support.xhrFormDataFileUpload = !!window.FormData;
+
+    // Detect support for Blob slicing (required for chunked uploads):
+    $.support.blobSlice = window.Blob && (Blob.prototype.slice ||
+        Blob.prototype.webkitSlice || Blob.prototype.mozSlice);
 
     // The fileupload widget listens for change events on file input fields defined
     // via fileInput setting and paste or drop events of the given dropZone.
@@ -236,7 +240,7 @@
             'forceIframeTransport'
         ],
 
-        _blobSlice: function () {
+        _blobSlice: $.support.blobSlice && function () {
             var slice = this.slice || this.webkitSlice || this.mozSlice;
             return slice.apply(this, arguments);
         },
@@ -635,10 +639,11 @@
         // should be uploaded in chunks, but does not invoke any
         // upload requests:
         _chunkedUpload: function (options, testOnly) {
+            options.uploadedBytes = options.uploadedBytes || 0;
             var that = this,
                 file = options.files[0],
                 fs = file.size,
-                ub = options.uploadedBytes = options.uploadedBytes || 0,
+                ub = options.uploadedBytes,
                 mcs = options.maxChunkSize || fs,
                 slice = this._blobSlice,
                 dfd = $.Deferred(),
@@ -858,7 +863,8 @@
                     this._slots.push(slot);
                     pipe = slot.pipe(send);
                 } else {
-                    pipe = (this._sequence = this._sequence.pipe(send, send));
+                    this._sequence = this._sequence.pipe(send, send);
+                    pipe = this._sequence;
                 }
                 // Return the piped Promise object, enhanced with an abort method,
                 // which is delegated to the jqXHR object of the current upload,
@@ -1108,9 +1114,9 @@
         },
 
         _onDrop: function (e) {
+            e.dataTransfer = e.originalEvent && e.originalEvent.dataTransfer;
             var that = this,
-                dataTransfer = e.dataTransfer = e.originalEvent &&
-                    e.originalEvent.dataTransfer,
+                dataTransfer = e.dataTransfer,
                 data = {};
             if (dataTransfer && dataTransfer.files && dataTransfer.files.length) {
                 e.preventDefault();
@@ -1124,8 +1130,8 @@
         },
 
         _onDragOver: function (e) {
-            var dataTransfer = e.dataTransfer = e.originalEvent &&
-                e.originalEvent.dataTransfer;
+            e.dataTransfer = e.originalEvent && e.originalEvent.dataTransfer;
+            var dataTransfer = e.dataTransfer;
             if (dataTransfer) {
                 if (this._trigger('dragover', e) === false) {
                     return false;
