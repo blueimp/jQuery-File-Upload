@@ -1,5 +1,5 @@
 /*
- * jQuery File Upload AngularJS Plugin 1.2
+ * jQuery File Upload AngularJS Plugin 1.2.1
  * https://github.com/blueimp/jQuery-File-Upload
  *
  * Copyright 2013, Sebastian Tschan
@@ -170,6 +170,29 @@
         .controller('FileUploadController', [
             '$scope', '$element', '$attrs', 'fileUpload',
             function ($scope, $element, $attrs, fileUpload) {
+                var uploadMethods = {
+                    progress: function () {
+                        return $element.fileupload('progress');
+                    },
+                    active: function () {
+                        return $element.fileupload('active');
+                    },
+                    option: function (option, data) {
+                        return $element.fileupload('option', option, data);
+                    },
+                    add: function (data) {
+                        return $element.fileupload('add', data);
+                    },
+                    send: function (data) {
+                        return $element.fileupload('send', data);
+                    },
+                    process: function (data) {
+                        return $element.fileupload('process', data);
+                    },
+                    processing: function (data) {
+                        return $element.fileupload('processing', data);
+                    }
+                };
                 $scope.disabled = angular.element('<input type="file">')
                     .prop('disabled');
                 $scope.queue = $scope.queue || [];
@@ -202,27 +225,6 @@
                         }
                     }
                 };
-                $scope.progress = function () {
-                    return $element.fileupload('progress');
-                };
-                $scope.active = function () {
-                    return $element.fileupload('active');
-                };
-                $scope.option = function (option, data) {
-                    return $element.fileupload('option', option, data);
-                };
-                $scope.add = function (data) {
-                    return $element.fileupload('add', data);
-                };
-                $scope.send = function (data) {
-                    return $element.fileupload('send', data);
-                };
-                $scope.process = function (data) {
-                    return $element.fileupload('process', data);
-                };
-                $scope.processing = function (data) {
-                    return $element.fileupload('processing', data);
-                };
                 $scope.applyOnQueue = function (method) {
                     var list = this.queue.slice(0),
                         i,
@@ -240,6 +242,8 @@
                 $scope.cancel = function () {
                     this.applyOnQueue('$cancel');
                 };
+                // Add upload methods to the scope:
+                angular.extend($scope, uploadMethods);
                 // The fileupload widget will initialize with
                 // the options provided via "data-"-parameters,
                 // as well as those given via options object:
@@ -277,6 +281,15 @@
                     'fileuploadprocessstop'
                 ].join(' '), function (e, data) {
                     $scope.$emit(e.type, data);
+                }).on('remove', function () {
+                    // Remove upload methods from the scope,
+                    // when the widget is removed:
+                    var method;
+                    for (method in uploadMethods) {
+                        if (uploadMethods.hasOwnProperty(method)) {
+                            delete $scope[method];
+                        }
+                    }
                 });
                 // Observe option changes:
                 $scope.$watch(
