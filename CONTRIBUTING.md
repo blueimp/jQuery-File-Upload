@@ -12,7 +12,7 @@ Please follow these guidelines before reporting a bug:
 
 2. **Use the GitHub issue search** &mdash; check if the issue has already been reported. If it has been, please comment on the existing issue.
 
-3. **Isolate the demonstrable problem** &mdash; Try to reproduce the problem with the [Demo](http://blueimp.github.com/jQuery-File-Upload/) or with a reduced test case that includes the least amount of code necessary to reproduce the problem.
+3. **Isolate the demonstrable problem** &mdash; Try to reproduce the problem with the [Demo](http://blueimp.github.io/jQuery-File-Upload/) or with a reduced test case that includes the least amount of code necessary to reproduce the problem.
 
 4. **Provide a means to reproduce the problem** &mdash; Please provide as much details as possible, e.g. server information, browser and operating system versions, steps to reproduce the problem. If possible, provide a link to your reduced test case, e.g. via [JSFiddle](http://jsfiddle.net/). 
 

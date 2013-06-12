@@ -20,13 +20,13 @@
 <meta name="description" content="File Upload widget with multiple file selection, drag&amp;drop support, progress bar, validation and preview images, audio and video for jQuery. Supports cross-domain, chunked and resumable file uploads. Works with any server-side platform (Google App Engine, PHP, Python, Ruby on Rails, Java, etc.) that supports standard HTML form file uploads.">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <!-- Bootstrap CSS Toolkit styles -->
-<link rel="stylesheet" href="http://blueimp.github.com/cdn/css/bootstrap.min.css">
+<link rel="stylesheet" href="http://blueimp.github.io/cdn/css/bootstrap.min.css">
 <!-- Generic page styles -->
 <link rel="stylesheet" href="css/style.css">
 <!-- Bootstrap styles for responsive website layout, supporting different screen sizes -->
-<link rel="stylesheet" href="http://blueimp.github.com/cdn/css/bootstrap-responsive.min.css">
+<link rel="stylesheet" href="http://blueimp.github.io/cdn/css/bootstrap-responsive.min.css">
 <!-- Bootstrap CSS fixes for IE6 -->
-<!--[if lt IE 7]><link rel="stylesheet" href="http://blueimp.github.com/cdn/css/bootstrap-ie6.min.css"><![endif]-->
+<!--[if lt IE 7]><link rel="stylesheet" href="http://blueimp.github.io/cdn/css/bootstrap-ie6.min.css"><![endif]-->
 <!-- CSS to style the file input field as button and adjust the Bootstrap progress bars -->
 <link rel="stylesheet" href="css/jquery.fileupload-ui.css">
 </head>
@@ -42,8 +42,8 @@
             <a class="brand" href="https://github.com/blueimp/jQuery-File-Upload">jQuery File Upload</a>
             <div class="nav-collapse">
                 <ul class="nav">
-                    <li class="active"><a href="http://blueimp.github.com/jQuery-File-Upload/">Demo</a></li>
-                    <li><a href="https://github.com/blueimp/jQuery-File-Upload#download">Download</a></li>
+                    <li class="active"><a href="http://blueimp.github.io/jQuery-File-Upload/">Demo</a></li>
+                    <li><a href="https://github.com/blueimp/jQuery-File-Upload/tags">Download</a></li>
                     <li><a href="https://github.com/blueimp/jQuery-File-Upload">Source Code</a></li>
                     <li><a href="https://github.com/blueimp/jQuery-File-Upload/wiki">Documentation</a></li>
                     <li><a href="https://github.com/blueimp/jQuery-File-Upload#support">Support</a></li>
@@ -118,9 +118,9 @@
 <!-- The jQuery UI widget factory, can be omitted if jQuery UI is already included -->
 <script src="js/vendor/jquery.ui.widget.js"></script>
 <!-- The Load Image plugin is included for the preview images and image resizing functionality -->
-<script src="http://blueimp.github.com/JavaScript-Load-Image/load-image.min.js"></script>
+<script src="http://blueimp.github.io/JavaScript-Load-Image/load-image.min.js"></script>
 <!-- The Canvas to Blob plugin is included for image resizing functionality -->
-<script src="http://blueimp.github.com/JavaScript-Canvas-to-Blob/canvas-to-blob.min.js"></script>
+<script src="http://blueimp.github.io/JavaScript-Canvas-to-Blob/canvas-to-blob.min.js"></script>
 <!-- The Iframe Transport is required for browsers without support for XHR file uploads -->
 <script src="js/jquery.iframe-transport.js"></script>
 <!-- The basic File Upload plugin -->
@@ -141,7 +141,7 @@
 $(function () {
     'use strict';
     // Change this to the location of your server-side upload handler:
-    var url = (window.location.hostname === 'blueimp.github.com' ||
+    var url = (window.location.hostname === 'blueimp.github.io' ||
                 window.location.hostname === 'blueimp.github.io') ?
                 '//jquery-file-upload.appspot.com/' : 'server/php/',
         uploadButton = $('<button/>')
