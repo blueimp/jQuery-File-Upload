@@ -30,7 +30,7 @@ import (
 )
 
 const (
-	WEBSITE           = "http://blueimp.github.com/jQuery-File-Upload/"
+	WEBSITE           = "http://blueimp.github.io/jQuery-File-Upload/"
 	MIN_FILE_SIZE     = 1       // bytes
 	MAX_FILE_SIZE     = 5000000 // bytes
 	IMAGE_TYPES       = "image/(gif|p?jpeg|(x-)?png)"
