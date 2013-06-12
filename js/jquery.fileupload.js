@@ -144,13 +144,16 @@
             // The add callback is invoked as soon as files are added to the fileupload
             // widget (via file input selection, drag & drop, paste or add API call).
             // If the singleFileUploads option is enabled, this callback will be
-            // called once for each file in the selection for XHR file uplaods, else
+            // called once for each file in the selection for XHR file uploads, else
             // once for each file selection.
+            //
             // The upload starts when the submit method is invoked on the data parameter.
             // The data object contains a files property holding the added files
-            // and allows to override plugin options as well as define ajax settings.
+            // and allows you to override plugin options as well as define ajax settings.
+            //
             // Listeners for this callback can also be bound the following way:
             // .bind('fileuploadadd', func);
+            //
             // data.submit() returns a Promise object and allows to attach additional
             // handlers using jQuery's Deferred callbacks:
             // data.submit().done(func).fail(func).always(func);
