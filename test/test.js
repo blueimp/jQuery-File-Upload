@@ -1201,7 +1201,7 @@ $(function () {
             .fileupload({
                 autoUpload: true,
                 acceptFileTypes: /(\.|\/)(gif|jpe?g|png)$/i,
-                previewFileTypes: /none/,
+                disableImageMetaDataLoad: true,
                 send: function (e, data) {
                     strictEqual(
                         sendIndex += 1,
