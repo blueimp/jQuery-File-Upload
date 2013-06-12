@@ -272,7 +272,7 @@
                 var file = data.files[data.index],
                     blob = new Blob([
                         data.imageHead,
-                        // Resized images always have a head size of 20,
+                        // Resized images always have a head size of 20 bytes,
                         // including the JPEG marker and a minimal JFIF header:
                         this._blobSlice.call(file, 20)
                     ], {type: file.type});
