@@ -1,7 +1,7 @@
 <!DOCTYPE HTML>
 <!--
 /*
- * jQuery File Upload Plugin Basic Plus Demo 1.1.1
+ * jQuery File Upload Plugin Basic Plus Demo 1.1.2
  * https://github.com/blueimp/jQuery-File-Upload
  *
  * Copyright 2013, Sebastian Tschan
@@ -151,8 +151,12 @@ $(function () {
         autoUpload: false,
         acceptFileTypes: /(\.|\/)(gif|jpe?g|png)$/i,
         maxFileSize: 5000000, // 5 MB
-        loadImageMaxFileSize: 15000000, // 15MB
-        disableImageResize: false,
+        loadImageMaxFileSize: 15000000, // 10MB
+        // Enable image resizing, except for Android and Opera,
+        // which actually support image resizing, but fail to
+        // send Blob objects via XHR requests:
+        disableImageResize: /Android(?!.*Chrome)|Opera/
+            .test(window.navigator && navigator.userAgent),
         previewMaxWidth: 100,
         previewMaxHeight: 100,
         previewCrop: true
