@@ -32,7 +32,7 @@
 
     angular.module('blueimp.fileupload', [])
 
-        .provider('fileUpload', function () {
+        .provider('blueimpFileUpload', function () {
             var scopeApply = function () {
                     var scope = angular.element(this)
                         .fileupload('option', 'scope')();
@@ -140,7 +140,7 @@
             ];
         })
 
-        .provider('formatFileSizeFilter', function () {
+        .provider('blueimpFormatFileSizeFilter', function () {
             var $config = this.defaults = {
                 // Byte units following the IEC format
                 // http://en.wikipedia.org/wiki/Kilobyte
@@ -167,8 +167,8 @@
             };
         })
 
-        .controller('FileUploadController', [
-            '$scope', '$element', '$attrs', 'fileUpload',
+        .controller('BlueimpFileUploadController', [
+            '$scope', '$element', '$attrs', 'blueimpFileUpload',
             function ($scope, $element, $attrs, fileUpload) {
                 var uploadMethods = {
                     progress: function () {
@@ -293,7 +293,7 @@
                 });
                 // Observe option changes:
                 $scope.$watch(
-                    $attrs.fileupload,
+                    $attrs.blueipFileupload,
                     function (newOptions, oldOptions) {
                         if (newOptions) {
                             $element.fileupload('option', newOptions);
@@ -303,7 +303,7 @@
             }
         ])
 
-        .controller('FileUploadProgressController', [
+        .controller('BlueimpFileUploadProgressController', [
             '$scope', '$attrs', '$parse',
             function ($scope, $attrs, $parse) {
                 var fn = $parse($attrs.progress),
@@ -318,7 +318,7 @@
                     };
                 update();
                 $scope.$watch(
-                    $attrs.progress + '.loaded',
+                    $attrs.blueimpProgress + '.loaded',
                     function (newValue, oldValue) {
                         if (newValue !== oldValue) {
                             update();
@@ -328,36 +328,36 @@
             }
         ])
 
-        .controller('FileUploadPreviewController', [
+        .controller('BlueimpFileUploadPreviewController', [
             '$scope', '$element', '$attrs', '$parse',
             function ($scope, $element, $attrs, $parse) {
-                var fn = $parse($attrs.preview),
+                var fn = $parse($attrs.blueimpPreview),
                     file = fn($scope);
-                if (file.preview) {
-                    $element.append(file.preview);
+                if (file.blueimpPreview) {
+                    $element.append(file.blueimpPreview);
                 }
             }
         ])
 
-        .directive('fileupload', function () {
+        .directive('blueimpFileupload', function () {
             return {
-                controller: 'FileUploadController'
+                controller: 'BlueimpFileUploadController'
             };
         })
 
-        .directive('progress', function () {
+        .directive('blueimpProgress', function () {
             return {
-                controller: 'FileUploadProgressController'
+                controller: 'BlueimpFileUploadProgressController'
             };
         })
 
-        .directive('preview', function () {
+        .directive('blueimpPreview', function () {
             return {
-                controller: 'FileUploadPreviewController'
+                controller: 'BlueimpFileUploadPreviewController'
             };
         })
 
-        .directive('download', function () {
+        .directive('blueimpDownload', function () {
             return function (scope, elm, attrs) {
                 elm.on('dragstart', function (e) {
                     try {
