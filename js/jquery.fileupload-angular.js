@@ -1,5 +1,5 @@
 /*
- * jQuery File Upload AngularJS Plugin 1.2.1
+ * jQuery File Upload AngularJS Plugin 1.3
  * https://github.com/blueimp/jQuery-File-Upload
  *
  * Copyright 2013, Sebastian Tschan
@@ -32,6 +32,9 @@
 
     angular.module('blueimp.fileupload', [])
 
+        // The fileUpload service provides configuration options
+        // for the fileUpload directive and default handlers for
+        // File Upload events:
         .provider('fileUpload', function () {
             var scopeApply = function () {
                     var scope = angular.element(this)
@@ -140,8 +143,9 @@
             ];
         })
 
+        // Format byte numbers to readable presentations:
         .provider('formatFileSizeFilter', function () {
-            var $config = this.defaults = {
+            var $config = {
                 // Byte units following the IEC format
                 // http://en.wikipedia.org/wiki/Kilobyte
                 units: [
@@ -150,23 +154,31 @@
                     {size: 1000, suffix: ' KB'}
                 ]
             };
+            this.defaults = $config;
             this.$get = function () {
                 return function (bytes) {
                     if (!angular.isNumber(bytes)) {
                         return '';
                     }
                     var unit = true,
-                        i = -1;
+                        i = 0,
+                        prefix,
+                        suffix;
                     while (unit) {
-                        unit = $config.units[i += 1];
+                        unit = $config.units[i];
+                        prefix = unit.prefix || '';
+                        suffix = unit.suffix || '';
                         if (i === $config.units.length - 1 || bytes >= unit.size) {
-                            return (bytes / unit.size).toFixed(2) + unit.suffix;
+                            return prefix + (bytes / unit.size).toFixed(2) + suffix;
                         }
+                        i += 1;
                     }
                 };
             };
         })
 
+        // The FileUploadController initializes the fileupload widget and
+        // provides scope methods to control the File Upload functionality: 
         .controller('FileUploadController', [
             '$scope', '$element', '$attrs', 'fileUpload',
             function ($scope, $element, $attrs, fileUpload) {
@@ -206,7 +218,8 @@
                         length = files.length;
                     }
                     while (i) {
-                        if (queue[i -= 1] === file) {
+                        i -= 1;
+                        if (queue[i] === file) {
                             return queue.splice(i, length);
                         }
                     }
@@ -293,7 +306,7 @@
                 });
                 // Observe option changes:
                 $scope.$watch(
-                    $attrs.fileupload,
+                    $attrs.fileUpload,
                     function (newOptions, oldOptions) {
                         if (newOptions) {
                             $element.fileupload('option', newOptions);
@@ -303,10 +316,11 @@
             }
         ])
 
+        // Provide File Upload progress feedback:
         .controller('FileUploadProgressController', [
             '$scope', '$attrs', '$parse',
             function ($scope, $attrs, $parse) {
-                var fn = $parse($attrs.progress),
+                var fn = $parse($attrs.fileUploadProgress),
                     update = function () {
                         var progress = fn($scope);
                         if (!progress || !progress.total) {
@@ -318,7 +332,7 @@
                     };
                 update();
                 $scope.$watch(
-                    $attrs.progress + '.loaded',
+                    $attrs.fileUploadProgress + '.loaded',
                     function (newValue, oldValue) {
                         if (newValue !== oldValue) {
                             update();
@@ -328,10 +342,11 @@
             }
         ])
 
+        // Display File Upload previews:
         .controller('FileUploadPreviewController', [
             '$scope', '$element', '$attrs', '$parse',
             function ($scope, $element, $attrs, $parse) {
-                var fn = $parse($attrs.preview),
+                var fn = $parse($attrs.fileUploadPreview),
                     file = fn($scope);
                 if (file.preview) {
                     $element.append(file.preview);
@@ -339,24 +354,26 @@
             }
         ])
 
-        .directive('fileupload', function () {
+        .directive('fileUpload', function () {
             return {
                 controller: 'FileUploadController'
             };
         })
 
-        .directive('progress', function () {
+        .directive('fileUploadProgress', function () {
             return {
                 controller: 'FileUploadProgressController'
             };
         })
 
-        .directive('preview', function () {
+        .directive('fileUploadPreview', function () {
             return {
                 controller: 'FileUploadPreviewController'
             };
         })
 
+        // Enhance the HTML5 download attribute to
+        // allow drag&drop of files to the desktop:
         .directive('download', function () {
             return function (scope, elm, attrs) {
                 elm.on('dragstart', function (e) {
