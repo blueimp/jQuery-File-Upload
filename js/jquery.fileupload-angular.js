@@ -293,7 +293,7 @@
                 });
                 // Observe option changes:
                 $scope.$watch(
-                    $attrs.blueipFileupload,
+                    $attrs.blueimpFileupload,
                     function (newOptions, oldOptions) {
                         if (newOptions) {
                             $element.fileupload('option', newOptions);
