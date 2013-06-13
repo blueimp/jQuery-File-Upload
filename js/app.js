@@ -22,7 +22,7 @@
         'blueimp.fileupload'
     ])
         .config([
-            '$httpProvider', 'fileUploadProvider',
+            '$httpProvider', 'blueimpFileUploadProvider',
             function ($httpProvider, fileUploadProvider) {
                 if (isOnGitHub) {
                     // Demo settings:
