@@ -1,5 +1,5 @@
 /*
- * jQuery File Upload Processing Plugin 1.2.1
+ * jQuery File Upload Processing Plugin 1.2.2
  * https://github.com/blueimp/jQuery-File-Upload
  *
  * Copyright 2012, Sebastian Tschan
@@ -98,8 +98,7 @@
         _transformProcessQueue: function (options) {
             var processQueue = [];
             $.each(options.processQueue, function () {
-                var that = this,
-                    settings = {},
+                var settings = {},
                     action = this.action,
                     prefix = this.prefix === true ? action : this.prefix;
                 $.each(this, function (key, value) {
@@ -134,7 +133,7 @@
                 if (this._processing === 0) {
                     this._trigger('processstart');
                 }
-                $.each(data.files, function (index, file) {
+                $.each(data.files, function (index) {
                     var opts = index ? $.extend({}, options) : options,
                         func = function () {
                             return that._processFile(opts);

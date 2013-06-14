@@ -1,5 +1,5 @@
 /*
- * jQuery File Upload AngularJS Plugin 1.3
+ * jQuery File Upload AngularJS Plugin 1.3.1
  * https://github.com/blueimp/jQuery-File-Upload
  *
  * Copyright 2013, Sebastian Tschan
@@ -307,7 +307,7 @@
                 // Observe option changes:
                 $scope.$watch(
                     $attrs.fileUpload,
-                    function (newOptions, oldOptions) {
+                    function (newOptions) {
                         if (newOptions) {
                             $element.fileupload('option', newOptions);
                         }
@@ -375,7 +375,7 @@
         // Enhance the HTML5 download attribute to
         // allow drag&drop of files to the desktop:
         .directive('download', function () {
-            return function (scope, elm, attrs) {
+            return function (scope, elm) {
                 elm.on('dragstart', function (e) {
                     try {
                         e.originalEvent.dataTransfer.setData(
