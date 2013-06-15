@@ -60,6 +60,7 @@ Please read the [issue guidelines](https://github.com/blueimp/jQuery-File-Upload
 * [JavaScript Load Image function](https://github.com/blueimp/JavaScript-Load-Image) v. 1.7.0+ (optional)
 * [JavaScript Canvas to Blob function](https://github.com/blueimp/JavaScript-Canvas-to-Blob) v. 2.0.5+ (optional)
 * [Bootstrap CSS Toolkit](https://github.com/twitter/bootstrap/) v. 2.3+ (optional)
+* [Flat-UI CSS](https://github.com/designmodo/Flat-UI) (optional)
 
 The jQuery UI widget factory is a requirement for the basic File Upload plugin, but very lightweight without any other dependencies.  
 The jQuery Iframe Transport is required for [browsers without XHR file upload support](https://github.com/blueimp/jQuery-File-Upload/wiki/Browser-support).  
