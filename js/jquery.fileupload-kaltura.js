@@ -230,8 +230,8 @@
         _getSignture: function(params){
             params = this.ksort(params);
             var str = "";
-            for(var v in params) {
-                var k = params[v];
+            for(var k in params) {
+                var v = params[k];
                 str += k + v;
             }
             return MD5(str);
