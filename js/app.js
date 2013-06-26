@@ -1,5 +1,5 @@
 /*
- * jQuery File Upload Plugin Angular JS Example 1.1
+ * jQuery File Upload Plugin Angular JS Example 1.1.1
  * https://github.com/blueimp/jQuery-File-Upload
  *
  * Copyright 2013, Sebastian Tschan
@@ -57,6 +57,7 @@
                         if ($window.blueimp.Gallery(images, {
                                 index: file,
                                 urlProperty: 'url',
+                                titleProperty: 'name',
                                 thumbnailProperty: 'thumbnail_url'
                             })) {
                             // Prevent the default link action on

@@ -1,7 +1,7 @@
 <!DOCTYPE HTML>
 <!--
 /*
- * jQuery File Upload Plugin AngularJS Demo 1.3
+ * jQuery File Upload Plugin AngularJS Demo 1.3.1
  * https://github.com/blueimp/jQuery-File-Upload
  *
  * Copyright 2013, Sebastian Tschan
@@ -131,13 +131,13 @@
             <tr data-ng-repeat="file in queue">
                 <td data-ng-switch data-on="!!file.thumbnail_url">
                     <div class="preview" data-ng-switch-when="true">
-                        <a data-ng-href="{{file.url}}" title="{{file.name}}" class="gallery" download="{{file.name}}" ng-click="display($event, file)"><img data-ng-src="{{file.thumbnail_url}}" alt=""></a>
+                        <a data-ng-href="{{file.url}}" title="{{file.name}}" class="gallery" download="{{file.name}}" data-ng-click="display($event, file)"><img data-ng-src="{{file.thumbnail_url}}" alt=""></a>
                     </div>
                     <div class="preview" data-ng-switch-default data-file-upload-preview="file"></div>
                 </td>
                 <td>
                     <p class="name" data-ng-switch data-on="!!file.url">
-                        <a data-ng-switch-when="true" data-ng-href="{{file.url}}" title="{{file.name}}" class="gallery" download="{{file.name}}" ng-click="display($event, file)">{{file.name}}</a>
+                        <a data-ng-switch-when="true" data-ng-href="{{file.url}}" title="{{file.name}}" class="gallery" download="{{file.name}}" data-ng-click="display($event, file)">{{file.name}}</a>
                         <span data-ng-switch-default>{{file.name}}</span>
                     </p>
                     <div data-ng-show="file.error"><span class="label label-important">Error</span> {{file.error}}</div>
