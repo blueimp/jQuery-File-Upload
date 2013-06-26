@@ -1,5 +1,5 @@
 /*
- * jQuery File Upload Audio Preview Plugin 1.0.1
+ * jQuery File Upload Audio Preview Plugin 1.0.2
  * https://github.com/blueimp/jQuery-File-Upload
  *
  * Copyright 2013, Sebastian Tschan
@@ -86,7 +86,7 @@
                             options.fileTypes.test(file.type))) {
                     url = loadImage.createObjectURL(file);
                     if (url) {
-                        audio = this._audioElement.cloneNode();
+                        audio = this._audioElement.cloneNode(false);
                         audio.src = url;
                         audio.controls = true;
                         data.audio = audio;
