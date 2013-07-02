@@ -1,7 +1,7 @@
 <!DOCTYPE HTML>
 <!--
 /*
- * jQuery File Upload Plugin Basic Demo 1.0.1
+ * jQuery File Upload Plugin Basic Demo 1.0.2
  * https://github.com/blueimp/jQuery-File-Upload
  *
  * Copyright 2013, Sebastian Tschan
@@ -127,8 +127,7 @@
 $(function () {
     'use strict';
     // Change this to the location of your server-side upload handler:
-    var url = (window.location.hostname === 'blueimp.github.io' ||
-                window.location.hostname === 'blueimp.github.io') ?
+    var url = window.location.hostname === 'blueimp.github.io' ?
                 '//jquery-file-upload.appspot.com/' : 'server/php/';
     $('#fileupload').fileupload({
         url: url,
