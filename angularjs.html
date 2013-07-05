@@ -1,7 +1,7 @@
 <!DOCTYPE HTML>
 <!--
 /*
- * jQuery File Upload Plugin AngularJS Demo 1.3.2
+ * jQuery File Upload Plugin AngularJS Demo 1.4.0
  * https://github.com/blueimp/jQuery-File-Upload
  *
  * Copyright 2013, Sebastian Tschan
@@ -95,17 +95,17 @@
         </blockquote>
     </div>
     <!-- The file upload form used as target for the file upload widget -->
-    <form id="fileupload" action="//jquery-file-upload.appspot.com/" method="POST" enctype="multipart/form-data" data-ng-app="demo" data-ng-controller="DemoFileUploadController" data-file-upload="options" data-ng-class="{true: 'fileupload-processing'}[!!processing() || loadingFiles]">
+    <form id="fileupload" action="//jquery-file-upload.appspot.com/" method="POST" enctype="multipart/form-data" data-ng-app="demo" data-ng-controller="DemoFileUploadController" data-file-upload="options" data-ng-class="{'fileupload-processing': processing() || loadingFiles}">
         <!-- Redirect browsers with JavaScript disabled to the origin page -->
         <noscript><input type="hidden" name="redirect" value="http://blueimp.github.io/jQuery-File-Upload/"></noscript>
         <!-- The fileupload-buttonbar contains buttons to add/delete files and start/cancel the upload -->
         <div class="row fileupload-buttonbar">
             <div class="span7">
                 <!-- The fileinput-button span is used to style the file input field as button -->
-                <span class="btn btn-success fileinput-button">
+                <span class="btn btn-success fileinput-button" ng-class="{disabled: disabled}">
                     <i class="icon-plus icon-white"></i>
                     <span>Add files...</span>
-                    <input type="file" name="files[]" multiple>
+                    <input type="file" name="files[]" multiple ng-disabled="disabled">
                 </span>
                 <button type="button" class="btn btn-primary start" data-ng-click="submit()">
                     <i class="icon-upload icon-white"></i>
@@ -119,7 +119,7 @@
                 <div class="fileupload-loading"></div>
             </div>
             <!-- The global progress information -->
-            <div class="span5 fade" data-ng-class="{true: 'in'}[!!active()]">
+            <div class="span5 fade" data-ng-class="{in: active()}">
                 <!-- The global progress bar -->
                 <div class="progress progress-success progress-striped active" data-file-upload-progress="progress()"><div class="bar" data-ng-style="{width: num + '%'}"></div></div>
                 <!-- The extended global progress information -->

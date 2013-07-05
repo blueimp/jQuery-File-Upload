@@ -1,5 +1,5 @@
 /*
- * jQuery File Upload Plugin Angular JS Example 1.1.2
+ * jQuery File Upload Plugin Angular JS Example 1.1.3
  * https://github.com/blueimp/jQuery-File-Upload
  *
  * Copyright 2013, Sebastian Tschan
@@ -10,7 +10,7 @@
  */
 
 /*jslint nomen: true, regexp: true */
-/*global window, angular, navigator */
+/*global window, angular */
 
 (function () {
     'use strict';
@@ -32,7 +32,7 @@
                         // which actually support image resizing, but fail to
                         // send Blob objects via XHR requests:
                         disableImageResize: /Android(?!.*Chrome)|Opera/
-                            .test(window.navigator && navigator.userAgent),
+                            .test(window.navigator.userAgent),
                         maxFileSize: 5000000,
                         acceptFileTypes: /(\.|\/)(gif|jpe?g|png)$/i
                     });

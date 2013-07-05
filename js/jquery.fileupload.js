@@ -1,5 +1,5 @@
 /*
- * jQuery File Upload Plugin 5.31.6
+ * jQuery File Upload Plugin 5.32.0
  * https://github.com/blueimp/jQuery-File-Upload
  *
  * Copyright 2010, Sebastian Tschan
@@ -26,6 +26,18 @@
     }
 }(function ($) {
     'use strict';
+
+    // Detect file input support, based on
+    // http://viljamis.com/blog/2012/file-upload-support-on-mobile/
+    $.support.fileInput = !(new RegExp(
+        // Handle devices which give false positives for the feature detection:
+        '(Android (1\\.[0156]|2\\.[01]))' +
+            '|(Windows Phone (OS 7|8\\.0))|(XBLWP)|(ZuneWP)' +
+            '|(w(eb)?OSBrowser)|(webOS)' +
+            '|(Kindle/(1\\.0|2\\.[05]|3\\.0))'
+    ).test(window.navigator.userAgent) ||
+        // Feature detection for all other devices:
+        $('<input type="file">').prop('disabled'));
 
     // The FileReader API is not actually used, but works as feature detection,
     // as e.g. Safari supports XHR file uploads via the FormData API,
@@ -1153,9 +1165,11 @@
                     paste: this._onPaste
                 });
             }
-            this._on(this.options.fileInput, {
-                change: this._onChange
-            });
+            if ($.support.fileInput) {
+                this._on(this.options.fileInput, {
+                    change: this._onChange
+                });
+            }
         },
 
         _destroyEventHandlers: function () {
