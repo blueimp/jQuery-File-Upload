@@ -1,5 +1,5 @@
 /*
- * jQuery File Upload AngularJS Plugin 1.3.2
+ * jQuery File Upload AngularJS Plugin 1.4.0
  * https://github.com/blueimp/jQuery-File-Upload
  *
  * Copyright 2013, Sebastian Tschan
@@ -184,8 +184,8 @@
         // The FileUploadController initializes the fileupload widget and
         // provides scope methods to control the File Upload functionality: 
         .controller('FileUploadController', [
-            '$scope', '$element', '$attrs', 'fileUpload',
-            function ($scope, $element, $attrs, fileUpload) {
+            '$scope', '$element', '$attrs', '$window', 'fileUpload',
+            function ($scope, $element, $attrs, $window, fileUpload) {
                 var uploadMethods = {
                     progress: function () {
                         return $element.fileupload('progress');
@@ -209,8 +209,7 @@
                         return $element.fileupload('processing', data);
                     }
                 };
-                $scope.disabled = angular.element('<input type="file">')
-                    .prop('disabled');
+                $scope.disabled = !$window.jQuery.support.fileInput;
                 $scope.queue = $scope.queue || [];
                 $scope.clear = function (files) {
                     var queue = this.queue,

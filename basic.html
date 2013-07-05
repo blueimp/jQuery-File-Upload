@@ -1,7 +1,7 @@
 <!DOCTYPE HTML>
 <!--
 /*
- * jQuery File Upload Plugin Basic Demo 1.0.2
+ * jQuery File Upload Plugin Basic Demo 1.1.0
  * https://github.com/blueimp/jQuery-File-Upload
  *
  * Copyright 2013, Sebastian Tschan
@@ -127,7 +127,8 @@ $(function () {
                 progress + '%'
             );
         }
-    });
+    }).prop('disabled', !$.support.fileInput)
+        .parent().addClass($.support.fileInput ? undefined : 'disabled');
 });
 </script>
 </body> 
