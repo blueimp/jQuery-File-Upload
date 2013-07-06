@@ -144,7 +144,7 @@
                         'filter:advancedSearch:field':'fileName',
                         'filter:advancedSearch:value':fileName,
                         ks:that.options.ks},
-                    type:"POST"
+                    type:"GET"
                 }).done(function(response)
                     {
                         if (!that._verifyResult(response))
@@ -173,7 +173,7 @@
                         data:{"uploadToken:fileName":fileName,
                             "uploadToken:fileSize":size,
                             ks:that.options.ks},
-                        type:"POST"
+                        type:"GET"
                     }).done(function(response)
                         {
 
