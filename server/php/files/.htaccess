@@ -1,14 +1,16 @@
-# The following directives force the Content-Type
-# "application/octet-stream" for all files except images.
-# This prevents executing any uploaded scripts
-# and forces a download dialog for non-image files:
+# The following directives force the content-type application/octet-stream
+# and force browsers to display a download dialog for non-image files.
+# This prevents the execution of script files in the context of the website:
 ForceType application/octet-stream
+Header set Content-Disposition attachment
 <FilesMatch "(?i)\.(gif|jpe?g|png)$">
-  ForceType none
+	ForceType none
+	Header unset Content-Disposition
 </FilesMatch>
 
-# Prevent IE from MIME-sniffing:
-Header set X-Content-Type-Options "nosniff"
+# The following directive prevents browsers from MIME-sniffing the content-type.
+# This is an important complement to the ForceType directive above:
+Header set X-Content-Type-Options nosniff
 
 # Uncomment the following lines to prevent unauthorized download of files:
 #AuthName "Authorization required"
