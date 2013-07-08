@@ -1,7 +1,7 @@
 <!DOCTYPE HTML>
 <!--
 /*
- * jQuery File Upload Plugin Basic Plus Demo 1.1.4
+ * jQuery File Upload Plugin Basic Plus Demo 1.2.0
  * https://github.com/blueimp/jQuery-File-Upload
  *
  * Copyright 2013, Sebastian Tschan
@@ -119,7 +119,7 @@
 <!-- The File Upload validation plugin -->
 <script src="js/jquery.fileupload-validate.js"></script>
 <script>
-/*jslint unparam: true */
+/*jslint unparam: true, regexp: true */
 /*global window, $ */
 $(function () {
     'use strict';
@@ -154,7 +154,7 @@ $(function () {
         // which actually support image resizing, but fail to
         // send Blob objects via XHR requests:
         disableImageResize: /Android(?!.*Chrome)|Opera/
-            .test(window.navigator && navigator.userAgent),
+            .test(window.navigator.userAgent),
         previewMaxWidth: 100,
         previewMaxHeight: 100,
         previewCrop: true
@@ -210,7 +210,8 @@ $(function () {
                 .append('<br>')
                 .append(error);
         });
-    });
+    }).prop('disabled', !$.support.fileInput)
+        .parent().addClass($.support.fileInput ? undefined : 'disabled');
 });
 </script>
 </body> 
