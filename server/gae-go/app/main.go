@@ -1,5 +1,5 @@
 /*
- * jQuery File Upload Plugin GAE Go Example 3.0.1
+ * jQuery File Upload Plugin GAE Go Example 3.0.2
  * https://github.com/blueimp/jQuery-File-Upload
  *
  * Copyright 2011, Sebastian Tschan
@@ -194,19 +194,18 @@ func get(w http.ResponseWriter, r *http.Request) {
 			blobKey := appengine.BlobKey(key)
 			bi, err := blobstore.Stat(appengine.NewContext(r), blobKey)
 			if err == nil {
+				w.Header().Add("X-Content-Type-Options", "nosniff")
+				if !imageTypes.MatchString(bi.ContentType) {
+					w.Header().Add("Content-Type", "application/octet-stream")
+					w.Header().Add(
+						"Content-Disposition",
+						fmt.Sprintf("attachment; filename=\"%s\"", parts[2]),
+					)
+				}
 				w.Header().Add(
 					"Cache-Control",
 					fmt.Sprintf("public,max-age=%d", EXPIRATION_TIME),
 				)
-				if imageTypes.MatchString(bi.ContentType) {
-					w.Header().Add("X-Content-Type-Options", "nosniff")
-				} else {
-					w.Header().Add("Content-Type", "application/octet-stream")
-					w.Header().Add(
-						"Content-Disposition:",
-						fmt.Sprintf("attachment; filename=%s;", parts[2]),
-					)
-				}
 				blobstore.Send(w, blobKey)
 				return
 			}

@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# jQuery File Upload Plugin GAE Python Example 2.0.1
+# jQuery File Upload Plugin GAE Python Example 2.0.2
 # https://github.com/blueimp/jQuery-File-Upload
 #
 # Copyright 2011, Sebastian Tschan
@@ -149,10 +149,12 @@ class DownloadHandler(blobstore_handlers.BlobstoreDownloadHandler):
         if not blobstore.get(key):
             self.error(404)
         else:
+            # Prevent browsers from MIME-sniffing the content-type:
+            self.response.headers['X-Content-Type-Options'] = 'nosniff'
             # Cache for the expiration time:
-            self.response.headers['Cache-Control'] =\
-                'public,max-age=%d' % EXPIRATION_TIME
-            self.send_blob(key, save_as=filename)
+            self.response.headers['Cache-Control'] = 'public,max-age=%d' % EXPIRATION_TIME
+            # Send the file forcing a download dialog:
+            self.send_blob(key, save_as=filename, content_type='application/octet-stream')
 
 app = webapp2.WSGIApplication(
     [

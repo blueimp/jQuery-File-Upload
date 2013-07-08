@@ -1,6 +1,6 @@
 <?php
 /*
- * jQuery File Upload Plugin PHP Class 6.7
+ * jQuery File Upload Plugin PHP Class 6.7.1
  * https://github.com/blueimp/jQuery-File-Upload
  *
  * Copyright 2010, Sebastian Tschan
@@ -832,14 +832,12 @@ class UploadHandler
             );
         }
         $file_path = $this->get_upload_path($file_name, $this->get_version_param());
+        // Prevent browsers from MIME-sniffing the content-type:
+        $this->header('X-Content-Type-Options: nosniff');
         if (!preg_match($this->options['inline_file_types'], $file_name)) {
-            $this->header('Content-Description: File Transfer');
             $this->header('Content-Type: application/octet-stream');
             $this->header('Content-Disposition: attachment; filename="'.$file_name.'"');
-            $this->header('Content-Transfer-Encoding: binary');
         } else {
-            // Prevent Internet Explorer from MIME-sniffing the content-type:
-            $this->header('X-Content-Type-Options: nosniff');
             $this->header('Content-Type: '.$this->get_file_type($file_path));
             $this->header('Content-Disposition: inline; filename="'.$file_name.'"');
         }
