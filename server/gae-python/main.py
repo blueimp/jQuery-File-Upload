@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# jQuery File Upload Plugin GAE Python Example 2.0.2
+# jQuery File Upload Plugin GAE Python Example 2.1.0
 # https://github.com/blueimp/jQuery-File-Upload
 #
 # Copyright 2011, Sebastian Tschan
@@ -90,8 +90,8 @@ class UploadHandler(webapp2.RequestHandler):
                     self.write_blob(fieldStorage.value, result)
                 )
                 blob_keys.append(blob_key)
-                result['delete_type'] = 'DELETE'
-                result['delete_url'] = self.request.host_url +\
+                result['deleteType'] = 'DELETE'
+                result['deleteUrl'] = self.request.host_url +\
                     '/?key=' + urllib.quote(blob_key, '')
                 if (IMAGE_TYPES.match(result['type'])):
                     try:
@@ -101,7 +101,7 @@ class UploadHandler(webapp2.RequestHandler):
                                 'https'
                             )
                         )
-                        result['thumbnail_url'] = result['url'] +\
+                        result['thumbnailUrl'] = result['url'] +\
                             THUMBNAIL_MODIFICATOR
                     except:  # Could not get an image serving url
                         pass

@@ -1,5 +1,5 @@
 /*
- * jQuery File Upload Plugin GAE Go Example 3.0.2
+ * jQuery File Upload Plugin GAE Go Example 3.1.0
  * https://github.com/blueimp/jQuery-File-Upload
  *
  * Copyright 2011, Sebastian Tschan
@@ -47,13 +47,13 @@ var (
 type FileInfo struct {
 	Key          appengine.BlobKey `json:"-"`
 	Url          string            `json:"url,omitempty"`
-	ThumbnailUrl string            `json:"thumbnail_url,omitempty"`
+	ThumbnailUrl string            `json:"thumbnailUrl,omitempty"`
 	Name         string            `json:"name"`
 	Type         string            `json:"type"`
 	Size         int64             `json:"size"`
 	Error        string            `json:"error,omitempty"`
-	DeleteUrl    string            `json:"delete_url,omitempty"`
-	DeleteType   string            `json:"delete_type,omitempty"`
+	DeleteUrl    string            `json:"deleteUrl,omitempty"`
+	DeleteType   string            `json:"deleteType,omitempty"`
 }
 
 func (fi *FileInfo) ValidateType() (valid bool) {

@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /*
- * jQuery File Upload Plugin Node.js Example 2.0.4
+ * jQuery File Upload Plugin Node.js Example 2.1.0
  * https://github.com/blueimp/jQuery-File-Upload
  *
  * Copyright 2012, Sebastian Tschan
@@ -68,7 +68,7 @@
             this.name = file.name;
             this.size = file.size;
             this.type = file.type;
-            this.delete_type = 'DELETE';
+            this.deleteType = 'DELETE';
         },
         UploadHandler = function (req, res, callback) {
             this.req = req;
@@ -176,12 +176,12 @@
             var that = this,
                 baseUrl = (options.ssl ? 'https:' : 'http:') +
                     '//' + req.headers.host + options.uploadUrl;
-            this.url = this.delete_url = baseUrl + encodeURIComponent(this.name);
+            this.url = this.deleteUrl = baseUrl + encodeURIComponent(this.name);
             Object.keys(options.imageVersions).forEach(function (version) {
                 if (_existsSync(
                         options.uploadDir + '/' + version + '/' + that.name
                     )) {
-                    that[version + '_url'] = baseUrl + version + '/' +
+                    that[version + 'Url'] = baseUrl + version + '/' +
                         encodeURIComponent(that.name);
                 }
             });
