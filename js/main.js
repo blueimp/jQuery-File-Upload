@@ -1,5 +1,5 @@
 /*
- * jQuery File Upload Plugin JS Example 8.2.1
+ * jQuery File Upload Plugin JS Example 8.3.0
  * https://github.com/blueimp/jQuery-File-Upload
  *
  * Copyright 2010, Sebastian Tschan
@@ -72,17 +72,5 @@ $(function () {
                 .call(this, null, {result: result});
         });
     }
-
-    // Show the blueimp Gallery as lightbox when clicking on image links:
-    $('#fileupload .files').on('click', '.gallery', function (event) {
-        // The :even filter removes duplicate links (thumbnail and file name links):
-        if (blueimp.Gallery($('#fileupload .gallery').filter(':even'), {
-                index: this
-            })) {
-            // Prevent the default link action on
-            // successful Gallery initialization:
-            event.preventDefault();
-        }
-    });
 
 });
