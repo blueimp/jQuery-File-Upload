@@ -1,5 +1,5 @@
 /*
- * jQuery File Upload Plugin Angular JS Example 1.1.3
+ * jQuery File Upload Plugin Angular JS Example 1.2.0
  * https://github.com/blueimp/jQuery-File-Upload
  *
  * Copyright 2013, Sebastian Tschan
@@ -48,23 +48,6 @@
                     $scope.options = {
                         url: url
                     };
-                    $scope.display = function ($event, file) {
-                        var images = $filter('filter')($scope.queue, function (file) {
-                            if (file.thumbnail_url) {
-                                return true;
-                            }
-                        });
-                        if ($window.blueimp.Gallery(images, {
-                                index: file,
-                                urlProperty: 'url',
-                                titleProperty: 'name',
-                                thumbnailProperty: 'thumbnail_url'
-                            })) {
-                            // Prevent the default link action on
-                            // successful Gallery initialization:
-                            $event.preventDefault();
-                        }
-                    };
                     $http.get(url)
                         .then(
                             function (response) {
@@ -91,8 +74,8 @@
                     file.$destroy = function () {
                         state = 'pending';
                         return $http({
-                            url: file.delete_url,
-                            method: file.delete_type
+                            url: file.deleteUrl,
+                            method: file.deleteType
                         }).then(
                             function () {
                                 state = 'resolved';

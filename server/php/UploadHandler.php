@@ -1,6 +1,6 @@
 <?php
 /*
- * jQuery File Upload Plugin PHP Class 6.7.1
+ * jQuery File Upload Plugin PHP Class 6.8.0
  * https://github.com/blueimp/jQuery-File-Upload
  *
  * Copyright 2010, Sebastian Tschan
@@ -223,15 +223,15 @@ class UploadHandler
     }
 
     protected function set_additional_file_properties($file) {
-        $file->delete_url = $this->options['script_url']
+        $file->deleteUrl = $this->options['script_url']
             .$this->get_query_separator($this->options['script_url'])
             .'file='.rawurlencode($file->name);
-        $file->delete_type = $this->options['delete_type'];
-        if ($file->delete_type !== 'DELETE') {
-            $file->delete_url .= '&_method=DELETE';
+        $file->deleteType = $this->options['delete_type'];
+        if ($file->deleteType !== 'DELETE') {
+            $file->deleteUrl .= '&_method=DELETE';
         }
         if ($this->options['access_control_allow_credentials']) {
-            $file->delete_with_credentials = true;
+            $file->deleteWithCredentials = true;
         }
     }
 
@@ -271,7 +271,7 @@ class UploadHandler
             foreach($this->options['image_versions'] as $version => $options) {
                 if (!empty($version)) {
                     if (is_file($this->get_upload_path($file_name, $version))) {
-                        $file->{$version.'_url'} = $this->get_download_url(
+                        $file->{$version.'Url'} = $this->get_download_url(
                             $file->name,
                             $version
                         );
@@ -652,7 +652,7 @@ class UploadHandler
         foreach($this->options['image_versions'] as $version => $options) {
             if ($this->create_scaled_image($file->name, $version, $options)) {
                 if (!empty($version)) {
-                    $file->{$version.'_url'} = $this->get_download_url(
+                    $file->{$version.'Url'} = $this->get_download_url(
                         $file->name,
                         $version
                     );

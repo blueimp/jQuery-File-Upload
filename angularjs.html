@@ -1,7 +1,7 @@
 <!DOCTYPE HTML>
 <!--
 /*
- * jQuery File Upload Plugin AngularJS Demo 1.4.0
+ * jQuery File Upload Plugin AngularJS Demo 1.5.0
  * https://github.com/blueimp/jQuery-File-Upload
  *
  * Copyright 2013, Sebastian Tschan
@@ -112,15 +112,18 @@
         <!-- The table listing the files available for upload/download -->
         <table class="table table-striped files ng-cloak">
             <tr data-ng-repeat="file in queue">
-                <td data-ng-switch data-on="!!file.thumbnail_url">
+                <td data-ng-switch data-on="!!file.thumbnailUrl">
                     <div class="preview" data-ng-switch-when="true">
-                        <a data-ng-href="{{file.url}}" title="{{file.name}}" class="gallery" download="{{file.name}}" data-ng-click="display($event, file)"><img data-ng-src="{{file.thumbnail_url}}" alt=""></a>
+                        <a data-ng-href="{{file.url}}" title="{{file.name}}" download="{{file.name}}" data-gallery><img data-ng-src="{{file.thumbnailUrl}}" alt=""></a>
                     </div>
                     <div class="preview" data-ng-switch-default data-file-upload-preview="file"></div>
                 </td>
                 <td>
                     <p class="name" data-ng-switch data-on="!!file.url">
-                        <a data-ng-switch-when="true" data-ng-href="{{file.url}}" title="{{file.name}}" class="gallery" download="{{file.name}}" data-ng-click="display($event, file)">{{file.name}}</a>
+                        <span data-ng-switch-when="true" data-ng-switch data-on="!!file.thumbnailUrl">
+                            <a data-ng-switch-when="true" data-ng-href="{{file.url}}" title="{{file.name}}" download="{{file.name}}" data-gallery>{{file.name}}</a>
+                            <a data-ng-switch-default data-ng-href="{{file.url}}" title="{{file.name}}" download="{{file.name}}">{{file.name}}</a>
+                        </span>
                         <span data-ng-switch-default>{{file.name}}</span>
                     </p>
                     <div data-ng-show="file.error"><span class="label label-important">Error</span> {{file.error}}</div>
@@ -160,7 +163,7 @@
     </div>
 </div>
 <!-- The blueimp Gallery widget -->
-<div id="blueimp-gallery" class="blueimp-gallery blueimp-gallery-controls">
+<div id="blueimp-gallery" class="blueimp-gallery blueimp-gallery-controls" data-filter=":even">
     <div class="slides"></div>
     <h3 class="title"></h3>
     <a class="prev">‹</a>
@@ -181,6 +184,7 @@
 <script src="http://blueimp.github.io/cdn/js/bootstrap.min.js"></script>
 <!-- blueimp Gallery script -->
 <script src="http://blueimp.github.io/Gallery/js/blueimp-gallery.min.js"></script>
+<script src="http://blueimp.github.io/Gallery/js/jquery.blueimp-gallery.min.js"></script>
 <!-- The Iframe Transport is required for browsers without support for XHR file uploads -->
 <script src="js/jquery.iframe-transport.js"></script>
 <!-- The basic File Upload plugin -->
