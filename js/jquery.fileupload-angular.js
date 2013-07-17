@@ -1,5 +1,5 @@
 /*
- * jQuery File Upload AngularJS Plugin 1.4.0
+ * jQuery File Upload AngularJS Plugin 1.4.1
  * https://github.com/blueimp/jQuery-File-Upload
  *
  * Copyright 2013, Sebastian Tschan
@@ -296,7 +296,9 @@
                     'fileuploadprocessalways',
                     'fileuploadprocessstop'
                 ].join(' '), function (e, data) {
-                    $scope.$emit(e.type, data);
+                    if ($scope.$emit(e.type, data).defaultPrevented) {
+                        e.preventDefault();
+                    }
                 }).on('remove', function () {
                     // Remove upload methods from the scope,
                     // when the widget is removed:
