@@ -1,5 +1,5 @@
 /*
- * jQuery File Upload Image Preview & Resize Plugin 1.2.2
+ * jQuery File Upload Image Preview & Resize Plugin 1.2.3
  * https://github.com/blueimp/jQuery-File-Upload
  *
  * Copyright 2013, Sebastian Tschan
@@ -39,9 +39,6 @@
     $.blueimp.fileupload.prototype.options.processQueue.unshift(
         {
             action: 'loadImageMetaData',
-            // Always trigger this action,
-            // even if the previous action was rejected: 
-            always: true,
             disableImageHead: '@',
             disableExif: '@',
             disableExifThumbnail: '@',
@@ -79,9 +76,6 @@
         },
         {
             action: 'resizeImage',
-            // Always trigger this action,
-            // even if the previous action was rejected: 
-            always: true,
             // Use "preview" as prefix for the "@" options:
             prefix: 'preview',
             maxWidth: '@',
@@ -154,15 +148,14 @@
                         !loadImage(
                             file,
                             function (img) {
-                                if (!img.src) {
-                                    return dfd.rejectWith(that, [data]);
+                                if (img.src) {
+                                    data.img = img;
                                 }
-                                data.img = img;
                                 dfd.resolveWith(that, [data]);
                             },
                             options
                         )) {
-                    dfd.rejectWith(that, [data]);
+                    return data;
                 }
                 return dfd.promise();
             },
