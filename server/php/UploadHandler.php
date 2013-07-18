@@ -1,6 +1,6 @@
 <?php
 /*
- * jQuery File Upload Plugin PHP Class 6.8.0
+ * jQuery File Upload Plugin PHP Class 6.8.1
  * https://github.com/blueimp/jQuery-File-Upload
  *
  * Copyright 2010, Sebastian Tschan
@@ -749,7 +749,7 @@ class UploadHandler
     protected function body($str) {
         echo $str;
     }
-
+    
     protected function header($str) {
         header($str);
     }
