@@ -436,7 +436,7 @@
                     } else {
                         formData = new FormData();
                         $.each(this._getFormData(options), function (index, field) {
-                            formData.append(encodeURI(field.name), encodeURI(field.value));
+                            formData.append(field.name, encodeURI(field.value));
                         });
                     }
                     if (options.blob) {
