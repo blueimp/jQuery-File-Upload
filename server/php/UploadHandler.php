@@ -943,6 +943,9 @@ class UploadHandler
                 $content_range
             );
         }
+        
+        $this->{ $this->options['param_name'] } = $files;
+
         return $this->generate_response(
             array($this->options['param_name'] => $files),
             $print_response
