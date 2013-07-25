@@ -38,10 +38,12 @@
         .provider('fileUpload', function () {
             var scopeApply = function () {
                     var scope = angular.element(this)
-                        .fileupload('option', 'scope')();
-                    if (!scope.$$phase) {
+                        .fileupload('option', 'scope')(),
+                        $timeout = angular.injector(['ng'])
+                        .get('$timeout');
+                    $timeout(function () {
                         scope.$apply();
-                    }
+                    });
                 },
                 $config;
             $config = this.defaults = {
