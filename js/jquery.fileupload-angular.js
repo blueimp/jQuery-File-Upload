@@ -1,5 +1,5 @@
 /*
- * jQuery File Upload AngularJS Plugin 1.4.1
+ * jQuery File Upload AngularJS Plugin 1.4.2
  * https://github.com/blueimp/jQuery-File-Upload
  *
  * Copyright 2013, Sebastian Tschan
@@ -38,10 +38,14 @@
         .provider('fileUpload', function () {
             var scopeApply = function () {
                     var scope = angular.element(this)
-                        .fileupload('option', 'scope')();
-                    if (!scope.$$phase) {
+                            .fileupload('option', 'scope')(),
+                        $timeout = angular.injector(['ng'])
+                            .get('$timeout');
+                    // Safe apply, makes sure $apply is called
+                    // asynchronously outside of the $digest cycle:
+                    $timeout(function () {
                         scope.$apply();
-                    }
+                    });
                 },
                 $config;
             $config = this.defaults = {
