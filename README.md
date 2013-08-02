@@ -57,23 +57,36 @@ Please read the [issue guidelines](https://github.com/blueimp/jQuery-File-Upload
   Works with any server-side platform (PHP, Python, Ruby on Rails, Java, Node.js, Go etc.) that supports standard HTML form file uploads.
 
 ## Requirements
+
+### Mandatory requirements
 * [jQuery](http://jquery.com/) v. 1.6+
 * [jQuery UI widget factory](http://api.jqueryui.com/jQuery.widget/) v. 1.9+ (included)
 * [jQuery Iframe Transport plugin](https://github.com/blueimp/jQuery-File-Upload/blob/master/js/jquery.iframe-transport.js) (included)
-* [JavaScript Templates engine](https://github.com/blueimp/JavaScript-Templates) v. 2.2.1+ (optional)
-* [JavaScript Load Image function](https://github.com/blueimp/JavaScript-Load-Image) v. 1.7.3+ (optional)
-* [JavaScript Canvas to Blob function](https://github.com/blueimp/JavaScript-Canvas-to-Blob) v. 2.0.6+ (optional)
-* [Bootstrap CSS Toolkit](https://github.com/twitter/bootstrap/) v. 2.3+ (optional)
 
-The jQuery UI widget factory is a requirement for the basic File Upload plugin, but very lightweight without any other dependencies.  
-The jQuery Iframe Transport is required for [browsers without XHR file upload support](https://github.com/blueimp/jQuery-File-Upload/wiki/Browser-support).  
-The UI version of the File Upload plugin also requires the JavaScript Templates engine as well as the JavaScript Load Image and JavaScript Canvas to Blob functions (for the image previews and resizing functionality). These dependencies are marked as optional, as the basic File Upload plugin can be used without them and the UI version of the plugin can be extended to override these dependencies with alternative solutions.
+The jQuery UI widget factory is a requirement for the basic File Upload plugin, but very lightweight without any other dependencies from the jQuery UI suite.
 
-The User Interface is built with Twitter's [Bootstrap](https://github.com/twitter/bootstrap/) Toolkit. This enables a CSS based, responsive layout and fancy transition effects on modern browsers. The demo also includes the [blueimp Gallery](https://github.com/blueimp/Gallery). Both of these components are optional and not required.
+The jQuery Iframe Transport is required for [browsers without XHR file upload support](https://github.com/blueimp/jQuery-File-Upload/wiki/Browser-support).
 
-The repository also includes the [jQuery XDomainRequest Transport plugin](https://github.com/blueimp/jQuery-File-Upload/blob/master/js/cors/jquery.xdr-transport.js), which enables Cross-domain AJAX requests (GET and POST only) in Microsoft Internet Explorer >= 8. However, the XDomainRequest object doesn't support file uploads and the plugin is only used by the [Demo](http://blueimp.github.io/jQuery-File-Upload/) for Cross-domain requests to delete uploaded files from the demo file upload service.
+### Optional requirements
+* [JavaScript Templates engine](https://github.com/blueimp/JavaScript-Templates) v. 2.3.0+
+* [JavaScript Load Image library](https://github.com/blueimp/JavaScript-Load-Image) v. 1.9.1+
+* [JavaScript Canvas to Blob polyfill](https://github.com/blueimp/JavaScript-Canvas-to-Blob) v. 2.0.7+
+* [blueimp Gallery](https://github.com/blueimp/Gallery) v. 2.7.1+
+* [Bootstrap CSS Toolkit](https://github.com/twitter/bootstrap/) v. 2.3
 
+The JavaScript Templates engine is used to render the selected and uploaded files for the Basic Plus UI and jQuery UI versions.
+
+The JavaScript Load Image library and JavaScript Canvas to Blob polyfill are required for the image previews and resizing functionality.
+
+The blueimp Gallery is used to display the uploaded images in a lightbox.
+
+The user interface of all versions except the jQuery UI version is built with Twitter's [Bootstrap](https://github.com/twitter/bootstrap/) Toolkit.
+
+### Cross-domain requirements
 [Cross-domain File Uploads](https://github.com/blueimp/jQuery-File-Upload/wiki/Cross-domain-uploads) using the [Iframe Transport plugin](https://github.com/blueimp/jQuery-File-Upload/blob/master/js/jquery.iframe-transport.js) require a redirect back to the origin server to retrieve the upload results. The [example implementation](https://github.com/blueimp/jQuery-File-Upload/blob/master/js/main.js) makes use of [result.html](https://github.com/blueimp/jQuery-File-Upload/blob/master/cors/result.html) as a static redirect page for the origin server.
+
+The repository also includes the [jQuery XDomainRequest Transport plugin](https://github.com/blueimp/jQuery-File-Upload/blob/master/js/cors/jquery.xdr-transport.js), which enables limited cross-domain AJAX requests in Microsoft Internet Explorer 8 and 9 (IE 10 supports cross-domain XHR requests).  
+The XDomainRequest object allows GET and POST requests only and doesn't support file uploads. It is used on the [Demo](http://blueimp.github.io/jQuery-File-Upload/) to delete uploaded files from the cross-domain demo file upload service.
 
 ## Browsers
 
