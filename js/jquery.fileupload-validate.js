@@ -85,7 +85,7 @@
                     settings = this.options,
                     file = data.files[data.index],
                     numberOfFiles = settings.getNumberOfFiles();
-                if (numberOfFiles && $.type(options.maxNumberOfFiles) === 'number' &&
+                if ($.type(numberOfFiles) === 'number' && $.type(options.maxNumberOfFiles) === 'number' &&
                         numberOfFiles + data.files.length > options.maxNumberOfFiles) {
                     file.error = settings.i18n('maxNumberOfFiles');
                 } else if (options.acceptFileTypes &&
