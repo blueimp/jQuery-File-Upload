@@ -24,6 +24,10 @@
 }(function ($) {
     'use strict';
 
+    // If XHR upload is supported do nothing
+    if (!!window.ProgressEvent && !!window.FormData)
+        return;
+
     // Helper variable to create unique names for the transport iframes:
     var counter = 0;
 
