@@ -1,6 +1,6 @@
 @charset "UTF-8";
 /*
- * jQuery File Upload Demo CSS 1.0
+ * jQuery File Upload Demo CSS 1.0.1
  * https://github.com/blueimp/jQuery-File-Upload
  *
  * Copyright 2013, Sebastian Tschan
@@ -64,4 +64,15 @@ table {
   .navigation li:not(:first-child):before {
     content: '| ';
   }
+}
+
+/* IE7 fixes */
+*+html .navigation {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+*+html .navigation li {
+  display: inline;
+  margin-right: 10px;
 }
