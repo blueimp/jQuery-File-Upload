@@ -1,5 +1,5 @@
 /*
- * jQuery File Upload User Interface Plugin 8.8.0
+ * jQuery File Upload User Interface Plugin 8.8.1
  * https://github.com/blueimp/jQuery-File-Upload
  *
  * Copyright 2010, Sebastian Tschan
@@ -120,7 +120,7 @@
                             !$.support.transition && 'progress-animated'
                         )
                         .attr('aria-valuenow', 100)
-                        .find('.progress-bar').css(
+                        .children().first().css(
                             'width',
                             '100%'
                         );
@@ -242,7 +242,7 @@
                     var progress = Math.floor(data.loaded / data.total * 100);
                     data.context.find('.progress')
                         .attr('aria-valuenow', progress)
-                        .find('.progress-bar').css(
+                        .children().first().css(
                             'width',
                             progress + '%'
                         );
@@ -264,7 +264,7 @@
                 globalProgressNode
                     .find('.progress')
                     .attr('aria-valuenow', progress)
-                    .find('.progress-bar').css(
+                    .children().first().css(
                         'width',
                         progress + '%'
                     );
@@ -293,7 +293,7 @@
                     function () {
                         $(this).find('.progress')
                             .attr('aria-valuenow', '0')
-                            .find('.progress-bar').css('width', '0%');
+                            .children().first().css('width', '0%');
                         $(this).find('.progress-extended').html('&nbsp;');
                         deferred.resolve();
                     }
