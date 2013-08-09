@@ -1,6 +1,6 @@
 <?php
 /*
- * jQuery File Upload Plugin PHP Class 6.8.1
+ * jQuery File Upload Plugin PHP Class 6.9.0
  * https://github.com/blueimp/jQuery-File-Upload
  *
  * Copyright 2010, Sebastian Tschan
@@ -225,7 +225,8 @@ class UploadHandler
     protected function set_additional_file_properties($file) {
         $file->deleteUrl = $this->options['script_url']
             .$this->get_query_separator($this->options['script_url'])
-            .'file='.rawurlencode($file->name);
+            .$this->get_singular_param_name()
+            .'='.rawurlencode($file->name);
         $file->deleteType = $this->options['delete_type'];
         if ($file->deleteType !== 'DELETE') {
             $file->deleteUrl .= '&_method=DELETE';
@@ -786,8 +787,22 @@ class UploadHandler
         return isset($_GET['version']) ? basename(stripslashes($_GET['version'])) : null;
     }
 
+    protected function get_singular_param_name() {
+        return substr($this->options['param_name'], 0, -1);
+    }
+
     protected function get_file_name_param() {
-        return isset($_GET['file']) ? basename(stripslashes($_GET['file'])) : null;
+        $name = $this->get_singular_param_name();
+        return isset($_GET[$name]) ? basename(stripslashes($_GET[$name])) : null;
+    }
+
+    protected function get_file_names_params() {
+        $params = isset($_GET[$this->options['param_name']]) ?
+            $_GET[$this->options['param_name']] : array();
+        foreach ($params as $key => $value) {
+            $params[$key] = basename(stripslashes($value));
+        }
+        return $params;
     }
 
     protected function get_file_type($file_path) {
@@ -884,7 +899,7 @@ class UploadHandler
         $file_name = $this->get_file_name_param();
         if ($file_name) {
             $response = array(
-                substr($this->options['param_name'], 0, -1) => $this->get_file_object($file_name)
+                $this->get_singular_param_name() => $this->get_file_object($file_name)
             );
         } else {
             $response = array(
@@ -950,20 +965,27 @@ class UploadHandler
     }
 
     public function delete($print_response = true) {
-        $file_name = $this->get_file_name_param();
-        $file_path = $this->get_upload_path($file_name);
-        $success = is_file($file_path) && $file_name[0] !== '.' && unlink($file_path);
-        if ($success) {
-            foreach($this->options['image_versions'] as $version => $options) {
-                if (!empty($version)) {
-                    $file = $this->get_upload_path($file_name, $version);
-                    if (is_file($file)) {
-                        unlink($file);
+        $file_names = $this->get_file_names_params();
+        if (empty($file_names)) {
+            $file_names = array($this->get_file_name_param());
+        }
+        $response = array();
+        foreach($file_names as $file_name) {
+            $file_path = $this->get_upload_path($file_name);
+            $success = is_file($file_path) && $file_name[0] !== '.' && unlink($file_path);
+            if ($success) {
+                foreach($this->options['image_versions'] as $version => $options) {
+                    if (!empty($version)) {
+                        $file = $this->get_upload_path($file_name, $version);
+                        if (is_file($file)) {
+                            unlink($file);
+                        }
                     }
                 }
             }
+            $response[$file_name] = $success;
         }
-        return $this->generate_response(array('success' => $success), $print_response);
+        return $this->generate_response($response, $print_response);
     }
 
 }
