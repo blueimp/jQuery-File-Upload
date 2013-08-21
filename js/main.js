@@ -1,5 +1,5 @@
 /*
- * jQuery File Upload Plugin JS Example 8.3.0
+ * jQuery File Upload Plugin JS Example 8.8.2
  * https://github.com/blueimp/jQuery-File-Upload
  *
  * Copyright 2010, Sebastian Tschan
@@ -50,7 +50,7 @@ $(function () {
                 url: '//jquery-file-upload.appspot.com/',
                 type: 'HEAD'
             }).fail(function () {
-                $('<span class="alert alert-error"/>')
+                $('<div class="alert alert-danger"/>')
                     .text('Upload server currently unavailable - ' +
                             new Date())
                     .appendTo('#fileupload');
