@@ -1,7 +1,7 @@
 <!DOCTYPE HTML>
 <!--
 /*
- * jQuery File Upload Plugin Basic Plus Demo 1.3.1
+ * jQuery File Upload Plugin Basic Plus Demo 1.3.2
  * https://github.com/blueimp/jQuery-File-Upload
  *
  * Copyright 2013, Sebastian Tschan
@@ -20,31 +20,29 @@
 <meta name="description" content="File Upload widget with multiple file selection, drag&amp;drop support, progress bar, validation and preview images, audio and video for jQuery. Supports cross-domain, chunked and resumable file uploads. Works with any server-side platform (Google App Engine, PHP, Python, Ruby on Rails, Java, etc.) that supports standard HTML form file uploads.">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <!-- Bootstrap styles -->
-<link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.0.0-rc2/css/bootstrap.min.css">
-<!-- Font Awesome icons -->
-<link rel="stylesheet" href="//netdna.bootstrapcdn.com/font-awesome/3.2.1/css/font-awesome.css">
+<link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.0.0/css/bootstrap.min.css">
 <!-- Generic page styles -->
 <link rel="stylesheet" href="css/style.css">
 <!-- CSS to style the file input field as button and adjust the Bootstrap progress bars -->
 <link rel="stylesheet" href="css/jquery.fileupload-ui.css">
 </head>
 <body>
-<div class="navbar navbar-fixed-top">
+<div class="navbar navbar-default navbar-fixed-top">
     <div class="container">
         <div class="navbar-header">
-            <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-responsive-collapse">
+            <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-fixed-top .navbar-collapse">
                 <span class="icon-bar"></span>
                 <span class="icon-bar"></span>
                 <span class="icon-bar"></span>
             </button>
             <a class="navbar-brand" href="https://github.com/blueimp/jQuery-File-Upload">jQuery File Upload</a>
         </div>
-        <div class="navbar-collapse collapse navbar-responsive-collapse">
+        <div class="navbar-collapse collapse">
             <ul class="nav navbar-nav">
                 <li><a href="https://github.com/blueimp/jQuery-File-Upload/tags">Download</a></li>
                 <li><a href="https://github.com/blueimp/jQuery-File-Upload">Source Code</a></li>
                 <li><a href="https://github.com/blueimp/jQuery-File-Upload/wiki">Documentation</a></li>
-                <li><a href="https://blueimp.net">&copy; blueimp.net</a></li>
+                <li><a href="https://blueimp.net">&copy; Sebastian Tschan</a></li>
             </ul>
         </div>
     </div>
@@ -68,7 +66,7 @@
     <br>
     <!-- The fileinput-button span is used to style the file input field as button -->
     <span class="btn btn-success fileinput-button">
-        <i class="icon-plus icon-white"></i>
+        <i class="glyphicon glyphicon-plus"></i>
         <span>Add files...</span>
         <!-- The file input field used as target for the file upload widget -->
         <input id="fileupload" type="file" name="files[]" multiple>
@@ -82,7 +80,7 @@
     <!-- The container for the uploaded files -->
     <div id="files" class="files"></div>
     <br>
-    <div class="panel">
+    <div class="panel panel-default">
         <div class="panel-heading">
             <h3 class="panel-title">Demo Notes</h3>
         </div>
@@ -93,7 +91,7 @@
                 <li>Uploaded files will be deleted automatically after <strong>5 minutes</strong> (demo setting).</li>
                 <li>You can <strong>drag &amp; drop</strong> files from your desktop on this webpage (see <a href="https://github.com/blueimp/jQuery-File-Upload/wiki/Browser-support">Browser support</a>).</li>
                 <li>Please refer to the <a href="https://github.com/blueimp/jQuery-File-Upload">project website</a> and <a href="https://github.com/blueimp/jQuery-File-Upload/wiki">documentation</a> for more information.</li>
-                <li>Built with Twitter's <a href="http://twitter.github.com/bootstrap/">Bootstrap</a> CSS framework and Icons from <a href="http://fortawesome.github.io/Font-Awesome/">Font Awesome</a>.</li>
+                <li>Built with Twitter's <a href="http://twitter.github.com/bootstrap/">Bootstrap</a> CSS framework and Icons from <a href="http://glyphicons.com/">Glyphicons</a>.</li>
             </ul>
         </div>
     </div>
@@ -106,7 +104,7 @@
 <!-- The Canvas to Blob plugin is included for image resizing functionality -->
 <script src="http://blueimp.github.io/JavaScript-Canvas-to-Blob/js/canvas-to-blob.min.js"></script>
 <!-- Bootstrap JS is not required, but included for the responsive demo navigation -->
-<script src="//netdna.bootstrapcdn.com/bootstrap/3.0.0-rc2/js/bootstrap.min.js"></script>
+<script src="//netdna.bootstrapcdn.com/bootstrap/3.0.0/js/bootstrap.min.js"></script>
 <!-- The Iframe Transport is required for browsers without support for XHR file uploads -->
 <script src="js/jquery.iframe-transport.js"></script>
 <!-- The basic File Upload plugin -->

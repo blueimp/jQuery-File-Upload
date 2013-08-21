@@ -1,6 +1,6 @@
 @charset "UTF-8";
 /*
- * jQuery File Upload Plugin CSS Example 8.8.1
+ * jQuery File Upload Plugin CSS Example 8.8.2
  * https://github.com/blueimp/jQuery-File-Upload
  *
  * Copyright 2013, Sebastian Tschan
@@ -12,8 +12,4 @@
 
 body {
   padding-top: 60px;
-}
-
-body > .container {
-	padding: 0 15px;
 }

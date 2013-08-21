@@ -1,7 +1,7 @@
 <!DOCTYPE HTML>
 <!--
 /*
- * jQuery File Upload Plugin AngularJS Demo 1.6.1
+ * jQuery File Upload Plugin AngularJS Demo 1.6.2
  * https://github.com/blueimp/jQuery-File-Upload
  *
  * Copyright 2013, Sebastian Tschan
@@ -22,9 +22,7 @@
 <meta name="description" content="File Upload widget with multiple file selection, drag&amp;drop support, progress bars, validation and preview images, audio and video for AngularJS. Supports cross-domain, chunked and resumable file uploads and client-side image resizing. Works with any server-side platform (PHP, Python, Ruby on Rails, Java, Node.js, Go etc.) that supports standard HTML form file uploads.">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <!-- Bootstrap styles -->
-<link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.0.0-rc2/css/bootstrap.min.css">
-<!-- Font Awesome icons -->
-<link rel="stylesheet" href="//netdna.bootstrapcdn.com/font-awesome/3.2.1/css/font-awesome.css">
+<link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.0.0/css/bootstrap.min.css">
 <!-- Generic page styles -->
 <link rel="stylesheet" href="css/style.css">
 <!-- blueimp Gallery styles -->
@@ -41,22 +39,22 @@
 </style>
 </head>
 <body>
-<div class="navbar navbar-fixed-top">
+<div class="navbar navbar-default navbar-fixed-top">
     <div class="container">
         <div class="navbar-header">
-            <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-responsive-collapse">
+            <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-fixed-top .navbar-collapse">
                 <span class="icon-bar"></span>
                 <span class="icon-bar"></span>
                 <span class="icon-bar"></span>
             </button>
             <a class="navbar-brand" href="https://github.com/blueimp/jQuery-File-Upload">jQuery File Upload</a>
         </div>
-        <div class="navbar-collapse collapse navbar-responsive-collapse">
+        <div class="navbar-collapse collapse">
             <ul class="nav navbar-nav">
                 <li><a href="https://github.com/blueimp/jQuery-File-Upload/tags">Download</a></li>
                 <li><a href="https://github.com/blueimp/jQuery-File-Upload">Source Code</a></li>
                 <li><a href="https://github.com/blueimp/jQuery-File-Upload/wiki">Documentation</a></li>
-                <li><a href="https://blueimp.net">&copy; blueimp.net</a></li>
+                <li><a href="https://blueimp.net">&copy; Sebastian Tschan</a></li>
             </ul>
         </div>
     </div>
@@ -87,16 +85,16 @@
             <div class="col-lg-7">
                 <!-- The fileinput-button span is used to style the file input field as button -->
                 <span class="btn btn-success fileinput-button" ng-class="{disabled: disabled}">
-                    <i class="icon-plus icon-white"></i>
+                    <i class="glyphicon glyphicon-plus"></i>
                     <span>Add files...</span>
                     <input type="file" name="files[]" multiple ng-disabled="disabled">
                 </span>
                 <button type="button" class="btn btn-primary start" data-ng-click="submit()">
-                    <i class="icon-upload icon-white"></i>
+                    <i class="glyphicon glyphicon-upload"></i>
                     <span>Start upload</span>
                 </button>
                 <button type="button" class="btn btn-warning cancel" data-ng-click="cancel()">
-                    <i class="icon-ban-circle icon-white"></i>
+                    <i class="glyphicon glyphicon-ban-circle"></i>
                     <span>Cancel upload</span>
                 </button>
                 <!-- The loading indicator is shown during file processing -->
@@ -135,15 +133,15 @@
                 </td>
                 <td>
                     <button type="button" class="btn btn-primary start" data-ng-click="file.$submit()" data-ng-hide="!file.$submit">
-                        <i class="icon-upload icon-white"></i>
+                        <i class="glyphicon glyphicon-upload"></i>
                         <span>Start</span>
                     </button>
                     <button type="button" class="btn btn-warning cancel" data-ng-click="file.$cancel()" data-ng-hide="!file.$cancel">
-                        <i class="icon-ban-circle icon-white"></i>
+                        <i class="glyphicon glyphicon-ban-circle"></i>
                         <span>Cancel</span>
                     </button>
                     <button data-ng-controller="FileDestroyController" type="button" class="btn btn-danger destroy" data-ng-click="file.$destroy()" data-ng-hide="!file.$destroy">
-                        <i class="icon-ban-circle icon-white"></i>
+                        <i class="glyphicon glyphicon-trash"></i>
                         <span>Delete</span>
                     </button>
                 </td>
@@ -151,7 +149,7 @@
         </table>
     </form>
     <br>
-    <div class="panel">
+    <div class="panel panel-default">
         <div class="panel-heading">
             <h3 class="panel-title">Demo Notes</h3>
         </div>
@@ -162,7 +160,7 @@
                 <li>Uploaded files will be deleted automatically after <strong>5 minutes</strong> (demo setting).</li>
                 <li>You can <strong>drag &amp; drop</strong> files from your desktop on this webpage (see <a href="https://github.com/blueimp/jQuery-File-Upload/wiki/Browser-support">Browser support</a>).</li>
                 <li>Please refer to the <a href="https://github.com/blueimp/jQuery-File-Upload">project website</a> and <a href="https://github.com/blueimp/jQuery-File-Upload/wiki">documentation</a> for more information.</li>
-                <li>Built with Twitter's <a href="http://twitter.github.com/bootstrap/">Bootstrap</a> CSS framework and Icons from <a href="http://fortawesome.github.io/Font-Awesome/">Font Awesome</a>.</li>
+                <li>Built with Twitter's <a href="http://twitter.github.com/bootstrap/">Bootstrap</a> CSS framework and Icons from <a href="http://glyphicons.com/">Glyphicons</a>.</li>
             </ul>
         </div>
     </div>
@@ -186,9 +184,8 @@
 <!-- The Canvas to Blob plugin is included for image resizing functionality -->
 <script src="http://blueimp.github.io/JavaScript-Canvas-to-Blob/js/canvas-to-blob.min.js"></script>
 <!-- Bootstrap JS is not required, but included for the responsive demo navigation -->
-<script src="//netdna.bootstrapcdn.com/bootstrap/3.0.0-rc2/js/bootstrap.min.js"></script>
+<script src="//netdna.bootstrapcdn.com/bootstrap/3.0.0/js/bootstrap.min.js"></script>
 <!-- blueimp Gallery script -->
-<script src="http://blueimp.github.io/Gallery/js/blueimp-gallery.min.js"></script>
 <script src="http://blueimp.github.io/Gallery/js/jquery.blueimp-gallery.min.js"></script>
 <!-- The Iframe Transport is required for browsers without support for XHR file uploads -->
 <script src="js/jquery.iframe-transport.js"></script>
