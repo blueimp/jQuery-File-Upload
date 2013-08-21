@@ -1,5 +1,5 @@
 /*
- * jQuery File Upload User Interface Plugin 8.3
+ * jQuery File Upload User Interface Plugin 8.8.1
  * https://github.com/blueimp/jQuery-File-Upload
  *
  * Copyright 2010, Sebastian Tschan
@@ -120,7 +120,7 @@
                             !$.support.transition && 'progress-animated'
                         )
                         .attr('aria-valuenow', 100)
-                        .find('.bar').css(
+                        .children().first().css(
                             'width',
                             '100%'
                         );
@@ -139,8 +139,8 @@
                 if (data.context) {
                     data.context.each(function (index) {
                         var file = files[index] ||
-                                {error: 'Empty file upload result'},
-                            deferred = that._addFinishedDeferreds();
+                                {error: 'Empty file upload result'};
+                        deferred = that._addFinishedDeferreds();
                         that._transition($(this)).done(
                             function () {
                                 var node = $(this);
@@ -159,8 +159,9 @@
                         );
                     });
                 } else {
-                    template = that._renderDownload(files)
-                        .appendTo(that.options.filesContainer);
+                    template = that._renderDownload(files)[
+                        that.options.prependFiles ? 'prependTo' : 'appendTo'
+                    ](that.options.filesContainer);
                     that._forceReflow(template);
                     deferred = that._addFinishedDeferreds();
                     that._transition(template).done(
@@ -215,8 +216,9 @@
                         }
                     });
                 } else if (data.errorThrown !== 'abort') {
-                    data.context = that._renderUpload(data.files)
-                        .appendTo(that.options.filesContainer)
+                    data.context = that._renderUpload(data.files)[
+                        that.options.prependFiles ? 'prependTo' : 'appendTo'
+                    ](that.options.filesContainer)
                         .data('data', data);
                     that._forceReflow(data.context);
                     deferred = that._addFinishedDeferreds();
@@ -240,7 +242,7 @@
                     var progress = Math.floor(data.loaded / data.total * 100);
                     data.context.find('.progress')
                         .attr('aria-valuenow', progress)
-                        .find('.bar').css(
+                        .children().first().css(
                             'width',
                             progress + '%'
                         );
@@ -262,7 +264,7 @@
                 globalProgressNode
                     .find('.progress')
                     .attr('aria-valuenow', progress)
-                    .find('.bar').css(
+                    .children().first().css(
                         'width',
                         progress + '%'
                     );
@@ -291,7 +293,7 @@
                     function () {
                         $(this).find('.progress')
                             .attr('aria-valuenow', '0')
-                            .find('.bar').css('width', '0%');
+                            .children().first().css('width', '0%');
                         $(this).find('.progress-extended').html('&nbsp;');
                         deferred.resolve();
                     }
@@ -622,6 +624,9 @@
         _create: function () {
             this._super();
             this._resetFinishedDeferreds();
+            if (!$.support.fileInput) {
+                this._disableFileInputButton();
+            }
         },
 
         enable: function () {

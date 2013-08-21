@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /*
- * jQuery File Upload Plugin Node.js Example 2.0.3
+ * jQuery File Upload Plugin Node.js Example 2.1.0
  * https://github.com/blueimp/jQuery-File-Upload
  *
  * Copyright 2012, Sebastian Tschan
@@ -33,7 +33,7 @@
             acceptFileTypes: /.+/i,
             // Files not matched by this regular expression force a download dialog,
             // to prevent executing any scripts in the context of the service domain:
-            safeFileTypes: /\.(gif|jpe?g|png)$/i,
+            inlineFileTypes: /\.(gif|jpe?g|png)$/i,
             imageTypes: /\.(gif|jpe?g|png)$/i,
             imageVersions: {
                 'thumbnail': {
@@ -68,7 +68,7 @@
             this.name = file.name;
             this.size = file.size;
             this.type = file.type;
-            this.delete_type = 'DELETE';
+            this.deleteType = 'DELETE';
         },
         UploadHandler = function (req, res, callback) {
             this.req = req;
@@ -142,15 +142,13 @@
             }
         };
     fileServer.respond = function (pathname, status, _headers, files, stat, req, res, finish) {
-        if (!options.safeFileTypes.test(files[0])) {
+        // Prevent browsers from MIME-sniffing the content-type:
+        _headers['X-Content-Type-Options'] = 'nosniff';
+        if (!options.inlineFileTypes.test(files[0])) {
             // Force a download dialog for unsafe file extensions:
-            res.setHeader(
-                'Content-Disposition',
-                'attachment; filename="' + utf8encode(path.basename(files[0])) + '"'
-            );
-        } else {
-            // Prevent Internet Explorer from MIME-sniffing the content-type:
-            res.setHeader('X-Content-Type-Options', 'nosniff');
+            _headers['Content-Type'] = 'application/octet-stream';
+            _headers['Content-Disposition'] = 'attachment; filename="' +
+                utf8encode(path.basename(files[0])) + '"';
         }
         nodeStatic.Server.prototype.respond
             .call(this, pathname, status, _headers, files, stat, req, res, finish);
@@ -178,12 +176,12 @@
             var that = this,
                 baseUrl = (options.ssl ? 'https:' : 'http:') +
                     '//' + req.headers.host + options.uploadUrl;
-            this.url = this.delete_url = baseUrl + encodeURIComponent(this.name);
+            this.url = this.deleteUrl = baseUrl + encodeURIComponent(this.name);
             Object.keys(options.imageVersions).forEach(function (version) {
                 if (_existsSync(
                         options.uploadDir + '/' + version + '/' + that.name
                     )) {
-                    that[version + '_url'] = baseUrl + version + '/' +
+                    that[version + 'Url'] = baseUrl + version + '/' +
                         encodeURIComponent(that.name);
                 }
             });

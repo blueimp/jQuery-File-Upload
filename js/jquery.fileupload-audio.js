@@ -1,5 +1,5 @@
 /*
- * jQuery File Upload Audio Preview Plugin 1.0
+ * jQuery File Upload Audio Preview Plugin 1.0.3
  * https://github.com/blueimp/jQuery-File-Upload
  *
  * Copyright 2013, Sebastian Tschan
@@ -35,12 +35,11 @@
     $.blueimp.fileupload.prototype.options.processQueue.unshift(
         {
             action: 'loadAudio',
-            // Always trigger this action,
-            // even if the previous action was rejected: 
-            always: true,
-            fileTypes: '@loadAudioFileTypes',
-            maxFileSize: '@loadAudioMaxFileSize',
-            disabled: '@disableAudioLoad'
+            // Use the action as prefix for the "@" options:
+            prefix: true,
+            fileTypes: '@',
+            maxFileSize: '@',
+            disabled: '@disableAudioPreview'
         },
         {
             action: 'setAudio',
@@ -71,9 +70,7 @@
                 if (options.disabled) {
                     return data;
                 }
-                var that = this,
-                    file = data.files[data.index],
-                    dfd = $.Deferred(),
+                var file = data.files[data.index],
                     url,
                     audio;
                 if (this._audioElement.canPlayType &&
@@ -84,16 +81,14 @@
                             options.fileTypes.test(file.type))) {
                     url = loadImage.createObjectURL(file);
                     if (url) {
-                        audio = this._audioElement.cloneNode();
+                        audio = this._audioElement.cloneNode(false);
                         audio.src = url;
                         audio.controls = true;
                         data.audio = audio;
-                        dfd.resolveWith(that, [data]);
-                        return dfd.promise();
+                        return data;
                     }
                 }
-                dfd.rejectWith(that, [data]);
-                return dfd.promise();
+                return data;
             },
 
             // Sets the audio element as a property of the file object:

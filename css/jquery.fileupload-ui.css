@@ -1,6 +1,6 @@
 @charset "UTF-8";
 /*
- * jQuery File Upload UI Plugin CSS 8.1
+ * jQuery File Upload UI Plugin CSS 8.8.1
  * https://github.com/blueimp/jQuery-File-Upload
  *
  * Copyright 2010, Sebastian Tschan
@@ -30,6 +30,7 @@
 .fileupload-buttonbar .toggle {
   margin-bottom: 5px;
 }
+.progress-animated .progress-bar,
 .progress-animated .bar {
   background: url(../img/progressbar.gif) !important;
   filter: none;

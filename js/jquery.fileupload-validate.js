@@ -1,5 +1,5 @@
 /*
- * jQuery File Upload Validation Plugin 1.0.2
+ * jQuery File Upload Validation Plugin 1.1.1
  * https://github.com/blueimp/jQuery-File-Upload
  *
  * Copyright 2013, Sebastian Tschan
@@ -37,10 +37,10 @@
             // even if the previous action was rejected: 
             always: true,
             // Options taken from the global options map:
-            acceptFileTypes: '@acceptFileTypes',
-            maxFileSize: '@maxFileSize',
-            minFileSize: '@minFileSize',
-            maxNumberOfFiles: '@maxNumberOfFiles',
+            acceptFileTypes: '@',
+            maxFileSize: '@',
+            minFileSize: '@',
+            maxNumberOfFiles: '@',
             disabled: '@disableValidation'
         }
     );
@@ -83,16 +83,17 @@
                 }
                 var dfd = $.Deferred(),
                     settings = this.options,
-                    file = data.files[data.index],
-                    numberOfFiles = settings.getNumberOfFiles();
-                if (numberOfFiles && $.type(options.maxNumberOfFiles) === 'number' &&
-                        numberOfFiles + data.files.length > options.maxNumberOfFiles) {
+                    file = data.files[data.index];
+                if ($.type(options.maxNumberOfFiles) === 'number' &&
+                        (settings.getNumberOfFiles() || 0) + data.files.length >
+                            options.maxNumberOfFiles) {
                     file.error = settings.i18n('maxNumberOfFiles');
                 } else if (options.acceptFileTypes &&
                         !(options.acceptFileTypes.test(file.type) ||
                         options.acceptFileTypes.test(file.name))) {
                     file.error = settings.i18n('acceptFileTypes');
-                } else if (options.maxFileSize && file.size > options.maxFileSize) {
+                } else if (options.maxFileSize && file.size >
+                        options.maxFileSize) {
                     file.error = settings.i18n('maxFileSize');
                 } else if ($.type(file.size) === 'number' &&
                         file.size < options.minFileSize) {

@@ -1,6 +1,6 @@
 @charset "UTF-8";
 /*
- * jQuery File Upload Plugin CSS Example 8.8.2
+ * jQuery File Upload Demo CSS Fixes for IE<9 1.0.0
  * https://github.com/blueimp/jQuery-File-Upload
  *
  * Copyright 2013, Sebastian Tschan
@@ -10,6 +10,12 @@
  * http://www.opensource.org/licenses/MIT
  */
 
-body {
-  padding-top: 60px;
+.navigation {
+  list-style: none;
+  padding: 0;
+  margin: 1em 0;
+}
+.navigation li {
+  display: inline;
+  margin-right: 10px;
 }

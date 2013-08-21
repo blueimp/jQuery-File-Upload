@@ -1,5 +1,5 @@
 /*
- * jQuery File Upload Plugin Test 8.0
+ * jQuery File Upload Plugin Test 8.6.0
  * https://github.com/blueimp/jQuery-File-Upload
  *
  * Copyright 2010, Sebastian Tschan
@@ -959,8 +959,8 @@ $(function () {
                 $('#fileupload').data('fileupload'))
             ._renderDownload([{
                 name: 'test',
-                delete_url: 'test',
-                delete_type: 'DELETE'
+                deleteUrl: 'test',
+                deleteType: 'DELETE'
             }])
             .appendTo($('#fileupload .files'))
             .show()
@@ -1065,8 +1065,8 @@ $(function () {
                 $('#fileupload').data('fileupload'))
             ._renderDownload([{
                 name: 'test',
-                delete_url: '.',
-                delete_type: 'GET'
+                deleteUrl: '.',
+                deleteType: 'GET'
             }])
             .appendTo($('#fileupload .files'))
             .show()
@@ -1201,7 +1201,7 @@ $(function () {
             .fileupload({
                 autoUpload: true,
                 acceptFileTypes: /(\.|\/)(gif|jpe?g|png)$/i,
-                previewFileTypes: /none/,
+                disableImageMetaDataLoad: true,
                 send: function (e, data) {
                     strictEqual(
                         sendIndex += 1,

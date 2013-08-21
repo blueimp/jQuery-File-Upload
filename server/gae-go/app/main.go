@@ -1,5 +1,5 @@
 /*
- * jQuery File Upload Plugin GAE Go Example 3.0.1
+ * jQuery File Upload Plugin GAE Go Example 3.1.0
  * https://github.com/blueimp/jQuery-File-Upload
  *
  * Copyright 2011, Sebastian Tschan
@@ -30,7 +30,7 @@ import (
 )
 
 const (
-	WEBSITE           = "http://blueimp.github.com/jQuery-File-Upload/"
+	WEBSITE           = "http://blueimp.github.io/jQuery-File-Upload/"
 	MIN_FILE_SIZE     = 1       // bytes
 	MAX_FILE_SIZE     = 5000000 // bytes
 	IMAGE_TYPES       = "image/(gif|p?jpeg|(x-)?png)"
@@ -47,13 +47,13 @@ var (
 type FileInfo struct {
 	Key          appengine.BlobKey `json:"-"`
 	Url          string            `json:"url,omitempty"`
-	ThumbnailUrl string            `json:"thumbnail_url,omitempty"`
+	ThumbnailUrl string            `json:"thumbnailUrl,omitempty"`
 	Name         string            `json:"name"`
 	Type         string            `json:"type"`
 	Size         int64             `json:"size"`
 	Error        string            `json:"error,omitempty"`
-	DeleteUrl    string            `json:"delete_url,omitempty"`
-	DeleteType   string            `json:"delete_type,omitempty"`
+	DeleteUrl    string            `json:"deleteUrl,omitempty"`
+	DeleteType   string            `json:"deleteType,omitempty"`
 }
 
 func (fi *FileInfo) ValidateType() (valid bool) {
@@ -194,19 +194,18 @@ func get(w http.ResponseWriter, r *http.Request) {
 			blobKey := appengine.BlobKey(key)
 			bi, err := blobstore.Stat(appengine.NewContext(r), blobKey)
 			if err == nil {
+				w.Header().Add("X-Content-Type-Options", "nosniff")
+				if !imageTypes.MatchString(bi.ContentType) {
+					w.Header().Add("Content-Type", "application/octet-stream")
+					w.Header().Add(
+						"Content-Disposition",
+						fmt.Sprintf("attachment; filename=\"%s\"", parts[2]),
+					)
+				}
 				w.Header().Add(
 					"Cache-Control",
 					fmt.Sprintf("public,max-age=%d", EXPIRATION_TIME),
 				)
-				if imageTypes.MatchString(bi.ContentType) {
-					w.Header().Add("X-Content-Type-Options", "nosniff")
-				} else {
-					w.Header().Add("Content-Type", "application/octet-stream")
-					w.Header().Add(
-						"Content-Disposition:",
-						fmt.Sprintf("attachment; filename=%s;", parts[2]),
-					)
-				}
 				blobstore.Send(w, blobKey)
 				return
 			}

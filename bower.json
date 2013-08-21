@@ -2,19 +2,6 @@
     "name": "blueimp-file-upload",
     "version": "8.8.2",
     "title": "jQuery File Upload",
-    "author": {
-        "name": "Sebastian Tschan",
-        "url": "https://blueimp.net"
-    },
-    "licenses": [
-        {
-            "type": "MIT",
-            "url": "http://www.opensource.org/licenses/MIT"
-        }
-    ],
-    "dependencies": {
-        "jquery": ">=1.6"
-    },
     "description": "File Upload widget with multiple file selection, drag&amp;drop support, progress bar, validation and preview images, audio and video for jQuery. Supports cross-domain, chunked and resumable file uploads. Works with any server-side platform (Google App Engine, PHP, Python, Ruby on Rails, Java, etc.) that supports standard HTML form file uploads.",
     "keywords": [
         "jquery",
@@ -38,13 +25,43 @@
         "bootstrap"
     ],
     "homepage": "https://github.com/blueimp/jQuery-File-Upload",
-    "docs": "https://github.com/blueimp/jQuery-File-Upload/wiki",
-    "demo": "http://blueimp.github.io/jQuery-File-Upload/",
-    "bugs": "https://github.com/blueimp/jQuery-File-Upload/issues",
+    "author": {
+        "name": "Sebastian Tschan",
+        "url": "https://blueimp.net"
+    },
     "maintainers": [
         {
             "name": "Sebastian Tschan",
             "url": "https://blueimp.net"
         }
+    ],
+    "repository": {
+        "type": "git",
+        "url": "git://github.com/blueimp/jQuery-File-Upload.git"
+    },
+    "bugs": "https://github.com/blueimp/jQuery-File-Upload/issues",
+    "licenses": [
+        {
+            "type": "MIT",
+            "url": "http://www.opensource.org/licenses/MIT"
+        }
+    ],
+    "dependencies": {
+        "jquery": ">=1.6",
+        "blueimp-tmpl": ">=2.3.0",
+        "blueimp-load-image": ">=1.9.1",
+        "blueimp-canvas-to-blob": ">=2.0.7"
+    },
+    "main": [
+        "js/vendor/jquery.ui.widget.js",
+        "js/jquery.fileupload-angular.js",
+        "js/jquery.fileupload-audio.js",
+        "js/jquery.fileupload-image.js",
+        "js/jquery.fileupload-process.js",
+        "js/jquery.fileupload-ui.js",
+        "js/jquery.fileupload-validate.js",
+        "js/jquery.fileupload-video.js",
+        "js/jquery.fileupload.js",
+        "js/jquery.iframe-transport.js"
     ]
 }
