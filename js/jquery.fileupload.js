@@ -223,6 +223,9 @@
             // Callback for dragover events of the dropZone(s):
             // dragover: function (e) {}, // .bind('fileuploaddragover', func);
 
+            // Callback for dragleave events of the dropZone(s):
+            // dragleave: function (e) {}, // .bind('fileuploaddragleave', func);
+
             // Callback for the start of each chunk upload request:
             // chunksend: function (e, data) {}, // .bind('fileuploadchunksend', func);
 
@@ -1155,10 +1158,17 @@
             }
         },
 
+        _onDragLeave: function (e) {
+            if (this._trigger('dragleave', e) === false) {
+                return false;
+            }
+        },
+
         _initEventHandlers: function () {
             if (this._isXHRUpload(this.options)) {
                 this._on(this.options.dropZone, {
                     dragover: this._onDragOver,
+                    dragleave: this._onDragLeave,
                     drop: this._onDrop
                 });
                 this._on(this.options.pasteZone, {
@@ -1173,7 +1183,7 @@
         },
 
         _destroyEventHandlers: function () {
-            this._off(this.options.dropZone, 'dragover drop');
+            this._off(this.options.dropZone, 'dragover dragleave drop');
             this._off(this.options.pasteZone, 'paste');
             this._off(this.options.fileInput, 'change');
         },
