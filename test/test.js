@@ -1,5 +1,5 @@
 /*
- * jQuery File Upload Plugin Test 8.6.0
+ * jQuery File Upload Plugin Test 8.8.3
  * https://github.com/blueimp/jQuery-File-Upload
  *
  * Copyright 2010, Sebastian Tschan
@@ -891,6 +891,7 @@ $(function () {
         $('#fileupload').fileupload('add', {files: files});
         buttonbar.find('.start').click();
         buttonbar.find('.cancel').click();
+        files[0].deleteUrl = 'http://example.org/banana.jpg';
         ($('#fileupload').data('blueimp-fileupload') ||
                 $('#fileupload').data('fileupload'))
             ._renderDownload(files)

@@ -1,7 +1,7 @@
 <!DOCTYPE HTML>
 <!--
 /*
- * jQuery File Upload Plugin Test 8.8.0
+ * jQuery File Upload Plugin Test 8.8.3
  * https://github.com/blueimp/jQuery-File-Upload
  *
  * Copyright 2010, Sebastian Tschan
@@ -20,7 +20,7 @@
 <meta charset="utf-8">
 <title>jQuery File Upload Plugin Test</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<link rel="stylesheet" href="http://code.jquery.com/qunit/git/qunit.css">
+<link rel="stylesheet" href="http://codeorigin.jquery.com/qunit/qunit-1.12.0.css">
 </head>
 <body>
 <h1 id="qunit-header">jQuery File Upload Plugin Test</h1>
@@ -80,7 +80,7 @@
         <td>
             <p class="name">{%=file.name%}</p>
             {% if (file.error) { %}
-                <div><span class="label label-important">Error</span> {%=file.error%}</div>
+                <div><span class="label label-danger">Error</span> {%=file.error%}</div>
             {% } %}
         </td>
         <td>
@@ -119,21 +119,32 @@
         </td>
         <td>
             <p class="name">
-                <a href="{%=file.url%}" title="{%=file.name%}" download="{%=file.name%}" {%=file.thumbnailUrl?'data-gallery':''%}>{%=file.name%}</a>
+                {% if (file.url) { %}
+                    <a href="{%=file.url%}" title="{%=file.name%}" download="{%=file.name%}" {%=file.thumbnailUrl?'data-gallery':''%}>{%=file.name%}</a>
+                {% } else { %}
+                    <span>{%=file.name%}</span>
+                {% } %}
             </p>
             {% if (file.error) { %}
-                <div><span class="label label-important">Error</span> {%=file.error%}</div>
+                <div><span class="label label-danger">Error</span> {%=file.error%}</div>
             {% } %}
         </td>
         <td>
             <span class="size">{%=o.formatFileSize(file.size)%}</span>
         </td>
         <td>
-            <button class="btn btn-danger delete" data-type="{%=file.deleteType%}" data-url="{%=file.deleteUrl%}"{% if (file.deleteWithCredentials) { %} data-xhr-fields='{"withCredentials":true}'{% } %}>
-                <i class="icon-trash icon-white"></i>
-                <span>Delete</span>
-            </button>
-            <input type="checkbox" name="delete" value="1" class="toggle">
+            {% if (file.deleteUrl) { %}
+                <button class="btn btn-danger delete" data-type="{%=file.deleteType%}" data-url="{%=file.deleteUrl%}"{% if (file.deleteWithCredentials) { %} data-xhr-fields='{"withCredentials":true}'{% } %}>
+                    <i class="glyphicon glyphicon-trash"></i>
+                    <span>Delete</span>
+                </button>
+                <input type="checkbox" name="delete" value="1" class="toggle">
+            {% } else { %}
+                <button class="btn btn-warning cancel">
+                    <i class="glyphicon glyphicon-ban-circle"></i>
+                    <span>Cancel</span>
+                </button>
+            {% } %}
         </td>
     </tr>
 {% } %}
@@ -153,7 +164,7 @@
 <script src="../js/jquery.fileupload-validate.js"></script>
 <script src="../js/jquery.fileupload-ui.js"></script>
 <script>window.testUIWidget = $.blueimp.fileupload;</script>
-<script src="http://code.jquery.com/qunit/git/qunit.js"></script>
+<script src="http://codeorigin.jquery.com/qunit/qunit-1.12.0.js"></script>
 <script src="test.js"></script>
 </body> 
 </html>
