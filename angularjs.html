@@ -1,7 +1,7 @@
 <!DOCTYPE HTML>
 <!--
 /*
- * jQuery File Upload Plugin AngularJS Demo 1.6.2
+ * jQuery File Upload Plugin AngularJS Demo 1.6.3
  * https://github.com/blueimp/jQuery-File-Upload
  *
  * Copyright 2013, Sebastian Tschan
@@ -125,7 +125,7 @@
                         </span>
                         <span data-ng-switch-default>{{file.name}}</span>
                     </p>
-                    <div data-ng-show="file.error"><span class="label label-important">Error</span> {{file.error}}</div>
+                    <div data-ng-show="file.error"><span class="label label-danger">Error</span> {{file.error}}</div>
                 </td>
                 <td>
                     <p class="size">{{file.size | formatFileSize}}</p>

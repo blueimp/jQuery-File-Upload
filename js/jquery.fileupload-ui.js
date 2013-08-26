@@ -1,5 +1,5 @@
 /*
- * jQuery File Upload User Interface Plugin 8.8.1
+ * jQuery File Upload User Interface Plugin 8.8.3
  * https://github.com/blueimp/jQuery-File-Upload
  *
  * Copyright 2010, Sebastian Tschan
@@ -460,9 +460,11 @@
 
         _cancelHandler: function (e) {
             e.preventDefault();
-            var template = $(e.currentTarget).closest('.template-upload'),
+            var template = $(e.currentTarget)
+                    .closest('.template-upload,.template-download'),
                 data = template.data('data') || {};
             if (!data.jqXHR) {
+                data.context = data.context || template;
                 data.errorThrown = 'abort';
                 this._trigger('fail', e, data);
             } else {
