@@ -1,5 +1,5 @@
 /*
- * jQuery File Upload User Interface Plugin 8.8.4
+ * jQuery File Upload User Interface Plugin 8.8.5
  * https://github.com/blueimp/jQuery-File-Upload
  *
  * Copyright 2010, Sebastian Tschan
@@ -239,14 +239,16 @@
             // Callback for upload progress events:
             progress: function (e, data) {
                 var progress = Math.floor(data.loaded / data.total * 100);
-                data.context.each(function () {
-                    $(this).find('.progress')
-                        .attr('aria-valuenow', progress)
-                        .children().first().css(
-                            'width',
-                            progress + '%'
-                        );
-                });
+                if (data.context) {
+                    data.context.each(function () {
+                        $(this).find('.progress')
+                            .attr('aria-valuenow', progress)
+                            .children().first().css(
+                                'width',
+                                progress + '%'
+                            );
+                    });
+                }
             },
             // Callback for global upload progress events:
             progressall: function (e, data) {
