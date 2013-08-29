@@ -1,5 +1,5 @@
 /*
- * jQuery File Upload Plugin 5.32.2
+ * jQuery File Upload Plugin 5.32.3
  * https://github.com/blueimp/jQuery-File-Upload
  *
  * Copyright 2010, Sebastian Tschan
@@ -399,7 +399,7 @@
                 // Ignore non-multipart setting if not supported:
                 multipart = options.multipart || !$.support.xhrFileUpload,
                 paramName = options.paramName[0];
-            options.headers = $.extend({}, options.headers || {});
+            options.headers = $.extend({}, options.headers);
             if (options.contentRange) {
                 options.headers['Content-Range'] = options.contentRange;
             }
