@@ -399,7 +399,7 @@
                 // Ignore non-multipart setting if not supported:
                 multipart = options.multipart || !$.support.xhrFileUpload,
                 paramName = options.paramName[0];
-            options.headers = options.headers || {};
+            options.headers = $.extend({}, options.headers || {});
             if (options.contentRange) {
                 options.headers['Content-Range'] = options.contentRange;
             }
