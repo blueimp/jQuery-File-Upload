@@ -71,7 +71,24 @@
             this._trigger('process', null, data);
             $.each(data.processQueue, function (i, settings) {
                 var func = function (data) {
-                    return that.processActions[settings.action].call(
+                    // Overwrite default settings
+                    var keys = function(obj) {
+                        var keys = [];
+                        for (var key in obj) {
+                            if ( obj.hasOwnProperty(key) )  keys[keys.length] = key;
+                        }
+                        return keys;
+                    };
+                    var pick = function(obj, keys) {
+                        var copy = {};
+                        for(var i = 0, length = keys.length ; i < length ; ++i) {
+                            var key = keys[i];
+                            if (key in obj) copy[key] = obj[key];
+                        }
+                        return copy;
+                    };
+                    $.extend(settings, pick(data, keys(settings)));
+					return that.processActions[settings.action].call(
                         that,
                         data,
                         settings
