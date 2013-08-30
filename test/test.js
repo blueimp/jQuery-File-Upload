@@ -1,5 +1,5 @@
 /*
- * jQuery File Upload Plugin Test 8.8.3
+ * jQuery File Upload Plugin Test 8.8.4
  * https://github.com/blueimp/jQuery-File-Upload
  *
  * Copyright 2010, Sebastian Tschan
@@ -93,7 +93,7 @@ $(function () {
         );
         var eo = {
                 originalEvent: {
-                    dataTransfer: {files: [{}]},
+                    dataTransfer: {files: [{}], types: ['Files']},
                     clipboardData: {items: [{}]}
                 }
             },
@@ -130,7 +130,7 @@ $(function () {
         expect(4);
         var eo = {
                 originalEvent: {
-                    dataTransfer: {files: [{}]},
+                    dataTransfer: {files: [{}], types: ['Files']},
                     clipboardData: {items: [{}]}
                 }
             },
@@ -173,7 +173,7 @@ $(function () {
         );
         var eo = {
                 originalEvent: {
-                    dataTransfer: {files: [{}]},
+                    dataTransfer: {files: [{}], types: ['Files']},
                     clipboardData: {items: [{}]}
                 }
             },
@@ -216,7 +216,7 @@ $(function () {
         );
         var eo = {
                 originalEvent: {
-                    dataTransfer: {files: [{}]},
+                    dataTransfer: {files: [{}], types: ['Files']},
                     clipboardData: {items: [{}]}
                 }
             },
@@ -566,7 +566,7 @@ $(function () {
         });
         fuo._onDragOver({
             data: {fileupload: fuo},
-            originalEvent: {dataTransfer: {}},
+            originalEvent: {dataTransfer: {types: ['Files']}},
             preventDefault: $.noop
         });
     });
