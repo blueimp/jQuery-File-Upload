@@ -363,13 +363,15 @@
 
         .directive('fileUpload', function () {
             return {
-                controller: 'FileUploadController'
+                controller: 'FileUploadController',
+                scope: true
             };
         })
 
         .directive('fileUploadProgress', function () {
             return {
-                controller: 'FileUploadProgressController'
+                controller: 'FileUploadProgressController',
+                scope: true
             };
         })
 
