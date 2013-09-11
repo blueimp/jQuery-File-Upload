@@ -534,8 +534,16 @@
                 options.url = options.form.prop('action') || location.href;
             }
             // The HTTP request method must be "POST" or "PUT":
-            options.type = (options.type || options.form.prop('method') || '')
-                .toUpperCase();
+            options.type = (options.type || options.form.prop('method') || '');
+
+            // If type is not set explicitly and not set on the form
+            // and there is an <input name="method"> inside the form,
+            // options.form.prop('method') will return an <input> object.
+            // Protect from this and other possible non-string values.
+            if (options.type.toUpperCase) {
+                options.type.toUpperCase();
+            }
+
             if (options.type !== 'POST' && options.type !== 'PUT' &&
                     options.type !== 'PATCH') {
                 options.type = 'POST';
