@@ -1,6 +1,6 @@
 <?php
 /*
- * jQuery File Upload Plugin PHP Class 6.9.0
+ * jQuery File Upload Plugin PHP Class 6.9.1
  * https://github.com/blueimp/jQuery-File-Upload
  *
  * Copyright 2010, Sebastian Tschan
@@ -125,10 +125,10 @@ class UploadHandler
             )
         );
         if ($options) {
-            $this->options = array_merge($this->options, $options);
+            $this->options = $options + $this->options;
         }
         if ($error_messages) {
-            $this->error_messages = array_merge($this->error_messages, $error_messages);
+            $this->error_messages = $error_messages + $this->error_messages;
         }
         if ($initialize) {
             $this->initialize();
