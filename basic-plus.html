@@ -1,7 +1,7 @@
 <!DOCTYPE HTML>
 <!--
 /*
- * jQuery File Upload Plugin Basic Plus Demo 1.3.2
+ * jQuery File Upload Plugin Basic Plus Demo 1.3.3
  * https://github.com/blueimp/jQuery-File-Upload
  *
  * Copyright 2013, Sebastian Tschan
@@ -200,7 +200,7 @@ $(function () {
         if (file.error) {
             node
                 .append('<br>')
-                .append(file.error);
+                .append($('<span class="text-danger"/>').text(file.error));
         }
         if (index + 1 === data.files.length) {
             data.context.find('button')
@@ -215,15 +215,22 @@ $(function () {
         );
     }).on('fileuploaddone', function (e, data) {
         $.each(data.result.files, function (index, file) {
-            var link = $('<a>')
-                .attr('target', '_blank')
-                .prop('href', file.url);
-            $(data.context.children()[index])
-                .wrap(link);
+            if (file.url) {
+                var link = $('<a>')
+                    .attr('target', '_blank')
+                    .prop('href', file.url);
+                $(data.context.children()[index])
+                    .wrap(link);
+            } else if (file.error) {
+                var error = $('<span class="text-danger"/>').text(file.error);
+                $(data.context.children()[index])
+                    .append('<br>')
+                    .append(error);
+            }
         });
     }).on('fileuploadfail', function (e, data) {
-        $.each(data.result.files, function (index, file) {
-            var error = $('<span/>').text(file.error);
+        $.each(data.files, function (index, file) {
+            var error = $('<span class="text-danger"/>').text('File upload failed.');
             $(data.context.children()[index])
                 .append('<br>')
                 .append(error);
