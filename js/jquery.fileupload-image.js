@@ -1,5 +1,5 @@
 /*
- * jQuery File Upload Image Preview & Resize Plugin 1.2.4
+ * jQuery File Upload Image Preview & Resize Plugin 1.3.0
  * https://github.com/blueimp/jQuery-File-Upload
  *
  * Copyright 2013, Sebastian Tschan
@@ -64,6 +64,7 @@
             minWidth: '@',
             minHeight: '@',
             crop: '@',
+            orientation: '@',
             disabled: '@disableImageResize'
         },
         {
@@ -109,6 +110,9 @@
             imageMaxWidth: 1920,
             // The maximum height of resized images:
             imageMaxHeight: 1080,
+            // Defines the image orientation (1-8) or takes the orientation
+            // value from Exif data if set to true:
+            imageOrientation: false,
             // Define if resized images should be cropped or only scaled:
             imageCrop: false,
             // Disable the resize image functionality by default:
