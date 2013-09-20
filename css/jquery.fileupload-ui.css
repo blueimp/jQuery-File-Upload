@@ -1,6 +1,6 @@
-@charset "UTF-8";
+@charset 'UTF-8';
 /*
- * jQuery File Upload UI Plugin CSS 8.8.1
+ * jQuery File Upload UI Plugin CSS 8.8.5
  * https://github.com/blueimp/jQuery-File-Upload
  *
  * Copyright 2010, Sebastian Tschan
@@ -10,36 +10,22 @@
  * http://www.opensource.org/licenses/MIT
  */
 
-.fileinput-button {
-  position: relative;
-  overflow: hidden;
-}
-.fileinput-button input {
-  position: absolute;
-  top: 0;
-  right: 0;
-  margin: 0;
-  opacity: 0;
-  filter: alpha(opacity=0);
-  transform: translate(-300px, 0) scale(4);
-  font-size: 23px;
-  direction: ltr;
-  cursor: pointer;
-}
+@import url('jquery.fileupload.css');
+
 .fileupload-buttonbar .btn,
 .fileupload-buttonbar .toggle {
   margin-bottom: 5px;
 }
 .progress-animated .progress-bar,
 .progress-animated .bar {
-  background: url(../img/progressbar.gif) !important;
+  background: url('../img/progressbar.gif') !important;
   filter: none;
 }
 .fileupload-loading {
   float: right;
   width: 32px;
   height: 32px;
-  background: url(../img/loading.gif) center no-repeat;
+  background: url('../img/loading.gif') center no-repeat;
   background-size: contain;
   display: none;
 }
