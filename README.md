@@ -71,8 +71,8 @@ The jQuery Iframe Transport is required for [browsers without XHR file upload su
 * [JavaScript Templates engine](https://github.com/blueimp/JavaScript-Templates) v. 2.3.1+
 * [JavaScript Load Image library](https://github.com/blueimp/JavaScript-Load-Image) v. 1.9.1+
 * [JavaScript Canvas to Blob polyfill](https://github.com/blueimp/JavaScript-Canvas-to-Blob) v. 2.0.7+
-* [blueimp Gallery](https://github.com/blueimp/Gallery) v. 2.7.3+
-* [Bootstrap CSS framework](https://github.com/twitter/bootstrap/) v. 3.0.0+
+* [blueimp Gallery](https://github.com/blueimp/Gallery) v. 2.9.0+
+* [Bootstrap CSS framework](http://getbootstrap.com/) v. 3.0.0+
 * [Glyphicons](http://glyphicons.com/)
 
 The JavaScript Templates engine is used to render the selected and uploaded files for the Basic Plus UI and jQuery UI versions.
@@ -81,7 +81,7 @@ The JavaScript Load Image library and JavaScript Canvas to Blob polyfill are req
 
 The blueimp Gallery is used to display the uploaded images in a lightbox.
 
-The user interface of all versions except the jQuery UI version is built with Twitter's [Bootstrap](https://github.com/twitter/bootstrap/) framework and icons from [Font Awesome](http://fortawesome.github.io/Font-Awesome/).
+The user interface of all versions except the jQuery UI version is built with Twitter's [Bootstrap](http://getbootstrap.com/) framework and icons from [Glyphicons](http://glyphicons.com/).
 
 ### Cross-domain requirements
 [Cross-domain File Uploads](https://github.com/blueimp/jQuery-File-Upload/wiki/Cross-domain-uploads) using the [Iframe Transport plugin](https://github.com/blueimp/jQuery-File-Upload/blob/master/js/jquery.iframe-transport.js) require a redirect back to the origin server to retrieve the upload results. The [example implementation](https://github.com/blueimp/jQuery-File-Upload/blob/master/js/main.js) makes use of [result.html](https://github.com/blueimp/jQuery-File-Upload/blob/master/cors/result.html) as a static redirect page for the origin server.
