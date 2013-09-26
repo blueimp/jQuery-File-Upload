@@ -10,8 +10,6 @@
  * http://www.opensource.org/licenses/MIT
  */
 
-@import url('jquery.fileupload.css');
-
 .fileupload-buttonbar .btn,
 .fileupload-buttonbar .toggle {
   margin-bottom: 5px;

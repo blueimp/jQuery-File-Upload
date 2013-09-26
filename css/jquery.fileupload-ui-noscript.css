@@ -10,8 +10,6 @@
  * http://www.opensource.org/licenses/MIT
  */
 
-@import url('jquery.fileupload-noscript.css');
-
 .fileinput-button i,
 .fileupload-buttonbar .delete,
 .fileupload-buttonbar .toggle {
