@@ -1,6 +1,6 @@
 @charset 'UTF-8';
 /*
- * jQuery File Upload Plugin CSS 1.0.0
+ * jQuery File Upload Plugin CSS 1.1.0
  * https://github.com/blueimp/jQuery-File-Upload
  *
  * Copyright 2013, Sebastian Tschan
@@ -22,7 +22,8 @@
   opacity: 0;
   filter: alpha(opacity=0);
   transform: translate(-300px, 0) scale(4);
-  font-size: 23px;
+  font-size: 60px;
+  width: 100%;
   direction: ltr;
   cursor: pointer;
 }
