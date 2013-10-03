@@ -1,6 +1,6 @@
 @charset 'UTF-8';
 /*
- * jQuery File Upload Plugin NoScript CSS 1.0.0
+ * jQuery File Upload Plugin NoScript CSS 1.2.0
  * https://github.com/blueimp/jQuery-File-Upload
  *
  * Copyright 2013, Sebastian Tschan
@@ -14,7 +14,6 @@
   position: static;
   opacity: 1;
   filter: none;
-  transform: none;
   font-size: inherit;
   direction: inherit;
 }
