@@ -1,6 +1,6 @@
 @charset "UTF-8";
 /*
- * jQuery File Upload Demo CSS 1.0.2
+ * jQuery File Upload Demo CSS 1.1.0
  * https://github.com/blueimp/jQuery-File-Upload
  *
  * Copyright 2013, Sebastian Tschan
@@ -14,7 +14,7 @@ body {
   max-width: 750px;
   margin: 0 auto;
   padding: 1em;
-  font-family: 'Lucida Grande', 'Lucida Sans Unicode', Arial, sans-serif;
+  font-family: "Lucida Grande", "Lucida Sans Unicode", Arial, sans-serif;
   font-size: 1em;
   line-height: 1.4em;
   background: #222;
@@ -62,6 +62,6 @@ table {
     display: inline-block;
   }
   .navigation li:not(:first-child):before {
-    content: '| ';
+    content: "| ";
   }
 }
