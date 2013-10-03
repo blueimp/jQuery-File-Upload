@@ -1,4 +1,4 @@
-@charset 'UTF-8';
+@charset "UTF-8";
 /*
  * jQuery File Upload UI Plugin CSS 8.8.5
  * https://github.com/blueimp/jQuery-File-Upload
@@ -16,14 +16,14 @@
 }
 .progress-animated .progress-bar,
 .progress-animated .bar {
-  background: url('../img/progressbar.gif') !important;
+  background: url("../img/progressbar.gif") !important;
   filter: none;
 }
 .fileupload-loading {
   float: right;
   width: 32px;
   height: 32px;
-  background: url('../img/loading.gif') center no-repeat;
+  background: url("../img/loading.gif") center no-repeat;
   background-size: contain;
   display: none;
 }
