@@ -1,5 +1,5 @@
 /*
- * jQuery File Upload Plugin Test 8.8.4
+ * jQuery File Upload Plugin Test 8.8.5
  * https://github.com/blueimp/jQuery-File-Upload
  *
  * Copyright 2010, Sebastian Tschan
@@ -1057,6 +1057,7 @@ $(function () {
     asyncTest('destroyed', function () {
         expect(1);
         $('#fileupload').fileupload({
+            dataType: 'html',
             destroyed: function (e, data) {
                 start();
                 ok(true, 'Triggers destroyed callback');
