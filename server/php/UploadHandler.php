@@ -718,6 +718,11 @@ class UploadHandler
                 if (is_int($img_width) &&
                         preg_match($this->options['inline_file_types'], $file->name)) {
                     $this->handle_image_file($file_path, $file);
+                }else{
+                // Handle unsupported file types
+                }
+                 	unlink($file_path);
+                    $file->error = 'extension';
                 }
             } else {
                 $file->size = $file_size;
