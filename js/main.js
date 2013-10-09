@@ -1,5 +1,5 @@
 /*
- * jQuery File Upload Plugin JS Example 8.8.2
+ * jQuery File Upload Plugin JS Example 8.9.0
  * https://github.com/blueimp/jQuery-File-Upload
  *
  * Copyright 2010, Sebastian Tschan
@@ -69,7 +69,7 @@ $(function () {
             $(this).removeClass('fileupload-processing');
         }).done(function (result) {
             $(this).fileupload('option', 'done')
-                .call(this, null, {result: result});
+                .call(this, $.Event('done'), {result: result});
         });
     }
 

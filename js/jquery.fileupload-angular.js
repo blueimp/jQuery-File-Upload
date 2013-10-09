@@ -1,5 +1,5 @@
 /*
- * jQuery File Upload AngularJS Plugin 1.4.5
+ * jQuery File Upload AngularJS Plugin 1.5.0
  * https://github.com/blueimp/jQuery-File-Upload
  *
  * Copyright 2013, Sebastian Tschan
@@ -60,6 +60,9 @@
                     }
                 },
                 add: function (e, data) {
+                    if (e.isDefaultPrevented()) {
+                        return false;
+                    }
                     var scope = data.scope();
                     data.process(function () {
                         return scope.process(data);
@@ -108,15 +111,24 @@
                     );
                 },
                 progress: function (e, data) {
+                    if (e.isDefaultPrevented()) {
+                        return false;
+                    }
                     data.scope().$apply();
                 },
                 done: function (e, data) {
+                    if (e.isDefaultPrevented()) {
+                        return false;
+                    }
                     var that = this;
                     data.scope().$apply(function () {
                         data.handleResponse.call(that, e, data);
                     });
                 },
                 fail: function (e, data) {
+                    if (e.isDefaultPrevented()) {
+                        return false;
+                    }
                     var that = this;
                     if (data.errorThrown === 'abort') {
                         return;
