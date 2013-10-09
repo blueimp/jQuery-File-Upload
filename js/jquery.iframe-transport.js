@@ -39,7 +39,15 @@
         if (options.async) {
             var form,
                 iframe,
-                addParamChar;
+                addParamChar,
+                // javascript:false as initial iframe src
+                // prevents warning popups on HTTPS in IE6.
+                iframeSrc = 'javascript:false;';
+
+            if (options.iframeSrc) {
+                iframeSrc = options.iframeSrc;
+            }
+
             return {
                 send: function (_, completeCallback) {
                     form = $('<form style="display:none;"></form>');
@@ -56,14 +64,12 @@
                         options.url = options.url + addParamChar + '_method=PATCH';
                         options.type = 'POST';
                     }
-                    // javascript:false as initial iframe src
-                    // prevents warning popups on HTTPS in IE6.
                     // IE versions below IE8 cannot set the name property of
                     // elements that have already been added to the DOM,
                     // so we set the name along with the iframe HTML markup:
                     counter += 1;
                     iframe = $(
-                        '<iframe src="javascript:false;" name="iframe-transport-' +
+                        '<iframe src="' + iframeSrc + '" name="iframe-transport-' +
                             counter + '"></iframe>'
                     ).bind('load', function () {
                         var fileInputClones,
@@ -95,7 +101,7 @@
                                 );
                                 // Fix for IE endless progress bar activity bug
                                 // (happens on form submits to iframe targets):
-                                $('<iframe src="javascript:false;"></iframe>')
+                                $('<iframe src="' + iframeSrc + '"></iframe>')
                                     .appendTo(form);
                                 window.setTimeout(function () {
                                     // Removing the form in a setTimeout call
@@ -159,7 +165,7 @@
                         // concat is used to avoid the "Script URL" JSLint error:
                         iframe
                             .unbind('load')
-                            .prop('src', 'javascript'.concat(':false;'));
+                            .prop('src', iframeSrc);
                     }
                     if (form) {
                         form.remove();
