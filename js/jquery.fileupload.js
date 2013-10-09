@@ -1,5 +1,5 @@
 /*
- * jQuery File Upload Plugin 5.33.0
+ * jQuery File Upload Plugin 5.34.0
  * https://github.com/blueimp/jQuery-File-Upload
  *
  * Copyright 2010, Sebastian Tschan
@@ -174,6 +174,9 @@
             // handlers using jQuery's Deferred callbacks:
             // data.submit().done(func).fail(func).always(func);
             add: function (e, data) {
+                if (e.isDefaultPrevented()) {
+                    return false;
+                }
                 if (data.autoUpload || (data.autoUpload !== false &&
                         $(this).fileupload('option', 'autoUpload'))) {
                     data.process().done(function () {
