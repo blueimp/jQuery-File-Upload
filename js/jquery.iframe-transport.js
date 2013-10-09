@@ -1,5 +1,5 @@
 /*
- * jQuery Iframe Transport Plugin 1.7
+ * jQuery Iframe Transport Plugin 1.8.0
  * https://github.com/blueimp/jQuery-File-Upload
  *
  * Copyright 2011, Sebastian Tschan
@@ -27,7 +27,7 @@
     // Helper variable to create unique names for the transport iframes:
     var counter = 0;
 
-    // The iframe transport accepts three additional options:
+    // The iframe transport accepts four additional options:
     // options.fileInput: a jQuery collection of file input fields
     // options.paramName: the parameter name for the file form data,
     //  overrides the name property of the file input field(s),
@@ -35,19 +35,16 @@
     // options.formData: an array of objects with name and value properties,
     //  equivalent to the return data of .serializeArray(), e.g.:
     //  [{name: 'a', value: 1}, {name: 'b', value: 2}]
+    // options.initialIframeSrc: the URL of the initial iframe src,
+    //  by default set to "javascript:false;"
     $.ajaxTransport('iframe', function (options) {
         if (options.async) {
-            var form,
+            // javascript:false as initial iframe src
+            // prevents warning popups on HTTPS in IE6:
+            var initialIframeSrc = options.initialIframeSrc || 'javascript:false;',
+                form,
                 iframe,
-                addParamChar,
-                // javascript:false as initial iframe src
-                // prevents warning popups on HTTPS in IE6.
-                iframeSrc = 'javascript:false;';
-
-            if (options.iframeSrc) {
-                iframeSrc = options.iframeSrc;
-            }
-
+                addParamChar;
             return {
                 send: function (_, completeCallback) {
                     form = $('<form style="display:none;"></form>');
@@ -69,8 +66,8 @@
                     // so we set the name along with the iframe HTML markup:
                     counter += 1;
                     iframe = $(
-                        '<iframe src="' + iframeSrc + '" name="iframe-transport-' +
-                            counter + '"></iframe>'
+                        '<iframe src="' + initialIframeSrc +
+                            '" name="iframe-transport-' + counter + '"></iframe>'
                     ).bind('load', function () {
                         var fileInputClones,
                             paramNames = $.isArray(options.paramName) ?
@@ -101,7 +98,7 @@
                                 );
                                 // Fix for IE endless progress bar activity bug
                                 // (happens on form submits to iframe targets):
-                                $('<iframe src="' + iframeSrc + '"></iframe>')
+                                $('<iframe src="' + initialIframeSrc + '"></iframe>')
                                     .appendTo(form);
                                 window.setTimeout(function () {
                                     // Removing the form in a setTimeout call
@@ -165,7 +162,7 @@
                         // concat is used to avoid the "Script URL" JSLint error:
                         iframe
                             .unbind('load')
-                            .prop('src', iframeSrc);
+                            .prop('src', initialIframeSrc);
                     }
                     if (form) {
                         form.remove();
