@@ -1,7 +1,7 @@
 <!DOCTYPE HTML>
 <!--
 /*
- * jQuery File Upload Plugin jQuery UI Demo 8.7.1
+ * jQuery File Upload Plugin jQuery UI Demo 8.7.2
  * https://github.com/blueimp/jQuery-File-Upload
  *
  * Copyright 2013, Sebastian Tschan
@@ -160,7 +160,7 @@
 <!-- The template to display files available for upload -->
 <script id="template-upload" type="text/x-tmpl">
 {% for (var i=0, file; file=o.files[i]; i++) { %}
-    <tr class="template-upload fade" style="display:none">
+    <tr class="template-upload fade">
         <td>
             <span class="preview"></span>
         </td>
@@ -173,7 +173,7 @@
         <td>
             <p class="size">{%=o.formatFileSize(file.size)%}</p>
             {% if (!o.files.error) { %}
-                <div class="progress" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"></div>
+                <div class="progress"></div>
             {% } %}
         </td>
         <td>
@@ -190,7 +190,7 @@
 <!-- The template to display files available for download -->
 <script id="template-download" type="text/x-tmpl">
 {% for (var i=0, file; file=o.files[i]; i++) { %}
-    <tr class="template-download fade" style="display:none">
+    <tr class="template-download fade">
         <td>
             <span class="preview">
                 {% if (file.thumbnailUrl) { %}
