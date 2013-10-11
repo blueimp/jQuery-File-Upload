@@ -71,7 +71,7 @@ The jQuery Iframe Transport is required for [browsers without XHR file upload su
 * [JavaScript Templates engine](https://github.com/blueimp/JavaScript-Templates) v. 2.3.1+
 * [JavaScript Load Image library](https://github.com/blueimp/JavaScript-Load-Image) v. 1.9.1+
 * [JavaScript Canvas to Blob polyfill](https://github.com/blueimp/JavaScript-Canvas-to-Blob) v. 2.0.7+
-* [blueimp Gallery](https://github.com/blueimp/Gallery) v. 2.10.1+
+* [blueimp Gallery](https://github.com/blueimp/Gallery) v. 2.10.2+
 * [Bootstrap CSS framework](http://getbootstrap.com/) v. 3.0.0+
 * [Glyphicons](http://glyphicons.com/)
 
