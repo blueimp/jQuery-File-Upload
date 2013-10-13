@@ -1,5 +1,5 @@
 /*
- * jQuery File Upload Image Preview & Resize Plugin 1.3.0
+ * jQuery File Upload Image Preview & Resize Plugin 1.3.1
  * https://github.com/blueimp/jQuery-File-Upload
  *
  * Copyright 2013, Sebastian Tschan
@@ -170,7 +170,7 @@
             // Accepts the options maxWidth, maxHeight, minWidth,
             // minHeight, canvas and crop:
             resizeImage: function (data, options) {
-                if (options.disabled) {
+                if (options.disabled || !(data.canvas || data.img)) {
                     return data;
                 }
                 options = $.extend({canvas: true}, options);
