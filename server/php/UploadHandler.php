@@ -1,6 +1,6 @@
 <?php
 /*
- * jQuery File Upload Plugin PHP Class 6.10.0
+ * jQuery File Upload Plugin PHP Class 6.11.0
  * https://github.com/blueimp/jQuery-File-Upload
  *
  * Copyright 2010, Sebastian Tschan
@@ -94,9 +94,14 @@ class UploadHandler
             'min_height' => 1,
             // Set the following option to false to enable resumable uploads:
             'discard_aborted_uploads' => true,
-            // Set to 0 to use the GD image extension to scale and orient images
-            // instead of imagick, which is used by default if installed:
+            // Set to 0 to use the GD library to scale and orient images,
+            // set to 1 to use imagick (if installed, falls back to GD):
             'image_library' => 1,
+            // Define an array of resource limits for imagick:
+            'imagick_resource_limits' => array(
+                //imagick::RESOURCETYPE_MAP => 32,
+                //imagick::RESOURCETYPE_MEMORY => 32
+            ),
             // Set to false to disable rotating images based on EXIF meta data:
             'orient_image' => true,
             'image_versions' => array(
@@ -479,6 +484,7 @@ class UploadHandler
     }
 
     protected function gd_set_image_object($file_path, $image) {
+        $this->gd_destroy_image_object($file_path);
         $this->image_objects[$file_path] = $image;
     }
 
@@ -577,8 +583,6 @@ class UploadHandler
             $img_height
         ) && $write_func($new_img, $new_file_path, $image_quality);
         $this->gd_set_image_object($file_path, $new_img);
-        // Free up memory (imagedestroy does not delete files):
-        imagedestroy($src_img);
         return $success;
     }
 
@@ -659,6 +663,7 @@ class UploadHandler
                     defined('IMG_FLIP_HORIZONTAL') ? IMG_FLIP_HORIZONTAL : 1
                 );
                 $new_img = imagerotate($tmp_img, 270, 0);
+                imagedestroy($tmp_img);
                 break;
             case 6:
                 $new_img = imagerotate($src_img, 270, 0);
@@ -669,6 +674,7 @@ class UploadHandler
                     defined('IMG_FLIP_VERTICAL') ? IMG_FLIP_VERTICAL : 2
                 );
                 $new_img = imagerotate($tmp_img, 270, 0);
+                imagedestroy($tmp_img);
                 break;
             case 8:
                 $new_img = imagerotate($src_img, 90, 0);
@@ -677,16 +683,19 @@ class UploadHandler
                 return false;
         }
         $this->gd_set_image_object($file_path, $new_img);
-        // Free up memory (imagedestroy does not delete files):
-        @imagedestroy($tmp_img);
-        imagedestroy($src_img);
         return imagejpeg($new_img, $file_path);
     }
 
     protected function imagick_get_image_object($file_path, $no_cache = false) {
         if (empty($this->image_objects[$file_path]) || $no_cache) {
             $this->imagick_destroy_image_object($file_path);
-            $this->image_objects[$file_path] = new Imagick($file_path);
+            $image = new Imagick($file_path);
+            if (!empty($this->options['imagick_resource_limits'])) {
+                foreach ($this->options['imagick_resource_limits'] as $type => $limit) {
+                    $image->setResourceLimit($type, $limit);
+                }
+            }
+            $this->image_objects[$file_path] = $image;
         }
         return $this->image_objects[$file_path];
     }
