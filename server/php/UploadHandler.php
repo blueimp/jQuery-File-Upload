@@ -1,6 +1,6 @@
 <?php
 /*
- * jQuery File Upload Plugin PHP Class 6.11.0
+ * jQuery File Upload Plugin PHP Class 6.11.2
  * https://github.com/blueimp/jQuery-File-Upload
  *
  * Copyright 2010, Sebastian Tschan
@@ -689,12 +689,13 @@ class UploadHandler
     protected function imagick_get_image_object($file_path, $no_cache = false) {
         if (empty($this->image_objects[$file_path]) || $no_cache) {
             $this->imagick_destroy_image_object($file_path);
-            $image = new Imagick($file_path);
+            $image = new Imagick();
             if (!empty($this->options['imagick_resource_limits'])) {
                 foreach ($this->options['imagick_resource_limits'] as $type => $limit) {
                     $image->setResourceLimit($type, $limit);
                 }
             }
+            $image->readImage($file_path);
             $this->image_objects[$file_path] = $image;
         }
         return $this->image_objects[$file_path];
@@ -812,14 +813,19 @@ class UploadHandler
 
     protected function get_image_size($file_path) {
         if ($this->options['image_library'] && extension_loaded('imagick')) {
-            $image = $this->imagick_get_image_object($file_path);
-            return array($image->getImageWidth(), $image->getImageHeight());
+            $image = new Imagick();
+            if (@$image->pingImage($file_path)) {
+                $dimensions = array($image->getImageWidth(), $image->getImageHeight());
+                $image->destroy();
+                return $dimensions;
+            }
+            return false;
         }
         if (!function_exists('getimagesize')) {
             error_log('Function not found: getimagesize');
             return false;
         }
-        return getimagesize($file_path);
+        return @getimagesize($file_path);
     }
 
     protected function create_scaled_image($file_name, $version, $options) {
@@ -849,12 +855,8 @@ class UploadHandler
         if (function_exists('exif_imagetype')) {
             return @exif_imagetype($file_path);
         }
-        if (!function_exists('getimagesize')) {
-            error_log('Function not found: getimagesize');
-            return false;
-        }
-        $image_info = @getimagesize($file_path);
-        return !empty($image_info[0]);
+        $image_info = $this->get_image_size($file_path);
+        return $image_info && $image_info[0] && $image_info[1];
     }
 
     protected function handle_image_file($file_path, $file) {
