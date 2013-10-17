@@ -1,6 +1,6 @@
 <?php
 /*
- * jQuery File Upload Plugin PHP Class 6.11.2
+ * jQuery File Upload Plugin PHP Class 7.0.0
  * https://github.com/blueimp/jQuery-File-Upload
  *
  * Copyright 2010, Sebastian Tschan
@@ -95,31 +95,38 @@ class UploadHandler
             // Set the following option to false to enable resumable uploads:
             'discard_aborted_uploads' => true,
             // Set to 0 to use the GD library to scale and orient images,
-            // set to 1 to use imagick (if installed, falls back to GD):
+            // set to 1 to use imagick (if installed, falls back to GD),
+            // set to 2 to use the ImageMagick convert binary directly:
             'image_library' => 1,
-            // Define an array of resource limits for imagick:
+            // Uncomment the following to define an array of resource limits
+            // for imagick:
+            /*
             'imagick_resource_limits' => array(
-                //imagick::RESOURCETYPE_MAP => 32,
-                //imagick::RESOURCETYPE_MEMORY => 32
+                imagick::RESOURCETYPE_MAP => 32,
+                imagick::RESOURCETYPE_MEMORY => 32
             ),
-            // Set to false to disable rotating images based on EXIF meta data:
-            'orient_image' => true,
+            */
+            // Command or path for to the ImageMagick convert binary:
+            'convert_bin' => 'convert',
+            // Uncomment the following to add parameters in front of each
+            // ImageMagick convert call (the limit constraints seem only
+            // to have an effect if put in front):
+            /*
+            'convert_params' => '-limit memory 32MiB -limit map 32MiB',
+            */
+            // Command or path for to the ImageMagick identify binary:
+            'identify_bin' => 'identify',
             'image_versions' => array(
-                // Uncomment the following version to restrict the size of
-                // uploaded images:
-                /*
+                // The empty image version key defines options for the original image:
                 '' => array(
-                    'max_width' => 1920,
-                    'max_height' => 1200,
-                    'jpeg_quality' => 95
+                    // Automatically rotate images based on EXIF meta data:
+                    'auto_orient' => true
                 ),
-                */
                 // Uncomment the following to create medium sized images:
                 /*
                 'medium' => array(
                     'max_width' => 800,
-                    'max_height' => 600,
-                    'jpeg_quality' => 80
+                    'max_height' => 600
                 ),
                 */
                 'thumbnail' => array(
@@ -373,23 +380,27 @@ class UploadHandler
             $file->error = $this->get_error_message('max_number_of_files');
             return false;
         }
-        if ($this->is_valid_image_file($uploaded_file)) {
+        $max_width = @$this->options['max_width'];
+        $max_height = @$this->options['max_height'];
+        $min_width = @$this->options['min_width'];
+        $min_height = @$this->options['min_height'];
+        if (($max_width || $max_height || $min_width || $min_height)) {
             list($img_width, $img_height) = $this->get_image_size($uploaded_file);
         }
         if (!empty($img_width)) {
-            if ($this->options['max_width'] && $img_width > $this->options['max_width']) {
+            if ($max_width && $img_width > $max_width) {
                 $file->error = $this->get_error_message('max_width');
                 return false;
             }
-            if ($this->options['max_height'] && $img_height > $this->options['max_height']) {
+            if ($max_height && $img_height > $max_height) {
                 $file->error = $this->get_error_message('max_height');
                 return false;
             }
-            if ($this->options['min_width'] && $img_width < $this->options['min_width']) {
+            if ($min_width && $img_width < $min_width) {
                 $file->error = $this->get_error_message('min_width');
                 return false;
             }
-            if ($this->options['min_height'] && $img_height < $this->options['min_height']) {
+            if ($min_height && $img_height < $min_height) {
                 $file->error = $this->get_error_message('min_height');
                 return false;
             }
@@ -493,6 +504,105 @@ class UploadHandler
         return $image && imagedestroy($image);
     }
 
+    protected function gd_imageflip($image, $mode) {
+        if (function_exists('imageflip')) {
+            return imageflip($image, $mode);
+        }
+        $new_width = $src_width = imagesx($image);
+        $new_height = $src_height = imagesy($image);
+        $new_img = imagecreatetruecolor($new_width, $new_height);
+        $src_x = 0;
+        $src_y = 0;
+        switch ($mode) {
+            case '1': // flip on the horizontal axis
+                $src_y = $new_height - 1;
+                $src_height = -$new_height;
+                break;
+            case '2': // flip on the vertical axis
+                $src_x  = $new_width - 1;
+                $src_width = -$new_width;
+                break;
+            case '3': // flip on both axes
+                $src_y = $new_height - 1;
+                $src_height = -$new_height;
+                $src_x  = $new_width - 1;
+                $src_width = -$new_width;
+                break;
+            default:
+                return $image;
+        }
+        imagecopyresampled(
+            $new_img,
+            $image,
+            0,
+            0,
+            $src_x,
+            $src_y,
+            $new_width,
+            $new_height,
+            $src_width,
+            $src_height
+        );
+        return $new_img;
+    }
+
+    protected function gd_orient_image($file_path, $src_img) {
+        if (!function_exists('exif_read_data')) {
+            return false;
+        }
+        $exif = @exif_read_data($file_path);
+        if ($exif === false) {
+            return false;
+        }
+        $orientation = intval(@$exif['Orientation']);
+        if ($orientation < 2 || $orientation > 8) {
+            return false;
+        }
+        switch ($orientation) {
+            case 2:
+                $new_img = $this->gd_imageflip(
+                    $src_img,
+                    defined('IMG_FLIP_VERTICAL') ? IMG_FLIP_VERTICAL : 2
+                );
+                break;
+            case 3:
+                $new_img = imagerotate($src_img, 180, 0);
+                break;
+            case 4:
+                $new_img = $this->gd_imageflip(
+                    $src_img,
+                    defined('IMG_FLIP_HORIZONTAL') ? IMG_FLIP_HORIZONTAL : 1
+                );
+                break;
+            case 5:
+                $tmp_img = $this->gd_imageflip(
+                    $src_img,
+                    defined('IMG_FLIP_HORIZONTAL') ? IMG_FLIP_HORIZONTAL : 1
+                );
+                $new_img = imagerotate($tmp_img, 270, 0);
+                imagedestroy($tmp_img);
+                break;
+            case 6:
+                $new_img = imagerotate($src_img, 270, 0);
+                break;
+            case 7:
+                $tmp_img = $this->gd_imageflip(
+                    $src_img,
+                    defined('IMG_FLIP_VERTICAL') ? IMG_FLIP_VERTICAL : 2
+                );
+                $new_img = imagerotate($tmp_img, 270, 0);
+                imagedestroy($tmp_img);
+                break;
+            case 8:
+                $new_img = imagerotate($src_img, 90, 0);
+                break;
+            default:
+                return false;
+        }
+        $this->gd_set_image_object($file_path, $new_img);
+        return true;
+    }
+
     protected function gd_create_scaled_image($file_name, $version, $options) {
         if (!function_exists('imagecreatetruecolor')) {
             error_log('Function not found: imagecreatetruecolor');
@@ -528,15 +638,33 @@ class UploadHandler
             $src_func,
             !empty($options['no_cache'])
         );
-        $img_width = imagesx($src_img);
-        $img_height = imagesy($src_img);
-        $max_width = $options['max_width'];
-        $max_height = $options['max_height'];
+        $image_oriented = false;
+        if (!empty($options['auto_orient']) && $this->gd_orient_image(
+                $file_path,
+                $src_img
+            )) {
+            $image_oriented = true;
+            $src_img = $this->gd_get_image_object(
+                $file_path,
+                $src_func
+            );
+        }
+        $max_width = $img_width = imagesx($src_img);
+        $max_height = $img_height = imagesy($src_img);
+        if (!empty($options['max_width'])) {
+            $max_width = $options['max_width'];
+        }
+        if (!empty($options['max_height'])) {
+            $max_height = $options['max_height'];
+        }
         $scale = min(
             $max_width / $img_width,
             $max_height / $img_height
         );
         if ($scale >= 1) {
+            if ($image_oriented) {
+                return $write_func($src_img, $new_file_path, $image_quality);
+            }
             if ($file_path !== $new_file_path) {
                 return copy($file_path, $new_file_path);
             }
@@ -586,106 +714,6 @@ class UploadHandler
         return $success;
     }
 
-    protected function gd_imageflip($image, $mode) {
-        if (function_exists('imageflip')) {
-            return imageflip($image, $mode);
-        }
-        $new_width = $src_width = imagesx($image);
-        $new_height = $src_height = imagesy($image);
-        $new_img = imagecreatetruecolor($new_width, $new_height);
-        $src_x = 0;
-        $src_y = 0;
-        switch ($mode) {
-            case '1': // flip on the horizontal axis
-                $src_y = $new_height - 1;
-                $src_height = -$new_height;
-                break;
-            case '2': // flip on the vertical axis
-                $src_x  = $new_width - 1;
-                $src_width = -$new_width;
-                break;
-            case '3': // flip on both axes
-                $src_y = $new_height - 1;
-                $src_height = -$new_height;
-                $src_x  = $new_width - 1;
-                $src_width = -$new_width;
-                break;
-            default:
-                return $image;
-        }
-        imagecopyresampled(
-            $new_img,
-            $image,
-            0,
-            0,
-            $src_x,
-            $src_y,
-            $new_width,
-            $new_height,
-            $src_width,
-            $src_height
-        );
-        return $new_img;
-    }
-
-    protected function gd_orient_image($file_path) {
-        if (!function_exists('exif_read_data')) {
-            return false;
-        }
-        $exif = @exif_read_data($file_path);
-        if ($exif === false) {
-            return false;
-        }
-        $orientation = intval(@$exif['Orientation']);
-        if ($orientation < 2 || $orientation > 8) {
-            return false;
-        }
-        $src_img = $this->gd_get_image_object($file_path, 'imagecreatefromjpeg');
-        switch ($orientation) {
-            case 2:
-                $new_img = $this->gd_imageflip(
-                    $src_img,
-                    defined('IMG_FLIP_VERTICAL') ? IMG_FLIP_VERTICAL : 2
-                );
-                break;
-            case 3:
-                $new_img = imagerotate($src_img, 180, 0);
-                break;
-            case 4:
-                $new_img = $this->gd_imageflip(
-                    $src_img,
-                    defined('IMG_FLIP_HORIZONTAL') ? IMG_FLIP_HORIZONTAL : 1
-                );
-                break;
-            case 5:
-                $tmp_img = $this->gd_imageflip(
-                    $src_img,
-                    defined('IMG_FLIP_HORIZONTAL') ? IMG_FLIP_HORIZONTAL : 1
-                );
-                $new_img = imagerotate($tmp_img, 270, 0);
-                imagedestroy($tmp_img);
-                break;
-            case 6:
-                $new_img = imagerotate($src_img, 270, 0);
-                break;
-            case 7:
-                $tmp_img = $this->gd_imageflip(
-                    $src_img,
-                    defined('IMG_FLIP_VERTICAL') ? IMG_FLIP_VERTICAL : 2
-                );
-                $new_img = imagerotate($tmp_img, 270, 0);
-                imagedestroy($tmp_img);
-                break;
-            case 8:
-                $new_img = imagerotate($src_img, 90, 0);
-                break;
-            default:
-                return false;
-        }
-        $this->gd_set_image_object($file_path, $new_img);
-        return imagejpeg($new_img, $file_path);
-    }
-
     protected function imagick_get_image_object($file_path, $no_cache = false) {
         if (empty($this->image_objects[$file_path]) || $no_cache) {
             $this->imagick_destroy_image_object($file_path);
@@ -701,30 +729,79 @@ class UploadHandler
         return $this->image_objects[$file_path];
     }
 
+    protected function imagick_set_image_object($file_path, $image) {
+        $this->imagick_destroy_image_object($file_path);
+        $this->image_objects[$file_path] = $image;
+    }
+
     protected function imagick_destroy_image_object($file_path) {
         $image = @$this->image_objects[$file_path];
         return $image && $image->destroy();
     }
 
+    protected function imagick_orient_image($image) {
+        $orientation = $image->getImageOrientation();
+        $background = new ImagickPixel('none');
+        switch ($orientation) {
+            case imagick::ORIENTATION_TOPRIGHT: // 2
+                $image->flopImage(); // horizontal flop around y-axis
+                break;
+            case imagick::ORIENTATION_BOTTOMRIGHT: // 3
+                $image->rotateImage($background, 180);
+                break;
+            case imagick::ORIENTATION_BOTTOMLEFT: // 4
+                $image->flipImage(); // vertical flip around x-axis
+                break;
+            case imagick::ORIENTATION_LEFTTOP: // 5
+                $image->flopImage(); // horizontal flop around y-axis
+                $image->rotateImage($background, 270);
+                break;
+            case imagick::ORIENTATION_RIGHTTOP: // 6
+                $image->rotateImage($background, 90);
+                break;
+            case imagick::ORIENTATION_RIGHTBOTTOM: // 7
+                $image->flipImage(); // vertical flip around x-axis
+                $image->rotateImage($background, 270);
+                break;
+            case imagick::ORIENTATION_LEFTBOTTOM: // 8
+                $image->rotateImage($background, 270);
+                break;
+            default:
+                return false;
+        }
+        $image->setImageOrientation(imagick::ORIENTATION_TOPLEFT); // 1
+        return true;
+    }
+
     protected function imagick_create_scaled_image($file_name, $version, $options) {
         list($file_path, $new_file_path) =
             $this->get_scaled_image_file_paths($file_name, $version);
-        $new_width = $max_width = $options['max_width'];
-        $new_height = $max_height = $options['max_height'];
         $image = $this->imagick_get_image_object(
             $file_path,
             !empty($options['no_cache'])
         );
-        // Handle animated GIFs:
-        $images = $image->coalesceImages();
-        foreach ($images as $frame) {
-            $image = $frame;
-            break;
+        if ($image->getImageFormat() === 'GIF') {
+            // Handle animated GIFs:
+            $images = $image->coalesceImages();
+            foreach ($images as $frame) {
+                $image = $frame;
+                $this->imagick_set_image_object($file_name, $image);
+                break;
+            }
         }
-        $img_width = $image->getImageWidth();
-        $img_height = $image->getImageHeight();
-        if (min($max_width / $img_width, $max_height / $img_height) >= 1) {
-            // Image is smaller than the constraints
+        $image_oriented = false;
+        if (!empty($options['auto_orient'])) {
+            $image_oriented = $this->imagick_orient_image($image);
+        }
+        $new_width = $max_width = $img_width = $image->getImageWidth();
+        $new_height = $max_height = $img_height = $image->getImageHeight();
+        if (!empty($options['max_width'])) {
+            $new_width = $max_width = $options['max_width'];
+        }
+        if (!empty($options['max_height'])) {
+            $new_height = $max_height = $options['max_height'];
+        }
+        if (!($image_oriented || $max_width < $img_width || $max_height < $img_height)) {
             if ($file_path !== $new_file_path) {
                 return copy($file_path, $new_file_path);
             }
@@ -776,50 +853,73 @@ class UploadHandler
         return $success && $image->writeImage($new_file_path);
     }
 
-    protected function imagick_orient_image($file_path) {
-        $image = $this->imagick_get_image_object($file_path);
-        $orientation = $image->getImageOrientation();
-        $background = new ImagickPixel('none');
-        switch ($orientation) {
-            case imagick::ORIENTATION_TOPRIGHT: // 2
-                $image->flopImage(); // horizontal flop around y-axis
-                break;
-            case imagick::ORIENTATION_BOTTOMRIGHT: // 3
-                $image->rotateImage($background, 180);
-                break;
-            case imagick::ORIENTATION_BOTTOMLEFT: // 4
-                $image->flipImage(); // vertical flip around x-axis
-                break;
-            case imagick::ORIENTATION_LEFTTOP: // 5
-                $image->flopImage(); // horizontal flop around y-axis
-                $image->rotateImage($background, 270);
-                break;
-            case imagick::ORIENTATION_RIGHTTOP: // 6
-                $image->rotateImage($background, 90);
-                break;
-            case imagick::ORIENTATION_RIGHTBOTTOM: // 7
-                $image->flipImage(); // vertical flip around x-axis
-                $image->rotateImage($background, 270);
-                break;
-            case imagick::ORIENTATION_LEFTBOTTOM: // 8
-                $image->rotateImage($background, 270);
-                break;
-            default:
-                return false;
+    protected function imagemagick_create_scaled_image($file_name, $version, $options) {
+        list($file_path, $new_file_path) =
+            $this->get_scaled_image_file_paths($file_name, $version);
+        $resize = @$options['max_width']
+            .(empty($options['max_height']) ? '' : 'x'.$options['max_height']);
+        if (!$resize && empty($options['auto_orient'])) {
+            if ($file_path !== $new_file_path) {
+                return copy($file_path, $new_file_path);
+            }
+            return true;
         }
-        $image->setImageOrientation(imagick::ORIENTATION_TOPLEFT); // 1
-        return $image->writeImage($file_path);
+        $cmd = $this->options['convert_bin'];
+        if (!empty($this->options['convert_params'])) {
+            $cmd .= ' '.$this->options['convert_params'];
+        }
+        $cmd .= ' '.escapeshellarg($file_path);
+        if (!empty($options['auto_orient'])) {
+            $cmd .= ' -auto-orient';
+        }
+        if ($resize) {
+            // Handle animated GIFs:
+            $cmd .= ' -coalesce';
+            if (empty($options['crop'])) {
+                $cmd .= ' -resize '.escapeshellarg($resize.'>');
+            } else {
+                $cmd .= ' -resize '.escapeshellarg($resize.'^');
+                $cmd .= ' -gravity center';
+                $cmd .= ' -crop '.escapeshellarg($resize.'+0+0');
+            }
+            // Make sure the page dimensions are correct (fixes offsets of animated GIFs):
+            $cmd .= ' +repage';
+        }
+        if (!empty($options['convert_params'])) {
+            $cmd .= ' '.$options['convert_params'];
+        }
+        $cmd .= ' '.escapeshellarg($new_file_path);
+        exec($cmd, $output, $error);
+        if ($error) {
+            error_log(implode('\n', $output));
+            return false;
+        }
+        return true;
     }
 
     protected function get_image_size($file_path) {
-        if ($this->options['image_library'] && extension_loaded('imagick')) {
-            $image = new Imagick();
-            if (@$image->pingImage($file_path)) {
-                $dimensions = array($image->getImageWidth(), $image->getImageHeight());
-                $image->destroy();
-                return $dimensions;
+        if ($this->options['image_library']) {
+            if (extension_loaded('imagick')) {
+                $image = new Imagick();
+                if (@$image->pingImage($file_path)) {
+                    $dimensions = array($image->getImageWidth(), $image->getImageHeight());
+                    $image->destroy();
+                    return $dimensions;
+                }
+                return false;
             }
-            return false;
+            if ($this->options['image_library'] === 2) {
+                $cmd = $this->options['identify_bin'];
+                $cmd .= ' -ping '.escapeshellarg($file_path);
+                exec($cmd, $output, $error);
+                if (!$error && !empty($output)) {
+                    // image.jpg JPEG 1920x1080 1920x1080+0+0 8-bit sRGB 465KB 0.000u 0:00.000
+                    $infos = preg_split('/\s+/', $output[0]);
+                    $dimensions = preg_split('/x/', $infos[2]);
+                    return $dimensions;
+                }
+                return false;
+            }
         }
         if (!function_exists('getimagesize')) {
             error_log('Function not found: getimagesize');
@@ -829,17 +929,13 @@ class UploadHandler
     }
 
     protected function create_scaled_image($file_name, $version, $options) {
+        if ($this->options['image_library'] === 2) {
+            return $this->imagemagick_create_scaled_image($file_name, $version, $options);
+        }
         if ($this->options['image_library'] && extension_loaded('imagick')) {
             return $this->imagick_create_scaled_image($file_name, $version, $options);
         }
         return $this->gd_create_scaled_image($file_name, $version, $options);
-    }
-
-    protected function orient_image($file_path) {
-        if ($this->options['image_library'] && extension_loaded('imagick')) {
-            return $this->imagick_orient_image($file_path);
-        }
-        return $this->gd_orient_image($file_path);
     }
 
     protected function destroy_image_object($file_path) {
@@ -860,9 +956,6 @@ class UploadHandler
     }
 
     protected function handle_image_file($file_path, $file) {
-        if ($this->options['orient_image']) {
-            $this->orient_image($file_path);
-        }
         $failed_versions = array();
         foreach($this->options['image_versions'] as $version => $options) {
             if ($this->create_scaled_image($file->name, $version, $options)) {
