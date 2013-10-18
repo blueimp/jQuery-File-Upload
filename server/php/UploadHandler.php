@@ -1,6 +1,6 @@
 <?php
 /*
- * jQuery File Upload Plugin PHP Class 7.0.0
+ * jQuery File Upload Plugin PHP Class 7.0.1
  * https://github.com/blueimp/jQuery-File-Upload
  *
  * Copyright 2010, Sebastian Tschan
@@ -901,12 +901,16 @@ class UploadHandler
         if ($this->options['image_library']) {
             if (extension_loaded('imagick')) {
                 $image = new Imagick();
-                if (@$image->pingImage($file_path)) {
-                    $dimensions = array($image->getImageWidth(), $image->getImageHeight());
-                    $image->destroy();
-                    return $dimensions;
+                try {
+                    if (@$image->pingImage($file_path)) {
+                        $dimensions = array($image->getImageWidth(), $image->getImageHeight());
+                        $image->destroy();
+                        return $dimensions;
+                    }
+                    return false;
+                } catch (Exception $e) {
+                    error_log($e->getMessage());
                 }
-                return false;
             }
             if ($this->options['image_library'] === 2) {
                 $cmd = $this->options['identify_bin'];
