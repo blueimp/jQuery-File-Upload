@@ -1,5 +1,5 @@
 /*
- * jQuery File Upload Plugin 5.34.0
+ * jQuery File Upload Plugin 5.35.0
  * https://github.com/blueimp/jQuery-File-Upload
  *
  * Copyright 2010, Sebastian Tschan
@@ -607,16 +607,23 @@
         // Adds convenience methods to the data callback argument:
         _addConvenienceMethods: function (e, data) {
             var that = this,
-                getPromise = function (data) {
-                    return $.Deferred().resolveWith(that, [data]).promise();
+                getPromise = function (args) {
+                    return $.Deferred().resolveWith(that, args).promise();
                 };
             data.process = function (resolveFunc, rejectFunc) {
                 if (resolveFunc || rejectFunc) {
                     data._processQueue = this._processQueue =
-                        (this._processQueue || getPromise(this))
-                            .pipe(resolveFunc, rejectFunc);
+                        (this._processQueue || getPromise([this])).pipe(
+                            function () {
+                                if (data.errorThrown) {
+                                    return $.Deferred()
+                                        .rejectWith(that, [data]).promise();
+                                }
+                                return getPromise(arguments);
+                            }
+                        ).pipe(resolveFunc, rejectFunc);
                 }
-                return this._processQueue || getPromise(this);
+                return this._processQueue || getPromise([this]);
             };
             data.submit = function () {
                 if (this.state() !== 'pending') {
@@ -633,6 +640,7 @@
                 if (this.jqXHR) {
                     return this.jqXHR.abort();
                 }
+                this.errorThrown = 'abort';
                 return that._getXHRPromise();
             };
             data.state = function () {
