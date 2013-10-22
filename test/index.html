@@ -1,7 +1,7 @@
 <!DOCTYPE HTML>
 <!--
 /*
- * jQuery File Upload Plugin Test 8.8.5
+ * jQuery File Upload Plugin Test 9.0.0
  * https://github.com/blueimp/jQuery-File-Upload
  *
  * Copyright 2010, Sebastian Tschan
@@ -53,16 +53,16 @@
                     <span>Delete</span>
                 </button>
                 <input type="checkbox" class="toggle">
-                <!-- The loading indicator is shown during file processing -->
-                <span class="fileupload-loading"></span>
+                <!-- The global file processing state -->
+                <span class="fileupload-process"></span>
             </div>
-            <!-- The global progress information -->
+            <!-- The global progress state -->
             <div class="col-lg-5 fileupload-progress">
                 <!-- The global progress bar -->
                 <div class="progress progress-striped active" role="progressbar" aria-valuemin="0" aria-valuemax="100">
                     <div class="progress-bar progress-bar-success" style="width:0%;"></div>
                 </div>
-                <!-- The extended global progress information -->
+                <!-- The extended global progress state -->
                 <div class="progress-extended">&nbsp;</div>
             </div>
         </div>
@@ -79,26 +79,22 @@
         </td>
         <td>
             <p class="name">{%=file.name%}</p>
-            {% if (file.error) { %}
-                <div><span class="label label-danger">Error</span> {%=file.error%}</div>
-            {% } %}
+            <strong class="error text-danger"></strong>
         </td>
         <td>
-            <p class="size">{%=o.formatFileSize(file.size)%}</p>
-            {% if (!o.files.error) { %}
-                <div class="progress progress-striped active" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"><div class="progress-bar progress-bar-success" style="width:0%;"></div></div>
-            {% } %}
+            <p class="size">Processing...</p>
+            <div class="progress progress-striped active" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"><div class="progress-bar progress-bar-success" style="width:0%;"></div></div>
         </td>
         <td>
-            {% if (!o.files.error && !i && !o.options.autoUpload) { %}
-                <button class="btn btn-primary start">
-                    <i class="icon-upload icon-white"></i>
+            {% if (!i && !o.options.autoUpload) { %}
+                <button class="btn btn-primary start" disabled>
+                    <i class="glyphicon glyphicon-upload"></i>
                     <span>Start</span>
                 </button>
             {% } %}
             {% if (!i) { %}
                 <button class="btn btn-warning cancel">
-                    <i class="icon-ban-circle icon-white"></i>
+                    <i class="glyphicon glyphicon-ban-circle"></i>
                     <span>Cancel</span>
                 </button>
             {% } %}

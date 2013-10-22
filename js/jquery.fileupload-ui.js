@@ -1,5 +1,5 @@
 /*
- * jQuery File Upload User Interface Plugin 8.9.0
+ * jQuery File Upload User Interface Plugin 9.0.0
  * https://github.com/blueimp/jQuery-File-Upload
  *
  * Copyright 2010, Sebastian Tschan
@@ -66,7 +66,8 @@
             // Function returning the current number of files,
             // used by the maxNumberOfFiles validation:
             getNumberOfFiles: function () {
-                return this.filesContainer.children().length;
+                return this.filesContainer.children()
+                    .not('.processing').length;
             },
 
             // Callback to retrieve the list of files from the server response:
@@ -87,26 +88,42 @@
                 var $this = $(this),
                     that = $this.data('blueimp-fileupload') ||
                         $this.data('fileupload'),
-                    options = that.options,
-                    files = data.files;
-                data.process(function () {
-                    return $this.fileupload('process', data);
-                }).always(function () {
-                    data.context = that._renderUpload(files).data('data', data);
+                    options = that.options;
+                data.context = that._renderUpload(data.files)
+                    .data('data', data)
+                    .addClass('processing');
+                options.filesContainer[
+                    options.prependFiles ? 'prepend' : 'append'
+                ](data.context);
+                that._forceReflow(data.context);
+                $.when(
+                    that._transition(data.context),
+                    data.process(function () {
+                        return $this.fileupload('process', data);
+                    })
+                ).always(function () {
+                    data.context.each(function (index) {
+                        $(this).find('.size').text(
+                            that._formatFileSize(data.files[index].size)
+                        );
+                    }).removeClass('processing');
                     that._renderPreviews(data);
-                    options.filesContainer[
-                        options.prependFiles ? 'prepend' : 'append'
-                    ](data.context);
-                    that._forceReflow(data.context);
-                    that._transition(data.context).done(
-                        function () {
-                            if ((that._trigger('added', e, data) !== false) &&
-                                    (options.autoUpload || data.autoUpload) &&
-                                    data.autoUpload !== false && !data.files.error) {
-                                data.submit();
+                }).done(function () {
+                    data.context.find('.start').prop('disabled', false);
+                    if ((that._trigger('added', e, data) !== false) &&
+                            (options.autoUpload || data.autoUpload) &&
+                            data.autoUpload !== false) {
+                        data.submit();
+                    }
+                }).fail(function () {
+                    if (data.files.error) {
+                        data.context.each(function (index) {
+                            var error = data.files[index].error;
+                            if (error) {
+                                $(this).find('.error').text(error);
                             }
-                        }
-                    );
+                        });
+                    }
                 });
             },
             // Callback for the start of each file upload request:

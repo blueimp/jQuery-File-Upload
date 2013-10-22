@@ -1,5 +1,5 @@
 /*
- * jQuery File Upload AngularJS Plugin 1.5.0
+ * jQuery File Upload AngularJS Plugin 2.0.0
  * https://github.com/blueimp/jQuery-File-Upload
  *
  * Copyright 2013, Sebastian Tschan
@@ -47,6 +47,32 @@
                         scope.$apply();
                     });
                 },
+                addFileMethods = function (scope, data) {
+                    var files = data.files,
+                        file = files[0];
+                    angular.forEach(files, function (file, index) {
+                        file._index = index;
+                        file.$state = function () {
+                            return data.state();
+                        };
+                        file.$processing = function () {
+                            return data.processing();
+                        };
+                        file.$progress = function () {
+                            return data.progress();
+                        };
+                        file.$response = function () {
+                            return data.response();
+                        };
+                    });
+                    file.$submit = function () {
+                        return data.submit();
+                    };
+                    file.$cancel = function () {
+                        scope.clear(files);
+                        return data.abort();
+                    };
+                },
                 $config;
             $config = this.defaults = {
                 handleResponse: function (e, data) {
@@ -63,52 +89,31 @@
                     if (e.isDefaultPrevented()) {
                         return false;
                     }
-                    var scope = data.scope();
+                    var scope = data.scope(),
+                        filesCopy = [];
+                    angular.forEach(data.files, function (file) {
+                        filesCopy.push(file);
+                    });
+                    scope.$apply(function () {
+                        addFileMethods(scope, data);
+                        var method = scope.option('prependFiles') ?
+                                'unshift' : 'push';
+                        Array.prototype[method].apply(scope.queue, data.files);
+                    });
                     data.process(function () {
                         return scope.process(data);
-                    }).always(
-                        function () {
-                            var file = data.files[0],
-                                submit = function () {
-                                    return data.submit();
-                                };
-                            angular.forEach(data.files, function (file, index) {
-                                file._index = index;
-                                file.$state = function () {
-                                    return data.state();
-                                };
-                                file.$progress = function () {
-                                    return data.progress();
-                                };
-                                file.$response = function () {
-                                    return data.response();
-                                };
-                            });
-                            file.$cancel = function () {
-                                scope.clear(data.files);
-                                return data.abort();
-                            };
-                            if (file.$state() === 'rejected') {
-                                file._$submit = submit;
-                            } else {
-                                file.$submit = submit;
-                            }
-                            scope.$apply(function () {
-                                var method = scope.option('prependFiles') ?
-                                        'unshift' : 'push';
-                                Array.prototype[method].apply(
-                                    scope.queue,
-                                    data.files
-                                );
-                                if (file.$submit &&
-                                        (scope.option('autoUpload') ||
-                                        data.autoUpload) &&
-                                        data.autoUpload !== false) {
-                                    file.$submit();
-                                }
-                            });
+                    }).always(function () {
+                        scope.$apply(function () {
+                            addFileMethods(scope, data);
+                            scope.replace(filesCopy, data.files);
+                        });
+                    }).then(function () {
+                        if ((scope.option('autoUpload') ||
+                                data.autoUpload) &&
+                                data.autoUpload !== false) {
+                            data.submit();
                         }
-                    );
+                    });
                 },
                 progress: function (e, data) {
                     if (e.isDefaultPrevented()) {
@@ -147,7 +152,8 @@
                 processstart: scopeApply,
                 processstop: scopeApply,
                 getNumberOfFiles: function () {
-                    return this.scope().queue.length;
+                    var scope = this.scope();
+                    return scope.queue.length - scope.processing();
                 },
                 dataType: 'json',
                 autoUpload: false
@@ -363,13 +369,16 @@
 
         // Display File Upload previews:
         .controller('FileUploadPreviewController', [
-            '$scope', '$element', '$attrs', '$parse',
-            function ($scope, $element, $attrs, $parse) {
-                var fn = $parse($attrs.fileUploadPreview),
-                    file = fn($scope);
-                if (file.preview) {
-                    $element.append(file.preview);
-                }
+            '$scope', '$element', '$attrs',
+            function ($scope, $element, $attrs) {
+                $scope.$watch(
+                    $attrs.fileUploadPreview + '.preview',
+                    function (preview) {
+                        if (preview) {
+                            $element.empty().append(preview);
+                        }
+                    }
+                );
             }
         ])
 

@@ -1,7 +1,7 @@
 <!DOCTYPE HTML>
 <!--
 /*
- * jQuery File Upload Plugin jQuery UI Demo 8.7.2
+ * jQuery File Upload Plugin jQuery UI Demo 9.0.0
  * https://github.com/blueimp/jQuery-File-Upload
  *
  * Copyright 2013, Sebastian Tschan
@@ -110,14 +110,14 @@
             <button type="reset" class="cancel">Cancel upload</button>
             <button type="button" class="delete">Delete</button>
             <input type="checkbox" class="toggle">
-            <!-- The loading indicator is shown during file processing -->
-            <span class="fileupload-loading"></span>
+            <!-- The global file processing state -->
+            <span class="fileupload-process"></span>
         </div>
-        <!-- The global progress information -->
+        <!-- The global progress state -->
         <div class="fileupload-progress fade" style="display:none">
             <!-- The global progress bar -->
             <div class="progress" role="progressbar" aria-valuemin="0" aria-valuemax="100"></div>
-            <!-- The extended global progress information -->
+            <!-- The extended global progress state -->
             <div class="progress-extended">&nbsp;</div>
         </div>
     </div>
@@ -153,18 +153,14 @@
         </td>
         <td>
             <p class="name">{%=file.name%}</p>
-            {% if (file.error) { %}
-                <div><span class="error">Error:</span> {%=file.error%}</div>
-            {% } %}
+            <strong class="error"></strong>
         </td>
         <td>
-            <p class="size">{%=o.formatFileSize(file.size)%}</p>
-            {% if (!o.files.error) { %}
-                <div class="progress"></div>
-            {% } %}
+            <p class="size">Processing...</p>
+            <div class="progress"></div>
         </td>
         <td>
-            {% if (!o.files.error && !i && !o.options.autoUpload) { %}
+            {% if (!i && !o.options.autoUpload) { %}
                 <button class="start">Start</button>
             {% } %}
             {% if (!i) { %}
