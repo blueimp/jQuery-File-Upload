@@ -1,5 +1,5 @@
 /*
- * jQuery File Upload Plugin 5.36.0
+ * jQuery File Upload Plugin 5.37.0
  * https://github.com/blueimp/jQuery-File-Upload
  *
  * Copyright 2010, Sebastian Tschan
@@ -463,7 +463,7 @@
                                 formData.append(
                                     options.paramName[index] || paramName,
                                     file,
-                                    file.name
+                                    file.uploadName || file.name
                                 );
                             }
                         });
