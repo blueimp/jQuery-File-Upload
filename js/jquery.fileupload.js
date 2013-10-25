@@ -132,8 +132,6 @@
             bitrateInterval: 500,
             // By default, uploads are started automatically when adding files:
             autoUpload: true,
-            // Number of times to retry a chunked PUT request. 0 to disable.
-            maxRetries: 0,
 
             // Error and info messages:
             messages: {
@@ -693,8 +691,7 @@
                 dfd = $.Deferred(),
                 promise = dfd.promise(),
                 jqXHR,
-                upload,
-                retries = 0;
+                upload;
             if (!(this._isXHRUpload(options) && slice && (ub || mcs < fs)) ||
                     options.data) {
                 return false;
@@ -752,8 +749,6 @@
                         o.jqXHR = jqXHR;
                         that._trigger('chunkdone', null, o);
                         that._trigger('chunkalways', null, o);
-                        retries = 0;
-
                         if (ub < fs) {
                             // File upload not yet complete,
                             // continue with the next chunk:
@@ -766,19 +761,22 @@
                         }
                     })
                     .fail(function (jqXHR, textStatus, errorThrown) {
+                        var defaultPrevented;
+
                         o.jqXHR = jqXHR;
                         o.textStatus = textStatus;
                         o.errorThrown = errorThrown;
-                        that._trigger('chunkfail', null, o);
+
+                        defaultPrevented = that._trigger('chunkfail', null, o);
                         that._trigger('chunkalways', null, o);
 
-                        if (++retries > options.maxRetries) {
+                        if (defaultPrevented === false) {
+                            upload();
+                        } else {
                             dfd.rejectWith(
                                 o.context,
                                 [jqXHR, textStatus, errorThrown]
                             );
-                        } else {
-                            upload();
                         }
                     });
             };
