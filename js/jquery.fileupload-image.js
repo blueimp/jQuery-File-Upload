@@ -69,7 +69,7 @@
         },
         {
             action: 'saveImage',
-            disabled: '@disableImageResize'
+            disabled: '@saveOriginal'
         },
         {
             action: 'saveImageMetaData',
