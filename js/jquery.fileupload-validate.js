@@ -84,6 +84,11 @@
                 var dfd = $.Deferred(),
                     settings = this.options,
                     file = data.files[data.index];
+                    
+                if ($.type(options.acceptFileTypes) === 'string' && options.acceptFileTypes.length) {
+                    options.acceptFileTypes = new RegExp(options.acceptFileTypes);
+                }
+
                 if ($.type(options.maxNumberOfFiles) === 'number' &&
                         (settings.getNumberOfFiles() || 0) + data.files.length >
                             options.maxNumberOfFiles) {
