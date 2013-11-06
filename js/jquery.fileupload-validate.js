@@ -1,5 +1,5 @@
 /*
- * jQuery File Upload Validation Plugin 1.1.1
+ * jQuery File Upload Validation Plugin 1.1.2
  * https://github.com/blueimp/jQuery-File-Upload
  *
  * Copyright 2013, Sebastian Tschan
@@ -84,9 +84,9 @@
                 var dfd = $.Deferred(),
                     settings = this.options,
                     file = data.files[data.index],
-                    sz;
+                    fileSize;
                 if (options.minFileSize || options.maxFileSize) {
-                    sz = file.size;
+                    fileSize = file.size;
                 }
                 if ($.type(options.maxNumberOfFiles) === 'number' &&
                         (settings.getNumberOfFiles() || 0) + data.files.length >
@@ -96,12 +96,10 @@
                         !(options.acceptFileTypes.test(file.type) ||
                         options.acceptFileTypes.test(file.name))) {
                     file.error = settings.i18n('acceptFileTypes');
-                } else if (options.maxFileSize && 
-                        sz > options.maxFileSize) {
+                } else if (fileSize > options.maxFileSize) {
                     file.error = settings.i18n('maxFileSize');
-                } else if (options.minFileSize &&
-                        $.type(sz) === 'number' &&
-                        sz < options.minFileSize) {
+                } else if ($.type(fileSize) === 'number' &&
+                        fileSize < options.minFileSize) {
                     file.error = settings.i18n('minFileSize');
                 } else {
                     delete file.error;
