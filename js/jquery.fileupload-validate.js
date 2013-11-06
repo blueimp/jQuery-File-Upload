@@ -83,7 +83,11 @@
                 }
                 var dfd = $.Deferred(),
                     settings = this.options,
-                    file = data.files[data.index];
+                    file = data.files[data.index],
+                    sz;
+                if (options.minFileSize || options.maxFileSize) {
+                    sz = file.size;
+                }
                 if ($.type(options.maxNumberOfFiles) === 'number' &&
                         (settings.getNumberOfFiles() || 0) + data.files.length >
                             options.maxNumberOfFiles) {
@@ -92,11 +96,12 @@
                         !(options.acceptFileTypes.test(file.type) ||
                         options.acceptFileTypes.test(file.name))) {
                     file.error = settings.i18n('acceptFileTypes');
-                } else if (options.maxFileSize && file.size >
-                        options.maxFileSize) {
+                } else if (options.maxFileSize && 
+                        sz > options.maxFileSize) {
                     file.error = settings.i18n('maxFileSize');
-                } else if ($.type(file.size) === 'number' &&
-                        file.size < options.minFileSize) {
+                } else if (options.minFileSize &&
+                        $.type(sz) === 'number' &&
+                        sz < options.minFileSize) {
                     file.error = settings.i18n('minFileSize');
                 } else {
                     delete file.error;
