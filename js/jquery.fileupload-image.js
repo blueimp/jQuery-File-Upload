@@ -1,5 +1,5 @@
 /*
- * jQuery File Upload Image Preview & Resize Plugin 1.4.0
+ * jQuery File Upload Image Preview & Resize Plugin 1.5.0
  * https://github.com/blueimp/jQuery-File-Upload
  *
  * Copyright 2013, Sebastian Tschan
@@ -65,6 +65,7 @@
             minHeight: '@',
             crop: '@',
             orientation: '@',
+            forceResize: '@',
             disabled: '@disableImageResize'
         },
         {
@@ -180,7 +181,8 @@
                     img = (options.canvas && data.canvas) || data.img,
                     resolve = function (newImg) {
                         if (newImg && (newImg.width !== img.width ||
-                                newImg.height !== img.height)) {
+                                newImg.height !== img.height ||
+                                options.forceResize)) {
                             data[newImg.getContext ? 'canvas' : 'img'] = newImg;
                         }
                         data.preview = newImg;
