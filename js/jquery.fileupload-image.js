@@ -1,5 +1,5 @@
 /*
- * jQuery File Upload Image Preview & Resize Plugin 1.5.0
+ * jQuery File Upload Image Preview & Resize Plugin 1.6.0
  * https://github.com/blueimp/jQuery-File-Upload
  *
  * Copyright 2013, Sebastian Tschan
@@ -71,6 +71,7 @@
         {
             action: 'saveImage',
             quality: '@imageQuality',
+            type: '@imageType',
             disabled: '@disableImageResize'
         },
         {
@@ -218,22 +219,30 @@
                     file = data.files[data.index],
                     dfd = $.Deferred();
                 if (data.canvas.toBlob) {
-                    data.canvas.toBlob(function (blob) {
-                        if (!blob.name) {
-                            if (file.type === blob.type) {
-                                blob.name = file.name;
-                            } else if (file.name) {
-                                blob.name = file.name.replace(
-                                    /\..+$/,
-                                    '.' + blob.type.substr(6)
-                                );
+                    data.canvas.toBlob(
+                        function (blob) {
+                            if (!blob.name) {
+                                if (file.type === blob.type) {
+                                    blob.name = file.name;
+                                } else if (file.name) {
+                                    blob.name = file.name.replace(
+                                        /\..+$/,
+                                        '.' + blob.type.substr(6)
+                                    );
+                                }
                             }
-                        }
-                        // Store the created blob at the position
-                        // of the original file in the files list:
-                        data.files[data.index] = blob;
-                        dfd.resolveWith(that, [data]);
-                    }, file.type, options.quality);
+                            // Don't restore invalid meta data:
+                            if (file.type !== blob.type) {
+                                delete data.imageHead;
+                            }
+                            // Store the created blob at the position
+                            // of the original file in the files list:
+                            data.files[data.index] = blob;
+                            dfd.resolveWith(that, [data]);
+                        },
+                        options.type || file.type,
+                        options.quality
+                    );
                 } else {
                     return data;
                 }
