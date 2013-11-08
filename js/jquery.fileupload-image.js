@@ -1,5 +1,5 @@
 /*
- * jQuery File Upload Image Preview & Resize Plugin 1.3.1
+ * jQuery File Upload Image Preview & Resize Plugin 1.4.0
  * https://github.com/blueimp/jQuery-File-Upload
  *
  * Copyright 2013, Sebastian Tschan
@@ -69,6 +69,7 @@
         },
         {
             action: 'saveImage',
+            quality: '@imageQuality',
             disabled: '@disableImageResize'
         },
         {
@@ -213,9 +214,9 @@
                 }
                 var that = this,
                     file = data.files[data.index],
-                    name = file.name,
-                    dfd = $.Deferred(),
-                    callback = function (blob) {
+                    dfd = $.Deferred();
+                if (data.canvas.toBlob) {
+                    data.canvas.toBlob(function (blob) {
                         if (!blob.name) {
                             if (file.type === blob.type) {
                                 blob.name = file.name;
@@ -230,18 +231,7 @@
                         // of the original file in the files list:
                         data.files[data.index] = blob;
                         dfd.resolveWith(that, [data]);
-                    };
-                // Use canvas.mozGetAsFile directly, to retain the filename, as
-                // Gecko doesn't support the filename option for FormData.append:
-                if (data.canvas.mozGetAsFile) {
-                    callback(data.canvas.mozGetAsFile(
-                        (/^image\/(jpeg|png)$/.test(file.type) && name) ||
-                            ((name && name.replace(/\..+$/, '')) ||
-                                'blob') + '.png',
-                        file.type
-                    ));
-                } else if (data.canvas.toBlob) {
-                    data.canvas.toBlob(callback, file.type);
+                    }, file.type, options.quality);
                 } else {
                     return data;
                 }
