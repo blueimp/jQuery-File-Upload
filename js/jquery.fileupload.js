@@ -1,5 +1,5 @@
 /*
- * jQuery File Upload Plugin 5.37.0
+ * jQuery File Upload Plugin 5.38.0
  * https://github.com/blueimp/jQuery-File-Upload
  *
  * Copyright 2010, Sebastian Tschan
@@ -90,10 +90,14 @@
             // To limit the number of files uploaded with one XHR request,
             // set the following option to an integer greater than 0:
             limitMultiFileUploads: undefined,
-            // To limit the number of files uploaded with one XHR request to the
-            // maximum number of files that can be send for a given upload limit, 
-            // set the following option to an integer greater than 0:
-            uploadSizeLimitMultiFileUploads: undefined,
+            // The following option limits the number of files uploaded with one
+            // XHR request to keep the request size under or equal to the defined
+            // limit in bytes:
+            limitMultiFileUploadSize: undefined,
+            // Multipart file uploads add a number of bytes to each uploaded file,
+            // therefore the following option adds an overhead for each file used
+            // in the limitMultiFileUploadSize configuration:
+            limitMultiFileUploadSizeOverhead: 512,
             // Set the following option to true to issue all file upload requests
             // in a sequential order:
             sequentialUploads: false,
@@ -289,7 +293,7 @@
 
         _getFormData: function (options) {
             var formData;
-            if (typeof options.formData === 'function') {
+            if ($.type(options.formData) === 'function') {
                 return options.formData(options.form);
             }
             if ($.isArray(options.formData)) {
@@ -938,25 +942,30 @@
             var that = this,
                 result = true,
                 options = $.extend({}, this.options, data),
+                files = data.files,
+                filesLength = files.length,
                 limit = options.limitMultiFileUploads,
-                limitSize = options.uploadSizeLimitMultiFileUploads,
+                limitSize = options.limitMultiFileUploadSize,
+                overhead = options.limitMultiFileUploadSizeOverhead,
+                batchSize = 0,
                 paramName = this._getParamName(options),
                 paramNameSet,
                 paramNameSlice,
                 fileSet,
                 i,
-                j = 0,
-                totalSize = 0,
-                overhead = 512;
+                j = 0;
+            if (limitSize && (!filesLength || files[0].size === undefined)) {
+                limitSize = undefined;
+            }
             if (!(options.singleFileUploads || limit || limitSize) ||
                     !this._isXHRUpload(options)) {
-                fileSet = [data.files];
+                fileSet = [files];
                 paramNameSet = [paramName];
             } else if (!(options.singleFileUploads || limitSize) && limit) {
                 fileSet = [];
                 paramNameSet = [];
-                for (i = 0; i < data.files.length; i += limit) {
-                    fileSet.push(data.files.slice(i, i + limit));
+                for (i = 0; i < filesLength; i += limit) {
+                    fileSet.push(files.slice(i, i + limit));
                     paramNameSlice = paramName.slice(i, i + limit);
                     if (!paramNameSlice.length) {
                         paramNameSlice = paramName;
@@ -966,33 +975,26 @@
             } else if (!options.singleFileUploads && limitSize) {
                 fileSet = [];
                 paramNameSet = [];
-                for (i = 0; i < data.files.length; i = i + 1) {
-                    totalSize += data.files[i].size + overhead;
-                    if (i === data.files.length - 1) {
-                        fileSet.push(data.files.slice(j, i + 1));
+                for (i = 0; i < filesLength; i = i + 1) {
+                    batchSize += files[i].size + overhead;
+                    if (i + 1 === filesLength ||
+                            (batchSize + files[i + 1].size + overhead) >
+                            limitSize) {
+                        fileSet.push(files.slice(j, i + 1));
                         paramNameSlice = paramName.slice(j, i + 1);
                         if (!paramNameSlice.length) {
                             paramNameSlice = paramName;
                         }
                         paramNameSet.push(paramNameSlice);
-                    } else {
-                        if ((totalSize + data.files[i + 1].size + overhead) >= limitSize) {
-                            fileSet.push(data.files.slice(j, i + 1));
-                            paramNameSlice = paramName.slice(j, i + 1);
-                            if (!paramNameSlice.length) {
-                                paramNameSlice = paramName;
-                            }
-                            paramNameSet.push(paramNameSlice);
-                            j = i + 1;
-                            totalSize = 0;
-                        }
+                        j = i + 1;
+                        batchSize = 0;
                     }
                 }
             } else {
                 paramNameSet = paramName;
             }
-            data.originalFiles = data.files;
-            $.each(fileSet || data.files, function (index, element) {
+            data.originalFiles = files;
+            $.each(fileSet || files, function (index, element) {
                 var newData = $.extend({}, data);
                 newData.files = fileSet ? element : [element];
                 newData.paramName = paramNameSet[index];

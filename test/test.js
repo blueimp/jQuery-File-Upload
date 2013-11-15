@@ -1,5 +1,5 @@
 /*
- * jQuery File Upload Plugin Test 8.8.5
+ * jQuery File Upload Plugin Test 9.3.0
  * https://github.com/blueimp/jQuery-File-Upload
  *
  * Copyright 2010, Sebastian Tschan
@@ -731,6 +731,41 @@ $(function () {
                 index += 1;
             }
         }).fileupload('add', param);
+    });
+
+    test('limitMultiFileUploadSize', function () {
+        expect(6);
+        var fu = $('#fileupload').fileupload(),
+            param = {files: [
+                {name: '1', size: 100000},
+                {name: '2', size: 40000},
+                {name: '3', size: 100000},
+                {name: '4', size: 50000},
+                {name: '5', size: 40000},
+                {name: '6', size: 45000}
+            ]},
+            param2 = {files: [
+                {name: '1'},
+                {name: '2'},
+                {name: '3'},
+                {name: '4'},
+                {name: '5'}
+            ]},
+            index = 1;
+        (fu.data('blueimp-fileupload') || fu.data('fileupload'))
+            ._isXHRUpload = function () {
+                return true;
+            };
+        $('#fileupload').fileupload({
+            singleFileUploads: false,
+            limitMultiFileUploads: 2, // Fallback for missing file sizes
+            limitMultiFileUploadSize: 150000,
+            limitMultiFileUploadSizeOverhead: 5000,
+            add: function (e, data) {
+                ok(true, 'Triggers callback number ' + index.toString());
+                index += 1;
+            }
+        }).fileupload('add', param).fileupload('add', param2);
     });
 
     asyncTest('sequentialUploads', function () {
