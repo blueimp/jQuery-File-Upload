@@ -90,6 +90,10 @@
             // To limit the number of files uploaded with one XHR request,
             // set the following option to an integer greater than 0:
             limitMultiFileUploads: undefined,
+            // To limit the number of files uploaded with one XHR request to the
+            // maximum number of files that can be send for a given upload limit, 
+            // set the following option to an integer greater than 0:
+            uploadSizeLimitMultiFileUploads: undefined,
             // Set the following option to true to issue all file upload requests
             // in a sequential order:
             sequentialUploads: false,
@@ -935,16 +939,20 @@
                 result = true,
                 options = $.extend({}, this.options, data),
                 limit = options.limitMultiFileUploads,
+                limitSize = options.uploadSizeLimitMultiFileUploads,
                 paramName = this._getParamName(options),
                 paramNameSet,
                 paramNameSlice,
                 fileSet,
-                i;
-            if (!(options.singleFileUploads || limit) ||
+                i,
+                j = 0,
+                totalSize = 0,
+                overhead = 512;
+            if (!(options.singleFileUploads || limit || limitSize) ||
                     !this._isXHRUpload(options)) {
                 fileSet = [data.files];
                 paramNameSet = [paramName];
-            } else if (!options.singleFileUploads && limit) {
+            } else if (!(options.singleFileUploads || limitSize) && limit) {
                 fileSet = [];
                 paramNameSet = [];
                 for (i = 0; i < data.files.length; i += limit) {
@@ -954,6 +962,31 @@
                         paramNameSlice = paramName;
                     }
                     paramNameSet.push(paramNameSlice);
+                }
+            } else if (!options.singleFileUploads && limitSize) {
+                fileSet = [];
+                paramNameSet = [];
+                for (i = 0; i < data.files.length; i = i + 1) {
+                    totalSize += data.files[i].size + overhead;
+                    if (i === data.files.length - 1) {
+                        fileSet.push(data.files.slice(j, i + 1));
+                        paramNameSlice = paramName.slice(j, i + 1);
+                        if (!paramNameSlice.length) {
+                            paramNameSlice = paramName;
+                        }
+                        paramNameSet.push(paramNameSlice);
+                    } else {
+                        if ((totalSize + data.files[i + 1].size + overhead) >= limitSize) {
+                            fileSet.push(data.files.slice(j, i + 1));
+                            paramNameSlice = paramName.slice(j, i + 1);
+                            if (!paramNameSlice.length) {
+                                paramNameSlice = paramName;
+                            }
+                            paramNameSet.push(paramNameSlice);
+                            j = i + 1;
+                            totalSize = 0;
+                        }
+                    }
                 }
             } else {
                 paramNameSet = paramName;
