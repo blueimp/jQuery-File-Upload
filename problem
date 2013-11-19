@@ -1,0 +1,13 @@
+hi
+when I upload image does not load and gives the list to page
+http://localhost/wordpress_projects/production/wp-admin/admin-ajax.php
+
+and this information:
+
+{"files":[{"name":"Photo-Portrait (1).jpg","size":156975,"type":"image\/jpeg","url":"http:\/\/localhost\/wordpress_projects\/production\/wp-content\/uploads\/files\/guest\/Photo-Portrait%20%281%29.jpg","thumbnail_url":"http:\/\/localhost\/wordpress_projects\/production\/wp-content\/uploads\/files\/guest\/thumbnail\/Photo-Portrait%20%281%29.jpg","delete_url":"http:\/\/localhost\/wordpress_projects\/production\/wp-admin\/admin-ajax.php?file=Photo-Portrait%20%281%29.jpg","delete_type":"DELETE"}]}
+
+help me
+
+thnks you :)
+
+http://wordpress.org/plugins/jquery-html5-file-upload/
