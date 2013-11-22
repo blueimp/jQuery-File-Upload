@@ -337,7 +337,8 @@
                         if (newOptions) {
                             $element.fileupload('option', newOptions);
                         }
-                    }
+                    },
+                    true
                 );
             }
         ])
