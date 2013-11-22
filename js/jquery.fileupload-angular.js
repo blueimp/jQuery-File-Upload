@@ -1,5 +1,5 @@
 /*
- * jQuery File Upload AngularJS Plugin 2.1.0
+ * jQuery File Upload AngularJS Plugin 2.1.1
  * https://github.com/blueimp/jQuery-File-Upload
  *
  * Copyright 2013, Sebastian Tschan
@@ -36,16 +36,12 @@
         // for the fileUpload directive and default handlers for
         // File Upload events:
         .provider('fileUpload', function () {
-            var scopeApply = function () {
+            var scopeEvalAsync = function (expression) {
                     var scope = angular.element(this)
-                            .fileupload('option', 'scope')(),
-                        $timeout = angular.injector(['ng'])
-                            .get('$timeout');
-                    // Safe apply, makes sure $apply is called
-                    // asynchronously outside of the $digest cycle:
-                    $timeout(function () {
-                        scope.$apply();
-                    });
+                            .fileupload('option', 'scope')();
+                    // Schedule a new $digest cycle if not already inside of one
+                    // and evaluate the given expression:
+                    scope.$evalAsync(expression);
                 },
                 addFileMethods = function (scope, data) {
                     var files = data.files,
@@ -143,9 +139,9 @@
                         data.handleResponse.call(that, e, data);
                     });
                 },
-                stop: scopeApply,
-                processstart: scopeApply,
-                processstop: scopeApply,
+                stop: scopeEvalAsync,
+                processstart: scopeEvalAsync,
+                processstop: scopeEvalAsync,
                 getNumberOfFiles: function () {
                     var scope = this.scope();
                     return scope.queue.length - scope.processing();
