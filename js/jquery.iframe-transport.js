@@ -121,6 +121,8 @@
                                     .appendTo(form);
                             });
                         }
+                        // Keep track of file inputs that were disabled before submission
+                        var disabledFileInputs = [];
                         if (options.fileInput && options.fileInput.length &&
                                 options.type === 'POST') {
                             fileInputClones = options.fileInput.clone();
@@ -143,8 +145,20 @@
                                 .prop('enctype', 'multipart/form-data')
                                 // enctype must be set as encoding for IE:
                                 .prop('encoding', 'multipart/form-data');
+                            // Store file inputs that were disabled, then enable them
+                            options.fileInput.each(function (index, element) {
+                                var $element = $(element);
+                                if ($element.prop("disabled")) {
+                                    disabledFileInputs.push($element);
+                                    $element.prop("disabled", false);
+                                }
+                            });
                         }
                         form.submit();
+                        // Disable previously-disabled file inputs
+                        for (var i = 0; i < disabledFileInputs.length; i++) {
+                            disabledFileInputs[i].prop("disabled", true);
+                        }
                         // Insert the file input fields at their original location
                         // by replacing the clones with the originals:
                         if (fileInputClones && fileInputClones.length) {
