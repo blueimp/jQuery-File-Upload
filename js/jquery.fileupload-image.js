@@ -1,5 +1,5 @@
 /*
- * jQuery File Upload Image Preview & Resize Plugin 1.6.0
+ * jQuery File Upload Image Preview & Resize Plugin 1.7.0
  * https://github.com/blueimp/jQuery-File-Upload
  *
  * Copyright 2013, Sebastian Tschan
@@ -9,8 +9,8 @@
  * http://www.opensource.org/licenses/MIT
  */
 
-/*jslint nomen: true, unparam: true, regexp: true */
-/*global define, window, document, DataView, Blob, Uint8Array */
+/* jshint nomen:false */
+/* global define, window, Blob */
 
 (function (factory) {
     'use strict';
@@ -96,6 +96,10 @@
             action: 'setImage',
             name: '@imagePreviewName',
             disabled: '@disableImagePreview'
+        },
+        {
+            action: 'deleteImageReferences',
+            disabled: '@disableImageReferencesDeletion'
         }
     );
 
@@ -284,6 +288,16 @@
             setImage: function (data, options) {
                 if (data.preview && !options.disabled) {
                     data.files[data.index][options.name || 'preview'] = data.preview;
+                }
+                return data;
+            },
+
+            deleteImageReferences: function (data, options) {
+                if (!options.disabled) {
+                    delete data.img;
+                    delete data.canvas;
+                    delete data.preview;
+                    delete data.imageHead;
                 }
                 return data;
             }

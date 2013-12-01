@@ -9,8 +9,8 @@
  * http://www.opensource.org/licenses/MIT
  */
 
-/*jslint nomen: true, regexp: true */
-/*global window, angular */
+/* jshint nomen:false */
+/* global window, angular */
 
 (function () {
     'use strict';
