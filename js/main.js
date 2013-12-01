@@ -9,8 +9,7 @@
  * http://www.opensource.org/licenses/MIT
  */
 
-/*jslint nomen: true, regexp: true */
-/*global $, window, blueimp */
+/* global $, window */
 
 $(function () {
     'use strict';

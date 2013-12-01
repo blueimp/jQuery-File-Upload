@@ -9,8 +9,8 @@
  * http://www.opensource.org/licenses/MIT
  */
 
-/*jslint nomen: true, unparam: true, regexp: true */
-/*global define, window, document, location, File, Blob, FormData */
+/* jshint nomen:false */
+/* global define, window, document, location, Blob, FormData */
 
 (function (factory) {
     'use strict';

@@ -9,8 +9,7 @@
  * http://www.opensource.org/licenses/MIT
  */
 
-/*jslint unparam: true, nomen: true */
-/*global define, window, document */
+/* global define, window, document */
 
 (function (factory) {
     'use strict';

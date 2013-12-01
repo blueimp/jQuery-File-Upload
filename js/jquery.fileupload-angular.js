@@ -9,8 +9,8 @@
  * http://www.opensource.org/licenses/MIT
  */
 
-/*jslint nomen: true, unparam: true */
-/*global define, angular */
+/* jshint nomen:false */
+/* global define, angular */
 
 (function (factory) {
     'use strict';

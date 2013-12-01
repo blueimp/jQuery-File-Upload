@@ -12,8 +12,7 @@
  * https://github.com/jaubourg/ajaxHooks/
  */
 
-/*jslint unparam: true */
-/*global define, window, XDomainRequest */
+/* global define, window, XDomainRequest */
 
 (function (factory) {
     'use strict';

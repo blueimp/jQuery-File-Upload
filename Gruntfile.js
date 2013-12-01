@@ -16,10 +16,14 @@ module.exports = function (grunt) {
 
     grunt.initConfig({
         jshint: {
+            options: {
+                jshintrc: '.jshintrc'
+            },
             all: [
                 'Gruntfile.js',
                 'js/cors/*.js',
-                'js/*.js'
+                'js/*.js',
+                'server/node/server.js'
             ]
         }
     });
