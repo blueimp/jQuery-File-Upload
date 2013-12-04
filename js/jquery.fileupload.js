@@ -980,7 +980,8 @@
                     batchSize += files[i].size + overhead;
                     if (i + 1 === filesLength ||
                             (batchSize + files[i + 1].size + overhead) >
-                            limitSize) {
+                            limitSize ||
+                            (limit && i + 1 - j >= limit)) {
                         fileSet.push(files.slice(j, i + 1));
                         paramNameSlice = paramName.slice(j, i + 1);
                         if (!paramNameSlice.length) {
