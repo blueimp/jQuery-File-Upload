@@ -613,7 +613,25 @@ class UploadHandler
         }
         list($file_path, $new_file_path) =
             $this->get_scaled_image_file_paths($file_name, $version);
-        $type = strtolower(substr(strrchr($file_name, '.'), 1));
+        if (function_exists('exif_imagetype')) {
+          //use the signature of the file 
+          switch(exif_imagetype($file_path)){
+            case IMAGETYPE_JPEG:
+              $type = 'jpg';
+              break;
+            case IMAGETYPE_PNG:
+              $type = 'png';
+              break;
+            case IMAGETYPE_GIF:
+              $type = 'gif';
+              break;
+            default:
+              $type = '';
+          }
+        }else {
+          //use the extention;
+          $type = strtolower(substr(strrchr($file_name, '.'), 1));
+        }
         switch ($type) {
             case 'jpg':
             case 'jpeg':
