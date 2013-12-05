@@ -419,7 +419,7 @@
                 file = options.files[0],
                 // Ignore non-multipart setting if not supported:
                 multipart = options.multipart || !$.support.xhrFileUpload,
-                paramName = options.paramName[0];
+                paramName = options.paramName[0] || options.paramName;
             options.headers = $.extend({}, options.headers);
             if (options.contentRange) {
                 options.headers['Content-Range'] = options.contentRange;
@@ -980,7 +980,8 @@
                     batchSize += files[i].size + overhead;
                     if (i + 1 === filesLength ||
                             (batchSize + files[i + 1].size + overhead) >
-                            limitSize) {
+                            limitSize ||
+                            (limit && i + 1 - j >= limit)) {
                         fileSet.push(files.slice(j, i + 1));
                         paramNameSlice = paramName.slice(j, i + 1);
                         if (!paramNameSlice.length) {
