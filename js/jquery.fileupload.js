@@ -1,5 +1,5 @@
 /*
- * jQuery File Upload Plugin 5.39.1
+ * jQuery File Upload Plugin 5.40.0
  * https://github.com/blueimp/jQuery-File-Upload
  *
  * Copyright 2010, Sebastian Tschan
@@ -419,7 +419,8 @@
                 file = options.files[0],
                 // Ignore non-multipart setting if not supported:
                 multipart = options.multipart || !$.support.xhrFileUpload,
-                paramName = options.paramName[0] || options.paramName;
+                paramName = $.type(options.paramName) === 'array' ?
+                    options.paramName[0] : options.paramName;
             options.headers = $.extend({}, options.headers);
             if (options.contentRange) {
                 options.headers['Content-Range'] = options.contentRange;
@@ -446,7 +447,8 @@
                     } else {
                         $.each(options.files, function (index, file) {
                             formData.push({
-                                name: options.paramName[index] || paramName,
+                                name: ($.type(options.paramName) === 'array' &&
+                                    options.paramName[index]) || paramName,
                                 value: file
                             });
                         });
@@ -469,7 +471,8 @@
                             if (that._isInstanceOf('File', file) ||
                                     that._isInstanceOf('Blob', file)) {
                                 formData.append(
-                                    options.paramName[index] || paramName,
+                                    ($.type(options.paramName) === 'array' &&
+                                        options.paramName[index]) || paramName,
                                     file,
                                     file.uploadName || file.name
                                 );
@@ -979,8 +982,7 @@
                 for (i = 0; i < filesLength; i = i + 1) {
                     batchSize += files[i].size + overhead;
                     if (i + 1 === filesLength ||
-                            (batchSize + files[i + 1].size + overhead) >
-                            limitSize ||
+                            ((batchSize + files[i + 1].size + overhead) > limitSize) ||
                             (limit && i + 1 - j >= limit)) {
                         fileSet.push(files.slice(j, i + 1));
                         paramNameSlice = paramName.slice(j, i + 1);
