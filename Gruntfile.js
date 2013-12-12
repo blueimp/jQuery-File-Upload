@@ -31,6 +31,7 @@ module.exports = function (grunt) {
 
     grunt.loadNpmTasks('grunt-contrib-jshint');
     grunt.loadNpmTasks('grunt-bump-build-git');
-    grunt.registerTask('default', ['jshint']);
+    grunt.registerTask('test', ['jshint']);
+    grunt.registerTask('default', ['test']);
 
 };
