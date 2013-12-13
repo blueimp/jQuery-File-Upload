@@ -1,5 +1,5 @@
 /*
- * jQuery Iframe Transport Plugin 1.8.1
+ * jQuery Iframe Transport Plugin 1.8.2
  * https://github.com/blueimp/jQuery-File-Upload
  *
  * Copyright 2011, Sebastian Tschan
@@ -142,6 +142,8 @@
                                 .prop('enctype', 'multipart/form-data')
                                 // enctype must be set as encoding for IE:
                                 .prop('encoding', 'multipart/form-data');
+                            // Remove the HTML5 form attribute from the input(s):
+                            options.fileInput.removeAttr('form');
                         }
                         form.submit();
                         // Insert the file input fields at their original location
@@ -149,7 +151,10 @@
                         if (fileInputClones && fileInputClones.length) {
                             options.fileInput.each(function (index, input) {
                                 var clone = $(fileInputClones[index]);
-                                $(input).prop('name', clone.prop('name'));
+                                // Restore the original name and form properties:
+                                $(input)
+                                    .prop('name', clone.prop('name'))
+                                    .attr('form', clone.attr('form'));
                                 clone.replaceWith(input);
                             });
                         }
