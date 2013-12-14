@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# jQuery File Upload Plugin GAE Python Example 2.1.0
+# jQuery File Upload Plugin GAE Python Example 2.1.1
 # https://github.com/blueimp/jQuery-File-Upload
 #
 # Copyright 2011, Sebastian Tschan
@@ -141,7 +141,12 @@ class UploadHandler(webapp2.RequestHandler):
         self.response.write(s)
 
     def delete(self):
-        blobstore.delete(self.request.get('key') or '')
+        key = self.request.get('key') or ''
+        blobstore.delete(key)
+        s = json.dumps({key: True}, separators=(',', ':'))
+        if 'application/json' in self.request.headers.get('Accept'):
+            self.response.headers['Content-Type'] = 'application/json'
+        self.response.write(s)
 
 
 class DownloadHandler(blobstore_handlers.BlobstoreDownloadHandler):

@@ -1,5 +1,5 @@
 /*
- * jQuery File Upload Plugin GAE Go Example 3.1.0
+ * jQuery File Upload Plugin GAE Go Example 3.1.1
  * https://github.com/blueimp/jQuery-File-Upload
  *
  * Copyright 2011, Sebastian Tschan
@@ -242,6 +242,7 @@ func delete(w http.ResponseWriter, r *http.Request) {
 	if len(parts) != 3 {
 		return
 	}
+	result := make(map[string]bool, 1)
 	if key := parts[1]; key != "" {
 		c := appengine.NewContext(r)
 		blobKey := appengine.BlobKey(key)
@@ -249,7 +250,15 @@ func delete(w http.ResponseWriter, r *http.Request) {
 		check(err)
 		err = image.DeleteServingURL(c, blobKey)
 		check(err)
+		result[key] = true
 	}
+	jsonType := "application/json"
+	if strings.Index(r.Header.Get("Accept"), jsonType) != -1 {
+		w.Header().Set("Content-Type", jsonType)
+	}
+	b, err := json.Marshal(result)
+	check(err)
+	fmt.Fprintln(w, string(b))
 }
 
 func handle(w http.ResponseWriter, r *http.Request) {
