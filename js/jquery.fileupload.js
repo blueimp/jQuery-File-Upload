@@ -834,6 +834,9 @@
             response.textStatus = options.textStatus = textStatus;
             response.jqXHR = options.jqXHR = jqXHR;
             this._trigger('done', null, options);
+            if(this._active === 1) {
+            	this._trigger('doneall', null, options);
+            }
         },
 
         _onFail: function (jqXHR, textStatus, errorThrown, options) {
