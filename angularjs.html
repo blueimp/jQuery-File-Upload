@@ -15,24 +15,24 @@
 <head>
 <!-- Force latest IE rendering engine or ChromeFrame if installed -->
 <!--[if IE]>
-<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1"/>
 <![endif]-->
-<meta charset="utf-8">
+<meta charset="utf-8"/>
 <title>jQuery File Upload Demo - AngularJS version</title>
-<meta name="description" content="File Upload widget with multiple file selection, drag&amp;drop support, progress bars, validation and preview images, audio and video for AngularJS. Supports cross-domain, chunked and resumable file uploads and client-side image resizing. Works with any server-side platform (PHP, Python, Ruby on Rails, Java, Node.js, Go etc.) that supports standard HTML form file uploads.">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="File Upload widget with multiple file selection, drag&amp;drop support, progress bars, validation and preview images, audio and video for AngularJS. Supports cross-domain, chunked and resumable file uploads and client-side image resizing. Works with any server-side platform (PHP, Python, Ruby on Rails, Java, Node.js, Go etc.) that supports standard HTML form file uploads."/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 <!-- Bootstrap styles -->
-<link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.0.0/css/bootstrap.min.css">
+<link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.0.0/css/bootstrap.min.css"/>
 <!-- Generic page styles -->
-<link rel="stylesheet" href="css/style.css">
+<link rel="stylesheet" href="css/style.css"/>
 <!-- blueimp Gallery styles -->
-<link rel="stylesheet" href="http://blueimp.github.io/Gallery/css/blueimp-gallery.min.css">
+<link rel="stylesheet" href="http://blueimp.github.io/Gallery/css/blueimp-gallery.min.css"/>
 <!-- CSS to style the file input field as button and adjust the Bootstrap progress bars -->
-<link rel="stylesheet" href="css/jquery.fileupload.css">
-<link rel="stylesheet" href="css/jquery.fileupload-ui.css">
+<link rel="stylesheet" href="css/jquery.fileupload.css"/>
+<link rel="stylesheet" href="css/jquery.fileupload-ui.css"/>
 <!-- CSS adjustments for browsers with JavaScript disabled -->
-<noscript><link rel="stylesheet" href="css/jquery.fileupload-noscript.css"></noscript>
-<noscript><link rel="stylesheet" href="css/jquery.fileupload-ui-noscript.css"></noscript>
+<noscript><link rel="stylesheet" href="css/jquery.fileupload-noscript.css"/></noscript>
+<noscript><link rel="stylesheet" href="css/jquery.fileupload-ui-noscript.css"/></noscript>
 <style>
 /* Hide Angular JS elements before initializing */
 .ng-cloak {
@@ -71,17 +71,18 @@
         <li class="active"><a href="angularjs.html">AngularJS</a></li>
         <li><a href="jquery-ui.html">jQuery UI</a></li>
     </ul>
-    <br>
+    <br/>
     <blockquote>
-        <p>File Upload widget with multiple file selection, drag&amp;drop support, progress bars, validation and preview images, audio and video for AngularJS.<br>
-        Supports cross-domain, chunked and resumable file uploads and client-side image resizing.<br>
+        <p>File Upload widget with multiple file selection, drag&amp;drop support, progress bars, validation and preview images, audio and video for AngularJS.<br/>
+        Supports cross-domain, chunked and resumable file uploads and client-side image resizing.<br/>
         Works with any server-side platform (PHP, Python, Ruby on Rails, Java, Node.js, Go etc.) that supports standard HTML form file uploads.</p>
     </blockquote>
-    <br>
+    <br/>
+    <!-- The file upload form used as target for the file upload widget -->
     <!-- The file upload form used as target for the file upload widget -->
     <form id="fileupload" action="//jquery-file-upload.appspot.com/" method="POST" enctype="multipart/form-data" data-ng-app="demo" data-ng-controller="DemoFileUploadController" data-file-upload="options" data-ng-class="{'fileupload-processing': processing() || loadingFiles}">
         <!-- Redirect browsers with JavaScript disabled to the origin page -->
-        <noscript><input type="hidden" name="redirect" value="http://blueimp.github.io/jQuery-File-Upload/"></noscript>
+        <noscript><input type="hidden" name="redirect" value="http://blueimp.github.io/jQuery-File-Upload/"/></noscript>
         <!-- The fileupload-buttonbar contains buttons to add/delete files and start/cancel the upload -->
         <div class="row fileupload-buttonbar">
             <div class="col-lg-7">
@@ -89,7 +90,7 @@
                 <span class="btn btn-success fileinput-button" ng-class="{disabled: disabled}">
                     <i class="glyphicon glyphicon-plus"></i>
                     <span>Add files...</span>
-                    <input type="file" name="files[]" multiple ng-disabled="disabled">
+                    <input type="file" name="files[]" multiple="" ng-disabled="disabled"/>
                 </span>
                 <button type="button" class="btn btn-primary start" data-ng-click="submit()">
                     <i class="glyphicon glyphicon-upload"></i>
@@ -113,19 +114,19 @@
         <!-- The table listing the files available for upload/download -->
         <table class="table table-striped files ng-cloak">
             <tr data-ng-repeat="file in queue" data-ng-class="{'processing': file.$processing()}">
-                <td data-ng-switch data-on="!!file.thumbnailUrl">
+                <td data-ng-switch="" data-on="!!file.thumbnailUrl">
                     <div class="preview" data-ng-switch-when="true">
-                        <a data-ng-href="{{file.url}}" title="{{file.name}}" download="{{file.name}}" data-gallery><img data-ng-src="{{file.thumbnailUrl}}" alt=""></a>
+                        <a data-ng-href="{{file.url}}" title="{{file.name}}" download="{{file.name}}" data-gallery=""><img data-ng-src="{{file.thumbnailUrl}}" alt=""/></a>
                     </div>
-                    <div class="preview" data-ng-switch-default data-file-upload-preview="file"></div>
+                    <div class="preview" data-ng-switch-default="" data-file-upload-preview="file"></div>
                 </td>
                 <td>
-                    <p class="name" data-ng-switch data-on="!!file.url">
-                        <span data-ng-switch-when="true" data-ng-switch data-on="!!file.thumbnailUrl">
-                            <a data-ng-switch-when="true" data-ng-href="{{file.url}}" title="{{file.name}}" download="{{file.name}}" data-gallery>{{file.name}}</a>
-                            <a data-ng-switch-default data-ng-href="{{file.url}}" title="{{file.name}}" download="{{file.name}}">{{file.name}}</a>
+                    <p class="name" data-ng-switch="" data-on="!!file.url">
+                        <span data-ng-switch-when="true" data-ng-switch="" data-on="!!file.thumbnailUrl">
+                            <a data-ng-switch-when="true" data-ng-href="{{file.url}}" title="{{file.name}}" download="{{file.name}}" data-gallery="">{{file.name}}</a>
+                            <a data-ng-switch-default="" data-ng-href="{{file.url}}" title="{{file.name}}" download="{{file.name}}">{{file.name}}</a>
                         </span>
-                        <span data-ng-switch-default>{{file.name}}</span>
+                        <span data-ng-switch-default="">{{file.name}}</span>
                     </p>
                     <strong data-ng-show="file.error" class="error text-danger">{{file.error}}</strong>
                 </td>
@@ -150,7 +151,7 @@
             </tr>
         </table>
     </form>
-    <br>
+    <br/>
     <div class="panel panel-default">
         <div class="panel-heading">
             <h3 class="panel-title">Demo Notes</h3>
