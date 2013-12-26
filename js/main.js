@@ -1,5 +1,5 @@
 /*
- * jQuery File Upload Plugin JS Example 8.9.0
+ * jQuery File Upload Plugin JS Example 8.9.1
  * https://github.com/blueimp/jQuery-File-Upload
  *
  * Copyright 2010, Sebastian Tschan
@@ -16,7 +16,6 @@ $(function () {
 
     // Initialize the jQuery File Upload widget:
     $('#fileupload').fileupload({
-        disableImageResize: false,
         // Uncomment the following to send cross-domain cookies:
         //xhrFields: {withCredentials: true},
         url: 'server/php/'
