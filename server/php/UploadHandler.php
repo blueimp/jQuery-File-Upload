@@ -1,6 +1,6 @@
 <?php
 /*
- * jQuery File Upload Plugin PHP Class 7.1.0
+ * jQuery File Upload Plugin PHP Class 7.1.1
  * https://github.com/blueimp/jQuery-File-Upload
  *
  * Copyright 2010, Sebastian Tschan
@@ -224,7 +224,8 @@ class UploadHandler
         if (!$direct && $this->options['download_via_php']) {
             $url = $this->options['script_url']
                 .$this->get_query_separator($this->options['script_url'])
-                .'file='.rawurlencode($file_name);
+                .$this->get_singular_param_name()
+                .'='.rawurlencode($file_name);
             if ($version) {
                 $url .= '&version='.rawurlencode($version);
             }
