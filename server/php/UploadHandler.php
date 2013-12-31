@@ -1012,10 +1012,12 @@ class UploadHandler
             case 1:
                 $file->error = 'Failed to create scaled version: '
                     .$failed_versions[0];
+                unlink($file_path); 
                 break;
             default:
                 $file->error = 'Failed to create scaled versions: '
                     .implode($failed_versions,', ');
+                    unlink($file_path); 
         }
         // Free memory:
         $this->destroy_image_object($file_path);
