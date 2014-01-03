@@ -33,7 +33,10 @@ class UploadHandler
         'max_width' => 'Image exceeds maximum width',
         'min_width' => 'Image requires a minimum width',
         'max_height' => 'Image exceeds maximum height',
-        'min_height' => 'Image requires a minimum height'
+        'min_height' => 'Image requires a minimum height',
+        'abort' => 'Image Upload aborted',
+        'single_scale' => 'Failed to create scaled version: ',
+        'multi_scale' => 'Failed to create scaled versions: '
     );
 
     protected $image_objects = array();
@@ -1010,11 +1013,11 @@ class UploadHandler
             case 0:
                 break;
             case 1:
-                $file->error = 'Failed to create scaled version: '
+                $file->error = $this->get_error_message('single_scale')
                     .$failed_versions[0];
                 break;
             default:
-                $file->error = 'Failed to create scaled versions: '
+                $file->error = $this->get_error_message('multi_scale')
                     .implode($failed_versions,', ');
         }
         // Free memory:
@@ -1066,7 +1069,7 @@ class UploadHandler
                 $file->size = $file_size;
                 if (!$content_range && $this->options['discard_aborted_uploads']) {
                     unlink($file_path);
-                    $file->error = 'abort';
+                    $file->error = $this->get_error_message('abort');
                 }
             }
             $this->set_additional_file_properties($file);
