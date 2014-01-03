@@ -1,6 +1,6 @@
 <?php
 /*
- * jQuery File Upload Plugin PHP Class 7.1.1
+ * jQuery File Upload Plugin PHP Class 7.1.2
  * https://github.com/blueimp/jQuery-File-Upload
  *
  * Copyright 2010, Sebastian Tschan
@@ -33,7 +33,9 @@ class UploadHandler
         'max_width' => 'Image exceeds maximum width',
         'min_width' => 'Image requires a minimum width',
         'max_height' => 'Image exceeds maximum height',
-        'min_height' => 'Image requires a minimum height'
+        'min_height' => 'Image requires a minimum height',
+        'abort' => 'File upload aborted',
+        'image_resize' => 'Failed to resize image'
     );
 
     protected $image_objects = array();
@@ -1003,19 +1005,12 @@ class UploadHandler
                     $file->size = $this->get_file_size($file_path, true);
                 }
             } else {
-                $failed_versions[] = $version;
+                $failed_versions[] = $version ? $version : 'original';
             }
         }
-        switch (count($failed_versions)) {
-            case 0:
-                break;
-            case 1:
-                $file->error = 'Failed to create scaled version: '
-                    .$failed_versions[0];
-                break;
-            default:
-                $file->error = 'Failed to create scaled versions: '
-                    .implode($failed_versions,', ');
+        if (count($failed_versions)) {
+            $file->error = $this->get_error_message('image_resize')
+                    .' ('.implode($failed_versions,', ').')';
         }
         // Free memory:
         $this->destroy_image_object($file_path);
@@ -1066,7 +1061,7 @@ class UploadHandler
                 $file->size = $file_size;
                 if (!$content_range && $this->options['discard_aborted_uploads']) {
                     unlink($file_path);
-                    $file->error = 'abort';
+                    $file->error = $this->get_error_message('abort');
                 }
             }
             $this->set_additional_file_properties($file);
