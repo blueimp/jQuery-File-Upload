@@ -371,7 +371,9 @@
                     };
                 if (data.url) {
                     data.dataType = data.dataType || that.options.dataType;
-                    $.ajax(data).done(removeNode);
+                    $.ajax(data).done(removeNode).fail(function () {
+                        that._trigger('destroyfailed', e, data);
+                    });
                 } else {
                     removeNode();
                 }
