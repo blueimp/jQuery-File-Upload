@@ -1,6 +1,6 @@
 <?php
 /*
- * jQuery File Upload Plugin PHP Class 7.1.2
+ * jQuery File Upload Plugin PHP Class 7.1.3
  * https://github.com/blueimp/jQuery-File-Upload
  *
  * Copyright 2010, Sebastian Tschan
@@ -462,7 +462,7 @@ class UploadHandler
             $name .= '.'.$matches[1];
         }
         if (function_exists('exif_imagetype')) {
-            switch(exif_imagetype($file_path)){
+            switch(@exif_imagetype($file_path)){
                 case IMAGETYPE_JPEG:
                     $extensions = array('jpg', 'jpeg');
                     break;
