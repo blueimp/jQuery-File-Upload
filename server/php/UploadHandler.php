@@ -1,6 +1,6 @@
 <?php
 /*
- * jQuery File Upload Plugin PHP Class 7.1.3
+ * jQuery File Upload Plugin PHP Class 7.1.4
  * https://github.com/blueimp/jQuery-File-Upload
  *
  * Copyright 2010, Sebastian Tschan
@@ -380,9 +380,10 @@ class UploadHandler
             $file->error = $this->get_error_message('min_file_size');
             return false;
         }
-        if (is_int($this->options['max_number_of_files']) && (
-                $this->count_file_objects() >= $this->options['max_number_of_files'])
-            ) {
+        if (is_int($this->options['max_number_of_files']) &&
+                ($this->count_file_objects() >= $this->options['max_number_of_files']) &&
+                // Ignore additional chunks of existing files:
+                !is_file($this->get_upload_path($file->name))) {
             $file->error = $this->get_error_message('max_number_of_files');
             return false;
         }
