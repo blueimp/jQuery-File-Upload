@@ -1,5 +1,5 @@
 /*
- * jQuery File Upload AngularJS Plugin 2.1.3
+ * jQuery File Upload AngularJS Plugin 2.2.0
  * https://github.com/blueimp/jQuery-File-Upload
  *
  * Copyright 2013, Sebastian Tschan
@@ -38,7 +38,7 @@
         .provider('fileUpload', function () {
             var scopeEvalAsync = function (expression) {
                     var scope = angular.element(this)
-                            .fileupload('option', 'scope')();
+                            .fileupload('option', 'scope');
                     // Schedule a new $digest cycle if not already inside of one
                     // and evaluate the given expression:
                     scope.$evalAsync(expression);
@@ -75,7 +75,7 @@
                 handleResponse: function (e, data) {
                     var files = data.result && data.result.files;
                     if (files) {
-                        data.scope().replace(data.files, files);
+                        data.scope.replace(data.files, files);
                     } else if (data.errorThrown ||
                             data.textStatus === 'error') {
                         data.files[0].error = data.errorThrown ||
@@ -86,7 +86,7 @@
                     if (e.isDefaultPrevented()) {
                         return false;
                     }
-                    var scope = data.scope(),
+                    var scope = data.scope,
                         filesCopy = [];
                     angular.forEach(data.files, function (file) {
                         filesCopy.push(file);
@@ -116,14 +116,14 @@
                     if (e.isDefaultPrevented()) {
                         return false;
                     }
-                    data.scope().$apply();
+                    data.scope.$apply();
                 },
                 done: function (e, data) {
                     if (e.isDefaultPrevented()) {
                         return false;
                     }
                     var that = this;
-                    data.scope().$apply(function () {
+                    data.scope.$apply(function () {
                         data.handleResponse.call(that, e, data);
                     });
                 },
@@ -132,7 +132,7 @@
                         return false;
                     }
                     var that = this,
-                        scope = data.scope();
+                        scope = data.scope;
                     if (data.errorThrown === 'abort') {
                         scope.clear(data.files);
                         return;
@@ -145,7 +145,7 @@
                 processstart: scopeEvalAsync,
                 processstop: scopeEvalAsync,
                 getNumberOfFiles: function () {
-                    var scope = this.scope();
+                    var scope = this.scope;
                     return scope.queue.length - scope.processing();
                 },
                 dataType: 'json',
@@ -207,7 +207,10 @@
                         return $element.fileupload('active');
                     },
                     option: function (option, data) {
-                        return $element.fileupload('option', option, data);
+                        if (arguments.length === 1) {
+                            return $element.fileupload('option', option);
+                        }
+                        $element.fileupload('option', option, data);
                     },
                     add: function (data) {
                         return $element.fileupload('add', data);
@@ -277,12 +280,10 @@
                 // the options provided via "data-"-parameters,
                 // as well as those given via options object:
                 $element.fileupload(angular.extend(
-                    {scope: function () {
-                        return $scope;
-                    }},
+                    {scope: $scope},
                     fileUpload.defaults
                 )).on('fileuploadadd', function (e, data) {
-                    data.scope = $scope.option('scope');
+                    data.scope = $scope;
                 }).on('fileuploadfail', function (e, data) {
                     if (data.errorThrown === 'abort') {
                         return;
