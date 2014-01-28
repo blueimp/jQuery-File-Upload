@@ -1187,7 +1187,7 @@
                 }
             });
         },
-
+/*
         _onPaste: function (e) {
             var items = e.originalEvent && e.originalEvent.clipboardData &&
                     e.originalEvent.clipboardData.items,
@@ -1241,7 +1241,7 @@
                 dataTransfer.dropEffect = 'copy';
             }
         },
-
+*/
         _initEventHandlers: function () {
             if (this._isXHRUpload(this.options)) {
                 this._on(this.options.dropZone, {
