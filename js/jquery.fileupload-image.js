@@ -36,7 +36,7 @@
     'use strict';
 
     // Prepend to the default processQueue:
-    $.blueimp.fileupload.prototype.options.processQueue.unshift(
+    $.blueimp.fileupload.prototype.options.processQueue.push(
         {
             action: 'loadImageMetaData',
             disableImageHead: '@',

@@ -140,6 +140,8 @@
             bitrateInterval: 500,
             // By default, uploads are started automatically when adding files:
             autoUpload: true,
+            // if special chunk header does not supported - False by default
+            ignoreChunkHeader: false,
 
             // Error and info messages:
             messages: {
@@ -422,15 +424,16 @@
                 paramName = $.type(options.paramName) === 'array' ?
                     options.paramName[0] : options.paramName;
             options.headers = $.extend({}, options.headers);
-            if (options.contentRange) {
+            if (options.contentRange &&  !options.ignoreChunkHeader) {
                 options.headers['Content-Range'] = options.contentRange;
             }
-            if (!multipart || options.blob || !this._isInstanceOf('File', file)) {
+            if ((!multipart || options.blob || !this._isInstanceOf('File', file)) &&!options.ignoreChunkHeader) {
                 options.headers['Content-Disposition'] = 'attachment; filename="' +
                     encodeURI(file.name) + '"';
             }
             if (!multipart) {
                 options.contentType = file.type || 'application/octet-stream';
+
                 options.data = options.blob || file;
             } else if ($.support.xhrFormDataFileUpload) {
                 if (options.postMessage) {
@@ -463,6 +466,11 @@
                         });
                     }
                     if (options.blob) {
+                        if (!options.ignoreChunkHeader)
+                        {
+                        options.headers['Content-Disposition'] = 'attachment; filename="' +
+                            encodeURI(file.name) + '"';
+                        }
                         formData.append(paramName, options.blob, file.name);
                     } else {
                         $.each(options.files, function (index, file) {
@@ -680,6 +688,7 @@
         // Parses the Range header from the server response
         // and returns the uploaded bytes:
         _getUploadedBytes: function (jqXHR) {
+
             var range = jqXHR.getResponseHeader('Range'),
                 parts = range && range.split('-'),
                 upperBytesPos = parts && parts.length > 1 &&
@@ -736,6 +745,8 @@
                 // Expose the chunk bytes position range:
                 o.contentRange = 'bytes ' + ub + '-' +
                     (ub + o.chunkSize - 1) + '/' + fs;
+                that._trigger('chunkbefore',null,o);
+
                 // Process the upload data (the blob and potential form data):
                 that._initXHRData(o);
                 // Add progress listeners for this chunk upload:
@@ -743,6 +754,11 @@
                 jqXHR = ((that._trigger('chunksend', null, o) !== false && $.ajax(o)) ||
                         that._getXHRPromise(false, o.context))
                     .done(function (result, textStatus, jqXHR) {
+                        if (!that._verifyResult(result))
+                        {
+                            failHandler(jqXHR,result,result.message);
+                            return;
+                        }
                         ub = that._getUploadedBytes(jqXHR) ||
                             (ub + o.chunkSize);
                         // Create a progress event if no final progress event
@@ -783,6 +799,18 @@
                             [jqXHR, textStatus, errorThrown]
                         );
                     });
+
+                var failHandler = function (jqXHR, textStatus, errorThrown) {
+                    o.jqXHR = jqXHR;
+                    o.textStatus = textStatus;
+                    o.errorThrown = errorThrown;
+                    that._trigger('chunkfail', null, o);
+                    that._trigger('chunkalways', null, o);
+                    dfd.rejectWith(
+                        o.context,
+                        [jqXHR, textStatus, errorThrown]
+                    );
+                }
             };
             this._enhancePromise(promise);
             promise.abort = function () {
@@ -791,7 +819,6 @@
             upload();
             return promise;
         },
-
         _beforeSend: function (e, data) {
             if (this._active === 0) {
                 // the start callback is triggered when an upload starts
@@ -817,7 +844,9 @@
             this._progress.loaded += data.loaded;
             this._progress.total += data.total;
         },
-
+        _verifyResult: function(result){
+           return true;
+        },
         _onDone: function (result, textStatus, jqXHR, options) {
             var total = options._progress.total,
                 response = options._response;
@@ -879,7 +908,14 @@
                         that._getXHRPromise(false, options.context, aborted)) ||
                         that._chunkedUpload(options) || $.ajax(options)
                     ).done(function (result, textStatus, jqXHR) {
-                        that._onDone(result, textStatus, jqXHR, options);
+                            if (!that._verifyResult(result))
+                            {
+                                that._onFail(jqXHR, textStatus, result.message, options)
+                            }
+                            else
+                            {
+                                that._onDone(result, textStatus, jqXHR, options);
+                            }
                     }).fail(function (jqXHR, textStatus, errorThrown) {
                         that._onFail(jqXHR, textStatus, errorThrown, options);
                     }).always(function (jqXHRorResult, textStatus, jqXHRorError) {
@@ -1005,12 +1041,19 @@
                 that._initResponseObject(newData);
                 that._initProgressObject(newData);
                 that._addConvenienceMethods(e, newData);
-                result = that._trigger(
+                $.when( that.beforeAdd(e, newData) ).then(function(value) {
+
+                      result = that._trigger(
                     'add',
                     $.Event('add', {delegatedEvent: e}),
-                    newData
+                    value
                 );
                 return result;
+
+                }).fail(function(value)
+                    {
+                        that._trigger('addfail',e,value);
+                    });
             });
             return result;
         },
@@ -1362,6 +1405,10 @@
                 data.files = $.makeArray(data.files);
                 this._onAdd(null, data);
             }
+        },
+        beforeAdd:function(data)
+        {
+
         },
 
         // This method is exposed to the widget API and allows sending files
