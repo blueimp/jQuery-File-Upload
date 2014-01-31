@@ -73,6 +73,7 @@
                  }
             },
             getFilesFromResponse:function (data) {
+	            debugger;
                 return    [
                     { "name": data.result.fileName,
                         "size": data.result.fileSize,
@@ -116,9 +117,10 @@
                 var dfd = new jQuery.Deferred();
 
                 $.ajax({
-                    url:that.options.apiURL +  '?service=uploadToken&action=get&format=1',
+                    url:that.options.apiURL +  '?service=uploadToken&action=get&format=9',
                     data:{uploadTokenId:tokenId,ks:that.options.ks},
-                    type: "POST"
+                    type: "GET",
+	                dataType:"jsonp"
                 }).done(function(response)
                     {
                         if (that._verifyResult(response))
@@ -136,7 +138,7 @@
             var addFile = function(fileName,size) {
                 var dfd = new jQuery.Deferred();
                 $.ajax({
-                    url:that.options.apiURL + '?service=uploadToken&action=list&format=1',
+                    url:that.options.apiURL + '?service=uploadToken&action=list&format=9',
                     //TODO:filter is not working need to check it
                     data:{   'filter:statusEqual':1,
                         'filter:objectType':'KalturaUploadTokenFilter',
@@ -144,7 +146,8 @@
                         'filter:advancedSearch:field':'fileName',
                         'filter:advancedSearch:value':fileName,
                         ks:that.options.ks},
-                    type:"GET"
+                    type:"GET",
+	                dataType:'jsonp'
                 }).done(function(response)
                     {
                         if (!that._verifyResult(response))
@@ -169,11 +172,12 @@
 
                 var addFileToKaltura = function(){
                     $.ajax({
-                        url:that.options.apiURL + '?service=uploadToken&action=add&format=1',
+                        url:that.options.apiURL + '?service=uploadToken&action=add&format=9',
                         data:{"uploadToken:fileName":fileName,
                             "uploadToken:fileSize":size,
                             ks:that.options.ks},
-                        type:"GET"
+	                    type:"GET",
+	                    dataType:'jsonp'
                     }).done(function(response)
                         {
 
@@ -257,6 +261,12 @@
             $.ajaxPrefilter( function( options, originalOptions, jqXHR ) {
 
                 var urlParams = $.String.deparam(options.url.split("?")[1]);
+	            //if we're doing upload and we're in IE8 we need to change the format from json to xml
+	            if (urlParams.action == "upload" &&
+		            /msie 8/.test(navigator.userAgent.toLowerCase()))  {
+		            options.url = options.url.replace(/format=1/,"format=2");
+		            options.format = 2;
+	            }
                 if (urlParams.action)
                 {
                     delete urlParams.action;
@@ -278,7 +288,12 @@
                     $.extend(urlParams,options.formData);
                 }
                 var signature = that._getSignture(urlParams);
-                options.url = options.url + "&kalsig=" + signature;
+	            if (options.url.indexOf("?") > -1) {
+                    options.url = options.url + "&kalsig=" + signature;
+	            }   else {
+		            options.url = options.url + "?kalsig=" + signature;
+	            }
+
 
 
             });

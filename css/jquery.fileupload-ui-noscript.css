@@ -1,6 +1,6 @@
 @charset "UTF-8";
 /*
- * jQuery File Upload UI Plugin NoScript CSS 1.0
+ * jQuery File Upload UI Plugin NoScript CSS 8.8.5
  * https://github.com/blueimp/jQuery-File-Upload
  *
  * Copyright 2012, Sebastian Tschan
@@ -10,16 +10,6 @@
  * http://www.opensource.org/licenses/MIT
  */
 
-.fileinput-button input {
-  position: static;
-  opacity: 1;
-  filter: none;
-  transform: none;
-  font-size: inherit;
-  direction: inherit;
-}
-
-.fileinput-button span,
 .fileinput-button i,
 .fileupload-buttonbar .delete,
 .fileupload-buttonbar .toggle {

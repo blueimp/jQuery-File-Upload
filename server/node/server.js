@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /*
- * jQuery File Upload Plugin Node.js Example 2.1.0
+ * jQuery File Upload Plugin Node.js Example 2.1.1
  * https://github.com/blueimp/jQuery-File-Upload
  *
  * Copyright 2012, Sebastian Tschan
@@ -10,8 +10,8 @@
  * http://www.opensource.org/licenses/MIT
  */
 
-/*jslint nomen: true, regexp: true, unparam: true, stupid: true */
-/*global require, __dirname, unescape, console */
+/* jshint nomen:false */
+/* global require, __dirname, unescape, console */
 
 (function (port) {
     'use strict';
@@ -261,7 +261,7 @@
             });
         }).on('error', function (e) {
             console.log(e);
-        }).on('progress', function (bytesReceived, bytesExpected) {
+        }).on('progress', function (bytesReceived) {
             if (bytesReceived > options.maxPostSize) {
                 handler.req.connection.destroy();
             }

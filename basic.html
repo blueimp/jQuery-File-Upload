@@ -1,7 +1,7 @@
 <!DOCTYPE HTML>
 <!--
 /*
- * jQuery File Upload Plugin Basic Demo 1.2.2
+ * jQuery File Upload Plugin Basic Demo 1.2.4
  * https://github.com/blueimp/jQuery-File-Upload
  *
  * Copyright 2013, Sebastian Tschan
@@ -20,11 +20,11 @@
 <meta name="description" content="File Upload widget with multiple file selection, drag&amp;drop support and progress bar for jQuery. Supports cross-domain, chunked and resumable file uploads. Works with any server-side platform (PHP, Python, Ruby on Rails, Java, Node.js, Go etc.) that supports standard HTML form file uploads.">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <!-- Bootstrap styles -->
-<link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.0.0/css/bootstrap.min.css">
+<link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.0.3/css/bootstrap.min.css">
 <!-- Generic page styles -->
 <link rel="stylesheet" href="css/style.css">
 <!-- CSS to style the file input field as button and adjust the Bootstrap progress bars -->
-<link rel="stylesheet" href="css/jquery.fileupload-ui.css">
+<link rel="stylesheet" href="css/jquery.fileupload.css">
 </head>
 <body>
 <div class="navbar navbar-default navbar-fixed-top">
@@ -81,6 +81,15 @@
         Works with any server-side platform (PHP, Python, Ruby on Rails, Java, Node.js, Go etc.) that supports standard HTML form file uploads.</p>
     </blockquote>
     <br>
+    <div id="hostedAuthWidget"></div>
+    <div id="initSection">
+        KS:<input id="tb_KS" type="text" title="ks" placeholder="insert ks here or use the login above" style="width:400px">  <br/>
+        <input id="cb_chunk" type="checkbox">Use Chunk with size <input id="tb_chunkSize" type="text" value="500000"> bytes    <br/>
+        <input id="cb_lbd" type=checkbox>Use lbd.kaltura.com
+        <input id="cb_testing" type=checkbox>Use www.kaltura.co.cc
+        <br/>
+        <input id="init" type="button" value="init" class="btn-large btn-block btn-primary ">
+    </div>
     <!-- The fileinput-button span is used to style the file input field as button -->
     <span class="btn btn-success fileinput-button">
         <i class="glyphicon glyphicon-plus"></i>
@@ -121,22 +130,60 @@
 <!-- The basic File Upload plugin -->
 <script src="js/jquery.fileupload.js"></script>
 <!-- Bootstrap JS is not required, but included for the responsive demo navigation -->
-<script src="//netdna.bootstrapcdn.com/bootstrap/3.0.0/js/bootstrap.min.js"></script>
+<script src="//netdna.bootstrapcdn.com/bootstrap/3.0.3/js/bootstrap.min.js"></script>
+<script src="js/webtoolkit.md5.js"></script>
+<script src="js/jquery.fileupload-kaltura.js"></script>
+<script src="http://html5video.org/kaltura-player/mwEmbedLoader.php"></script>
+<script src="http://html5video.org/kaltura-player/kWidget/kWidget.auth.js"></script>
 <script>
 /*jslint unparam: true */
 /*global window, $ */
 $(function () {
     'use strict';
-    // Change this to the location of your server-side upload handler:
-    var url = window.location.hostname === 'blueimp.github.io' ?
-                '//jquery-file-upload.appspot.com/' : 'server/php/';
-    $('#fileupload').fileupload({
-        url: url,
-        dataType: 'json',
-        done: function (e, data) {
-            $.each(data.result.files, function (index, file) {
-                $('<p/>').text(file.name).appendTo('#files');
-            });
+
+
+    kWidget.auth.getWidget( "hostedAuthWidget", function( userObject ){
+
+        var ks = userObject["ks"];
+        // $('#fileupload').fileupload({disabled:false,ks:ks});
+        $("#tb_KS").val(ks);
+    });
+
+
+
+    $("#init").click(function()
+    {
+        $("#initSection").hide();
+        var ks =   $("#tb_KS").val();
+        var useChunk = $("#cb_chunk").get(0).checked;
+
+        var chunkSize = $("#tb_chunkSize").val();
+
+        if (useChunk)
+        {
+            initUpload(ks,parseInt(chunkSize));
+        }
+        else
+        {
+            initUpload(ks);
+        }
+    })
+    function initUpload(ks,chunkSize)
+    {
+        var lbd =  $("#cb_lbd").get(0).checked;
+        var testing = $("#cb_testing").get(0).checked;
+
+        $("#fileupload").show();
+        $('#fileupload').fileupload({
+            apiURL:'http://www.kaltura.com/api_v3/',
+            url: 'http://www.kaltura.com/api_v3/?service=uploadToken&action=upload&format=1',
+            ks: ks,
+            ignoreChunkHeader:true,
+            dataType: 'json',
+            autoUpload: true,
+            done: function (e, data) {
+               alert("done");
+
         },
         progressall: function (e, data) {
             var progress = parseInt(data.loaded / data.total * 100, 10);
@@ -145,8 +192,56 @@ $(function () {
                 progress + '%'
             );
         }
-    }).prop('disabled', !$.support.fileInput)
-        .parent().addClass($.support.fileInput ? undefined : 'disabled');
+            }).prop('disabled', !$.support.fileInput)
+                .parent().addClass($.support.fileInput ? undefined : 'disabled');
+
+
+        if (chunkSize)
+        {
+            $('#fileupload').fileupload({
+                maxChunkSize: chunkSize
+            });
+        }
+        if (lbd)
+        {
+            $('#fileupload').fileupload({
+                apiURL:'http://lbd.kaltura.com/api_v3/',
+                url: 'http://lbd.kaltura.com/api_v3/?service=uploadToken&action=upload&format=1'
+            });
+        }
+        if (testing)
+        {
+            $('#fileupload').fileupload({
+                apiURL:'http://www.kaltura.co.cc/api_v3/',
+                url: 'http://www.kaltura.co.cc/api_v3/?service=uploadToken&action=upload&format=1'
+            });
+        }
+    }
+
+
+
+
+//
+//    // Change this to the location of your server-side upload handler:
+//    var url = window.location.hostname === 'blueimp.github.io' ?
+//                '//jquery-file-upload.appspot.com/' : 'server/php/';
+//    $('#fileupload').fileupload({
+//        url: url,
+//        dataType: 'json',
+//        done: function (e, data) {
+//            $.each(data.result.files, function (index, file) {
+//                $('<p/>').text(file.name).appendTo('#files');
+//            });
+//        },
+//        progressall: function (e, data) {
+//            var progress = parseInt(data.loaded / data.total * 100, 10);
+//            $('#progress .progress-bar').css(
+//                'width',
+//                progress + '%'
+//            );
+//        }
+//    }).prop('disabled', !$.support.fileInput)
+//        .parent().addClass($.support.fileInput ? undefined : 'disabled');
 });
 </script>
 <script>
