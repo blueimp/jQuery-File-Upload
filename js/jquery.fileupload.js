@@ -47,9 +47,13 @@
     $.support.xhrFileUpload = !!(window.ProgressEvent && window.FileReader);
     $.support.xhrFormDataFileUpload = !!window.FormData;
 
-    // Detect support for Blob slicing (required for chunked uploads):
-    $.support.blobSlice = window.Blob && (Blob.prototype.slice ||
-        Blob.prototype.webkitSlice || Blob.prototype.mozSlice);
+    // Detect support for Blob slicing (required for chunked uploads)
+    // window.Blob.prototype is undefined for Firefox add ons, so we fallback
+    // to an instance of window.Blob to get a copy of the slice function
+    $.support.blobSlice = (function(blobPrototype) {
+        return blobPrototype && (blobPrototype.slice || blobPrototype.webkitSlice ||
+            blobPrototype.mozSlice);
+    })(window.Blob && (Blob.prototype || new Blob()));
 
     // The fileupload widget listens for change events on file input fields defined
     // via fileInput setting and paste or drop events of the given dropZone.
