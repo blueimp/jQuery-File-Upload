@@ -1309,13 +1309,16 @@
             var that = this,
                 options = this.options;
             // Initialize options set via HTML5 data-attributes:
+            var clone = $(this.element[0].cloneNode(false));
             $.each(
-                $(this.element[0].cloneNode(false)).data(),
+                clone.data(),
                 function (key, value) {
-                    if (that._isRegExpOption(key, value)) {
-                        value = that._getRegExp(value);
+                    if (clone[0].getAttribute('data-'+key)) {
+                        if (that._isRegExpOption(key, value)) {
+                            value = that._getRegExp(value);
+                        }
+                        options[key] = value;
                     }
-                    options[key] = value;
                 }
             );
         },
