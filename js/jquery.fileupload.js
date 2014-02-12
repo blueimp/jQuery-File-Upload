@@ -1,5 +1,5 @@
 /*
- * jQuery File Upload Plugin 5.40.0
+ * jQuery File Upload Plugin 5.40.1
  * https://github.com/blueimp/jQuery-File-Upload
  *
  * Copyright 2010, Sebastian Tschan
@@ -1307,13 +1307,16 @@
 
         _initDataAttributes: function () {
             var that = this,
-                options = this.options;
+                options = this.options,
+                clone = $(this.element[0].cloneNode(false));
             // Initialize options set via HTML5 data-attributes:
-            var clone = $(this.element[0].cloneNode(false));
             $.each(
                 clone.data(),
                 function (key, value) {
-                    if (clone[0].getAttribute('data-'+key)) {
+                    var dataAttributeName = 'data-' +
+                        // Convert camelCase to hyphen-ated key:
+                        key.replace(/([a-z])([A-Z])/g, '$1-$2').toLowerCase();
+                    if (clone.attr(dataAttributeName)) {
                         if (that._isRegExpOption(key, value)) {
                             value = that._getRegExp(value);
                         }
