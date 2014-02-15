@@ -952,8 +952,13 @@ class UploadHandler
                 exec($cmd, $output, $error);
                 if (!$error && !empty($output)) {
                     // image.jpg JPEG 1920x1080 1920x1080+0+0 8-bit sRGB 465KB 0.000u 0:00.000
+                    // /tmp/phpKLDBeR 3920x2204 DirectClass 1634kb JPEG 1s
                     $infos = preg_split('/\s+/', $output[0]);
                     $dimensions = preg_split('/x/', $infos[2]);
+					//debug($infos, $dimensions);
+					if (sizeof($dimensions) != 2) {
+						$dimensions = preg_split('/x/', $infos[1]);
+					}
                     return $dimensions;
                 }
                 return false;
