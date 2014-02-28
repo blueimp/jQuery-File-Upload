@@ -1023,6 +1023,10 @@ class UploadHandler
         $file->name = $this->get_file_name($uploaded_file, $name, $size, $type, $error,
             $index, $content_range);
         $file->size = $this->fix_integer_overflow(intval($size));
+        if (is_array($content_range))
+            $file->totalSize = $content_range[3];
+        else
+            $file->totalSize = $file->size;        
         $file->type = $type;
         if ($this->validate($uploaded_file, $file, $error, $index)) {
             $this->handle_form_data($file, $index);
