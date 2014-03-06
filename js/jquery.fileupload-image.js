@@ -207,6 +207,8 @@
                     }
                 }
                 if (img) {
+                    // JavaScript-Load-Image expects :crop option rather :imageCrop
+                    options.crop = options.imageCrop;
                     resolve(loadImage.scale(img, options));
                     return dfd.promise();
                 }
