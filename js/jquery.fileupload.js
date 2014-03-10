@@ -759,7 +759,12 @@
                         o.result = result;
                         o.textStatus = textStatus;
                         o.jqXHR = jqXHR;
-                        that._trigger('chunkdone', null, o);
+                        if (!that._trigger('chunkdone', null, o)) {
+                            dfd.rejectWith(
+                                o.context,
+                                [undefined, 'abort', 'abort']
+                            );
+                        }
                         that._trigger('chunkalways', null, o);
                         if (ub < fs) {
                             // File upload not yet complete,
