@@ -1,5 +1,5 @@
 /*
- * jQuery File Upload Image Preview & Resize Plugin 1.7.1
+ * jQuery File Upload Image Preview & Resize Plugin 1.7.2
  * https://github.com/blueimp/jQuery-File-Upload
  *
  * Copyright 2013, Sebastian Tschan
@@ -204,6 +204,12 @@
                             loadImage(thumbnail, resolve, options);
                             return dfd.promise();
                         }
+                    }
+                    // Prevent orienting the same image twice:
+                    if (data.orientation) {
+                        delete options.orientation;
+                    } else {
+                        data.orientation = options.orientation;
                     }
                 }
                 if (img) {
