@@ -764,6 +764,8 @@
                                 o.context,
                                 [undefined, 'abort', 'abort']
                             );
+                            that._trigger('chunkalways', null, o);
+                            return;
                         }
                         that._trigger('chunkalways', null, o);
                         if (ub < fs) {
