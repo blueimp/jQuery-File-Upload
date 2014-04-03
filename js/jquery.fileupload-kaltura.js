@@ -73,8 +73,7 @@
                  }
             },
             getFilesFromResponse:function (data) {
-	            debugger;
-                return    [
+	         return    [
                     { "name": data.result.fileName,
                         "size": data.result.fileSize,
                         "url": data.apiURL + "?service=uploadToken&action=get&ks=" + data.ks +"&uploadTokenId=" + data.result.id ,
