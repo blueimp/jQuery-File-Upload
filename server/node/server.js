@@ -139,7 +139,7 @@
                     } else {
                         res.end();
                     }
-                } else if(req.url.endsWith('.html') || req.url.startsWith('/css/') || req.url.startsWith('/js/') || req.url.startsWith('/bower_components/') || req.url.startsWith('/img/')) {
+                } else if(req.url.endsWith('.html') || req.url.startsWith('/css/') || req.url.startsWith('/js/') || req.url.startsWith('/bower_components/') || req.url.startsWith('/img/') || req.url.startsWith('/templates/')) {
                     frontendServer.serve(req, res);
                 } else {
                     fileServer.serve(req, res);
