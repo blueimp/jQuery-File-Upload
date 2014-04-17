@@ -15,6 +15,17 @@
 
 (function (port) {
     'use strict';
+    if (typeof String.prototype.startsWith != 'function') {
+      // see below for better implementation!
+      String.prototype.startsWith = function (str){
+        return this.indexOf(str) == 0;
+      }
+    }
+    if ( typeof String.prototype.endsWith != 'function' ) {
+      String.prototype.endsWith = function( str ) {
+        return this.substring( this.length - str.length, this.length ) === str;
+      }
+    }
     var path = require('path'),
         fs = require('fs'),
         // Since Node 0.8, .existsSync() moved from path to fs:
@@ -27,6 +38,7 @@
             publicDir: __dirname + '/public',
             uploadDir: __dirname + '/public/files',
             uploadUrl: '/files/',
+            frontendDir: __dirname + '/../..',
             maxPostSize: 11000000000, // 11 GB
             minFileSize: 1,
             maxFileSize: 10000000000, // 10 GB
@@ -60,6 +72,7 @@
             return unescape(encodeURIComponent(str));
         },
         fileServer = new nodeStatic.Server(options.publicDir, options.nodeStatic),
+        frontendServer = new nodeStatic.Server(options.frontendDir, options.nodeStatic),
         nameCountRegexp = /(?:(?: \(([\d]+)\))?(\.[^.]+))?$/,
         nameCountFunc = function (s, index, ext) {
             return ' (' + ((parseInt(index, 10) || 0) + 1) + ')' + (ext || '');
@@ -118,6 +131,7 @@
                 break;
             case 'HEAD':
             case 'GET':
+              console.log(req.url);
                 if (req.url === '/') {
                     setNoCacheHeaders();
                     if (req.method === 'GET') {
@@ -125,6 +139,8 @@
                     } else {
                         res.end();
                     }
+                } else if(req.url.endsWith('.html') || req.url.startsWith('/css/') || req.url.startsWith('/js/') || req.url.startsWith('/bower_components/') || req.url.startsWith('/img/') || req.url.startsWith('/templates/')) {
+                    frontendServer.serve(req, res);
                 } else {
                     fileServer.serve(req, res);
                 }
