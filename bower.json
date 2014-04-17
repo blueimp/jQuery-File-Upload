@@ -50,7 +50,13 @@
     "jquery": ">=1.6",
     "blueimp-tmpl": ">=2.5.3",
     "blueimp-load-image": ">=1.11.0",
-    "blueimp-canvas-to-blob": ">=2.1.0"
+    "blueimp-canvas-to-blob": ">=2.1.0",
+    "blueimp-gallery": ">=2.14.0",
+    "bootstrap": ">=3.1.1",
+    "jquery": ">=2.0",
+    "angular": ">=1.2.12",
+    "blueimp-load-image": "latest",
+    "angular-bootstrap": "latest"
   },
   "main": [
     "css/jquery.fileupload.css",
