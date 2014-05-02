@@ -83,7 +83,7 @@
                 }
                 var dfd = $.Deferred(),
                     settings = this.options,
-                    file = data.files[data.index],
+                    file = data.originalFiles[data.index],
                     numberOfFiles = settings.getNumberOfFiles();
                 if (numberOfFiles && $.type(options.maxNumberOfFiles) === 'number' &&
                         numberOfFiles + data.files.length > options.maxNumberOfFiles) {
