@@ -178,10 +178,14 @@
 {% for (var i=0, file; file=o.files[i]; i++) { %}
     <tr class="template-download fade">
         <td>
-            <span class="preview">
-                {% if (file.thumbnailUrl) { %}
-                    <a href="{%=file.url%}" title="{%=file.name%}" download="{%=file.name%}" data-gallery><img src="{%=file.thumbnailUrl%}"></a>
-                {% } %}
+            <span class="preview col-xs-3 col-md-2">
+                <a href="{%=file.url%}" title="{%=file.name%}" download="{%=file.name%}" data-gallery>
+                    {% if (file.thumbnailUrl) { %}
+                        <img src="{%=file.thumbnailUrl%}"></a>
+                    {% } else { %}
+                        <img src="{%=file.url%}" class='img-responsive'>
+                    {% } %}
+                </a>
             </span>
         </td>
         <td>
