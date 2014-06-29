@@ -1078,8 +1078,8 @@ class UploadHandler
             $handle = fopen($file_path, 'rb');
             while (!feof($handle)) {
                 echo fread($handle, $chunk_size);
-                ob_flush();
-                flush();
+                @ob_flush();
+                @flush();
             }
             fclose($handle);
             return $file_size;
