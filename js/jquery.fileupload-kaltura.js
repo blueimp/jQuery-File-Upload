@@ -343,7 +343,7 @@
 				};
 
 				that.options.fileInput.click(function(){
-					executeCordova("openFileChooser", [] );
+					executeCordova("openFileChooser", [ that.element.attr('id') ] );
 				});
 			}
 
