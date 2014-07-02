@@ -234,6 +234,7 @@
                         finalChunk:1,
                         resumeAt:0};
                 }
+
 				if ( isNativeApp ) {
 					window.fileUploadProgress =  function ( val ) {
 						var data = JSON.parse( val );
@@ -252,6 +253,12 @@
 						if ( data.loaded >= data.total ) {
 							that._trigger('done', null, that.options);
 						}
+					}
+
+					window.fileUploadFailed = function ( fileName ) {
+						var data = {files: [{name: fileName}]}
+						that._trigger('failed', e, data);
+						that._trigger('finished', e, data);
 					}
 
 					executeCordova("startUpload", [ that.options.host, data.formData ] );
