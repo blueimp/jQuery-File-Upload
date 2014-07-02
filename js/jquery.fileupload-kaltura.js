@@ -225,32 +225,44 @@
 
 				if ( that.options.isAndroidNative ) {
 					window.fileUploadProgress =  function ( val ) {
-						var data = JSON.parse( val );
+						var eventData = JSON.parse( val );
 						that._trigger(
 							'progressall',
 							$.Event('progressall', {delegatedEvent: e}),
-							data
+							eventData
 						);
 
 						that._trigger(
 							'progress',
 							$.Event('progressall', {delegatedEvent: e}),
-							data
+							eventData
 						);
-
-						if ( data.loaded >= data.total ) {
-							that._trigger('done', null, that.options);
-						}
 					}
 
 					window.fileUploadFailed = function ( fileName ) {
-						var data = {files: [{name: fileName}]}
-						that._trigger('failed', e, data);
-						that._trigger('finished', e, data);
+						var eventData = {files: [{name: fileName}]}
+						that._trigger('failed', e, eventData);
+						that._trigger('finished', e, eventData);
 					}
 
-					executeCordova("startUpload", [ that.options.host, data.formData ] );
-					data.autoUpload = false;
+					window.fileUploadDone = function ( val, uploadTokenId ) {
+						that.options.textStatus = "success";
+						var file = JSON.parse( val );
+						if ( !that.options.files ) {
+							that.options.files = [];
+						}
+						that.options.files.push( file );
+						that.options.uploadTokenId  = uploadTokenId;
+						that._trigger(
+							'done',
+							e,
+							that.options
+						);
+					}
+
+					data.submit = function() {
+						executeCordova("startUpload", [ that.options.host, data.formData ] );
+					}
 					masterdfd.resolve( data );
 				} else {
 					masterdfd.resolve( data );
@@ -336,7 +348,7 @@
             this._super();
 
 			if ( navigator.userAgent.indexOf( 'Android') != -1 && navigator.userAgent.indexOf('kalturaNativeCordovaPlayer') != -1 ) {
-				that.isAndroidNative = true;
+				that.options.isAndroidNative = true;
 
 				executeCordova= function( methodName, params ) {
 					cordova.kWidget.exec( methodName, params ,'FileChooserPlugin');
