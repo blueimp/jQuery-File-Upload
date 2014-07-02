@@ -47,8 +47,8 @@
     }
   ],
   "devDependencies": {
-    "grunt": "~0.4.2",
+    "grunt": "~0.4.5",
     "grunt-bump-build-git": "~1.1.1",
-    "grunt-contrib-jshint": "~0.8.0"
+    "grunt-contrib-jshint": "~0.10.0"
   }
 }
