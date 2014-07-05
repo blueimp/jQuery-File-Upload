@@ -9,7 +9,7 @@
  * Licensed under the MIT license:
  * http://www.opensource.org/licenses/MIT
  */
-
+namespace Org\Util;
 class UploadHandler
 {
 
@@ -43,8 +43,8 @@ class UploadHandler
     function __construct($options = null, $initialize = true, $error_messages = null) {
         $this->options = array(
             'script_url' => $this->get_full_url().'/',
-            'upload_dir' => dirname($this->get_server_var('SCRIPT_FILENAME')).'/files/',
-            'upload_url' => $this->get_full_url().'/files/',
+            'upload_dir' => dirname($this->get_server_var('SCRIPT_FILENAME'))."/Uploads/".date('Ymd',time())."/",
+            'upload_url' => $this->get_full_url()."/Uploads/".date('Ymd',time())."/",
             'user_dirs' => false,
             'mkdir_mode' => 0755,
             'param_name' => 'files',
@@ -453,7 +453,10 @@ class UploadHandler
         // Remove path information and dots around the filename, to prevent uploading
         // into different directories or replacing hidden system files.
         // Also remove control characters and spaces (\x00..\x20) around the filename:
-        $name = trim(basename(stripslashes($name)), ".\x00..\x20");
+        /* 处理文件名为中文时，上传失败的BUG。 - begin */
+        $name = trim($this->get_basename(stripslashes($name)), ".\x00..\x20");
+        $name = md5($name) . '.'. $this->get_extension_filename($name);
+        /* 处理文件名为中文时，上传失败的BUG - end edit by rocx <xuanskyer@gmail.com> */
         // Use a timestamp for empty filenames:
         if (!$name) {
             $name = str_replace('.', '-', microtime(true));
@@ -1124,7 +1127,7 @@ class UploadHandler
     }
 
     protected function get_version_param() {
-        return isset($_GET['version']) ? basename(stripslashes($_GET['version'])) : null;
+        return isset($_GET['version']) ? $this->get_basename(stripslashes($_GET['version'])) : null;
     }
 
     protected function get_singular_param_name() {
@@ -1133,14 +1136,14 @@ class UploadHandler
 
     protected function get_file_name_param() {
         $name = $this->get_singular_param_name();
-        return isset($_REQUEST[$name]) ? basename(stripslashes($_REQUEST[$name])) : null;
+        return isset($_REQUEST[$name]) ? $this->get_basename(stripslashes($_REQUEST[$name])) : null;
     }
 
     protected function get_file_names_params() {
         $params = isset($_REQUEST[$this->options['param_name']]) ?
             $_REQUEST[$this->options['param_name']] : array();
         foreach ($params as $key => $value) {
-            $params[$key] = basename(stripslashes($value));
+            $params[$key] = $this->get_basename(stripslashes($value));
         }
         return $params;
     }
@@ -1328,4 +1331,30 @@ class UploadHandler
         return $this->generate_response($response, $print_response);
     }
 
+    /**
+     * @param 替代PHP原生的basename，支持中文
+     * @return mixed
+     * @author rocx <xuanskyer@gmail.com>
+     * @time 2014-7-5 23:20:56
+     */
+    private function get_basename($filename){
+        return preg_replace('/^.+[\\\\\\/]/', '', $filename);
+    }
+
+    /** 
+     * 获取文件后缀名
+     * @param  string $filename [文件名]
+     * @return            [文件后缀名]
+     * @author rocx <xuanskyer@gmail.com>
+     * @time 2014-7-5 23:20:56
+     */
+    private function get_extension_filename($filename = ''){
+        if($filename){
+            $arr_filename = explode('.', $filename);
+            if(is_array($arr_filename) && !empty($arr_filename)){
+                return array_pop($arr_filename);
+            }
+        }
+        return false;
+    }
 }
