@@ -78,7 +78,8 @@
                     return that.processActions[settings.action].call(
                         that,
                         data,
-                        settings
+                        settings,
+                        originalData
                     );
                 };
                 chain = chain.pipe(func, settings.always && func);
