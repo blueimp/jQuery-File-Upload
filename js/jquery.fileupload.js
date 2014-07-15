@@ -1,5 +1,5 @@
 /*
- * jQuery File Upload Plugin 5.40.3
+ * jQuery File Upload Plugin 5.41.0
  * https://github.com/blueimp/jQuery-File-Upload
  *
  * Copyright 2010, Sebastian Tschan
@@ -1015,16 +1015,17 @@
             return result;
         },
 
-        _replaceFileInput: function (input, data) {
-            var inputClone = input.clone(true);
+        _replaceFileInput: function (data) {
+            var input = data.fileInput,
+                inputClone = input.clone(true);
+            // Add a reference for the new cloned file input to the data argument:
+            data.fileInputClone = inputClone;
             $('<form></form>').append(inputClone)[0].reset();
             // Detaching allows to insert the fileInput on another form
             // without loosing the file input value:
             input.after(inputClone).detach();
             // Avoid memory leaks with the detached file input:
             $.cleanData(input.unbind('remove'));
-            // Add a reference to the new cloned file input element
-            data.replacedFileInput=inputClone;
             // Replace the original file input element in the fileInput
             // elements set with the clone, which has been copied including
             // event handlers:
@@ -1189,7 +1190,7 @@
             this._getFileInputFiles(data.fileInput).always(function (files) {
                 data.files = files;
                 if (that.options.replaceFileInput) {
-                    that._replaceFileInput(data.fileInput, data);
+                    that._replaceFileInput(data);
                 }
                 if (that._trigger(
                         'change',
