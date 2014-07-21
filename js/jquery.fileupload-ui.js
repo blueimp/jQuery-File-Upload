@@ -62,6 +62,10 @@
             // The expected data type of the upload response, sets the dataType
             // option of the $.ajax upload requests:
             dataType: 'json',
+            
+            messages: {
+                unknownError: 'Unknown error'  
+            },
 
             // Function returning the current number of files,
             // used by the maxNumberOfFiles validation:
@@ -212,7 +216,7 @@
                         if (data.errorThrown !== 'abort') {
                             var file = data.files[index];
                             file.error = file.error || data.errorThrown ||
-                                true;
+                                data.i18n('unknownError');
                             deferred = that._addFinishedDeferreds();
                             that._transition($(this)).done(
                                 function () {
