@@ -1,5 +1,5 @@
 /*
- * jQuery File Upload User Interface Plugin 9.5.2
+ * jQuery File Upload User Interface Plugin 9.6.0
  * https://github.com/blueimp/jQuery-File-Upload
  *
  * Copyright 2010, Sebastian Tschan
@@ -62,6 +62,11 @@
             // The expected data type of the upload response, sets the dataType
             // option of the $.ajax upload requests:
             dataType: 'json',
+            
+            // Error and info messages:
+            messages: {
+                unknownError: 'Unknown error'  
+            },
 
             // Function returning the current number of files,
             // used by the maxNumberOfFiles validation:
@@ -212,7 +217,7 @@
                         if (data.errorThrown !== 'abort') {
                             var file = data.files[index];
                             file.error = file.error || data.errorThrown ||
-                                true;
+                                data.i18n('unknownError');
                             deferred = that._addFinishedDeferreds();
                             that._transition($(this)).done(
                                 function () {
