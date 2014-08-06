@@ -21,7 +21,7 @@
   margin: 0;
   opacity: 0;
   -ms-filter: 'alpha(opacity=0)';
-  font-size: 200px;
+  font-size: 20px;
   direction: ltr;
   cursor: pointer;
 }
