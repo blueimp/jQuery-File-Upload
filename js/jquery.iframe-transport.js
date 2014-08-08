@@ -119,6 +119,13 @@
                                     .val(field.value)
                                     .appendTo(form);
                             });
+                            // Add a hidden `X-Requested-With` field with the value `IFrame` to the
+                            // form, to help server-side code to determine that the upload happened
+                            // through this transport.
+                            $('<input type="hidden"/>')
+                                .prop('name', 'X-Requested-With')
+                                .val('IFrame')
+                                .appendTo(form);
                         }
                         if (options.fileInput && options.fileInput.length &&
                                 options.type === 'POST') {
