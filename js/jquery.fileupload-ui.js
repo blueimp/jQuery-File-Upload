@@ -124,6 +124,7 @@
                             var error = data.files[index].error;
                             if (error) {
                                 $(this).find('.error').text(error);
+                                that._trigger('addedfailed', e, data);
                             }
                         });
                     }
