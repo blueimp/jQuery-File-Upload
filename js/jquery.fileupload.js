@@ -51,6 +51,12 @@
     $.support.blobSlice = window.Blob && (Blob.prototype.slice ||
         Blob.prototype.webkitSlice || Blob.prototype.mozSlice);
 
+    // Detect no support for FormData+Blob on Android
+    $.support.xhrFormDataBlobUpload = !!(
+        $.support.xhrFormDataFileUpload &&
+        window.navigator.userAgent.toLowerCase().indexOf('android') === -1
+    );
+
     // The fileupload widget listens for change events on file input fields defined
     // via fileInput setting and paste or drop events of the given dropZone.
     // In addition to the default jQuery Widget methods, the fileupload widget
@@ -433,8 +439,9 @@
                 options.contentType = file.type || 'application/octet-stream';
                 options.data = options.blob || file;
             } else if ($.support.xhrFormDataFileUpload) {
-                if (options.postMessage) {
-                    // window.postMessage does not allow sending FormData
+                if (options.postMessage || (options.blob && !$.support.xhrFormDataBlobUpload)) {
+                    // window.postMessage and browsers that don't support
+                    // Blob in FormData won't work while sending FormData
                     // objects, so we just add the File/Blob objects to
                     // the formData array and let the postMessage window
                     // create the FormData object out of this array:
@@ -1434,6 +1441,143 @@
                 }
             }
             return this._getXHRPromise(false, data && data.context);
+        }
+
+    });
+
+    // Android 4 doesn't know how to speak Blob in FormData, and PHP doesn't know
+    // how to speak xhr.send(ArrayBuffer), so we're going to stringify everything.
+    if (!XMLHttpRequest.prototype.sendAsBinary) {
+        XMLHttpRequest.prototype.sendAsBinary = function(sData) {
+            var nBytes = sData.length, ui8Data = new Uint8Array(nBytes);
+            for (var nIdx = 0; nIdx < nBytes; nIdx++) {
+                ui8Data[nIdx] = sData.charCodeAt(nIdx) & 0xff;
+            }
+            this.send(ui8Data.buffer);
+        };
+    }
+
+    $.ajaxTransport('+*', function (options, originalOptions, jqXHR) {
+        // Check to see if we're the special case of having some form data to send, but not
+        // being able to send it via regular FormData containing a Blob (Android 4)
+        if (
+            $.support.xhrFormDataFileUpload &&
+            !$.support.xhrFormDataBlobUpload &&
+            typeof options.data === 'object'
+        ) {
+            return {
+                send: function (headers, completeCallback) {
+
+                    var i,
+                        fileNumber = 0,
+                        xhr = new XMLHttpRequest(),
+                        type = options.type || 'GET',
+                        dataType = options.dataType || 'text',
+                        async = options.async || true,
+                        boundary = '---------------------------' + Date.now().toString(16),
+                        fileReader,
+                        responses = {};
+
+                    // Run success callback when done
+                    xhr.addEventListener('load', function () {
+                        // Verify the responseType attribute to avoid InvalidStateError Exception (XHR2 Spec)
+                        // Support: IE9
+                        // Accessing binary-data responseText throws an exception
+                        // (#11426)
+                        if ((!xhr.responseType || xhr.responseType === 'text') && typeof xhr.responseText === 'string') {
+                            responses.text = xhr.responseText;
+                        }
+                        // The native response associated with the responseType
+                        // Stored in the xhr.response attribute (XHR2 Spec)
+                        if (xhr.response) {
+                            responses.native = xhr.response;
+                        }
+                        completeCallback(
+                            xhr.status,
+                            xhr.statusText,
+                            responses,
+                            xhr.getAllResponseHeaders()
+                        );
+                    });
+     
+                    xhr.open(type, options.url, async);
+
+                    // Add headers
+                    // Includes:
+                    // {
+                    //    Accept: "application/json, text/javascript, *|*; q=0.01", 
+                    //    Content-Range: "bytes 100663296-102760447/114918832",
+                    //    Content-Disposition: "attachment; filename="h264_1080p_hp_4.1_40mbps_birds.mkv""
+                    // }
+                    headers['Content-Type'] = 'multipart\/form-data; boundary=' + boundary;
+                    for (i in headers) {
+                        xhr.setRequestHeader(i, headers[i]);
+                    }
+
+                    // Does the actual sending once the POST has been assembled
+                    function doSend(postData) {
+                        xhr.sendAsBinary(
+                            '--' + boundary + "\r\n" +
+                            postData.segments.join('--' + boundary + "\r\n") +
+                            '--' + boundary + "--\r\n"
+                        );
+                    }
+
+                    // Callback to trigger the final send once all files have been
+                    // assembled into the POST
+                    function processStatus(postData) {
+                        // If the status isn't at 0 yet, we still have files to process.
+                        // Wait for the next try.
+                        if (postData.status > 0) { return; }
+                        doSend(postData);
+                    }
+
+                    // Callback to handle adding a binary string to the POST from a
+                    // FileReader converted Blob
+                    function pushSegment(fileReaderResult) {
+                        this.owner.segments[this.segmentIdx] += fileReaderResult.target.result + "\r\n";
+                        this.owner.status--;
+                        // Check to see if we're ready to send yet
+                        processStatus(this.owner);
+                    }
+
+                    // Keep track of whether it's time to do the XHR send yet.
+                    // Adding a blob to the POST increments it; processing the blob data decrements it.
+                    // When we get to 0, it's time to send.
+                    this.status = 0;
+
+                    // Parts of the final POST are added here
+                    this.segments = [];
+
+                    // Loop through our submitted form data, adding it to the POST
+                    for (i = 0; i < options.data.length; i++) {
+                        if (options.data[i].value instanceof Blob && options.files[fileNumber] instanceof File) {
+                            fileReader = new FileReader();
+                            fileReader.segmentIdx = this.segments.length;
+                            fileReader.owner = this;
+                            fileReader.onload = pushSegment;
+                            this.segments.push(
+                                'Content-Disposition: form-data; name="' + options.data[i].name + '"; ' +
+                                'filename="' + options.files[fileNumber].name + "\"\r\n" +
+                                'Content-Type: ' + options.data[i].value.type + "\r\n\r\n"
+                            );
+                            this.status++;
+                            fileNumber++;
+                            fileReader.readAsBinaryString(options.data[i].value);
+                        } else {
+                            this.segments.push(
+                                "Content-Disposition: form-data; name=\"" + options.data[i].name + "\"\r\n\r\n" + options.data[i].value + "\r\n"
+                            );
+                        }
+                    }
+
+                    // Check if we're supposed to send yet
+                    processStatus(this);
+                },
+                abort: function(){
+                    jqXHR.abort();
+                }
+            };
         }
 
     });
