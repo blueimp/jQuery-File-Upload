@@ -1260,7 +1260,8 @@
             if (this._isXHRUpload(this.options)) {
                 this._on(this.options.dropZone, {
                     dragover: this._onDragOver,
-                    drop: this._onDrop
+                    drop: this._onDrop,
+                    dragenter: function ignoreDrag(e) { e.preventDefault(); } //IE10+
                 });
                 this._on(this.options.pasteZone, {
                     paste: this._onPaste
