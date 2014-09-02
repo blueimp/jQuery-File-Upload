@@ -1,6 +1,6 @@
 <?php
 /*
- * jQuery File Upload Plugin PHP Class 8.0.4
+ * jQuery File Upload Plugin PHP Class 8.1.0
  * https://github.com/blueimp/jQuery-File-Upload
  *
  * Copyright 2010, Sebastian Tschan
@@ -89,6 +89,8 @@ class UploadHandler
             'max_number_of_files' => null,
             // Defines which files are handled as image files:
             'image_file_types' => '/\.(gif|jpe?g|png)$/i',
+            // Use exif_imagetype on all files to correct file extensions:
+            'correct_image_extensions' => false,
             // Image resolution restrictions:
             'max_width' => null,
             'max_height' => null,
@@ -450,22 +452,15 @@ class UploadHandler
         return $name;
     }
 
-    protected function trim_file_name($file_path, $name, $size, $type, $error,
+    protected function fix_file_extension($file_path, $name, $size, $type, $error,
             $index, $content_range) {
-        // Remove path information and dots around the filename, to prevent uploading
-        // into different directories or replacing hidden system files.
-        // Also remove control characters and spaces (\x00..\x20) around the filename:
-        $name = trim(basename(stripslashes($name)), ".\x00..\x20");
-        // Use a timestamp for empty filenames:
-        if (!$name) {
-            $name = str_replace('.', '-', microtime(true));
-        }
         // Add missing file extension for known image types:
         if (strpos($name, '.') === false &&
                 preg_match('/^image\/(gif|jpe?g|png)/', $type, $matches)) {
             $name .= '.'.$matches[1];
         }
-        if (function_exists('exif_imagetype')) {
+        if ($this->options['correct_image_extensions'] &&
+                function_exists('exif_imagetype')) {
             switch(@exif_imagetype($file_path)){
                 case IMAGETYPE_JPEG:
                     $extensions = array('jpg', 'jpeg');
@@ -491,11 +486,26 @@ class UploadHandler
         return $name;
     }
 
+    protected function trim_file_name($file_path, $name, $size, $type, $error,
+            $index, $content_range) {
+        // Remove path information and dots around the filename, to prevent uploading
+        // into different directories or replacing hidden system files.
+        // Also remove control characters and spaces (\x00..\x20) around the filename:
+        $name = trim(basename(stripslashes($name)), ".\x00..\x20");
+        // Use a timestamp for empty filenames:
+        if (!$name) {
+            $name = str_replace('.', '-', microtime(true));
+        }
+        return $name;
+    }
+
     protected function get_file_name($file_path, $name, $size, $type, $error,
             $index, $content_range) {
+        $name = $this->trim_file_name($file_path, $name, $size, $type, $error,
+            $index, $content_range);
         return $this->get_unique_filename(
             $file_path,
-            $this->trim_file_name($file_path, $name, $size, $type, $error,
+            $this->fix_file_extension($file_path, $name, $size, $type, $error,
                 $index, $content_range),
             $size,
             $type,
