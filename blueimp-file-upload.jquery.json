@@ -39,7 +39,7 @@
   ],
   "homepage": "https://github.com/blueimp/jQuery-File-Upload",
   "docs": "https://github.com/blueimp/jQuery-File-Upload/wiki",
-  "demo": "http://blueimp.github.io/jQuery-File-Upload/",
+  "demo": "https://blueimp.github.io/jQuery-File-Upload/",
   "bugs": "https://github.com/blueimp/jQuery-File-Upload/issues",
   "maintainers": [
     {
