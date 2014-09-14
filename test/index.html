@@ -1,7 +1,7 @@
 <!DOCTYPE HTML>
 <!--
 /*
- * jQuery File Upload Plugin Test 9.0.0
+ * jQuery File Upload Plugin Test 9.1.0
  * https://github.com/blueimp/jQuery-File-Upload
  *
  * Copyright 2010, Sebastian Tschan
@@ -147,20 +147,26 @@
 </script>
 <script src="//ajax.googleapis.com/ajax/libs/jquery/1.11.0/jquery.min.js"></script>
 <script src="../js/vendor/jquery.ui.widget.js"></script>
-<script src="http://blueimp.github.io/JavaScript-Templates/js/tmpl.min.js"></script>
-<script src="http://blueimp.github.io/JavaScript-Load-Image/js/load-image.min.js"></script>
-<script src="http://blueimp.github.io/JavaScript-Canvas-to-Blob/js/canvas-to-blob.min.js"></script>
+<script src="//blueimp.github.io/JavaScript-Templates/js/tmpl.min.js"></script>
+<script src="//blueimp.github.io/JavaScript-Load-Image/js/load-image.all.min.js"></script>
+<script src="//blueimp.github.io/JavaScript-Canvas-to-Blob/js/canvas-to-blob.min.js"></script>
 <script src="../js/jquery.iframe-transport.js"></script>
 <script src="../js/jquery.fileupload.js"></script>
-<script>window.testBasicWidget = $.blueimp.fileupload;</script>
+<script>
+/* global window, $ */
+window.testBasicWidget = $.blueimp.fileupload;
+</script>
 <script src="../js/jquery.fileupload-process.js"></script>
 <script src="../js/jquery.fileupload-image.js"></script>
 <script src="../js/jquery.fileupload-audio.js"></script>
 <script src="../js/jquery.fileupload-video.js"></script>
 <script src="../js/jquery.fileupload-validate.js"></script>
 <script src="../js/jquery.fileupload-ui.js"></script>
-<script>window.testUIWidget = $.blueimp.fileupload;</script>
-<script src="http://codeorigin.jquery.com/qunit/qunit-1.14.0.js"></script>
+<script>
+/* global window, $ */
+window.testUIWidget = $.blueimp.fileupload;
+</script>
+<script src="//code.jquery.com/qunit/qunit-1.15.0.js"></script>
 <script src="test.js"></script>
 </body> 
 </html>
