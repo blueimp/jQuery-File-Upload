@@ -71,13 +71,14 @@ The jQuery Iframe Transport is required for [browsers without XHR file upload su
 * [JavaScript Templates engine](https://github.com/blueimp/JavaScript-Templates) v. 2.5.3+
 * [JavaScript Load Image library](https://github.com/blueimp/JavaScript-Load-Image) v. 1.11.0+
 * [JavaScript Canvas to Blob polyfill](https://github.com/blueimp/JavaScript-Canvas-to-Blob) v. 2.1.0+
+* [JavaScript Jpeg Encoder](https://github.com/owencm/javascript-jpeg-encoder)
 * [blueimp Gallery](https://github.com/blueimp/Gallery) v. 2.12.0+
 * [Bootstrap CSS framework](http://getbootstrap.com/) v. 3.0.0+
 * [Glyphicons](http://glyphicons.com/)
 
 The JavaScript Templates engine is used to render the selected and uploaded files for the Basic Plus UI and jQuery UI versions.
 
-The JavaScript Load Image library and JavaScript Canvas to Blob polyfill are required for the image previews and resizing functionality.
+The JavaScript Load Image library and JavaScript Canvas to Blob polyfill are required for the image previews and resizing functionality. For Android 4+, the Javascript Jpeg Encoder can be included to avoid the toDataUrl bug (always returning png)
 
 The blueimp Gallery is used to display the uploaded images in a lightbox.
 

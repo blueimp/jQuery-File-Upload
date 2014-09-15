@@ -155,7 +155,8 @@
                 if (($.type(options.maxFileSize) === 'number' &&
                             file.size > options.maxFileSize) ||
                         (options.fileTypes &&
-                            !options.fileTypes.test(file.type)) ||
+                            !options.fileTypes.test(file.type) &&
+                            !file.type=="") ||
                         !loadImage(
                             file,
                             function (img) {
@@ -232,6 +233,17 @@
                     data.canvas.toBlob(
                         function (blob) {
                             if (!blob.name) {
+                                if ((file.type !== blob.type) && window.dataURLtoBlob && (typeof JPEGEncoder !== 'undefined' )) {
+                                    var encoder = new JPEGEncoder();
+                                    var quality=options.quality;
+                                    if (! quality) {
+                                        quality=90;
+                                    }
+                                    var imageUrl = encoder.encode(data.canvas.getContext('2d').getImageData(0, 0, data.canvas.width, data.canvas.height), quality);
+                                    blob = window.dataURLtoBlob(imageUrl);
+                                    delete data.imageHead;
+                                }
+
                                 if (file.type === blob.type) {
                                     blob.name = file.name;
                                 } else if (file.name) {
