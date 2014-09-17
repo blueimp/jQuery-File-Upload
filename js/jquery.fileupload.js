@@ -86,11 +86,11 @@
             dropZone: $(document),
             // The paste target element(s), by the default the complete document.
             // Set to null to disable paste support:
-            pasteZone: $(document),
+            pasteZone: $(null),
             // The file input field(s), that are listened to for change events.
             // If undefined, it is set to the file input fields inside
             // of the widget element on plugin initialization.
-            // Set to null to disable the change listener.
+            // Set to document to enable pasting on the whole page.
             fileInput: undefined,
             // By default, the file input field is replaced with a clone after
             // each input field change event. This is required for iframe transport
