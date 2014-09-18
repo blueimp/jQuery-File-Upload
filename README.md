@@ -68,11 +68,11 @@ The jQuery UI widget factory is a requirement for the basic File Upload plugin, 
 The jQuery Iframe Transport is required for [browsers without XHR file upload support](https://github.com/blueimp/jQuery-File-Upload/wiki/Browser-support).
 
 ### Optional requirements
-* [JavaScript Templates engine](https://github.com/blueimp/JavaScript-Templates) v. 2.5.3+
-* [JavaScript Load Image library](https://github.com/blueimp/JavaScript-Load-Image) v. 1.11.0+
-* [JavaScript Canvas to Blob polyfill](https://github.com/blueimp/JavaScript-Canvas-to-Blob) v. 2.1.0+
-* [blueimp Gallery](https://github.com/blueimp/Gallery) v. 2.12.0+
-* [Bootstrap CSS framework](http://getbootstrap.com/) v. 3.0.0+
+* [JavaScript Templates engine](https://github.com/blueimp/JavaScript-Templates) v. 2.5.4+
+* [JavaScript Load Image library](https://github.com/blueimp/JavaScript-Load-Image) v. 1.13.0+
+* [JavaScript Canvas to Blob polyfill](https://github.com/blueimp/JavaScript-Canvas-to-Blob) v. 2.1.1+
+* [blueimp Gallery](https://github.com/blueimp/Gallery) v. 2.15.1+
+* [Bootstrap CSS framework](http://getbootstrap.com/) v. 3.2.0+
 * [Glyphicons](http://glyphicons.com/)
 
 The JavaScript Templates engine is used to render the selected and uploaded files for the Basic Plus UI and jQuery UI versions.
