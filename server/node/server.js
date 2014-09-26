@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /*
- * jQuery File Upload Plugin Node.js Example 2.1.1
+ * jQuery File Upload Plugin Node.js Example 2.1.2
  * https://github.com/blueimp/jQuery-File-Upload
  *
  * Copyright 2012, Sebastian Tschan
@@ -226,7 +226,7 @@
         form.uploadDir = options.tmpDir;
         form.on('fileBegin', function (name, file) {
             tmpFiles.push(file.path);
-            var fileInfo = new FileInfo(file, handler.req, true);
+            var fileInfo = new FileInfo(file);
             fileInfo.safeName();
             map[path.basename(file.path)] = fileInfo;
             files.push(fileInfo);
