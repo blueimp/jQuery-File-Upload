@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /*
- * jQuery File Upload Plugin Node.js Example 2.1.1
+ * jQuery File Upload Plugin Node.js Example 2.1.2
  * https://github.com/blueimp/jQuery-File-Upload
  *
  * Copyright 2012, Sebastian Tschan
