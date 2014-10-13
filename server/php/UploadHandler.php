@@ -1,6 +1,6 @@
 <?php
 /*
- * jQuery File Upload Plugin PHP Class 8.1.0
+ * jQuery File Upload Plugin PHP Class 8.2.0
  * https://github.com/blueimp/jQuery-File-Upload
  *
  * Copyright 2010, Sebastian Tschan
@@ -41,6 +41,7 @@ class UploadHandler
     protected $image_objects = array();
 
     function __construct($options = null, $initialize = true, $error_messages = null) {
+        $this->response = array();
         $this->options = array(
             'script_url' => $this->get_full_url().'/',
             'upload_dir' => dirname($this->get_server_var('SCRIPT_FILENAME')).'/files/',
@@ -147,7 +148,8 @@ class UploadHandler
                     'max_width' => 80,
                     'max_height' => 80
                 )
-            )
+            ),
+            'print_response' => true
         );
         if ($options) {
             $this->options = $options + $this->options;
@@ -167,15 +169,15 @@ class UploadHandler
                 $this->head();
                 break;
             case 'GET':
-                $this->get();
+                $this->get($this->options['print_response']);
                 break;
             case 'PATCH':
             case 'PUT':
             case 'POST':
-                $this->post();
+                $this->post($this->options['print_response']);
                 break;
             case 'DELETE':
-                $this->delete();
+                $this->delete($this->options['print_response']);
                 break;
             default:
                 $this->header('HTTP/1.1 405 Method Not Allowed');
@@ -1135,6 +1137,10 @@ class UploadHandler
         return $content;
     }
 
+    public function get_response () {
+        return $this->response;
+    }
+
     protected function get_version_param() {
         return isset($_GET['version']) ? basename(stripslashes($_GET['version'])) : null;
     }
@@ -1258,6 +1264,7 @@ class UploadHandler
                 $this->options['param_name'] => $this->get_file_objects()
             );
         }
+        $this->response = $response;
         return $this->generate_response($response, $print_response);
     }
 
@@ -1310,10 +1317,9 @@ class UploadHandler
                 $content_range
             );
         }
-        return $this->generate_response(
-            array($this->options['param_name'] => $files),
-            $print_response
-        );
+        $response = array($this->options['param_name'] => $files);
+        $this->response = $response;
+        return $this->generate_response($response, $print_response);
     }
 
     public function delete($print_response = true) {
@@ -1337,6 +1343,7 @@ class UploadHandler
             }
             $response[$file_name] = $success;
         }
+        $this->response = $response;
         return $this->generate_response($response, $print_response);
     }
 
