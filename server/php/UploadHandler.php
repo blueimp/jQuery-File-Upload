@@ -1,6 +1,6 @@
 <?php
 /*
- * jQuery File Upload Plugin PHP Class 8.2.2
+ * jQuery File Upload Plugin PHP Class 8.2.3
  * https://github.com/blueimp/jQuery-File-Upload
  *
  * Copyright 2010, Sebastian Tschan
@@ -1113,34 +1113,6 @@ class UploadHandler
         return isset($_SERVER[$id]) ? $_SERVER[$id] : '';
     }
 
-    protected function generate_response($content, $print_response = true) {
-        if ($print_response) {
-            $json = json_encode($content);
-            $redirect = isset($_REQUEST['redirect']) ?
-                stripslashes($_REQUEST['redirect']) : null;
-            if ($redirect) {
-                $this->header('Location: '.sprintf($redirect, rawurlencode($json)));
-                return;
-            }
-            $this->head();
-            if ($this->get_server_var('HTTP_CONTENT_RANGE')) {
-                $files = isset($content[$this->options['param_name']]) ?
-                    $content[$this->options['param_name']] : null;
-                if ($files && is_array($files) && is_object($files[0]) && $files[0]->size) {
-                    $this->header('Range: 0-'.(
-                        $this->fix_integer_overflow((int)$files[0]->size) - 1
-                    ));
-                }
-            }
-            $this->body($json);
-        }
-        return $content;
-    }
-
-    public function get_response () {
-        return $this->response;
-    }
-
     protected function get_version_param() {
         return isset($_GET['version']) ? basename(stripslashes($_GET['version'])) : null;
     }
@@ -1238,6 +1210,35 @@ class UploadHandler
             .implode(', ', $this->options['access_control_allow_headers']));
     }
 
+    public function generate_response($content, $print_response = true) {
+        $this->response = $content;
+        if ($print_response) {
+            $json = json_encode($content);
+            $redirect = isset($_REQUEST['redirect']) ?
+                stripslashes($_REQUEST['redirect']) : null;
+            if ($redirect) {
+                $this->header('Location: '.sprintf($redirect, rawurlencode($json)));
+                return;
+            }
+            $this->head();
+            if ($this->get_server_var('HTTP_CONTENT_RANGE')) {
+                $files = isset($content[$this->options['param_name']]) ?
+                    $content[$this->options['param_name']] : null;
+                if ($files && is_array($files) && is_object($files[0]) && $files[0]->size) {
+                    $this->header('Range: 0-'.(
+                        $this->fix_integer_overflow((int)$files[0]->size) - 1
+                    ));
+                }
+            }
+            $this->body($json);
+        }
+        return $content;
+    }
+
+    public function get_response () {
+        return $this->response;
+    }
+
     public function head() {
         $this->header('Pragma: no-cache');
         $this->header('Cache-Control: no-store, no-cache, must-revalidate');
@@ -1264,7 +1265,6 @@ class UploadHandler
                 $this->options['param_name'] => $this->get_file_objects()
             );
         }
-        $this->response = $response;
         return $this->generate_response($response, $print_response);
     }
 
@@ -1318,7 +1318,6 @@ class UploadHandler
             );
         }
         $response = array($this->options['param_name'] => $files);
-        $this->response = $response;
         return $this->generate_response($response, $print_response);
     }
 
@@ -1343,7 +1342,6 @@ class UploadHandler
             }
             $response[$file_name] = $success;
         }
-        $this->response = $response;
         return $this->generate_response($response, $print_response);
     }
 
