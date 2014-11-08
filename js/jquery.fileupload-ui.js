@@ -460,9 +460,9 @@
         },
 
         _renderExtendedProgress: function (data) {
-            return this._formatBitrate(data.bitrate) + ' | ' +
+            return this._formatBitrate(data.avgbitrate ? data.avgbitrate : data.bitrate) + ' | ' +
                 this._formatTime(
-                    (data.total - data.loaded) * 8 / data.bitrate
+                    (data.total - data.loaded) * 8 / data.avgbitrate
                 ) + ' | ' +
                 this._formatPercentage(
                     data.loaded / data.total
