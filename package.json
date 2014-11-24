@@ -46,6 +46,7 @@
       "url": "http://www.opensource.org/licenses/MIT"
     }
   ],
+  "main": "js/jquery.fileupload.js",
   "devDependencies": {
     "grunt": "~0.4.5",
     "grunt-bump-build-git": "~1.1.1",

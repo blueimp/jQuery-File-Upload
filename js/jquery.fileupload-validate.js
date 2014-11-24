@@ -19,6 +19,9 @@
             'jquery',
             './jquery.fileupload-process'
         ], factory);
+    } else if (typeof exports === 'object') {
+        // Node/CommonJS
+        factory(require('jquery'));
     } else {
         // Browser globals:
         factory(
