@@ -1,5 +1,5 @@
 /*
- * jQuery File Upload Plugin 5.42.0
+ * jQuery File Upload Plugin 5.42.1
  * https://github.com/blueimp/jQuery-File-Upload
  *
  * Copyright 2010, Sebastian Tschan
@@ -1340,10 +1340,8 @@
                 options = this.options,
                 clone = $(this.element[0].cloneNode(false)),
                 data = clone.data();
-
-            //to avoid memory leaks
+            // Avoid memory leaks:
             clone.remove();
-
             // Initialize options set via HTML5 data-attributes:
             $.each(
                 data,
