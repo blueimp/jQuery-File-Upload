@@ -81,7 +81,7 @@ The JavaScript Load Image library and JavaScript Canvas to Blob polyfill are req
 
 The blueimp Gallery is used to display the uploaded images in a lightbox.
 
-The user interface of all versions except the jQuery UI version is built with Twitter's [Bootstrap](http://getbootstrap.com/) framework and icons from [Glyphicons](http://glyphicons.com/).
+The user interface of all versions except the jQuery UI version is built with [Bootstrap](http://getbootstrap.com/) framework and icons from [Glyphicons](http://glyphicons.com/).
 
 ### Cross-domain requirements
 [Cross-domain File Uploads](https://github.com/blueimp/jQuery-File-Upload/wiki/Cross-domain-uploads) using the [Iframe Transport plugin](https://github.com/blueimp/jQuery-File-Upload/blob/master/js/jquery.iframe-transport.js) require a redirect back to the origin server to retrieve the upload results. The [example implementation](https://github.com/blueimp/jQuery-File-Upload/blob/master/js/main.js) makes use of [result.html](https://github.com/blueimp/jQuery-File-Upload/blob/master/cors/result.html) as a static redirect page for the origin server.
