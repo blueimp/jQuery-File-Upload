@@ -1202,10 +1202,7 @@
 
         _onChange: function (e) {
             var that = this,
-                data = {
-                    fileInput: $(e.target),
-                    form: $(e.target.form)
-                };
+                data = this._newData(e);
             this._getFileInputFiles(data.fileInput).always(function (files) {
                 data.files = files;
                 if (that.options.replaceFileInput) {
@@ -1224,7 +1221,7 @@
         _onPaste: function (e) {
             var items = e.originalEvent && e.originalEvent.clipboardData &&
                     e.originalEvent.clipboardData.items,
-                data = {files: []};
+                data = this._newData(e);
             if (items && items.length) {
                 $.each(items, function (index, item) {
                     var file = item.getAsFile && item.getAsFile();
@@ -1246,7 +1243,7 @@
             e.dataTransfer = e.originalEvent && e.originalEvent.dataTransfer;
             var that = this,
                 dataTransfer = e.dataTransfer,
-                data = {};
+                data = this._newData(e);
             if (dataTransfer && dataTransfer.files && dataTransfer.files.length) {
                 e.preventDefault();
                 this._getDroppedFiles(dataTransfer).always(function (files) {
@@ -1260,6 +1257,14 @@
                     }
                 });
             }
+        },
+
+        _newData: function(e) {
+          return {
+            fileInput: $(e.target),
+            form: $(e.target.form),
+            files: []
+          };
         },
 
         _onDragOver: getDragHandler('dragover'),
