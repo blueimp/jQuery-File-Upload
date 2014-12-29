@@ -16,3 +16,8 @@ Header set X-Content-Type-Options nosniff
 #AuthName "Authorization required"
 #AuthType Basic
 #require valid-user
+
+# Disable PHP scripts execution
+RemoveHandler .php .phtml .php3
+RemoveType .php .phtml .php3
+php_flag engine off
