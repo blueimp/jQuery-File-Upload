@@ -1,5 +1,5 @@
 /*
- * jQuery File Upload User Interface Plugin 9.6.0
+ * jQuery File Upload User Interface Plugin 9.6.1
  * https://github.com/blueimp/jQuery-File-Upload
  *
  * Copyright 2010, Sebastian Tschan
@@ -25,7 +25,7 @@
             './jquery.fileupload-validate'
         ], factory);
     } else if (typeof exports === 'object') {
-        // Node/CommonJS
+        // Node/CommonJS:
         factory(
             require('jquery'),
             require('tmpl')
