@@ -1114,7 +1114,7 @@ class UploadHandler
     }
 
     protected function get_version_param() {
-        return isset($_GET['version']) ? basename(stripslashes($_GET['version'])) : null;
+        return $this->checkQueryParam('version') ? basename(stripslashes($this->getQueryParam('version'))) : null;
     }
 
     protected function get_singular_param_name() {
@@ -1252,7 +1252,7 @@ class UploadHandler
     }
 
     public function get($print_response = true) {
-        if ($print_response && isset($_GET['download'])) {
+        if ($print_response && $this->checkQueryParam('download')) {
             return $this->download();
         }
         $file_name = $this->get_file_name_param();
@@ -1347,4 +1347,11 @@ class UploadHandler
         return $this->generate_response($response, $print_response);
     }
 
+    protected function checkQueryParam($key) {
+        return isset($_GET[$key]);
+    }
+
+    protected function getQueryParam($key) {
+        return $_GET[$key];
+    }
 }
