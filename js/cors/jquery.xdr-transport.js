@@ -1,5 +1,5 @@
 /*
- * jQuery XDomainRequest Transport Plugin 1.1.3
+ * jQuery XDomainRequest Transport Plugin 1.1.4
  * https://github.com/blueimp/jQuery-File-Upload
  *
  * Copyright 2011, Sebastian Tschan
@@ -12,13 +12,16 @@
  * https://github.com/jaubourg/ajaxHooks/
  */
 
-/* global define, window, XDomainRequest */
+/* global define, require, window, XDomainRequest */
 
 (function (factory) {
     'use strict';
     if (typeof define === 'function' && define.amd) {
         // Register as an anonymous AMD module:
         define(['jquery'], factory);
+    } else if (typeof exports === 'object') {
+        // Node/CommonJS:
+        factory(require('jquery'));
     } else {
         // Browser globals:
         factory(window.jQuery);

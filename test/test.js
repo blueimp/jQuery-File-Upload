@@ -1,5 +1,5 @@
 /*
- * jQuery File Upload Plugin Test 9.4.0
+ * jQuery File Upload Plugin Test 9.4.1
  * https://github.com/blueimp/jQuery-File-Upload
  *
  * Copyright 2010, Sebastian Tschan
@@ -83,7 +83,7 @@ $(function () {
     });
 
     test('Paste zone initialization', function () {
-        ok($('#fileupload').fileupload()
+        ok($('#fileupload').fileupload({pasteZone: document})
             .fileupload('option', 'pasteZone').length);
     });
 
@@ -98,6 +98,7 @@ $(function () {
                 }
             },
             fu = $('#fileupload').fileupload({
+                pasteZone: document,
                 dragover: function () {
                     ok(true, 'Triggers dragover callback');
                     return false;
@@ -135,6 +136,7 @@ $(function () {
                 }
             },
             options = {
+                pasteZone: document,
                 dragover: function () {
                     ok(true, 'Triggers dragover callback');
                     return false;
@@ -178,6 +180,7 @@ $(function () {
                 }
             },
             fu = $('#fileupload').fileupload({
+                pasteZone: document,
                 dragover: function () {
                     ok(true, 'Triggers dragover callback');
                     return false;
@@ -221,6 +224,7 @@ $(function () {
                 }
             },
             fu = $('#fileupload').fileupload({
+                pasteZone: document,
                 dragover: function () {
                     ok(true, 'Triggers dragover callback');
                     return false;

@@ -1,5 +1,5 @@
 /*
- * jQuery File Upload Image Preview & Resize Plugin 1.7.2
+ * jQuery File Upload Image Preview & Resize Plugin 1.7.3
  * https://github.com/blueimp/jQuery-File-Upload
  *
  * Copyright 2013, Sebastian Tschan
@@ -10,7 +10,7 @@
  */
 
 /* jshint nomen:false */
-/* global define, window, Blob */
+/* global define, require, window, Blob */
 
 (function (factory) {
     'use strict';
@@ -25,6 +25,12 @@
             'canvas-to-blob',
             './jquery.fileupload-process'
         ], factory);
+    } else if (typeof exports === 'object') {
+        // Node/CommonJS:
+        factory(
+            require('jquery'),
+            require('load-image')
+        );
     } else {
         // Browser globals:
         factory(
