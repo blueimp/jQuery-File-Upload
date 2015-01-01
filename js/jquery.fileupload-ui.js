@@ -24,6 +24,12 @@
             './jquery.fileupload-video',
             './jquery.fileupload-validate'
         ], factory);
+    } else if (typeof exports === 'object') {
+        // Node/CommonJS
+        factory(
+            require('jquery'),
+            require('tmpl')
+        );
     } else {
         // Browser globals:
         factory(

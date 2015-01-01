@@ -25,6 +25,12 @@
             'canvas-to-blob',
             './jquery.fileupload-process'
         ], factory);
+    } else if (typeof exports === 'object') {
+        // Node/CommonJS
+        factory(
+            require('jquery'),
+            require('load-image')
+        );
     } else {
         // Browser globals:
         factory(
