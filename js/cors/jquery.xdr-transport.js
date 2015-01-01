@@ -12,7 +12,7 @@
  * https://github.com/jaubourg/ajaxHooks/
  */
 
-/* global define, window, XDomainRequest */
+/* global define, require, window, XDomainRequest */
 
 (function (factory) {
     'use strict';

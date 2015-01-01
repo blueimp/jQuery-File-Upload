@@ -10,7 +10,7 @@
  */
 
 /* jshint nomen:false */
-/* global define, window, document */
+/* global define, require, window, document */
 
 (function (factory) {
     'use strict';
