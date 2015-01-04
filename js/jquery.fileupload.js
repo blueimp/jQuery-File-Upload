@@ -1,5 +1,5 @@
 /*
- * jQuery File Upload Plugin 5.42.1
+ * jQuery File Upload Plugin 5.42.2
  * https://github.com/blueimp/jQuery-File-Upload
  *
  * Copyright 2010, Sebastian Tschan
@@ -20,6 +20,12 @@
             'jquery',
             'jquery.ui.widget'
         ], factory);
+    } else if (typeof exports === 'object') {
+        // Node/CommonJS:
+        factory(
+            require('jquery'),
+            require('./vendor/jquery.ui.widget')
+        );
     } else {
         // Browser globals:
         factory(window.jQuery);
