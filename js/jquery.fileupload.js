@@ -10,7 +10,7 @@
  */
 
 /* jshint nomen:false */
-/* global define, window, document, location, Blob, FormData */
+/* global define, require, window, document, location, Blob, FormData */
 
 (function (factory) {
     'use strict';
