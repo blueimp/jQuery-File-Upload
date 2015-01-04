@@ -1,4 +1,4 @@
-/*! jQuery UI - v1.11.1 - 2014-09-17
+/*! jQuery UI - v1.11.1+CommonJS - 2014-09-17
 * http://jqueryui.com
 * Includes: widget.js
 * Copyright 2014 jQuery Foundation and other contributors; Licensed MIT */
@@ -8,6 +8,11 @@
 
 		// AMD. Register as an anonymous module.
 		define([ "jquery" ], factory );
+
+	} else if (typeof exports === "object") {
+		// Node/CommonJS:
+		factory(require("jquery"));
+
 	} else {
 
 		// Browser globals
