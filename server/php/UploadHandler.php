@@ -44,6 +44,7 @@ class UploadHandler
         $this->response = array();
         $this->options = array(
             'script_url' => $this->get_full_url().'/',
+            'web_import_temp_dir' => dirname($this->get_server_var('SCRIPT_FILENAME')).'/web_imports/',
             'upload_dir' => dirname($this->get_server_var('SCRIPT_FILENAME')).'/files/',
             'upload_url' => $this->get_full_url().'/files/',
             'user_dirs' => false,
@@ -149,7 +150,8 @@ class UploadHandler
                     'max_height' => 80
                 )
             ),
-            'print_response' => true
+            'print_response' => true,
+            'use_unique_hash_for_names' => false
         );
         if ($options) {
             $this->options = $options + $this->options;
@@ -209,18 +211,18 @@ class UploadHandler
         return '';
     }
 
-    protected function get_upload_path($file_name = null, $version = null) {
+    protected function get_upload_path($file_name = null, $version = null, $type = 'upload_dir') {
         $file_name = $file_name ? $file_name : '';
         if (empty($version)) {
             $version_path = '';
         } else {
-            $version_dir = @$this->options['image_versions'][$version]['upload_dir'];
+            $version_dir = @$this->options['image_versions'][$version][$type];
             if ($version_dir) {
                 return $version_dir.$this->get_user_path().$file_name;
             }
             $version_path = $version.'/';
         }
-        return $this->options['upload_dir'].$this->get_user_path()
+        return $this->options[$type].$this->get_user_path()
             .$version_path.$file_name;
     }
 
@@ -1029,7 +1031,7 @@ class UploadHandler
     }
 
     protected function handle_file_upload($uploaded_file, $name, $size, $type, $error,
-            $index = null, $content_range = null) {
+            $index = null, $content_range = null, $isUrlImport = false) {
         $file = new \stdClass();
         $file->name = $this->get_file_name($uploaded_file, $name, $size, $type, $error,
             $index, $content_range);
@@ -1055,6 +1057,8 @@ class UploadHandler
                 } else {
                     move_uploaded_file($uploaded_file, $file_path);
                 }
+            } elseif ($isUrlImport) {
+                rename($uploaded_file, $file_path);
             } else {
                 // Non-multipart uploads (PUT method support)
                 file_put_contents(
@@ -1354,6 +1358,42 @@ class UploadHandler
             }
             $response[$file_name] = $success;
         }
+        return $this->generate_response($response, $print_response);
+    }
+
+    public function importFromUrl ($urls, $print_response = true) {
+        $files = array();
+        $content_range = $this->get_server_var('HTTP_CONTENT_RANGE') ?
+            preg_split('/[^0-9]+/', $this->get_server_var('HTTP_CONTENT_RANGE')) : null;
+        $web_import_dir = $this->get_upload_path(null, null, 'web_import_temp_dir');
+        if (!is_dir($web_import_dir)) {
+            mkdir($web_import_dir, $this->options['mkdir_mode'], true);
+        }
+        if (!is_array($urls)) {
+            $urls = array($urls);
+        }
+        foreach ($urls as $fileUrl) {
+            $pInfo = pathinfo($fileUrl);
+            $imgExtension = 'jpg';
+            if (isset($pInfo['extension'])) {
+                $imgExtension = $pInfo['extension'];
+            }
+            $fileName = mt_rand(1, 99999) . '_' . time() . '.' . strtolower($imgExtension);
+            $tmpFile = $this->get_upload_path($fileName, null, 'web_import_temp_dir');
+            $content = file_get_contents($fileUrl);
+            $size = file_put_contents($tmpFile, $content);
+            $files[] = $this->handle_file_upload(
+                $tmpFile,
+                $this->options['use_unique_hash_for_names'] ? $fileName : $pInfo['basename'],
+                $size,
+                $this->get_server_var('CONTENT_TYPE'),
+                null,
+                null,
+                $content_range,
+                true
+            );
+        }
+        $response = array('web' => $files);
         return $this->generate_response($response, $print_response);
     }
 
