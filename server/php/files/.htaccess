@@ -2,7 +2,7 @@
 # in the context of the website.
 # They also force the content-type application/octet-stream and
 # force browsers to display a download dialog for non-image files.
-SetHandler None
+SetHandler default-handler
 ForceType application/octet-stream
 Header set Content-Disposition attachment
 
