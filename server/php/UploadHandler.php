@@ -1,6 +1,6 @@
 <?php
 /*
- * jQuery File Upload Plugin PHP Class 8.3.0
+ * jQuery File Upload Plugin PHP Class 8.3.1
  * https://github.com/blueimp/jQuery-File-Upload
  *
  * Copyright 2010, Sebastian Tschan
@@ -400,6 +400,21 @@ class UploadHandler
         if (($max_width || $max_height || $min_width || $min_height)
            && preg_match($this->options['image_file_types'], $file->name)) {
             list($img_width, $img_height) = $this->get_image_size($uploaded_file);
+
+            // If we are auto rotating the image by default, do the checks on
+            // the correct orientation
+            if (
+                @$this->options['image_versions']['']['auto_orient'] &&
+                function_exists('exif_read_data') &&
+                ($exif = @exif_read_data($uploaded_file)) &&
+                (((int) @$exif['Orientation']) >= 5 )
+            ) {
+              $tmp = $img_width;
+              $img_width = $img_height;
+              $img_height = $tmp;
+              unset($tmp);
+            }
+
         }
         if (!empty($img_width)) {
             if ($max_width && $img_width > $max_width) {
