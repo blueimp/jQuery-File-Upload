@@ -51,5 +51,11 @@
     "grunt": "~0.4.5",
     "grunt-bump-build-git": "~1.1.1",
     "grunt-contrib-jshint": "~0.10.0"
+  },
+  "spm": {
+    "main": "js/jquery.fileupload.js",
+    "dependencies": {
+      "jquery": ">=1.7"
+    }
   }
 }
