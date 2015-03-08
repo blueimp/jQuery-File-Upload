@@ -110,7 +110,7 @@ The File Upload plugin has been tested with and supports the following mobile br
 * Opera Mobile 12.0+
 
 ### Supported features
-For a detailed overview of the features supported by each browser version please have a look at the [Extended browser support information](https://github.com/blueimp/jQuery-File-Upload/wiki/Browser-support).
+For a detailed overview of the features supported by each browser version, please have a look at the [Extended browser support information](https://github.com/blueimp/jQuery-File-Upload/wiki/Browser-support).
 
 ## License
 Released under the [MIT license](http://www.opensource.org/licenses/MIT).
