@@ -1,6 +1,6 @@
 <?php
 /*
- * jQuery File Upload Plugin PHP Class 8.3.3
+ * jQuery File Upload Plugin PHP Class 8.3.4
  * https://github.com/blueimp/jQuery-File-Upload
  *
  * Copyright 2010, Sebastian Tschan
@@ -838,7 +838,7 @@ class UploadHandler
             $this->get_scaled_image_file_paths($file_name, $version);
         $image = $this->imagick_get_image_object(
             $file_path,
-            !empty($options['no_cache'])
+            !empty($options['crop']) || !empty($options['no_cache'])
         );
         if ($image->getImageFormat() === 'GIF') {
             // Handle animated GIFs:
@@ -968,7 +968,7 @@ class UploadHandler
                         return $dimensions;
                     }
                     return false;
-                } catch (Exception $e) {
+                } catch (\Exception $e) {
                     error_log($e->getMessage());
                 }
             }
