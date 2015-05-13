@@ -383,12 +383,14 @@
                 ) + (data.uploadedBytes || 0);
                 // Add the difference from the previously loaded state
                 // to the global loaded counter:
-                this._progress.loaded += (loaded - data._progress.loaded);
+                this._progress.loadedAtTime = loaded - data._progress.loaded;
+                this._progress.loaded += this._progress.loadedAtTime;
                 this._progress.bitrate = this._bitrateTimer.getBitrate(
                     now,
                     this._progress.loaded,
                     data.bitrateInterval
                 );
+                data._progress.loadedAtTime = data.loadedAtTime = this._progress.loadedAtTime;
                 data._progress.loaded = data.loaded = loaded;
                 data._progress.bitrate = data.bitrate = data._bitrateTimer.getBitrate(
                     now,
@@ -834,6 +836,7 @@
             // and reset to their initial state:
             this._initResponseObject(data);
             this._initProgressObject(data);
+            data._progress.loadedAtTime = data.loadedAtTime = 0;
             data._progress.loaded = data.loaded = data.uploadedBytes || 0;
             data._progress.total = data.total = this._getTotal(data.files) || 1;
             data._progress.bitrate = data.bitrate = 0;
