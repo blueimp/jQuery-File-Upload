@@ -242,7 +242,7 @@
                                     blob.name = file.name;
                                 } else if (file.name) {
                                     blob.name = file.name.replace(
-                                        /\..+$/,
+                                        /\.\w+$/,
                                         '.' + blob.type.substr(6)
                                     );
                                 }
