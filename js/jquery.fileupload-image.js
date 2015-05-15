@@ -247,12 +247,6 @@
                                     );
                                 }
                             }
-                            // Keep track of the original size in case
-                            // we want to see extent of compression
-                            if (!blob.originalSize) {
-								blob.originalSize = file.size;
-                            }
-                            
                             // Don't restore invalid meta data:
                             if (file.type !== blob.type) {
                                 delete data.imageHead;
@@ -297,7 +291,6 @@
                         this._blobSlice.call(file, 20)
                     ], {type: file.type});
                 blob.name = file.name;
-    			blob.originalSize = file.size;
                 data.files[data.index] = blob;
                 return data;
             },
