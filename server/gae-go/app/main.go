@@ -1,5 +1,5 @@
 /*
- * jQuery File Upload Plugin GAE Go Example 3.2.0
+ * jQuery File Upload Plugin GAE Go Example 4.0.0
  * https://github.com/blueimp/jQuery-File-Upload
  *
  * Copyright 2011, Sebastian Tschan
@@ -13,47 +13,74 @@ package app
 
 import (
 	"appengine"
-	"appengine/blobstore"
-	"appengine/image"
-	"appengine/taskqueue"
+	"appengine/memcache"
+	"bufio"
 	"bytes"
 	"encoding/json"
 	"fmt"
+	"github.com/disintegration/gift"
+	"hash/crc32"
+	"image"
+	"image/gif"
+	"image/jpeg"
+	"image/png"
 	"io"
 	"log"
 	"mime/multipart"
 	"net/http"
 	"net/url"
+	"path/filepath"
 	"regexp"
 	"strings"
-	"time"
 )
 
 const (
 	WEBSITE           = "https://blueimp.github.io/jQuery-File-Upload/"
 	MIN_FILE_SIZE     = 1       // bytes
-	MAX_FILE_SIZE     = 5000000 // bytes
+	// Max file size is memcache limit (1MB) minus key size minus overhead:
+	MAX_FILE_SIZE     = 999000  // bytes
 	IMAGE_TYPES       = "image/(gif|p?jpeg|(x-)?png)"
 	ACCEPT_FILE_TYPES = IMAGE_TYPES
+	THUMB_MAX_WIDTH   = 80
+	THUMB_MAX_HEIGHT  = 80
 	EXPIRATION_TIME   = 300 // seconds
-	THUMBNAIL_PARAM   = "=s80"
 )
 
 var (
 	imageTypes      = regexp.MustCompile(IMAGE_TYPES)
 	acceptFileTypes = regexp.MustCompile(ACCEPT_FILE_TYPES)
+	thumbSuffix     = "." + fmt.Sprint(THUMB_MAX_WIDTH) + "x" +
+											fmt.Sprint(THUMB_MAX_HEIGHT)
 )
 
+func escape(s string) string {
+	return strings.Replace(url.QueryEscape(s), "+", "%20", -1)
+}
+
+func extractKey(r *http.Request) string {
+	// Use RequestURI instead of r.URL.Path, as we need the encoded form:
+	path := strings.Split(r.RequestURI, "?")[0]
+	// Also adjust double encoded slashes:
+	return strings.Replace(path[1:], "%252F", "%2F", -1)
+}
+
+func check(err error) {
+	if err != nil {
+		panic(err)
+	}
+}
+
 type FileInfo struct {
-	Key          appengine.BlobKey `json:"-"`
-	Url          string            `json:"url,omitempty"`
-	ThumbnailUrl string            `json:"thumbnailUrl,omitempty"`
-	Name         string            `json:"name"`
-	Type         string            `json:"type"`
-	Size         int64             `json:"size"`
-	Error        string            `json:"error,omitempty"`
-	DeleteUrl    string            `json:"deleteUrl,omitempty"`
-	DeleteType   string            `json:"deleteType,omitempty"`
+	Key          string `json:"-"`
+	ThumbnailKey string `json:"-"`
+	Url          string `json:"url,omitempty"`
+	ThumbnailUrl string `json:"thumbnailUrl,omitempty"`
+	Name         string `json:"name"`
+	Type         string `json:"type"`
+	Size         int64  `json:"size"`
+	Error        string `json:"error,omitempty"`
+	DeleteUrl    string `json:"deleteUrl,omitempty"`
+	DeleteType   string `json:"deleteType,omitempty"`
 }
 
 func (fi *FileInfo) ValidateType() (valid bool) {
@@ -82,43 +109,51 @@ func (fi *FileInfo) CreateUrls(r *http.Request, c appengine.Context) {
 		Path:   "/",
 	}
 	uString := u.String()
-	fi.Url = uString + escape(string(fi.Key)) + "/" +
-		escape(string(fi.Name))
-	fi.DeleteUrl = fi.Url + "?delete=true"
+	fi.Url = uString + fi.Key
+	fi.DeleteUrl = fi.Url
 	fi.DeleteType = "DELETE"
+	if fi.ThumbnailKey != "" {
+		fi.ThumbnailUrl = uString + fi.ThumbnailKey
+	}
+}
+
+func (fi *FileInfo) SetKey(checksum uint32) {
+	fi.Key = escape(string(fi.Type)) + "/" +
+		escape(fmt.Sprint(checksum)) + "/" +
+		escape(string(fi.Name))
+}
+
+func (fi *FileInfo) createThumb(buffer *bytes.Buffer, c appengine.Context) {
 	if imageTypes.MatchString(fi.Type) {
-		servingUrl, err := image.ServingURL(
-			c,
-			fi.Key,
-			&image.ServingURLOptions{
-				Secure: strings.HasSuffix(u.Scheme, "s"),
-				Size:   0,
-				Crop:   false,
-			},
-		)
+		src, _, err := image.Decode(bytes.NewReader(buffer.Bytes()))
 		check(err)
-		fi.ThumbnailUrl = servingUrl.String() + THUMBNAIL_PARAM
-	}
-}
-
-func check(err error) {
-	if err != nil {
-		panic(err)
-	}
-}
-
-func escape(s string) string {
-	return strings.Replace(url.QueryEscape(s), "+", "%20", -1)
-}
-
-func delayedDelete(c appengine.Context, fi *FileInfo) {
-	if key := string(fi.Key); key != "" {
-		task := &taskqueue.Task{
-			Path:   "/" + escape(key) + "/-",
-			Method: "DELETE",
-			Delay:  time.Duration(EXPIRATION_TIME) * time.Second,
+		filter := gift.New(gift.ResizeToFit(
+			THUMB_MAX_WIDTH,
+			THUMB_MAX_HEIGHT,
+			gift.LanczosResampling,
+		))
+		dst := image.NewNRGBA(filter.Bounds(src.Bounds()))
+		filter.Draw(dst, src)
+		buffer.Reset()
+		bWriter := bufio.NewWriter(buffer)
+		switch fi.Type {
+		case "image/jpeg", "image/pjpeg":
+			err = jpeg.Encode(bWriter, dst, nil)
+		case "image/gif":
+			err = gif.Encode(bWriter, dst, nil)
+		default:
+			err = png.Encode(bWriter, dst)
 		}
-		taskqueue.Add(c, task, "")
+		check(err)
+		bWriter.Flush()
+		thumbnailKey := fi.Key + thumbSuffix + filepath.Ext(fi.Name)
+		item := &memcache.Item{
+			Key:   thumbnailKey,
+			Value: buffer.Bytes(),
+		}
+		err = memcache.Set(c, item)
+		check(err)
+		fi.ThumbnailKey = thumbnailKey
 	}
 }
 
@@ -136,24 +171,26 @@ func handleUpload(r *http.Request, p *multipart.Part) (fi *FileInfo) {
 			fi.Error = rec.(error).Error()
 		}
 	}()
+	var buffer bytes.Buffer
+	hash := crc32.NewIEEE()
+	mw := io.MultiWriter(&buffer, hash)
 	lr := &io.LimitedReader{R: p, N: MAX_FILE_SIZE + 1}
-	context := appengine.NewContext(r)
-	w, err := blobstore.Create(context, fi.Type)
-	defer func() {
-		w.Close()
-		fi.Size = MAX_FILE_SIZE + 1 - lr.N
-		fi.Key, err = w.Key()
-		check(err)
-		if !fi.ValidateSize() {
-			err := blobstore.Delete(context, fi.Key)
-			check(err)
-			return
-		}
-		delayedDelete(context, fi)
-		fi.CreateUrls(r, context)
-	}()
+	_, err := io.Copy(mw, lr)
 	check(err)
-	_, err = io.Copy(w, lr)
+	fi.Size = MAX_FILE_SIZE + 1 - lr.N
+	if !fi.ValidateSize() {
+		return
+	}
+	fi.SetKey(hash.Sum32())
+	item := &memcache.Item{
+		Key:   fi.Key,
+		Value: buffer.Bytes(),
+	}
+	context := appengine.NewContext(r)
+	err = memcache.Set(context, item)
+	check(err)
+	fi.createThumb(&buffer, context)
+	fi.CreateUrls(r, context)
 	return
 }
 
@@ -188,27 +225,25 @@ func get(w http.ResponseWriter, r *http.Request) {
 		http.Redirect(w, r, WEBSITE, http.StatusFound)
 		return
 	}
-	parts := strings.Split(r.URL.Path, "/")
+	// Use RequestURI instead of r.URL.Path, as we need the encoded form:
+	key := extractKey(r)
+	parts := strings.Split(key, "/")
 	if len(parts) == 3 {
-		if key := parts[1]; key != "" {
-			blobKey := appengine.BlobKey(key)
-			bi, err := blobstore.Stat(appengine.NewContext(r), blobKey)
-			if err == nil {
-				w.Header().Add("X-Content-Type-Options", "nosniff")
-				if !imageTypes.MatchString(bi.ContentType) {
-					w.Header().Add("Content-Type", "application/octet-stream")
-					w.Header().Add(
-						"Content-Disposition",
-						fmt.Sprintf("attachment; filename=\"%s\"", parts[2]),
-					)
-				}
-				w.Header().Add(
-					"Cache-Control",
-					fmt.Sprintf("public,max-age=%d", EXPIRATION_TIME),
-				)
-				blobstore.Send(w, blobKey)
-				return
+		context := appengine.NewContext(r)
+		item, err := memcache.Get(context, key)
+		if err == nil {
+			w.Header().Add("X-Content-Type-Options", "nosniff")
+			contentType, _ := url.QueryUnescape(parts[0])
+			if !imageTypes.MatchString(contentType) {
+				contentType = "application/octet-stream"
 			}
+			w.Header().Add("Content-Type", contentType)
+			w.Header().Add(
+				"Cache-Control",
+				fmt.Sprintf("public,max-age=%d", EXPIRATION_TIME),
+			)
+			w.Write(item.Value)
+			return
 		}
 	}
 	http.Error(w, "404 Not Found", http.StatusNotFound)
@@ -238,27 +273,30 @@ func post(w http.ResponseWriter, r *http.Request) {
 }
 
 func delete(w http.ResponseWriter, r *http.Request) {
-	parts := strings.Split(r.URL.Path, "/")
-	if len(parts) != 3 {
-		return
-	}
-	result := make(map[string]bool, 1)
-	if key := parts[1]; key != "" {
-		c := appengine.NewContext(r)
-		blobKey := appengine.BlobKey(key)
-		err := blobstore.Delete(c, blobKey)
+	key := extractKey(r)
+	parts := strings.Split(key, "/")
+	if len(parts) == 3 {
+		result := make(map[string]bool, 1)
+		context := appengine.NewContext(r)
+		err := memcache.Delete(context, key)
+		if err == nil {
+			result[key] = true
+			contentType, _ := url.QueryUnescape(parts[0])
+			if imageTypes.MatchString(contentType) {
+				thumbnailKey := key + thumbSuffix + filepath.Ext(parts[2])
+				err := memcache.Delete(context, thumbnailKey)
+				if err == nil {
+					result[thumbnailKey] = true
+				}
+			}
+		}
+		w.Header().Set("Content-Type", "application/json")
+		b, err := json.Marshal(result)
 		check(err)
-		err = image.DeleteServingURL(c, blobKey)
-		check(err)
-		result[key] = true
+		fmt.Fprintln(w, string(b))
+	} else {
+		http.Error(w, "405 Method not allowed", http.StatusMethodNotAllowed)
 	}
-	jsonType := "application/json"
-	if strings.Index(r.Header.Get("Accept"), jsonType) != -1 {
-		w.Header().Set("Content-Type", jsonType)
-	}
-	b, err := json.Marshal(result)
-	check(err)
-	fmt.Fprintln(w, string(b))
 }
 
 func handle(w http.ResponseWriter, r *http.Request) {
@@ -267,15 +305,15 @@ func handle(w http.ResponseWriter, r *http.Request) {
 	w.Header().Add("Access-Control-Allow-Origin", "*")
 	w.Header().Add(
 		"Access-Control-Allow-Methods",
-		"OPTIONS, HEAD, GET, POST, PUT, DELETE",
+		"OPTIONS, HEAD, GET, POST, DELETE",
 	)
 	w.Header().Add(
 		"Access-Control-Allow-Headers",
 		"Content-Type, Content-Range, Content-Disposition",
 	)
 	switch r.Method {
-	case "OPTIONS":
-	case "HEAD":
+	case "OPTIONS","HEAD":
+		return
 	case "GET":
 		get(w, r)
 	case "POST":
