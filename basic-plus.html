@@ -86,9 +86,9 @@
         </div>
         <div class="panel-body">
             <ul>
-                <li>The maximum file size for uploads in this demo is <strong>5 MB</strong> (default file size is unlimited).</li>
+                <li>The maximum file size for uploads in this demo is <strong>999 KB</strong> (default file size is unlimited).</li>
                 <li>Only image files (<strong>JPG, GIF, PNG</strong>) are allowed in this demo (by default there is no file type restriction).</li>
-                <li>Uploaded files will be deleted automatically after <strong>5 minutes</strong> (demo setting).</li>
+                <li>Uploaded files will be deleted automatically after <strong>5 minutes or less</strong> (demo files are stored in memory).</li>
                 <li>You can <strong>drag &amp; drop</strong> files from your desktop on this webpage (see <a href="https://github.com/blueimp/jQuery-File-Upload/wiki/Browser-support">Browser support</a>).</li>
                 <li>Please refer to the <a href="https://github.com/blueimp/jQuery-File-Upload">project website</a> and <a href="https://github.com/blueimp/jQuery-File-Upload/wiki">documentation</a> for more information.</li>
                 <li>Built with the <a href="http://getbootstrap.com/">Bootstrap</a> CSS framework and Icons from <a href="http://glyphicons.com/">Glyphicons</a>.</li>
@@ -150,7 +150,7 @@ $(function () {
         dataType: 'json',
         autoUpload: false,
         acceptFileTypes: /(\.|\/)(gif|jpe?g|png)$/i,
-        maxFileSize: 5000000, // 5 MB
+        maxFileSize: 999000,
         // Enable image resizing, except for Android and Opera,
         // which actually support image resizing, but fail to
         // send Blob objects via XHR requests:
@@ -222,5 +222,5 @@ $(function () {
         .parent().addClass($.support.fileInput ? undefined : 'disabled');
 });
 </script>
-</body> 
+</body>
 </html>
