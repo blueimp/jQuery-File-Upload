@@ -1,6 +1,6 @@
 <?php
 /*
- * jQuery File Upload Plugin PHP Class 8.4.0
+ * jQuery File Upload Plugin PHP Class 8.4.1
  * https://github.com/blueimp/jQuery-File-Upload
  *
  * Copyright 2010, Sebastian Tschan
@@ -68,7 +68,14 @@ class UploadHandler
                 'Content-Range',
                 'Content-Disposition'
             ),
-            'redirect_allow_target' => '/^'.preg_quote($this->get_server_var('HTTP_REFERER'), '/').'/',
+            // By default, allow redirects to the referer protocol+host:
+            'redirect_allow_target' => '/^'.preg_quote(
+              parse_url($this->get_server_var('HTTP_REFERER'), PHP_URL_SCHEME)
+                .'://'
+                .parse_url($this->get_server_var('HTTP_REFERER'), PHP_URL_HOST)
+                .'/', // Trailing slash to not match subdomains by mistake
+              '/' // preg_quote delimiter param
+            ).'/',
             // Enable to provide file downloads via GET requests to the PHP script:
             //     1. Set to 1 to download files via readfile method through PHP
             //     2. Set to 2 to send a X-Sendfile header for lighttpd/Apache
