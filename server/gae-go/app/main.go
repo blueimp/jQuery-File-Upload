@@ -1,5 +1,5 @@
 /*
- * jQuery File Upload Plugin GAE Go Example 4.0.0
+ * jQuery File Upload Plugin GAE Go Example 4.1.0
  * https://github.com/blueimp/jQuery-File-Upload
  *
  * Copyright 2011, Sebastian Tschan
@@ -44,6 +44,9 @@ const (
 	THUMB_MAX_WIDTH   = 80
 	THUMB_MAX_HEIGHT  = 80
 	EXPIRATION_TIME   = 300 // seconds
+	// If empty, only allow redirects to the referer protocol+host.
+	// Set to a regexp string for custom pattern matching:
+	REDIRECT_ALLOW_TARGET = ""
 )
 
 var (
@@ -220,6 +223,29 @@ func handleUploads(r *http.Request) (fileInfos []*FileInfo) {
 	return
 }
 
+func validateRedirect(r *http.Request, redirect string) bool {
+	if redirect != "" {
+		var redirectAllowTarget *regexp.Regexp
+		if REDIRECT_ALLOW_TARGET != "" {
+			redirectAllowTarget = regexp.MustCompile(REDIRECT_ALLOW_TARGET)
+		} else {
+			referer := r.Referer()
+			if referer == "" {
+				return false
+			}
+			refererUrl, err := url.Parse(referer)
+			if err != nil {
+				return false
+			}
+			redirectAllowTarget = regexp.MustCompile("^" + regexp.QuoteMeta(
+				refererUrl.Scheme + "://" + refererUrl.Host + "/",
+			))
+		}
+		return redirectAllowTarget.MatchString(redirect)
+	}
+	return false
+}
+
 func get(w http.ResponseWriter, r *http.Request) {
 	if r.URL.Path == "/" {
 		http.Redirect(w, r, WEBSITE, http.StatusFound)
@@ -254,7 +280,7 @@ func post(w http.ResponseWriter, r *http.Request) {
     result["files"] = handleUploads(r)
 	b, err := json.Marshal(result)
 	check(err)
-	if redirect := r.FormValue("redirect"); redirect != "" {
+	if redirect := r.FormValue("redirect"); validateRedirect(r, redirect) {
 	    if strings.Contains(redirect, "%s") {
 	        redirect = fmt.Sprintf(
     			redirect,
