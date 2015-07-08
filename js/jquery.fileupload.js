@@ -984,7 +984,10 @@
                 fileSet,
                 i,
                 j = 0;
-            if (limitSize && (!filesLength || files[0].size === undefined)) {
+            if (!filesLength) {
+                return false;
+            }
+            if (limitSize && files[0].size === undefined) {
                 limitSize = undefined;
             }
             if (!(options.singleFileUploads || limit || limitSize) ||
