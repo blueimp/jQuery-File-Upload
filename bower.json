@@ -40,12 +40,7 @@
     "url": "git://github.com/blueimp/jQuery-File-Upload.git"
   },
   "bugs": "https://github.com/blueimp/jQuery-File-Upload/issues",
-  "licenses": [
-    {
-      "type": "MIT",
-      "url": "http://www.opensource.org/licenses/MIT"
-    }
-  ],
+  "license": "MIT",
   "dependencies": {
     "jquery": ">=1.6",
     "blueimp-tmpl": ">=2.5.4",
