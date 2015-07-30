@@ -160,7 +160,7 @@ class UploadHandler
             'print_response' => true
         );
         if ($options) {
-            $this->options = $options + $this->options;
+            $this->options = array_replace_recursive($options,$this->options);
         }
         if ($error_messages) {
             $this->error_messages = $error_messages + $this->error_messages;
