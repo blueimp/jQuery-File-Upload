@@ -9,10 +9,14 @@
  * http://www.opensource.org/licenses/MIT
  */
 
-/*global module */
+/*global module, require */
 
 module.exports = function (grunt) {
     'use strict';
+
+    function bowerJson() {
+        require('bower-json').validate(require('./bower.json'));
+    }
 
     grunt.initConfig({
         jshint: {
@@ -31,7 +35,8 @@ module.exports = function (grunt) {
 
     grunt.loadNpmTasks('grunt-contrib-jshint');
     grunt.loadNpmTasks('grunt-bump-build-git');
-    grunt.registerTask('test', ['jshint']);
+    grunt.registerTask('bower-json', bowerJson);
+    grunt.registerTask('test', ['jshint', 'bower-json']);
     grunt.registerTask('default', ['test']);
 
 };
