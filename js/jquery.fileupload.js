@@ -165,6 +165,11 @@
             bitrateInterval: 500,
             // By default, uploads are started automatically when adding files:
             autoUpload: true,
+            // By default, the 'Content-Disposition' header is set when multipart
+            // is set to false or if your file is a blob. When uploading over cors 
+            // this header may not be allowed.
+            // Set to false to prevent the 'Content-Disposition' header being set:
+            setContentDisposition: true,
 
             // Error and info messages:
             messages: {
@@ -451,7 +456,8 @@
             if (options.contentRange) {
                 options.headers['Content-Range'] = options.contentRange;
             }
-            if (!multipart || options.blob || !this._isInstanceOf('File', file)) {
+            if (options.setContentDisposition && 
+                (!multipart || options.blob || !this._isInstanceOf('File', file))) {
                 options.headers['Content-Disposition'] = 'attachment; filename="' +
                     encodeURI(file.name) + '"';
             }
