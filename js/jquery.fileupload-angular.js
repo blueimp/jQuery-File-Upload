@@ -116,7 +116,7 @@
                     if (e.isDefaultPrevented()) {
                         return false;
                     }
-                    data.scope.$apply();
+                    data.scope.safeApply();
                 },
                 done: function (e, data) {
                     if (e.isDefaultPrevented()) {
@@ -199,6 +199,18 @@
         .controller('FileUploadController', [
             '$scope', '$element', '$attrs', '$window', 'fileUpload',
             function ($scope, $element, $attrs, $window, fileUpload) {
+
+                $scope.safeApply = function(fn) {
+                    var phase = this.$root.$$phase;
+                    if(phase == '$apply' || phase == '$digest') {
+                        if(fn && (typeof(fn) === 'function')) {
+                            fn();
+                        }
+                    } else {
+                        this.$apply(fn);
+                    }
+                };
+
                 var uploadMethods = {
                     progress: function () {
                         return $element.fileupload('progress');
