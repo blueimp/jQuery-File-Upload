@@ -112,12 +112,6 @@
                         }
                     });
                 },
-                progress: function (e, data) {
-                    if (e.isDefaultPrevented()) {
-                        return false;
-                    }
-                    data.scope.$apply();
-                },
                 done: function (e, data) {
                     if (e.isDefaultPrevented()) {
                         return false;
