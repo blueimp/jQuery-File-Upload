@@ -1,5 +1,5 @@
 /*
- * jQuery postMessage Transport Plugin 1.1.2
+ * jQuery postMessage Transport Plugin
  * https://github.com/blueimp/jQuery-File-Upload
  *
  * Copyright 2011, Sebastian Tschan

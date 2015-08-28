@@ -1,5 +1,5 @@
 /*
- * jQuery File Upload jQuery UI Plugin 8.7.2
+ * jQuery File Upload jQuery UI Plugin
  * https://github.com/blueimp/jQuery-File-Upload
  *
  * Copyright 2013, Sebastian Tschan

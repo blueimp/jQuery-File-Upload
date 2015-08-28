@@ -1,5 +1,5 @@
 /*
- * jQuery File Upload Plugin GAE Go Example 4.1.0
+ * jQuery File Upload Plugin GAE Go Example
  * https://github.com/blueimp/jQuery-File-Upload
  *
  * Copyright 2011, Sebastian Tschan

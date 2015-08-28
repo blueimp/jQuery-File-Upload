@@ -1,5 +1,5 @@
 /*
- * jQuery File Upload Plugin JS Example 8.9.1
+ * jQuery File Upload Plugin JS Example
  * https://github.com/blueimp/jQuery-File-Upload
  *
  * Copyright 2010, Sebastian Tschan

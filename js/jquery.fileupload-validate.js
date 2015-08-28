@@ -1,5 +1,5 @@
 /*
- * jQuery File Upload Validation Plugin 1.1.3
+ * jQuery File Upload Validation Plugin
  * https://github.com/blueimp/jQuery-File-Upload
  *
  * Copyright 2013, Sebastian Tschan
@@ -36,7 +36,7 @@
         {
             action: 'validate',
             // Always trigger this action,
-            // even if the previous action was rejected: 
+            // even if the previous action was rejected:
             always: true,
             // Options taken from the global options map:
             acceptFileTypes: '@',
