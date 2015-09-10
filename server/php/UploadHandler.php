@@ -39,8 +39,9 @@ class UploadHandler
     );
 
     protected $image_objects = array();
+    protected $callback_functions = array();
 
-    function __construct($options = null, $initialize = true, $error_messages = null) {
+    function __construct($options = null, $initialize = true, $error_messages = null, $callback = null) {
         $this->response = array();
         $this->options = array(
             'script_url' => $this->get_full_url().'/'.basename($this->get_server_var('SCRIPT_NAME')),
@@ -165,6 +166,9 @@ class UploadHandler
         if ($error_messages) {
             $this->error_messages = $error_messages + $this->error_messages;
         }
+        if ( $callback ) {
+            $this->addCallback($callback);
+        }
         if ($initialize) {
             $this->initialize();
         }
@@ -192,6 +196,16 @@ class UploadHandler
         }
     }
 
+    public function addCallback($func) {
+        $this->callback_functions[] = $func;
+    }
+
+    protected function callback(&$file) {
+        foreach ($this->callback_functions as $function) {
+            $function($file);
+        }
+    }
+    
     protected function get_full_url() {
         $https = !empty($_SERVER['HTTPS']) && strcasecmp($_SERVER['HTTPS'], 'on') === 0 ||
             !empty($_SERVER['HTTP_X_FORWARDED_PROTO']) &&
@@ -1027,7 +1041,7 @@ class UploadHandler
         return $image_info && $image_info[0] && $image_info[1];
     }
 
-    protected function handle_image_file($file_path, $file) {
+    protected function handle_image_file($file) {
         $failed_versions = array();
         foreach($this->options['image_versions'] as $version => $options) {
             if ($this->create_scaled_image($file->name, $version, $options)) {
@@ -1037,7 +1051,7 @@ class UploadHandler
                         $version
                     );
                 } else {
-                    $file->size = $this->get_file_size($file_path, true);
+                    $file->size = $this->get_file_size($file->path, true);
                 }
             } else {
                 $failed_versions[] = $version ? $version : 'original';
@@ -1048,14 +1062,12 @@ class UploadHandler
                     .' ('.implode($failed_versions,', ').')';
         }
         // Free memory:
-        $this->destroy_image_object($file_path);
+        $this->destroy_image_object($file->path);
     }
 
-    protected function handle_file_upload($uploaded_file, $name, $size, $type, $error,
-            $index = null, $content_range = null) {
+    protected function handle_file_upload($uploaded_file, $name, $size, $type, $error, $index = null, $content_range = null) {
         $file = new \stdClass();
-        $file->name = $this->get_file_name($uploaded_file, $name, $size, $type, $error,
-            $index, $content_range);
+        $file->name = $this->get_file_name($uploaded_file, $name, $size, $type, $error, $index, $content_range);
         $file->size = $this->fix_integer_overflow((int)$size);
         $file->type = $type;
         if ($this->validate($uploaded_file, $file, $error, $index)) {
@@ -1089,9 +1101,11 @@ class UploadHandler
             $file_size = $this->get_file_size($file_path, $append_file);
             if ($file_size === $file->size) {
                 $file->url = $this->get_download_url($file->name);
+                $file->path = $file_path;
                 if ($this->is_valid_image_file($file_path)) {
-                    $this->handle_image_file($file_path, $file);
+                    $this->handle_image_file($file);
                 }
+                $this->callback($file);
             } else {
                 $file->size = $file_size;
                 if (!$content_range && $this->options['discard_aborted_uploads']) {
