@@ -68,6 +68,9 @@
             // The expected data type of the upload response, sets the dataType
             // option of the $.ajax upload requests:
             dataType: 'json',
+            // The file size prefix supports values: 'binary' and 'decimal'.
+            // Specify 'binary' to display in powers of 1024 in stead of 1000.
+            fileSizePrefix: 'decimal',
 
             // Error and info messages:
             messages: {
@@ -426,13 +429,15 @@
             if (typeof bytes !== 'number') {
                 return '';
             }
-            if (bytes >= 1000000000) {
-                return (bytes / 1000000000).toFixed(2) + ' GB';
+            var giga = this.options.fileSizePrefix === 'binary' ? 1073741824 : 1000000000;
+            if (bytes >= giga) {
+                return (bytes / giga).toFixed(2) + ' GB';
             }
-            if (bytes >= 1000000) {
-                return (bytes / 1000000).toFixed(2) + ' MB';
+            var mega = this.options.fileSizePrefix === 'binary' ? 1048576 : 1000000;
+            if (bytes >= mega) {
+                return (bytes / mega).toFixed(2) + ' MB';
             }
-            return (bytes / 1000).toFixed(2) + ' KB';
+            return (bytes / (this.options.fileSizePrefix === 'binary' ? 1024 : 1000)).toFixed(2) + ' KB';
         },
 
         _formatBitrate: function (bits) {
