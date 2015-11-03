@@ -163,6 +163,12 @@
             progressInterval: 100,
             // Interval in milliseconds to calculate progress bitrate:
             bitrateInterval: 500,
+            // Progress percentage of server, 
+            // decimal number between zero (inclusive) and 1.0 (exclusive).
+            progressServerRate: 0.0,
+            // Server progress exponential decay,
+            // decimal number greater than 0:
+            progressServerDecayExp: 2.5,
             // By default, uploads are started automatically when adding files:
             autoUpload: true,
 
@@ -370,6 +376,7 @@
         },
 
         _onProgress: function (e, data) {
+        	
             if (e.lengthComputable) {
                 var now = ((Date.now) ? Date.now() : (new Date()).getTime()),
                     loaded;
@@ -377,6 +384,10 @@
                         (now - data._time < data.progressInterval) &&
                         e.loaded !== e.total) {
                     return;
+                }
+            	if (data._progressServerStarted) {
+                    // Progress server has begun
+                	return;
                 }
                 data._time = now;
                 loaded = Math.floor(
@@ -396,6 +407,20 @@
                     loaded,
                     data.bitrateInterval
                 );
+                // Calculate server progress
+                var localPercent = data.loaded / data.total;
+                if (data.progressServerRate && data.progressServerRate > 0) {
+                	var percent = localPercent * ((data.contentPercent || 1) - data.progressServerRate);
+                    data.percent = percent;
+                	if (typeof data._updateServer === 'undefined') {
+                		var that = this;
+                		data._updateServer = true;
+                		data._previoursLoaded = -1;
+                		setTimeout(function(){that._onProgressServer(e, data);}, data.progressInterval);
+                	}
+                } else {
+                	data.percent = localPercent;
+                }
                 // Trigger a custom progress event with a total data property set
                 // to the file size(s) of the current upload and a loaded data
                 // property calculated accordingly:
@@ -412,6 +437,48 @@
                     this._progress
                 );
             }
+        },
+        
+        _onProgressServer: function (e, data) {
+        	var that = this;
+        	if (data._previoursLoaded !== data.loaded) {
+        		// Loading not complete
+        		data._previoursLoaded = data.loaded;
+        		data._progressServer = setTimeout(function(){that._onProgressServer(e, data);}, data.progressInterval);
+        		return;
+        	}
+        	data._progressServerStarted = true;
+        	data.bitrate = 0;
+        	var incr = Math.pow(((data.contentPercent || 1) - data.percent), data.progressServerDecayExp);
+        	data.percent += incr;
+        	that._trigger(
+        		'progress',
+        		$.Event('progress', {delegatedEvent: e}),
+        		data
+        	);
+        	that._trigger(
+                'progressall',
+                $.Event('progressall', {delegatedEvent: e}),
+                this._progress
+            );
+        	data._progressServer = setTimeout(function(){that._onProgressServer(e, data);}, data.progressInterval);
+        },
+
+        _onProgressServerComplete: function (options) {
+            clearTimeout(options._progressServer);
+            delete options._progressServer;
+            delete options._progressServerStarted;
+            // Create a progress event update to 100%
+            options.progressServerRate = 0;
+            var total = options._progress.total, loaded = total;
+            if (options.contentPercent) {
+            	loaded = options.contentPercent * total;
+            }
+        	this._onProgress($.Event('progress', {
+				lengthComputable: true,
+				loaded: loaded,
+				total: total
+			}), options);
         },
 
         _initProgressListener: function (options) {
@@ -762,6 +829,8 @@
                 // Expose the chunk bytes position range:
                 o.contentRange = 'bytes ' + ub + '-' +
                     (ub + o.chunkSize - 1) + '/' + fs;
+                // Content percent of total:
+                o.contentPercent = (ub + o.chunkSize) / fs;
                 // Process the upload data (the blob and potential form data):
                 that._initXHRData(o);
                 // Add progress listeners for this chunk upload:
@@ -780,6 +849,9 @@
                                 loaded: ub - o.uploadedBytes,
                                 total: ub - o.uploadedBytes
                             }), o);
+                        }
+                        if (o._progressServer) {
+                        	that._onProgressServerComplete(o);
                         }
                         options.uploadedBytes = o.uploadedBytes = ub;
                         o.result = result;
@@ -845,17 +917,21 @@
         },
 
         _onDone: function (result, textStatus, jqXHR, options) {
-            var total = options._progress.total,
-                response = options._response;
-            if (options._progress.loaded < total) {
-                // Create a progress event if no final progress event
-                // with loaded equaling total has been triggered:
-                this._onProgress($.Event('progress', {
-                    lengthComputable: true,
-                    loaded: total,
-                    total: total
-                }), options);
-            }
+        	var total = options._progress.total,
+            response = options._response;
+        	if (options._progressServer) {
+        		this._onProgressServerComplete(options);
+        	} else {
+        		if (options._progress.loaded < total) {
+        			// Create a progress event if no final progress event
+        			// with loaded equaling total has been triggered:
+        			this._onProgress($.Event('progress', {
+        				lengthComputable: true,
+        				loaded: total,
+        				total: total
+        			}), options);
+        		}
+        	}
             response.result = options.result = result;
             response.textStatus = options.textStatus = textStatus;
             response.jqXHR = options.jqXHR = jqXHR;
