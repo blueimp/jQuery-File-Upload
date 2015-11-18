@@ -346,14 +346,14 @@ class UploadHandler
             $this->error_messages[$error] : $error;
     }
 
-    function get_config_bytes($val) {
+    protected function get_config_bytes($val) {
         $val = trim($val);
         $last = strtolower($val[strlen($val)-1]);
         switch($last) {
             case 'g':
-                $val *= 1024;
+                $val *= 1024*1024*1024;
             case 'm':
-                $val *= 1024;
+                $val *= 1024*1024;
             case 'k':
                 $val *= 1024;
         }
