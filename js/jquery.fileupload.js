@@ -76,6 +76,32 @@
         };
     }
 
+	//region Ajax loading mime.json n prepare getter for mime type
+	/**
+	 * позвращает MIME-типы для ограничения выбора в поле input-file
+	 * @param maskExtensions
+	 * @return {string}
+	 * @private
+	 */
+	function _getMimeTypes(maskExtensions) {
+		var result = [];
+		var masks = maskExtensions.replace(/\*|\./g,'').split(';');
+		for (var i = 0; i < masks.length; i++) {
+			if(masks[i].length==0) continue;
+			if (_mimeTypes[masks[i]]) {
+				result.push(_mimeTypes[masks[i]])
+			}else
+				result.push('.'+masks[i])
+		}
+		return result.join(',')
+	}
+	var _mimeTypes = {};
+	$.ajaxSetup( { "async": false } )
+	$.getJSON('plugins/upload/mime.json', function(res){_mimeTypes = (res)})
+	$.ajaxSetup( { "async": true } )
+	//endregion
+
+
     // The fileupload widget listens for change events on file input fields defined
     // via fileInput setting and paste or drop events of the given dropZone.
     // In addition to the default jQuery Widget methods, the fileupload widget
@@ -87,6 +113,15 @@
     $.widget('blueimp.fileupload', {
 
         options: {
+					/**
+					 * @cfg {String|RegExp) [acceptFileTypes='*.*'] some conditions for filter selectable files
+					 * 											('*.*' or '*.xml' or '.xml,.zip' or /(\.|\/)(gif|jpe?g|png)$/i)
+					 */
+					acceptFileTypes: '*.*',
+					/**
+					 * @cfg {Number} [maxFileSize=999000] The maximum allowed file size in bytes. 999Kb
+					 */
+					maxFileSize: 999000,
             // The drop target element(s), by the default the complete document.
             // Set to null to disable drag & drop support:
             dropZone: $(document),
@@ -111,7 +146,7 @@
             // By default, each file of a selection is uploaded using an individual
             // request for XHR type uploads. Set to false to upload file
             // selections in one request each:
-            singleFileUploads: true,
+            singleFileUploads: false,
             // To limit the number of files uploaded with one XHR request,
             // set the following option to an integer greater than 0:
             limitMultiFileUploads: undefined,
@@ -1311,6 +1346,12 @@
             this._off(this.options.fileInput, 'change');
         },
 
+			/**
+			 * set option for fileupload widget
+			 * @param {String} key
+			 * @param {String} value
+			 * @private
+			 */
         _setOption: function (key, value) {
             var reinit = $.inArray(key, this._specialOptions) !== -1;
             if (reinit) {
@@ -1321,23 +1362,44 @@
                 this._initSpecialOptions();
                 this._initEventHandlers();
             }
+						return this
         },
 
+			/**
+			 * initialize some special options n more
+			 * @private
+			 */
         _initSpecialOptions: function () {
-            var options = this.options;
-            if (options.fileInput === undefined) {
-                options.fileInput = this.element.is('input[type="file"]') ?
-                        this.element : this.element.find('input[type="file"]');
-            } else if (!(options.fileInput instanceof $)) {
-                options.fileInput = $(options.fileInput);
-            }
-            if (!(options.dropZone instanceof $)) {
-                options.dropZone = $(options.dropZone);
-            }
-            if (!(options.pasteZone instanceof $)) {
-                options.pasteZone = $(options.pasteZone);
-            }
-        },
+					var options = this.options;
+					if (options.fileInput === undefined) {
+						options.fileInput = this.element.is('input[type="file"]')
+								? this.element
+								: this.element.find('input[type="file"]');
+					} else if (!(options.fileInput instanceof $)) {
+						options.fileInput = $(options.fileInput);
+					}
+
+					// set accept in INPUT n convert conditions to RegExp for Validation module
+					if(options.acceptFileTypes && !(options.acceptFileTypes instanceof RegExp)){
+						options.fileInput.prop('accept', _getMimeTypes(options.acceptFileTypes))
+						options.acceptFileTypes = new RegExp(options.acceptFileTypes.replace(';','|')
+																										 .split('.').join('\\.')
+																										 .split('*').join('.*'));
+					}
+
+					// set multiple|single file select for upload
+					if(!options.singleFileUploads){
+						options.fileInput.attr('multiple', true)
+					}
+
+				// set Drag n Drop opportunity
+					if (!(options.dropZone instanceof $)) {
+						options.dropZone = $(options.dropZone);
+					}
+					if (!(options.pasteZone instanceof $)) {
+						options.pasteZone = $(options.pasteZone);
+					}
+				},
 
         _getRegExp: function (str) {
             var parts = str.split('/'),
