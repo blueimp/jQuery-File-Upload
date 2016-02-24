@@ -21,7 +21,6 @@
             'load-image',
             'load-image-meta',
             'load-image-exif',
-            'load-image-ios',
             'canvas-to-blob',
             './jquery.fileupload-process'
         ], factory);
