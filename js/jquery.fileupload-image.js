@@ -28,7 +28,12 @@
         // Node/CommonJS:
         factory(
             require('jquery'),
-            require('load-image')
+            require('blueimp-load-image/js/load-image'),
+            require('blueimp-load-image/js/load-image-meta'),
+            require('blueimp-load-image/js/load-image-exif'),
+            require('blueimp-load-image/js/load-image-ios'),
+            require('blueimp-canvas-to-blob'),
+            require('./jquery.fileupload-process')
         );
     } else {
         // Browser globals:
