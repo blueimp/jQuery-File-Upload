@@ -71,9 +71,9 @@
             // Error and info messages:
             messages: {
                 maxNumberOfFiles: 'Maximum number of files exceeded',
-                acceptFileTypes: 'File type not allowed',
-                maxFileSize: 'File is too large',
-                minFileSize: 'File is too small'
+                acceptFileTypes: 'Неподдерживаемый тип файла',
+                maxFileSize: 'Файл слишком большой',
+                minFileSize: 'Файл слишком маленький'
             }
         },
 
@@ -94,10 +94,9 @@
                         (settings.getNumberOfFiles() || 0) + data.files.length >
                             options.maxNumberOfFiles) {
                     file.error = settings.i18n('maxNumberOfFiles');
-                } else if (options.acceptFileTypes &&
-                        !(options.acceptFileTypes.test(file.type) ||
-                        options.acceptFileTypes.test(file.name))) {
-                    file.error = settings.i18n('acceptFileTypes');
+                } else if (options.acceptFileTypes
+										&& !(options.acceptFileTypes.test(file.type) || options.acceptFileTypes.test(file.name))) {
+									file.error = settings.i18n('acceptFileTypes');
                 } else if (fileSize > options.maxFileSize) {
                     file.error = settings.i18n('maxFileSize');
                 } else if ($.type(fileSize) === 'number' &&

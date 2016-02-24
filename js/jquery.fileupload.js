@@ -76,6 +76,32 @@
         };
     }
 
+	//region Ajax loading mime.json n prepare getter for mime type
+	/**
+	 * позвращает MIME-типы для ограничения выбора в поле input-file
+	 * @param maskExtensions
+	 * @return {string}
+	 * @private
+	 */
+	function _getMimeTypes(maskExtensions) {
+		var result = [];
+		var masks = maskExtensions.replace(/\*|\./g,'').split(';');
+		for (var i = 0; i < masks.length; i++) {
+			if(masks[i].length==0) continue;
+			if (_mimeTypes[masks[i]]) {
+				result.push(_mimeTypes[masks[i]])
+			}else
+				result.push('.'+masks[i])
+		}
+		return result.join(',')
+	}
+	var _mimeTypes = {};
+	$.ajaxSetup( { "async": false } )
+	$.getJSON('plugins/upload/mime.json', function(res){_mimeTypes = (res)})
+	$.ajaxSetup( { "async": true } )
+	//endregion
+
+
     // The fileupload widget listens for change events on file input fields defined
     // via fileInput setting and paste or drop events of the given dropZone.
     // In addition to the default jQuery Widget methods, the fileupload widget
@@ -87,6 +113,15 @@
     $.widget('blueimp.fileupload', {
 
         options: {
+					/**
+					 * @cfg {String|RegExp) [acceptFileTypes='*.*'] some conditions for filter selectable files
+					 * 											('*.*' or '*.xml' or '.xml,.zip' or /(\.|\/)(gif|jpe?g|png)$/i)
+					 */
+					acceptFileTypes: '*.*',
+					/**
+					 * @cfg {Number} [maxFileSize=999000] The maximum allowed file size in bytes. 999Kb
+					 */
+					maxFileSize: 999000,
             // The drop target element(s), by the default the complete document.
             // Set to null to disable drag & drop support:
             dropZone: $(document),
@@ -111,7 +146,7 @@
             // By default, each file of a selection is uploaded using an individual
             // request for XHR type uploads. Set to false to upload file
             // selections in one request each:
-            singleFileUploads: true,
+            singleFileUploads: false,
             // To limit the number of files uploaded with one XHR request,
             // set the following option to an integer greater than 0:
             limitMultiFileUploads: undefined,
@@ -163,6 +198,12 @@
             progressInterval: 100,
             // Interval in milliseconds to calculate progress bitrate:
             bitrateInterval: 500,
+            // Progress percentage of server, 
+            // decimal number between zero (inclusive) and 1.0 (exclusive).
+            progressServerRate: 0.0,
+            // Server progress exponential decay,
+            // decimal number greater than 0:
+            progressServerDecayExp: 2.5,
             // By default, uploads are started automatically when adding files:
             autoUpload: true,
 
@@ -188,8 +229,8 @@
             // value properties, a function returning such an array, a FormData
             // object (for XHR file uploads), or a simple object.
             // The form of the first fileInput is given as parameter to the function:
-            formData: function (form) {
-                return form.serializeArray();
+            formData: function (options) {
+                return options.form.serializeArray();
             },
 
             // The add callback is invoked as soon as files are added to the fileupload
@@ -320,7 +361,7 @@
         _getFormData: function (options) {
             var formData;
             if ($.type(options.formData) === 'function') {
-                return options.formData(options.form);
+                return options.formData(options);
             }
             if ($.isArray(options.formData)) {
                 return options.formData;
@@ -370,6 +411,7 @@
         },
 
         _onProgress: function (e, data) {
+        	
             if (e.lengthComputable) {
                 var now = ((Date.now) ? Date.now() : (new Date()).getTime()),
                     loaded;
@@ -377,6 +419,10 @@
                         (now - data._time < data.progressInterval) &&
                         e.loaded !== e.total) {
                     return;
+                }
+            	if (data._progressServerStarted) {
+                    // Progress server has begun
+                	return;
                 }
                 data._time = now;
                 loaded = Math.floor(
@@ -396,6 +442,20 @@
                     loaded,
                     data.bitrateInterval
                 );
+                // Calculate server progress
+                var localPercent = data.loaded / data.total;
+                if (data.progressServerRate && data.progressServerRate > 0) {
+                	var percent = localPercent * ((data.contentPercent || 1) - data.progressServerRate);
+                    data.percent = percent;
+                	if (typeof data._updateServer === 'undefined') {
+                		var that = this;
+                		data._updateServer = true;
+                		data._previoursLoaded = -1;
+                		setTimeout(function(){that._onProgressServer(e, data);}, data.progressInterval);
+                	}
+                } else {
+                	data.percent = localPercent;
+                }
                 // Trigger a custom progress event with a total data property set
                 // to the file size(s) of the current upload and a loaded data
                 // property calculated accordingly:
@@ -412,6 +472,48 @@
                     this._progress
                 );
             }
+        },
+        
+        _onProgressServer: function (e, data) {
+        	var that = this;
+        	if (data._previoursLoaded !== data.loaded) {
+        		// Loading not complete
+        		data._previoursLoaded = data.loaded;
+        		data._progressServer = setTimeout(function(){that._onProgressServer(e, data);}, data.progressInterval);
+        		return;
+        	}
+        	data._progressServerStarted = true;
+        	data.bitrate = 0;
+        	var incr = Math.pow(((data.contentPercent || 1) - data.percent), data.progressServerDecayExp);
+        	data.percent += incr;
+        	that._trigger(
+        		'progress',
+        		$.Event('progress', {delegatedEvent: e}),
+        		data
+        	);
+        	that._trigger(
+                'progressall',
+                $.Event('progressall', {delegatedEvent: e}),
+                this._progress
+            );
+        	data._progressServer = setTimeout(function(){that._onProgressServer(e, data);}, data.progressInterval);
+        },
+
+        _onProgressServerComplete: function (options) {
+            clearTimeout(options._progressServer);
+            delete options._progressServer;
+            delete options._progressServerStarted;
+            // Create a progress event update to 100%
+            options.progressServerRate = 0;
+            var total = options._progress.total, loaded = total;
+            if (options.contentPercent) {
+            	loaded = options.contentPercent * total;
+            }
+        	this._onProgress($.Event('progress', {
+				lengthComputable: true,
+				loaded: loaded,
+				total: total
+			}), options);
         },
 
         _initProgressListener: function (options) {
@@ -762,6 +864,8 @@
                 // Expose the chunk bytes position range:
                 o.contentRange = 'bytes ' + ub + '-' +
                     (ub + o.chunkSize - 1) + '/' + fs;
+                // Content percent of total:
+                o.contentPercent = (ub + o.chunkSize) / fs;
                 // Process the upload data (the blob and potential form data):
                 that._initXHRData(o);
                 // Add progress listeners for this chunk upload:
@@ -780,6 +884,9 @@
                                 loaded: ub - o.uploadedBytes,
                                 total: ub - o.uploadedBytes
                             }), o);
+                        }
+                        if (o._progressServer) {
+                        	that._onProgressServerComplete(o);
                         }
                         options.uploadedBytes = o.uploadedBytes = ub;
                         o.result = result;
@@ -845,17 +952,21 @@
         },
 
         _onDone: function (result, textStatus, jqXHR, options) {
-            var total = options._progress.total,
-                response = options._response;
-            if (options._progress.loaded < total) {
-                // Create a progress event if no final progress event
-                // with loaded equaling total has been triggered:
-                this._onProgress($.Event('progress', {
-                    lengthComputable: true,
-                    loaded: total,
-                    total: total
-                }), options);
-            }
+        	var total = options._progress.total,
+            response = options._response;
+        	if (options._progressServer) {
+        		this._onProgressServerComplete(options);
+        	} else {
+        		if (options._progress.loaded < total) {
+        			// Create a progress event if no final progress event
+        			// with loaded equaling total has been triggered:
+        			this._onProgress($.Event('progress', {
+        				lengthComputable: true,
+        				loaded: total,
+        				total: total
+        			}), options);
+        		}
+        	}
             response.result = options.result = result;
             response.textStatus = options.textStatus = textStatus;
             response.jqXHR = options.jqXHR = jqXHR;
@@ -1311,6 +1422,12 @@
             this._off(this.options.fileInput, 'change');
         },
 
+			/**
+			 * set option for fileupload widget
+			 * @param {String} key
+			 * @param {String} value
+			 * @private
+			 */
         _setOption: function (key, value) {
             var reinit = $.inArray(key, this._specialOptions) !== -1;
             if (reinit) {
@@ -1321,23 +1438,44 @@
                 this._initSpecialOptions();
                 this._initEventHandlers();
             }
+						return this
         },
 
+			/**
+			 * initialize some special options n more
+			 * @private
+			 */
         _initSpecialOptions: function () {
-            var options = this.options;
-            if (options.fileInput === undefined) {
-                options.fileInput = this.element.is('input[type="file"]') ?
-                        this.element : this.element.find('input[type="file"]');
-            } else if (!(options.fileInput instanceof $)) {
-                options.fileInput = $(options.fileInput);
-            }
-            if (!(options.dropZone instanceof $)) {
-                options.dropZone = $(options.dropZone);
-            }
-            if (!(options.pasteZone instanceof $)) {
-                options.pasteZone = $(options.pasteZone);
-            }
-        },
+					var options = this.options;
+					if (options.fileInput === undefined) {
+						options.fileInput = this.element.is('input[type="file"]')
+								? this.element
+								: this.element.find('input[type="file"]');
+					} else if (!(options.fileInput instanceof $)) {
+						options.fileInput = $(options.fileInput);
+					}
+
+					// set accept in INPUT n convert conditions to RegExp for Validation module
+					if(options.acceptFileTypes && !(options.acceptFileTypes instanceof RegExp)){
+						options.fileInput.prop('accept', _getMimeTypes(options.acceptFileTypes))
+						options.acceptFileTypes = new RegExp(options.acceptFileTypes.replace(';','|')
+																										 .split('.').join('\\.')
+																										 .split('*').join('.*'));
+					}
+
+					// set multiple|single file select for upload
+					if(!options.singleFileUploads){
+						options.fileInput.attr('multiple', true)
+					}
+
+				// set Drag n Drop opportunity
+					if (!(options.dropZone instanceof $)) {
+						options.dropZone = $(options.dropZone);
+					}
+					if (!(options.pasteZone instanceof $)) {
+						options.pasteZone = $(options.pasteZone);
+					}
+				},
 
         _getRegExp: function (str) {
             var parts = str.split('/'),

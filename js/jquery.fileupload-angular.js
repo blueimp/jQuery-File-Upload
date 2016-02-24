@@ -168,22 +168,24 @@
             this.defaults = $config;
             this.$get = function () {
                 return function (bytes) {
-                    if (!angular.isNumber(bytes)) {
-                        return '';
-                    }
-                    var unit = true,
-                        i = 0,
-                        prefix,
-                        suffix;
-                    while (unit) {
-                        unit = $config.units[i];
-                        prefix = unit.prefix || '';
-                        suffix = unit.suffix || '';
-                        if (i === $config.units.length - 1 || bytes >= unit.size) {
-                            return prefix + (bytes / unit.size).toFixed(2) + suffix;
-                        }
-                        i += 1;
-                    }
+									if (!angular.isNumber(bytes)) {
+										return '';
+									}
+									var unit = true,
+											i = 0,
+											prefix,
+											suffix;
+									while (unit) {
+										unit = $config.units[i];
+										prefix = unit.prefix || '';
+										suffix = unit.suffix || '';
+										if (i === $config.units.length - 1 || bytes >= unit.size) {
+											var fixedNumber = (bytes / unit.size).toFixed(3);
+											fixedNumber = fixedNumber.substring(0, fixedNumber.length - 1);
+											return prefix + parseFloat(fixedNumber) + suffix;
+										}
+										i += 1;
+									}
                 };
             };
         })
