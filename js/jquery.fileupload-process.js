@@ -84,7 +84,7 @@
                         settings
                     );
                 };
-                chain = chain.pipe(func, settings.always && func);
+                chain = chain.then(func, settings.always && func);
             });
             chain
                 .done(function () {
@@ -151,7 +151,7 @@
                         };
                     opts.index = index;
                     that._processing += 1;
-                    that._processingQueue = that._processingQueue.pipe(func, func)
+                    that._processingQueue = that._processingQueue.then(func, func)
                         .always(function () {
                             that._processing -= 1;
                             if (that._processing === 0) {
