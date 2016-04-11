@@ -43,7 +43,7 @@ class UploadHandler
     function __construct($options = null, $initialize = true, $error_messages = null) {
         $this->response = array();
         $this->options = array(
-            'script_url' => $this->get_full_url().'/'.basename($this->get_server_var('SCRIPT_NAME')),
+            'script_url' => $this->get_full_url().'/'.$this->basename($this->get_server_var('SCRIPT_NAME')),
             'upload_dir' => dirname($this->get_server_var('SCRIPT_FILENAME')).'/files/',
             'upload_url' => $this->get_full_url().'/files/',
             'input_stream' => 'php://input',
@@ -517,7 +517,7 @@ class UploadHandler
         // Remove path information and dots around the filename, to prevent uploading
         // into different directories or replacing hidden system files.
         // Also remove control characters and spaces (\x00..\x20) around the filename:
-        $name = trim(basename(stripslashes($name)), ".\x00..\x20");
+        $name = trim($this->basename(stripslashes($name)), ".\x00..\x20");
         // Use a timestamp for empty filenames:
         if (!$name) {
             $name = str_replace('.', '-', microtime(true));
@@ -1150,7 +1150,7 @@ class UploadHandler
     }
 
     protected function get_version_param() {
-        return basename(stripslashes($this->get_query_param('version')));
+        return $this->basename(stripslashes($this->get_query_param('version')));
     }
 
     protected function get_singular_param_name() {
@@ -1159,7 +1159,7 @@ class UploadHandler
 
     protected function get_file_name_param() {
         $name = $this->get_singular_param_name();
-        return basename(stripslashes($this->get_query_param($name)));
+        return $this->basename(stripslashes($this->get_query_param($name)));
     }
 
     protected function get_file_names_params() {
@@ -1168,7 +1168,7 @@ class UploadHandler
             return null;
         }
         foreach ($params as $key => $value) {
-            $params[$key] = basename(stripslashes($value));
+            $params[$key] = $this->basename(stripslashes($value));
         }
         return $params;
     }
@@ -1385,4 +1385,8 @@ class UploadHandler
         return $this->generate_response($response, $print_response);
     }
 
+    private function basename($filepath, $suffix = null) {
+        $splited = preg_split('/\//', rtrim ($filepath, '/ '));
+        return substr(basename('X'.$splited[count($splited)-1], $suffix), 1);
+    }
 }
