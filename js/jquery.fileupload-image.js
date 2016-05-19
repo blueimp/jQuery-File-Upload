@@ -12,7 +12,7 @@
 /* jshint nomen:false */
 /* global define, require, window, Blob */
 
-(function (factory) {
+;(function (factory) {
     'use strict';
     if (typeof define === 'function' && define.amd) {
         // Register as an anonymous AMD module:

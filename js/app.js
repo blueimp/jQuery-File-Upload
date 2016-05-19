@@ -12,7 +12,7 @@
 /* jshint nomen:false */
 /* global window, angular */
 
-(function () {
+;(function () {
     'use strict';
 
     var isOnGitHub = window.location.hostname === 'blueimp.github.io',
