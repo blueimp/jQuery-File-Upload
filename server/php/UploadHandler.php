@@ -278,7 +278,7 @@ class UploadHandler
     // Fix for overflowing signed 32 bit integers,
     // works for sizes up to 2^32-1 bytes (4 GiB - 1):
     protected function fix_integer_overflow($size) {
-        if ($size < 0) {
+        if (is_int($size) && $size < 0) {
             $size += 2.0 * (PHP_INT_MAX + 1);
         }
         return $size;
@@ -292,7 +292,7 @@ class UploadHandler
                 clearstatcache();
             }
         }
-        return $this->fix_integer_overflow(filesize($file_path));
+        return $this->fix_integer_overflow($this->real_filesize($file_path));
     }
 
     protected function is_valid_file_object($file_name) {
@@ -367,7 +367,7 @@ class UploadHandler
             return false;
         }
         $content_length = $this->fix_integer_overflow(
-            (int)$this->get_server_var('CONTENT_LENGTH')
+            $this->get_server_var('CONTENT_LENGTH')
         );
         $post_max_size = $this->get_config_bytes(ini_get('post_max_size'));
         if ($post_max_size && ($content_length > $post_max_size)) {
@@ -467,10 +467,10 @@ class UploadHandler
             $name = $this->upcount_name($name);
         }
         // Keep an existing filename if this is part of a chunked upload:
-        $uploaded_bytes = $this->fix_integer_overflow((int)$content_range[1]);
+        $uploaded_bytes = $this->fix_integer_overflow($content_range[1]);
         while(is_file($this->get_upload_path($name))) {
-            if ($uploaded_bytes === $this->get_file_size(
-                    $this->get_upload_path($name))) {
+            $file_size = $this->get_file_size($this->get_upload_path($name));
+            if ($uploaded_bytes === $file_size) {
                 break;
             }
             $name = $this->upcount_name($name);
@@ -539,6 +539,34 @@ class UploadHandler
             $index,
             $content_range
         );
+    }
+
+    // Based on https://github.com/jkuchar/BigFileTools project by Jan Kuchar
+    protected function real_filesize($path) {
+        // This should work for large files on 64bit platforms and for small files everywhere
+        $fp = fopen($path, "rb");
+        $flockResult = flock($fp, LOCK_SH);
+        $seekResult = fseek($fp, 0, SEEK_END);
+        $position = ftell($fp);
+        flock($fp, LOCK_UN);
+        fclose($fp);
+        if(!($flockResult === false || $seekResult !== 0 || $position === false)) {
+            return sprintf("%u", $position);
+        }
+        // Try to define file size via CURL if installed
+        if (function_exists("curl_init")) {
+            $ch = curl_init("file://" . rawurlencode($path));
+            curl_setopt($ch, CURLOPT_NOBODY, true);
+            curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+            curl_setopt($ch, CURLOPT_HEADER, true);
+            $data = curl_exec($ch);
+            curl_close($ch);
+            if ($data !== false && preg_match('/Content-Length: (\d+)/', $data, $matches)) {
+                return $matches[1];
+            }
+        }
+        // Use native function otherwise
+        return filesize($path);
     }
 
     protected function get_scaled_image_file_paths($file_name, $version) {
@@ -1057,7 +1085,7 @@ class UploadHandler
         $file = new \stdClass();
         $file->name = $this->get_file_name($uploaded_file, $name, $size, $type, $error,
             $index, $content_range);
-        $file->size = $this->fix_integer_overflow((int)$size);
+        $file->size = strval($size);
         $file->type = $type;
         if ($this->validate($uploaded_file, $file, $error, $index)) {
             $this->handle_form_data($file, $index);
@@ -1262,9 +1290,48 @@ class UploadHandler
                 $files = isset($content[$this->options['param_name']]) ?
                     $content[$this->options['param_name']] : null;
                 if ($files && is_array($files) && is_object($files[0]) && $files[0]->size) {
-                    $this->header('Range: 0-'.(
-                        $this->fix_integer_overflow((int)$files[0]->size) - 1
-                    ));
+                    $size = $files[0]->size;
+                    $subBytes = 1;
+                    if(is_string($size) && strlen($size) > 8) {
+                        $size = ltrim($size, '0');
+                        // subtract with GMP extension
+                        if (function_exists("gmp_sub")) {
+                            $sub = gmp_sub($size, $subBytes);
+                            $size = gmp_strval($sub);
+                        }
+                        // subtract with BCMath extension
+                        else if (function_exists("bcsub")) {
+                            $size = bcsub($size, $subBytes, 0);
+                        }
+                        // workaround that covers the case of subtraction 1 byte from a string
+                        // should be modified to subtract values > 1 or other operation
+                        else {
+                            $new = array();
+                            $flag = true;
+                            $parts = str_split($size, 8);
+                            while($parts) {
+                                $part = array_pop($parts);
+                                $length = strlen($part);
+                                $res = (int)$part - $subBytes;
+                                if($res < 0) {
+                                    $np = str_repeat('9', $length);
+                                } else if($flag) {
+                                    $flag = false;
+                                    $np = $res;
+                                    if($parts) {
+                                        $np = str_pad($np, $length, '0', STR_PAD_LEFT);
+                                    }
+                                } else {
+                                    $np = $part;
+                                }
+                                array_unshift($new, $np);
+                            }
+                            $size = implode('', $new);
+                        }
+                    } else {
+                        $size = ($size == 0) ? 0 : $size - $subBytes;
+                    }
+                    $this->header('Range: 0-' . $size);
                 }
             }
             $this->body($json);
