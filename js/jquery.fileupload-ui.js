@@ -1,4 +1,4 @@
-/*
+</*
  * jQuery File Upload User Interface Plugin
  * https://github.com/blueimp/jQuery-File-Upload
  *
@@ -12,7 +12,7 @@
 /* jshint nomen:false */
 /* global define, require, window */
 
-(function (factory) {
+;(function (factory) {
     'use strict';
     if (typeof define === 'function' && define.amd) {
         // Register as an anonymous AMD module:
