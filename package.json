@@ -42,6 +42,11 @@
   "bugs": "https://github.com/blueimp/jQuery-File-Upload/issues",
   "license": "MIT",
   "main": "js/jquery.fileupload.js",
+  "dependencies": {
+    "blueimp-canvas-to-blob": "^3.4.0",
+    "blueimp-load-image": "^2.7.0",
+    "blueimp-tmpl": "^3.5.0"
+  },
   "devDependencies": {
     "bower-json": "0.8.1",
     "jshint": "2.9.3"
