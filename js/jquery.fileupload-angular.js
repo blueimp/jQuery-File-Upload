@@ -29,7 +29,6 @@
         factory(
             require('jquery'),
             require('angular'),
-            require('./jquery.fileupload'),
             require('./jquery.fileupload-image'),
             require('./jquery.fileupload-audio'),
             require('./jquery.fileupload-video'),

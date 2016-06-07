@@ -26,7 +26,7 @@
         factory(
             require('jquery'),
             require('blueimp-load-image/js/load-image'),
-            require('blueimp-load-image/js/load-image-meta')
+            require('./jquery.fileupload-process')
         );
     } else {
         // Browser globals:
