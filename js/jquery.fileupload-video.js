@@ -79,12 +79,13 @@
                 var file = data.files[data.index],
                     url,
                     video;
-                if (this._videoElement.canPlayType &&
-                        this._videoElement.canPlayType(file.type) &&
-                        ($.type(options.maxFileSize) !== 'number' ||
-                            file.size <= options.maxFileSize) &&
-                        (!options.fileTypes ||
-                            options.fileTypes.test(file.type))) {
+                if (options.fileTypes && !options.fileTypes.test(file.type)) {
+                    // ignore these files
+                } else if (this._videoElement.canPlayType && !this._videoElement.canPlayType(file.type)) {
+                    data.preview_error = 'this file format cannot be previewed';
+                } else if ($.type(options.maxFileSize) === 'number' && file.size > options.maxFileSize) {
+                    data.preview_error = 'this file is too large to preview';
+                } else {
                     url = loadImage.createObjectURL(file);
                     if (url) {
                         video = this._videoElement.cloneNode(false);
@@ -97,8 +98,11 @@
                 return data;
             },
 
-            // Sets the video element as a property of the file object:
+            // Copy the properties set on the data object to the file object
             setVideo: function (data, options) {
+                if (data.preview_error && !options.disabled) {
+                    data.files[data.index]['preview_error'] = data.preview_error;
+                }
                 if (data.video && !options.disabled) {
                     data.files[data.index][options.name || 'preview'] = data.video;
                 }

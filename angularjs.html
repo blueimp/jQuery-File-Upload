@@ -118,6 +118,7 @@
                         <a data-ng-href="{{file.url}}" title="{{file.name}}" download="{{file.name}}" data-gallery><img data-ng-src="{{file.thumbnailUrl}}" alt=""></a>
                     </div>
                     <div class="preview" data-ng-switch-default data-file-upload-preview="file"></div>
+                    <div class="preview" ng-show="file.preview_error">Sorry, {{file.preview_error}}.</div>
                 </td>
                 <td>
                     <p class="name" data-ng-switch data-on="!!file.url">
