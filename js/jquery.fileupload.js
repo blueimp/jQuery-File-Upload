@@ -842,6 +842,15 @@
             // Initialize the global progress values:
             this._progress.loaded += data.loaded;
             this._progress.total += data.total;
+
+            // setup XSRF-TOKEN header if there is a cookie
+            var name = "XSRF-TOKEN=";
+            $.each(document.cookie.split('; '), function(i, value) {
+                if(value.indexOf(name) == 0) {
+                    $.ajaxSetup({ headers: { 'X-XSRF-TOKEN': value.substring(name.length) } });
+                    return false;
+                }
+            });
         },
 
         _onDone: function (result, textStatus, jqXHR, options) {
