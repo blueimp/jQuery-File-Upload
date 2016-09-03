@@ -34,6 +34,8 @@ class UploadHandler
         'min_width' => 'Image requires a minimum width',
         'max_height' => 'Image exceeds maximum height',
         'min_height' => 'Image requires a minimum height',
+        'up_dir_make' => 'The web server does not have permission to create the upload directory',
+        'up_dir_write' => 'The web server does not have upload dir file save permission',
         'abort' => 'File upload aborted',
         'image_resize' => 'Failed to resize image'
     );
@@ -1064,7 +1066,16 @@ class UploadHandler
             $this->handle_form_data($file, $index);
             $upload_dir = $this->get_upload_path();
             if (!is_dir($upload_dir)) {
-                mkdir($upload_dir, $this->options['mkdir_mode'], true);
+                if (!mkdir($upload_dir, $this->options['mkdir_mode'], true)) {
+                    unlink($uploaded_file);
+                    $file->error = $this->get_error_message('up_dir_make');
+                    return $file;
+                }
+            }
+            if (!is_writable($upload_dir)) {
+                unlink($uploaded_file);
+                $file->error = $this->get_error_message('up_dir_write');
+                return $file;
             }
             $file_path = $this->get_upload_path($file->name);
             $append_file = $content_range && is_file($file_path) &&
