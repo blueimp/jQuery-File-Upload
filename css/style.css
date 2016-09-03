@@ -13,3 +13,8 @@
 body {
   padding-top: 60px;
 }
+
+.preview img {
+    max-width: 80px;
+    max-height: 80px;
+}
