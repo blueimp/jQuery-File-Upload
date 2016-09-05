@@ -1053,11 +1053,26 @@ class UploadHandler
         $this->destroy_image_object($file_path);
     }
 
+    //custom function which generates a unique filename based on current time
+    protected function generate_unique_filename($filename = "") {
+      $extension = "";
+      if ( $filename != "" ) {
+        $extension = pathinfo($filename , PATHINFO_EXTENSION);
+        if ( $extension != "" ) {
+          $extension = "." . $extension;
+        }
+      }
+      return md5(date('Y-m-d H:i:s:u')) . $extension;
+    }
+
     protected function handle_file_upload($uploaded_file, $name, $size, $type, $error,
             $index = null, $content_range = null) {
         $file = new \stdClass();
-        $file->name = $this->get_file_name($uploaded_file, $name, $size, $type, $error,
-            $index, $content_range);
+        if ($this->options['filename_randomise'] == true) {
+          $this->generate_unique_filename($name);
+        } else {
+          $file->name = $this->get_file_name($uploaded_file, $name, $size, $type, $error, $index, $content_range);
+        }
         $file->size = $this->fix_integer_overflow((int)$size);
         $file->type = $type;
         if ($this->validate($uploaded_file, $file, $error, $index)) {
