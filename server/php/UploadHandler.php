@@ -1066,7 +1066,7 @@ class UploadHandler
           }
         }
       }
-      return md5(date('Y-m-d H:i:s:u')) . ($this->options['filename_randomise_use_ext'] == true) ? $extension : '';
+      return md5(date('Y-m-d H:i:s:u')) . (($this->options['filename_randomise_use_ext'] == true) ? $extension : '');
     }
 
     protected function handle_file_upload($uploaded_file, $name, $size, $type, $error,
