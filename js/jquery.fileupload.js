@@ -1311,6 +1311,10 @@
             this._off(this.options.fileInput, 'change');
         },
 
+        _destroy: function () {
+            this._destroyEventHandlers();
+        },
+
         _setOption: function (key, value) {
             var reinit = $.inArray(key, this._specialOptions) !== -1;
             if (reinit) {
