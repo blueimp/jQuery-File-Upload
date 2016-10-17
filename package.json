@@ -43,9 +43,15 @@
   "license": "MIT",
   "main": "js/jquery.fileupload.js",
   "devDependencies": {
-    "bower-json": "0.6.0",
-    "grunt": "0.4.5",
-    "grunt-bump-build-git": "1.1.2",
-    "grunt-contrib-jshint": "0.11.2"
+    "bower-json": "0.8.1",
+    "jshint": "2.9.3"
+  },
+  "scripts": {
+    "bower-version-update": "./bower-version-update.js",
+    "lint": "jshint *.js js/*.js js/cors/*.js",
+    "test": "npm run lint",
+    "preversion": "npm test",
+    "version": "npm run bower-version-update && git add bower.json",
+    "postversion": "git push --tags origin master && npm publish"
   }
 }
