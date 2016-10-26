@@ -33,7 +33,6 @@
     "type": "git",
     "url": "git://github.com/blueimp/jQuery-File-Upload.git"
   },
-  "bugs": "https://github.com/blueimp/jQuery-File-Upload/issues",
   "license": "MIT",
   "main": "js/jquery.fileupload.js",
   "dependencies": {
