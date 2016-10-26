@@ -34,11 +34,10 @@
     "url": "git://github.com/blueimp/jQuery-File-Upload.git"
   },
   "license": "MIT",
-  "main": "js/jquery.fileupload.js",
-  "dependencies": {
-    "blueimp-canvas-to-blob": "^3.4.0",
-    "blueimp-load-image": "^2.7.0",
-    "blueimp-tmpl": "^3.5.0"
+  "optionalDependencies": {
+    "blueimp-canvas-to-blob": "3.4.0",
+    "blueimp-load-image": "2.8.0",
+    "blueimp-tmpl": "3.5.0"
   },
   "devDependencies": {
     "bower-json": "0.8.1",
@@ -51,5 +50,6 @@
     "preversion": "npm test",
     "version": "npm run bower-version-update && git add bower.json",
     "postversion": "git push --tags origin master && npm publish"
-  }
+  },
+  "main": "js/jquery.fileupload.js"
 }
