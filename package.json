@@ -29,12 +29,6 @@
     "name": "Sebastian Tschan",
     "url": "https://blueimp.net"
   },
-  "maintainers": [
-    {
-      "name": "Sebastian Tschan",
-      "url": "https://blueimp.net"
-    }
-  ],
   "repository": {
     "type": "git",
     "url": "git://github.com/blueimp/jQuery-File-Upload.git"
