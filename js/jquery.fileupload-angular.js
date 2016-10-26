@@ -10,7 +10,7 @@
  */
 
 /* jshint nomen:false */
-/* global define, angular */
+/* global define, angular, require */
 
 ;(function (factory) {
     'use strict';
