@@ -28,7 +28,10 @@
         // Node/CommonJS:
         factory(
             require('jquery'),
-            require('blueimp-tmpl')
+            require('blueimp-tmpl'),
+            require('./jquery.fileupload-image'),
+            require('./jquery.fileupload-video'),
+            require('./jquery.fileupload-validate'),
         );
     } else {
         // Browser globals:
