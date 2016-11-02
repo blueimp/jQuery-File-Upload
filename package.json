@@ -35,9 +35,9 @@
   },
   "license": "MIT",
   "optionalDependencies": {
-    "blueimp-canvas-to-blob": "3.4.0",
-    "blueimp-load-image": "2.8.1",
-    "blueimp-tmpl": "3.5.0"
+    "blueimp-canvas-to-blob": "3.5.0",
+    "blueimp-load-image": "2.9.0",
+    "blueimp-tmpl": "3.6.0"
   },
   "devDependencies": {
     "bower-json": "0.8.1",
