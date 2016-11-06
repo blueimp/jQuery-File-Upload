@@ -36,7 +36,7 @@ class UploadHandler
         'min_height' => 'Image requires a minimum height',
         'abort' => 'File upload aborted',
         'image_resize' => 'Failed to resize image',
-        'max_files_upload_allowed' => 'You are allowed to upload multiple files at once'
+        'max_files_upload_allowed' => 'Maximum number of file uploads exceeded'
     );
 
     protected $image_objects = array();
