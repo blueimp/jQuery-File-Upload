@@ -1,5 +1,5 @@
 /*
- * jQuery File Upload Video Preview Plugin 1.0.4
+ * jQuery File Upload Video Preview Plugin
  * https://github.com/blueimp/jQuery-File-Upload
  *
  * Copyright 2013, Sebastian Tschan
@@ -12,7 +12,7 @@
 /* jshint nomen:false */
 /* global define, require, window, document */
 
-(function (factory) {
+;(function (factory) {
     'use strict';
     if (typeof define === 'function' && define.amd) {
         // Register as an anonymous AMD module:
@@ -25,7 +25,8 @@
         // Node/CommonJS:
         factory(
             require('jquery'),
-            require('load-image')
+            require('blueimp-load-image/js/load-image'),
+            require('./jquery.fileupload-process')
         );
     } else {
         // Browser globals:

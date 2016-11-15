@@ -1,5 +1,5 @@
 /*
- * jQuery File Upload Plugin GAE Go Example 4.1.0
+ * jQuery File Upload Plugin GAE Go Example
  * https://github.com/blueimp/jQuery-File-Upload
  *
  * Copyright 2011, Sebastian Tschan
@@ -12,13 +12,14 @@
 package app
 
 import (
-	"appengine"
-	"appengine/memcache"
 	"bufio"
 	"bytes"
 	"encoding/json"
 	"fmt"
 	"github.com/disintegration/gift"
+	"golang.org/x/net/context"
+	"google.golang.org/appengine"
+	"google.golang.org/appengine/memcache"
 	"hash/crc32"
 	"image"
 	"image/gif"
@@ -35,10 +36,10 @@ import (
 )
 
 const (
-	WEBSITE           = "https://blueimp.github.io/jQuery-File-Upload/"
-	MIN_FILE_SIZE     = 1       // bytes
+	WEBSITE       = "https://blueimp.github.io/jQuery-File-Upload/"
+	MIN_FILE_SIZE = 1 // bytes
 	// Max file size is memcache limit (1MB) minus key size minus overhead:
-	MAX_FILE_SIZE     = 999000  // bytes
+	MAX_FILE_SIZE     = 999000 // bytes
 	IMAGE_TYPES       = "image/(gif|p?jpeg|(x-)?png)"
 	ACCEPT_FILE_TYPES = IMAGE_TYPES
 	THUMB_MAX_WIDTH   = 80
@@ -53,7 +54,7 @@ var (
 	imageTypes      = regexp.MustCompile(IMAGE_TYPES)
 	acceptFileTypes = regexp.MustCompile(ACCEPT_FILE_TYPES)
 	thumbSuffix     = "." + fmt.Sprint(THUMB_MAX_WIDTH) + "x" +
-											fmt.Sprint(THUMB_MAX_HEIGHT)
+		fmt.Sprint(THUMB_MAX_HEIGHT)
 )
 
 func escape(s string) string {
@@ -105,7 +106,7 @@ func (fi *FileInfo) ValidateSize() (valid bool) {
 	return false
 }
 
-func (fi *FileInfo) CreateUrls(r *http.Request, c appengine.Context) {
+func (fi *FileInfo) CreateUrls(r *http.Request, c context.Context) {
 	u := &url.URL{
 		Scheme: r.URL.Scheme,
 		Host:   appengine.DefaultVersionHostname(c),
@@ -126,7 +127,7 @@ func (fi *FileInfo) SetKey(checksum uint32) {
 		escape(string(fi.Name))
 }
 
-func (fi *FileInfo) createThumb(buffer *bytes.Buffer, c appengine.Context) {
+func (fi *FileInfo) createThumb(buffer *bytes.Buffer, c context.Context) {
 	if imageTypes.MatchString(fi.Type) {
 		src, _, err := image.Decode(bytes.NewReader(buffer.Bytes()))
 		check(err)
@@ -238,7 +239,7 @@ func validateRedirect(r *http.Request, redirect string) bool {
 				return false
 			}
 			redirectAllowTarget = regexp.MustCompile("^" + regexp.QuoteMeta(
-				refererUrl.Scheme + "://" + refererUrl.Host + "/",
+				refererUrl.Scheme+"://"+refererUrl.Host+"/",
 			))
 		}
 		return redirectAllowTarget.MatchString(redirect)
@@ -276,17 +277,17 @@ func get(w http.ResponseWriter, r *http.Request) {
 }
 
 func post(w http.ResponseWriter, r *http.Request) {
-    result := make(map[string][]*FileInfo, 1)
-    result["files"] = handleUploads(r)
+	result := make(map[string][]*FileInfo, 1)
+	result["files"] = handleUploads(r)
 	b, err := json.Marshal(result)
 	check(err)
 	if redirect := r.FormValue("redirect"); validateRedirect(r, redirect) {
-	    if strings.Contains(redirect, "%s") {
-	        redirect = fmt.Sprintf(
-    			redirect,
-    			escape(string(b)),
-    		)
-	    }
+		if strings.Contains(redirect, "%s") {
+			redirect = fmt.Sprintf(
+				redirect,
+				escape(string(b)),
+			)
+		}
 		http.Redirect(w, r, redirect, http.StatusFound)
 		return
 	}
@@ -338,7 +339,7 @@ func handle(w http.ResponseWriter, r *http.Request) {
 		"Content-Type, Content-Range, Content-Disposition",
 	)
 	switch r.Method {
-	case "OPTIONS","HEAD":
+	case "OPTIONS", "HEAD":
 		return
 	case "GET":
 		get(w, r)

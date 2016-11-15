@@ -1,5 +1,5 @@
 /*
- * jQuery Iframe Transport Plugin 1.8.3
+ * jQuery Iframe Transport Plugin
  * https://github.com/blueimp/jQuery-File-Upload
  *
  * Copyright 2011, Sebastian Tschan
@@ -11,7 +11,7 @@
 
 /* global define, require, window, document */
 
-(function (factory) {
+;(function (factory) {
     'use strict';
     if (typeof define === 'function' && define.amd) {
         // Register as an anonymous AMD module:

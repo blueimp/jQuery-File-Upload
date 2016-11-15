@@ -49,26 +49,16 @@ Supports cross-domain, chunked and resumable file uploads and client-side image 
 
 ### Mandatory requirements
 * [jQuery](https://jquery.com/) v. 1.6+
-* [jQuery UI widget factory](https://api.jqueryui.com/jQuery.widget/) v. 1.9+ (included)
-* [jQuery Iframe Transport plugin](https://github.com/blueimp/jQuery-File-Upload/blob/master/js/jquery.iframe-transport.js) (included)
-
-The jQuery UI widget factory is a requirement for the basic File Upload plugin, but very lightweight without any other dependencies from the jQuery UI suite.
-
-The jQuery Iframe Transport is required for [browsers without XHR file upload support](https://github.com/blueimp/jQuery-File-Upload/wiki/Browser-support).
+* [jQuery UI widget factory](https://api.jqueryui.com/jQuery.widget/) v. 1.9+ (included): Required for the basic File Upload plugin, but very lightweight without any other dependencies from the jQuery UI suite.
+* [jQuery Iframe Transport plugin](https://github.com/blueimp/jQuery-File-Upload/blob/master/js/jquery.iframe-transport.js) (included): Required for [browsers without XHR file upload support](https://github.com/blueimp/jQuery-File-Upload/wiki/Browser-support).
 
 ### Optional requirements
-* [JavaScript Templates engine](https://github.com/blueimp/JavaScript-Templates) v. 2.5.4+
-* [JavaScript Load Image library](https://github.com/blueimp/JavaScript-Load-Image) v. 1.13.0+
-* [JavaScript Canvas to Blob polyfill](https://github.com/blueimp/JavaScript-Canvas-to-Blob) v. 2.1.1+
-* [blueimp Gallery](https://github.com/blueimp/Gallery) v. 2.15.1+
+* [JavaScript Templates engine](https://github.com/blueimp/JavaScript-Templates) v. 2.5.4+: Used to render the selected and uploaded files for the Basic Plus UI and jQuery UI versions.
+* [JavaScript Load Image library](https://github.com/blueimp/JavaScript-Load-Image) v. 1.13.0+: Required for the image previews and resizing functionality.
+* [JavaScript Canvas to Blob polyfill](https://github.com/blueimp/JavaScript-Canvas-to-Blob) v. 2.1.1+:Required for the image previews and resizing functionality.
+* [blueimp Gallery](https://github.com/blueimp/Gallery) v. 2.15.1+: Used to display the uploaded images in a lightbox.
 * [Bootstrap](http://getbootstrap.com/) v. 3.2.0+
 * [Glyphicons](http://glyphicons.com/)
-
-The JavaScript Templates engine is used to render the selected and uploaded files for the Basic Plus UI and jQuery UI versions.
-
-The JavaScript Load Image library and JavaScript Canvas to Blob polyfill are required for the image previews and resizing functionality.
-
-The blueimp Gallery is used to display the uploaded images in a lightbox.
 
 The user interface of all versions except the jQuery UI version is built with [Bootstrap](http://getbootstrap.com/) and icons from [Glyphicons](http://glyphicons.com/).
 
@@ -77,6 +67,10 @@ The user interface of all versions except the jQuery UI version is built with [B
 
 The repository also includes the [jQuery XDomainRequest Transport plugin](https://github.com/blueimp/jQuery-File-Upload/blob/master/js/cors/jquery.xdr-transport.js), which enables limited cross-domain AJAX requests in Microsoft Internet Explorer 8 and 9 (IE 10 supports cross-domain XHR requests).  
 The XDomainRequest object allows GET and POST requests only and doesn't support file uploads. It is used on the [Demo](https://blueimp.github.io/jQuery-File-Upload/) to delete uploaded files from the cross-domain demo file upload service.
+
+### Custom Backends
+
+You can add support for various backends by adhering to the specification [outlined here](https://github.com/blueimp/jQuery-File-Upload/wiki/JSON-Response).
 
 ## Browsers
 
