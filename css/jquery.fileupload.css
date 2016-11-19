@@ -22,7 +22,7 @@
   margin: 0;
   opacity: 0;
   -ms-filter: 'alpha(opacity=0)';
-  font-size: 200px !important;
+  font-size: 100% !important;
   direction: ltr;
   cursor: pointer;
 }
