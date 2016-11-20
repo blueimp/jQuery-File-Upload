@@ -90,7 +90,7 @@
                             e = e.originalEvent;
                             var data = e.data,
                                 ev;
-                            if (e.origin === target && data.id === message.id) {
+                            if (target.indexOf(e.origin) > -1 && data.id === message.id) {
                                 if (data.type === 'progress') {
                                     ev = document.createEvent('Event');
                                     ev.initEvent(data.type, false, true);
