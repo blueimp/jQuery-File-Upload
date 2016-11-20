@@ -14,7 +14,7 @@
   position: static;
   opacity: 1;
   filter: none;
-  font-size: inherit;
+  font-size: inherit !important;
   direction: inherit;
 }
 .fileinput-button span {
