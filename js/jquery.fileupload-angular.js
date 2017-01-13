@@ -201,8 +201,8 @@
         // The FileUploadController initializes the fileupload widget and
         // provides scope methods to control the File Upload functionality:
         .controller('FileUploadController', [
-            '$scope', '$element', '$attrs', '$window', 'fileUpload',
-            function ($scope, $element, $attrs, $window, fileUpload) {
+            '$scope', '$element', '$attrs', '$window', 'fileUpload','$q',
+            function ($scope, $element, $attrs, $window, fileUpload, $q) {
                 var uploadMethods = {
                     progress: function () {
                         return $element.fileupload('progress');
@@ -264,19 +264,21 @@
                 $scope.applyOnQueue = function (method) {
                     var list = this.queue.slice(0),
                         i,
-                        file;
+                        file,
+                        promises = [];
                     for (i = 0; i < list.length; i += 1) {
                         file = list[i];
                         if (file[method]) {
-                            file[method]();
+                            promises.push(file[method]());
                         }
                     }
+                    return $q.all(promises);
                 };
                 $scope.submit = function () {
-                    this.applyOnQueue('$submit');
+                    return this.applyOnQueue('$submit');
                 };
                 $scope.cancel = function () {
-                    this.applyOnQueue('$cancel');
+                    return this.applyOnQueue('$cancel');
                 };
                 // Add upload methods to the scope:
                 angular.extend($scope, uploadMethods);
