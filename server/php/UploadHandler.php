@@ -1,7 +1,8 @@
 <?php
-/*
+
+/**
  * jQuery File Upload Plugin PHP Class
- * https://github.com/blueimp/jQuery-File-Upload
+ * https://github.com/blueimp/jQuery-File-Upload.
  *
  * Copyright 2010, Sebastian Tschan
  * https://blueimp.net
@@ -10,14 +11,32 @@
  * http://www.opensource.org/licenses/MIT
  */
 
+/**
+ * Full upload manager including image processing.
+ */
 class UploadHandler
 {
+    /**
+     * Optional option to be set.
+     *
+     * @var array
+     */
+    protected $_options;
 
-    protected $options;
+    /**
+     * Response.
+     *
+     * @var array
+     */
+    protected $_response;
 
-    // PHP File Upload error message codes:
-    // http://php.net/manual/en/features.file-upload.errors.php
-    protected $error_messages = array(
+    /**
+     * PHP File Upload error message codes:
+     * http://php.net/manual/en/features.file-upload.errors.php.
+     *
+     * @var array
+     */
+    protected $_errorMessages = array(
         1 => 'The uploaded file exceeds the upload_max_filesize directive in php.ini',
         2 => 'The uploaded file exceeds the MAX_FILE_SIZE directive that was specified in the HTML form',
         3 => 'The uploaded file was only partially uploaded',
@@ -35,17 +54,31 @@ class UploadHandler
         'max_height' => 'Image exceeds maximum height',
         'min_height' => 'Image requires a minimum height',
         'abort' => 'File upload aborted',
-        'image_resize' => 'Failed to resize image'
+        'image_resize' => 'Failed to resize image',
     );
 
-    protected $image_objects = array();
+    /**
+     * List of image objects.
+     *
+     * @var array
+     */
+    protected $_imageObjects = array();
 
-    public function __construct($options = null, $initialize = true, $error_messages = null) {
-        $this->response = array();
-        $this->options = array(
-            'script_url' => $this->get_full_url().'/'.$this->basename($this->get_server_var('SCRIPT_NAME')),
-            'upload_dir' => dirname($this->get_server_var('SCRIPT_FILENAME')).'/files/',
-            'upload_url' => $this->get_full_url().'/files/',
+
+    /**
+     * Initialize the manager.
+     *
+     * @param array $options Parameters to be set to overload default settings.
+     * @param boolean $initialize
+     * @param array $errorMessages List of error messages to extend or replace the defaults
+     */
+    public function __construct($options = null, $initialize = true, $errorMessages = null)
+    {
+        $this->_response = array();
+        $this->_options = array(
+            'script_url' => $this->_getFullUrl().'/'.$this->_basename($this->_getServerVar('SCRIPT_NAME')),
+            'upload_dir' => dirname($this->_getServerVar('SCRIPT_FILENAME')).'/files/',
+            'upload_url' => $this->_getFullUrl().'/files/',
             'input_stream' => 'php://input',
             'user_dirs' => false,
             'mkdir_mode' => 0755,
@@ -62,20 +95,20 @@ class UploadHandler
                 'POST',
                 'PUT',
                 'PATCH',
-                'DELETE'
+                'DELETE',
             ),
             'access_control_allow_headers' => array(
                 'Content-Type',
                 'Content-Range',
-                'Content-Disposition'
+                'Content-Disposition',
             ),
             // By default, allow redirects to the referer protocol+host:
             'redirect_allow_target' => '/^'.preg_quote(
-              parse_url($this->get_server_var('HTTP_REFERER'), PHP_URL_SCHEME)
+                parse_url($this->_getServerVar('HTTP_REFERER'), PHP_URL_SCHEME)
                 .'://'
-                .parse_url($this->get_server_var('HTTP_REFERER'), PHP_URL_HOST)
+                .parse_url($this->_getServerVar('HTTP_REFERER'), PHP_URL_HOST)
                 .'/', // Trailing slash to not match subdomains by mistake
-              '/' // preg_quote delimiter param
+                '/' // preg_quote delimiter param
             ).'/',
             // Enable to provide file downloads via GET requests to the PHP script:
             //     1. Set to 1 to download files via readfile method through PHP
@@ -115,34 +148,35 @@ class UploadHandler
             // Uncomment the following to define an array of resource limits
             // for imagick:
             /*
-            'imagick_resource_limits' => array(
-                imagick::RESOURCETYPE_MAP => 32,
-                imagick::RESOURCETYPE_MEMORY => 32
-            ),
-            */
+              'imagick_resource_limits' => array(
+              imagick::RESOURCETYPE_MAP => 32,
+              imagick::RESOURCETYPE_MEMORY => 32
+              ),
+             */
+
             // Command or path for to the ImageMagick convert binary:
             'convert_bin' => 'convert',
             // Uncomment the following to add parameters in front of each
             // ImageMagick convert call (the limit constraints seem only
             // to have an effect if put in front):
             /*
-            'convert_params' => '-limit memory 32MiB -limit map 32MiB',
-            */
+              'convert_params' => '-limit memory 32MiB -limit map 32MiB',
+             */
             // Command or path for to the ImageMagick identify binary:
             'identify_bin' => 'identify',
             'image_versions' => array(
                 // The empty image version key defines options for the original image:
                 '' => array(
                     // Automatically rotate images based on EXIF meta data:
-                    'auto_orient' => true
+                    'auto_orient' => true,
                 ),
                 // Uncomment the following to create medium sized images:
                 /*
-                'medium' => array(
-                    'max_width' => 800,
-                    'max_height' => 600
-                ),
-                */
+                  'medium' => array(
+                  'max_width' => 800,
+                  'max_height' => 600
+                  ),
+                 */
                 'thumbnail' => array(
                     // Uncomment the following to use a defined directory for the thumbnails
                     // instead of a subdirectory based on the version identifier.
@@ -155,202 +189,38 @@ class UploadHandler
                     // dimensions and e.g. create square thumbnails:
                     //'crop' => true,
                     'max_width' => 80,
-                    'max_height' => 80
-                )
+                    'max_height' => 80,
+                ),
             ),
-            'print_response' => true
+            'print_response' => true,
         );
+
         if ($options) {
-            $this->options = $options + $this->options;
+            $this->_options = $options + $this->_options;
         }
-        if ($error_messages) {
-            $this->error_messages = $error_messages + $this->error_messages;
+
+        if ($errorMessages) {
+            $this->_errorMessages = $errorMessages + $this->_errorMessages;
         }
+
         if ($initialize) {
-            $this->initialize();
+            $this->_initialize();
         }
     }
 
-    protected function initialize() {
-        switch ($this->get_server_var('REQUEST_METHOD')) {
-            case 'OPTIONS':
-            case 'HEAD':
-                $this->head();
-                break;
-            case 'GET':
-                $this->get($this->options['print_response']);
-                break;
-            case 'PATCH':
-            case 'PUT':
-            case 'POST':
-                $this->post($this->options['print_response']);
-                break;
-            case 'DELETE':
-                $this->delete($this->options['print_response']);
-                break;
-            default:
-                $this->header('HTTP/1.1 405 Method Not Allowed');
-        }
-    }
 
-    protected function get_full_url() {
-        $https = !empty($_SERVER['HTTPS']) && strcasecmp($_SERVER['HTTPS'], 'on') === 0 ||
-            !empty($_SERVER['HTTP_X_FORWARDED_PROTO']) &&
-                strcasecmp($_SERVER['HTTP_X_FORWARDED_PROTO'], 'https') === 0;
-        return
-            ($https ? 'https://' : 'http://').
-            (!empty($_SERVER['REMOTE_USER']) ? $_SERVER['REMOTE_USER'].'@' : '').
-            (isset($_SERVER['HTTP_HOST']) ? $_SERVER['HTTP_HOST'] : ($_SERVER['SERVER_NAME'].
-            ($https && $_SERVER['SERVER_PORT'] === 443 ||
-            $_SERVER['SERVER_PORT'] === 80 ? '' : ':'.$_SERVER['SERVER_PORT']))).
-            substr($_SERVER['SCRIPT_NAME'],0, strrpos($_SERVER['SCRIPT_NAME'], '/'));
-    }
-
-    protected function get_user_id() {
-        @session_start();
-        return session_id();
-    }
-
-    protected function get_user_path() {
-        if ($this->options['user_dirs']) {
-            return $this->get_user_id().'/';
-        }
-        return '';
-    }
-
-    protected function get_upload_path($file_name = null, $version = null) {
-        $file_name = $file_name ? $file_name : '';
-        if (empty($version)) {
-            $version_path = '';
-        } else {
-            $version_dir = @$this->options['image_versions'][$version]['upload_dir'];
-            if ($version_dir) {
-                return $version_dir.$this->get_user_path().$file_name;
-            }
-            $version_path = $version.'/';
-        }
-        return $this->options['upload_dir'].$this->get_user_path()
-            .$version_path.$file_name;
-    }
-
-    protected function get_query_separator($url) {
-        return strpos($url, '?') === false ? '?' : '&';
-    }
-
-    protected function get_download_url($file_name, $version = null, $direct = false) {
-        if (!$direct && $this->options['download_via_php']) {
-            $url = $this->options['script_url']
-                .$this->get_query_separator($this->options['script_url'])
-                .$this->get_singular_param_name()
-                .'='.rawurlencode($file_name);
-            if ($version) {
-                $url .= '&version='.rawurlencode($version);
-            }
-            return $url.'&download=1';
-        }
-        if (empty($version)) {
-            $version_path = '';
-        } else {
-            $version_url = @$this->options['image_versions'][$version]['upload_url'];
-            if ($version_url) {
-                return $version_url.$this->get_user_path().rawurlencode($file_name);
-            }
-            $version_path = rawurlencode($version).'/';
-        }
-        return $this->options['upload_url'].$this->get_user_path()
-            .$version_path.rawurlencode($file_name);
-    }
-
-    protected function set_additional_file_properties($file) {
-        $file->deleteUrl = $this->options['script_url']
-            .$this->get_query_separator($this->options['script_url'])
-            .$this->get_singular_param_name()
-            .'='.rawurlencode($file->name);
-        $file->deleteType = $this->options['delete_type'];
-        if ($file->deleteType !== 'DELETE') {
-            $file->deleteUrl .= '&_method=DELETE';
-        }
-        if ($this->options['access_control_allow_credentials']) {
-            $file->deleteWithCredentials = true;
-        }
-    }
-
-    // Fix for overflowing signed 32 bit integers,
-    // works for sizes up to 2^32-1 bytes (4 GiB - 1):
-    protected function fix_integer_overflow($size) {
-        if ($size < 0) {
-            $size += 2.0 * (PHP_INT_MAX + 1);
-        }
-        return $size;
-    }
-
-    protected function get_file_size($file_path, $clear_stat_cache = false) {
-        if ($clear_stat_cache) {
-            if (version_compare(PHP_VERSION, '5.3.0') >= 0) {
-                clearstatcache(true, $file_path);
-            } else {
-                clearstatcache();
-            }
-        }
-        return $this->fix_integer_overflow(filesize($file_path));
-    }
-
-    protected function is_valid_file_object($file_name) {
-        $file_path = $this->get_upload_path($file_name);
-        if (is_file($file_path) && $file_name[0] !== '.') {
-            return true;
-        }
-        return false;
-    }
-
-    protected function get_file_object($file_name) {
-        if ($this->is_valid_file_object($file_name)) {
-            $file = new \stdClass();
-            $file->name = $file_name;
-            $file->size = $this->get_file_size(
-                $this->get_upload_path($file_name)
-            );
-            $file->url = $this->get_download_url($file->name);
-            foreach ($this->options['image_versions'] as $version => $options) {
-                if (!empty($version)) {
-                    if (is_file($this->get_upload_path($file_name, $version))) {
-                        $file->{$version.'Url'} = $this->get_download_url(
-                            $file->name,
-                            $version
-                        );
-                    }
-                }
-            }
-            $this->set_additional_file_properties($file);
-            return $file;
-        }
-        return null;
-    }
-
-    protected function get_file_objects($iteration_method = 'get_file_object') {
-        $upload_dir = $this->get_upload_path();
-        if (!is_dir($upload_dir)) {
-            return array();
-        }
-        return array_values(array_filter(array_map(
-            array($this, $iteration_method),
-            scandir($upload_dir)
-        )));
-    }
-
-    protected function count_file_objects() {
-        return count($this->get_file_objects('is_valid_file_object'));
-    }
-
-    protected function get_error_message($error) {
-        return isset($this->error_messages[$error]) ?
-            $this->error_messages[$error] : $error;
-    }
-
-    public function get_config_bytes($val) {
+    /**
+     * Returns the number of bytes for a e.g. php value like post_max_size
+     *
+     * @param string|integer $val Value of the config eg: '2M'
+     *
+     * @return integer size in bytes
+     */
+    public function getConfigBytes($val)
+    {
         $val = trim($val);
-        $last = strtolower($val[strlen($val)-1]);
-        $val = (int)$val;
+        $last = strtolower($val[strlen($val) - 1]);
+        $val = (int) $val;
         switch ($last) {
             case 'g':
                 $val *= 1024;
@@ -359,64 +229,489 @@ class UploadHandler
             case 'k':
                 $val *= 1024;
         }
-        return $this->fix_integer_overflow($val);
+
+        return $this->_fixIntegerOverflow($val);
     }
 
-    protected function validate($uploaded_file, $file, $error, $index) {
+
+    /**
+     * Returns response contents or json string to output.
+     *
+     * @todo task mismatch: several tasks in one methode failure. Too complicted.
+     *
+     * @param string $content
+     * @param boolean $printResponse If true headers for json and json string will print out
+     * otherwise the content will retrun
+     *
+     * @return string Response string
+     */
+    public function generateResponse($content, $printResponse  = true)
+    {
+        $this->_response = $content;
+        if ($printResponse ) {
+            $json = json_encode($content);
+            $redirect = stripslashes($this->_getPostParam('redirect'));
+            if ($redirect && preg_match($this->_options['redirect_allow_target'], $redirect)) {
+                $this->_header('Location: '.sprintf($redirect, rawurlencode($json)));
+
+                return;
+            }
+            $this->head();
+            if ($this->_getServerVar('HTTP_CONTENT_RANGE')) {
+                $files = isset($content[$this->_options['param_name']]) ?
+                    $content[$this->_options['param_name']] : null;
+                if ($files && is_array($files) && is_object($files[0]) && $files[0]->size) {
+                    $this->_header('Range: 0-'.(
+                        $this->_fixIntegerOverflow((int) $files[0]->size) - 1
+                    ));
+                }
+            }
+            $this->_body($json);
+        }
+
+        return $content;
+    }
+
+
+    /**
+     * Returns the response string.
+     *
+     * @return string The response string
+     */
+    public function getResponse()
+    {
+        return $this->_response;
+    }
+
+
+    /**
+     * Sets basic headers to output.
+     */
+    public function head()
+    {
+        $this->_header('Pragma: no-cache');
+        $this->_header('Cache-Control: no-store, no-cache, must-revalidate');
+        $this->_header('Content-Disposition: inline; filename="files.json"');
+        // Prevent Internet Explorer from MIME-sniffing the content-type:
+        $this->_header('X-Content-Type-Options: nosniff');
+        if ( $this->_options['access_control_allow_origin'] ) {
+            $this->_sendAccessControlHeaders();
+        }
+        $this->_sendContentTypeHeader();
+    }
+
+
+    /**
+     * @todo Not clear at the moment.
+     *
+     * @param boolean $printResponse
+     * @return type
+     */
+    public function get( $printResponse = true )
+    {
+        if ( $printResponse && $this->_getQueryParam('download') ) {
+            return $this->_download();
+        }
+        $file_name = $this->_getFileNameParam();
+        if ( $file_name ) {
+            $response = array(
+                $this->_getSingularParamName() => $this->_getFileObject($file_name),
+            );
+        } else {
+            $response = array(
+                $this->_options['param_name'] => $this->_getFileObjects(),
+            );
+        }
+
+        return $this->generateResponse($response, $printResponse);
+    }
+
+
+    /**
+     *
+     * @param type $printResponse
+     * @return type
+     */
+    public function post( $printResponse = true )
+    {
+        if ($this->_getQueryParam('_method') === 'DELETE') {
+            return $this->delete($printResponse);
+        }
+        $upload = $this->_getUploadData($this->_options['param_name']);
+        // Parse the Content-Disposition header, if available:
+        $content_disposition_header = $this->_getServerVar('HTTP_CONTENT_DISPOSITION');
+        $file_name = $content_disposition_header ?
+            rawurldecode(preg_replace(
+                    '/(^[^"]+")|("$)/', '', $content_disposition_header
+            )) : null;
+        // Parse the Content-Range header, which has the following form:
+        // Content-Range: bytes 0-524287/2000000
+        $content_range_header = $this->_getServerVar('HTTP_CONTENT_RANGE');
+        $content_range = $content_range_header ?
+            preg_split('/[^0-9]+/', $content_range_header) : null;
+        $size = $content_range ? $content_range[3] : null;
+        $files = array();
+        if ($upload) {
+            if (is_array($upload['tmp_name'])) {
+                // param_name is an array identifier like "files[]",
+                // $upload is a multi-dimensional array:
+                foreach ($upload['tmp_name'] as $index => $value) {
+                    $files[] = $this->_handleFileUpload(
+                        $upload['tmp_name'][$index],
+                        $file_name ? $file_name : $upload['name'][$index],
+                        $size ? $size : $upload['size'][$index], $upload['type'][$index],
+                        $upload['error'][$index], $index, $content_range
+                    );
+                }
+            } else {
+                // param_name is a single object identifier like "file",
+                // $upload is a one-dimensional array:
+                $files[] = $this->_handleFileUpload(
+                    isset($upload['tmp_name']) ? $upload['tmp_name'] : null,
+                    $file_name ? $file_name : (isset($upload['name']) ?
+                            $upload['name'] : null),
+                    $size ? $size : (isset($upload['size']) ?
+                            $upload['size'] : $this->_getServerVar('CONTENT_LENGTH')),
+                    isset($upload['type']) ?
+                        $upload['type'] : $this->_getServerVar('CONTENT_TYPE'),
+                    isset($upload['error']) ? $upload['error'] : null, null, $content_range
+                );
+            }
+        }
+        $response = array($this->_options['param_name'] => $files);
+
+        return $this->generateResponse($response, $printResponse);
+    }
+
+
+    /**
+     * Delete file/s.
+     *
+     * @param boolean $printResponse
+     *
+     * @return string
+     */
+    public function delete( $printResponse = true )
+    {
+        $file_names = $this->_getFileNamesParams();
+        if ( empty($file_names) ) {
+            $file_names = array($this->_getFileNameParam());
+        }
+
+        $response = array();
+        foreach ( $file_names as $file_name ) {
+            $file_path = $this->_geUploadPath($file_name);
+            $success = is_file($file_path) && $file_name[0] !== '.' && unlink($file_path);
+            if ( $success ) {
+                foreach ( $this->_options['image_versions'] as $version => $options ) {
+                    if ( !empty($version) ) {
+                        $file = $this->_geUploadPath($file_name, $version);
+                        if ( is_file($file) ) {
+                            unlink($file);
+                        }
+                    }
+                }
+            }
+            $response[$file_name] = $success;
+        }
+
+        return $this->generateResponse($response, $printResponse);
+    }
+
+
+    protected function _initialize()
+    {
+        switch ($this->_getServerVar('REQUEST_METHOD')) {
+            case 'OPTIONS':
+            case 'HEAD':
+                $this->head();
+                break;
+            case 'GET':
+                $this->get($this->_options['print_response']);
+                break;
+            case 'PATCH':
+            case 'PUT':
+            case 'POST':
+                $this->post($this->_options['print_response']);
+                break;
+            case 'DELETE':
+                $this->delete($this->_options['print_response']);
+                break;
+            default:
+                $this->_header('HTTP/1.1 405 Method Not Allowed');
+        }
+    }
+
+
+    protected function _getFullUrl()
+    {
+        $https = !empty($_SERVER['HTTPS']) && strcasecmp($_SERVER['HTTPS'], 'on') === 0 ||
+            !empty($_SERVER['HTTP_X_FORWARDED_PROTO']) &&
+            strcasecmp($_SERVER['HTTP_X_FORWARDED_PROTO'], 'https') === 0;
+
+        return
+            ($https ? 'https://' : 'http://').
+            (!empty($_SERVER['REMOTE_USER']) ? $_SERVER['REMOTE_USER'].'@' : '').
+            (isset($_SERVER['HTTP_HOST']) ? $_SERVER['HTTP_HOST'] : ($_SERVER['SERVER_NAME'].
+                ($https && $_SERVER['SERVER_PORT'] === 443 ||
+                $_SERVER['SERVER_PORT'] === 80 ? '' : ':'.$_SERVER['SERVER_PORT']))).
+            substr($_SERVER['SCRIPT_NAME'], 0, strrpos($_SERVER['SCRIPT_NAME'], '/'));
+    }
+
+    /**
+     * Returns the session ID as user ID
+     *
+     * @return string
+     */
+    protected function _getUserId()
+    {
+        @session_start();
+
+        return session_id();
+    }
+
+
+    /**
+     * Returns the path where uploads are located.
+     *
+     * If 'user_dirs' is set to true the sub path is the session ID orthe base path will return.
+     *
+     * @return string relative path of upload folder (prefix .../files/) ('' or '[sessionID]/')
+     */
+    protected function _getUserPath()
+    {
+        if ($this->_options['user_dirs']) {
+            return $this->_getUserId().'/';
+        }
+
+        return '';
+    }
+
+
+    protected function _geUploadPath($fileName = null, $version = null)
+    {
+        $fileName = $fileName ? $fileName : '';
+        if (empty($version)) {
+            $version_path = '';
+        } else {
+            $version_dir = @$this->_options['image_versions'][$version]['upload_dir'];
+            if ($version_dir) {
+                return $version_dir.$this->_getUserPath().$fileName;
+            }
+            $version_path = $version.'/';
+        }
+
+        return $this->_options['upload_dir'].$this->_getUserPath()
+            .$version_path.$fileName;
+    }
+
+
+    protected function _getQuerySeparator($url)
+    {
+        return strpos($url, '?') === false ? '?' : '&';
+    }
+
+
+    protected function _getDownloadUrl($fileName, $version = null, $direct = false)
+    {
+        if (!$direct && $this->_options['download_via_php']) {
+            $url = $this->_options['script_url']
+                .$this->_getQuerySeparator($this->_options['script_url'])
+                .$this->_getSingularParamName()
+                .'='.rawurlencode($fileName);
+            if ($version) {
+                $url .= '&version='.rawurlencode($version);
+            }
+
+            return $url.'&download=1';
+        }
+        if (empty($version)) {
+            $version_path = '';
+        } else {
+            $version_url = @$this->_options['image_versions'][$version]['upload_url'];
+            if ($version_url) {
+                return $version_url.$this->_getUserPath().rawurlencode($fileName);
+            }
+            $version_path = rawurlencode($version).'/';
+        }
+
+        return $this->_options['upload_url'].$this->_getUserPath()
+            .$version_path.rawurlencode($fileName);
+    }
+
+
+    protected function _setAdditionalFileProperties($file)
+    {
+        $file->deleteUrl = $this->_options['script_url']
+            .$this->_getQuerySeparator($this->_options['script_url'])
+            .$this->_getSingularParamName()
+            .'='.rawurlencode($file->name);
+        $file->deleteType = $this->_options['delete_type'];
+        if ($file->deleteType !== 'DELETE') {
+            $file->deleteUrl .= '&_method=DELETE';
+        }
+        if ($this->_options['access_control_allow_credentials']) {
+            $file->deleteWithCredentials = true;
+        }
+    }
+
+
+    /**
+     * php int to double conversion.
+     *
+     * Fix for overflowing signed 32 bit integers,
+     * works for sizes up to 2^32-1 bytes (4 GiB - 1)
+     */
+    protected function _fixIntegerOverflow($size)
+    {
+        if ($size < 0) {
+            $size += 2.0 * (PHP_INT_MAX + 1);
+        }
+
+        return $size;
+    }
+
+
+    protected function _getFileSize($filePath, $clearStatCache = false)
+    {
+        if ($clearStatCache) {
+            if (version_compare(PHP_VERSION, '5.3.0') >= 0) {
+                clearstatcache(true, $filePath);
+            } else {
+                clearstatcache();
+            }
+        }
+
+        return $this->_fixIntegerOverflow(filesize($filePath));
+    }
+
+
+    protected function _isValidFileObject($fileName)
+    {
+        $file_path = $this->_geUploadPath($fileName);
+        if (is_file($file_path) && $fileName[0] !== '.') {
+            return true;
+        }
+
+        return false;
+    }
+
+
+    protected function _getFileObject($fileName)
+    {
+        if ($this->_isValidFileObject($fileName)) {
+            $file = new \stdClass();
+            $file->name = $fileName;
+            $file->size = $this->_getFileSize(
+                $this->_geUploadPath($fileName)
+            );
+            $file->url = $this->_getDownloadUrl($file->name);
+            foreach ($this->_options['image_versions'] as $version => $options) {
+                if (!empty($version)) {
+                    if (is_file($this->_geUploadPath($fileName, $version))) {
+                        $file->{$version.'Url'} = $this->_getDownloadUrl(
+                            $file->name, $version
+                        );
+                    }
+                }
+            }
+            $this->_setAdditionalFileProperties($file);
+
+            return $file;
+        }
+
+        return null;
+    }
+
+
+    protected function _getFileObjects($iterationMethod = '_getFileObject')
+    {
+        $uploadDir = $this->_geUploadPath();
+        if (!is_dir($uploadDir)) {
+            return array();
+        }
+
+        return array_values(array_filter(array_map(
+                    array($this, $iterationMethod), scandir($uploadDir)
+        )));
+    }
+
+
+    protected function _countFileObjects()
+    {
+        return count($this->_getFileObjects('_isValidFileObject'));
+    }
+
+
+    protected function _getErrorMessage( $error )
+    {
+        return isset($this->_errorMessages[$error]) ?
+            $this->_errorMessages[$error] : $error;
+    }
+
+
+    protected function _validate($uploadedFile, $file, $error, $index)
+    {
         if ($error) {
-            $file->error = $this->get_error_message($error);
+            $file->error = $this->_getErrorMessage($error);
+
             return false;
         }
-        $content_length = $this->fix_integer_overflow(
-            (int)$this->get_server_var('CONTENT_LENGTH')
+        $content_length = $this->_fixIntegerOverflow(
+            (int) $this->_getServerVar('CONTENT_LENGTH')
         );
-        $post_max_size = $this->get_config_bytes(ini_get('post_max_size'));
+        $post_max_size = $this->getConfigBytes(ini_get('post_max_size'));
         if ($post_max_size && ($content_length > $post_max_size)) {
-            $file->error = $this->get_error_message('post_max_size');
+            $file->error = $this->_getErrorMessage('post_max_size');
+
             return false;
         }
-        if (!preg_match($this->options['accept_file_types'], $file->name)) {
-            $file->error = $this->get_error_message('accept_file_types');
+        if (!preg_match($this->_options['accept_file_types'], $file->name)) {
+            $file->error = $this->_getErrorMessage('accept_file_types');
+
             return false;
         }
-        if ($uploaded_file && is_uploaded_file($uploaded_file)) {
-            $file_size = $this->get_file_size($uploaded_file);
+        if ($uploadedFile && is_uploaded_file($uploadedFile)) {
+            $file_size = $this->_getFileSize($uploadedFile);
         } else {
             $file_size = $content_length;
         }
-        if ($this->options['max_file_size'] && (
-                $file_size > $this->options['max_file_size'] ||
-                $file->size > $this->options['max_file_size'])
-            ) {
-            $file->error = $this->get_error_message('max_file_size');
+        if ($this->_options['max_file_size'] && (
+            $file_size > $this->_options['max_file_size'] ||
+            $file->size > $this->_options['max_file_size'])
+        ) {
+            $file->error = $this->_getErrorMessage('max_file_size');
+
             return false;
         }
-        if ($this->options['min_file_size'] &&
-            $file_size < $this->options['min_file_size']) {
-            $file->error = $this->get_error_message('min_file_size');
+        if ($this->_options['min_file_size'] &&
+            $file_size < $this->_options['min_file_size']) {
+            $file->error = $this->_getErrorMessage('min_file_size');
+
             return false;
         }
-        if (is_int($this->options['max_number_of_files']) &&
-                ($this->count_file_objects() >= $this->options['max_number_of_files']) &&
-                // Ignore additional chunks of existing files:
-                !is_file($this->get_upload_path($file->name))) {
-            $file->error = $this->get_error_message('max_number_of_files');
+        if (is_int($this->_options['max_number_of_files']) &&
+            ($this->_countFileObjects() >= $this->_options['max_number_of_files']) &&
+            // Ignore additional chunks of existing files:
+            !is_file($this->_geUploadPath($file->name))) {
+            $file->error = $this->_getErrorMessage('max_number_of_files');
+
             return false;
         }
-        $max_width = @$this->options['max_width'];
-        $max_height = @$this->options['max_height'];
-        $min_width = @$this->options['min_width'];
-        $min_height = @$this->options['min_height'];
-        if (($max_width || $max_height || $min_width || $min_height)
-           && preg_match($this->options['image_file_types'], $file->name)) {
-            list($img_width, $img_height) = $this->get_image_size($uploaded_file);
+        $max_width = @$this->_options['max_width'];
+        $max_height = @$this->_options['max_height'];
+        $min_width = @$this->_options['min_width'];
+        $min_height = @$this->_options['min_height'];
+        if (($max_width || $max_height || $min_width || $min_height) && preg_match($this->_options['image_file_types'],
+                $file->name)) {
+            list($img_width, $img_height) = $this->_getImageSize($uploadedFile);
 
             // If we are auto rotating the image by default, do the checks on
             // the correct orientation
             if (
-                @$this->options['image_versions']['']['auto_orient'] &&
+                @$this->_options['image_versions']['']['auto_orient'] &&
                 function_exists('exif_read_data') &&
-                ($exif = @exif_read_data($uploaded_file)) &&
+                ($exif = @exif_read_data($uploadedFile)) &&
                 (((int) @$exif['Orientation']) >= 5)
             ) {
                 $tmp = $img_width;
@@ -424,71 +719,82 @@ class UploadHandler
                 $img_height = $tmp;
                 unset($tmp);
             }
-
         }
         if (!empty($img_width)) {
             if ($max_width && $img_width > $max_width) {
-                $file->error = $this->get_error_message('max_width');
+                $file->error = $this->_getErrorMessage('max_width');
+
                 return false;
             }
             if ($max_height && $img_height > $max_height) {
-                $file->error = $this->get_error_message('max_height');
+                $file->error = $this->_getErrorMessage('max_height');
+
                 return false;
             }
             if ($min_width && $img_width < $min_width) {
-                $file->error = $this->get_error_message('min_width');
+                $file->error = $this->_getErrorMessage('min_width');
+
                 return false;
             }
             if ($min_height && $img_height < $min_height) {
-                $file->error = $this->get_error_message('min_height');
+                $file->error = $this->_getErrorMessage('min_height');
+
                 return false;
             }
         }
+
         return true;
     }
 
-    protected function upcount_name_callback($matches) {
-        $index = isset($matches[1]) ? ((int)$matches[1]) + 1 : 1;
+
+    protected function _upcountNameCallback($matches)
+    {
+        $index = isset($matches[1]) ? ((int) $matches[1]) + 1 : 1;
         $ext = isset($matches[2]) ? $matches[2] : '';
+
         return ' ('.$index.')'.$ext;
     }
 
-    protected function upcount_name($name) {
+
+    protected function _upcountName($name)
+    {
         return preg_replace_callback(
-            '/(?:(?: \(([\d]+)\))?(\.[^.]+))?$/',
-            array($this, 'upcount_name_callback'),
-            $name,
-            1
+            '/(?:(?: \(([\d]+)\))?(\.[^.]+))?$/', array($this, '_upcountNameCallback'), $name, 1
         );
     }
 
-    protected function get_unique_filename($file_path, $name, $size, $type, $error,
-            $index, $content_range) {
-        while(is_dir($this->get_upload_path($name))) {
-            $name = $this->upcount_name($name);
+
+    protected function _getUniqueFilename($filePath, $name, $size, $type, $error, $index,
+        $contentRange)
+    {
+        while (is_dir($this->_geUploadPath($name))) {
+            $name = $this->_upcountName($name);
         }
         // Keep an existing filename if this is part of a chunked upload:
-        $uploaded_bytes = $this->fix_integer_overflow((int)$content_range[1]);
-        while (is_file($this->get_upload_path($name))) {
-            if ($uploaded_bytes === $this->get_file_size(
-                    $this->get_upload_path($name))) {
+        $uploaded_bytes = $this->_fixIntegerOverflow((int) $contentRange[1]);
+        while (is_file($this->_geUploadPath($name))) {
+            if ($uploaded_bytes === $this->_getFileSize(
+                    $this->_geUploadPath($name))) {
                 break;
             }
-            $name = $this->upcount_name($name);
+            $name = $this->_upcountName($name);
         }
+
         return $name;
     }
 
-    protected function fix_file_extension($file_path, $name, $size, $type, $error,
-            $index, $content_range) {
+
+    protected function _fixFileExtension($filePath, $name, $size, $type, $error, $index,
+        $contentRange)
+    {
         // Add missing file extension for known image types:
         if (strpos($name, '.') === false &&
-                preg_match('/^image\/(gif|jpe?g|png)/', $type, $matches)) {
+            preg_match('/^image\/(gif|jpe?g|png)/', $type, $matches)) {
             $name .= '.'.$matches[1];
         }
-        if ($this->options['correct_image_extensions'] &&
-                function_exists('exif_imagetype')) {
-            switch (@exif_imagetype($file_path)){
+        if ($this->_options['correct_image_extensions'] &&
+            function_exists('exif_imagetype')) {
+            switch (@exif_imagetype($filePath)) {
                 case IMAGETYPE_JPEG:
                     $extensions = array('jpg', 'jpeg');
                     break;
@@ -510,177 +816,190 @@ class UploadHandler
                 }
             }
         }
+
         return $name;
     }
 
-    protected function trim_file_name($file_path, $name, $size, $type, $error,
-            $index, $content_range) {
+
+    protected function _trimFileName($filePath, $name, $size, $type, $error, $index,
+        $contentRange)
+    {
         // Remove path information and dots around the filename, to prevent uploading
         // into different directories or replacing hidden system files.
         // Also remove control characters and spaces (\x00..\x20) around the filename:
-        $name = trim($this->basename(stripslashes($name)), ".\x00..\x20");
+        $name = trim($this->_basename(stripslashes($name)), ".\x00..\x20");
         // Use a timestamp for empty filenames:
         if (!$name) {
             $name = str_replace('.', '-', microtime(true));
         }
+
         return $name;
     }
 
-    protected function get_file_name($file_path, $name, $size, $type, $error,
-            $index, $content_range) {
-        $name = $this->trim_file_name($file_path, $name, $size, $type, $error,
-            $index, $content_range);
-        return $this->get_unique_filename(
-            $file_path,
-            $this->fix_file_extension($file_path, $name, $size, $type, $error,
-                $index, $content_range),
-            $size,
-            $type,
-            $error,
-            $index,
-            $content_range
+
+    protected function _getFileName($filePath, $name, $size, $type, $error, $index,
+        $contentRange)
+    {
+        $name = $this->_trimFileName($filePath, $name, $size, $type, $error, $index,
+            $contentRange);
+
+        return $this->_getUniqueFilename(
+                $filePath,
+                $this->_fixFileExtension($filePath, $name, $size, $type, $error, $index,
+                    $contentRange), $size, $type, $error, $index, $contentRange
         );
     }
 
-    protected function get_scaled_image_file_paths($file_name, $version) {
-        $file_path = $this->get_upload_path($file_name);
+
+    protected function _getScaledImageFilePaths($fileName, $version)
+    {
+        $file_path = $this->_geUploadPath($fileName);
         if (!empty($version)) {
-            $version_dir = $this->get_upload_path(null, $version);
+            $version_dir = $this->_geUploadPath(null, $version);
             if (!is_dir($version_dir)) {
-                mkdir($version_dir, $this->options['mkdir_mode'], true);
+                mkdir($version_dir, $this->_options['mkdir_mode'], true);
             }
-            $new_file_path = $version_dir.'/'.$file_name;
+            $new_file_path = $version_dir.'/'.$fileName;
         } else {
             $new_file_path = $file_path;
         }
+
         return array($file_path, $new_file_path);
     }
 
-    protected function gd_get_image_object($file_path, $func, $no_cache = false) {
-        if (empty($this->image_objects[$file_path]) || $no_cache) {
-            $this->gd_destroy_image_object($file_path);
-            $this->image_objects[$file_path] = $func($file_path);
+
+    protected function _gdGetImageObject($filePath, $func, $noCache = false)
+    {
+        if (empty($this->_imageObjects[$filePath]) || $noCache) {
+            $this->_gdDestroyImageObject($filePath);
+            $this->_imageObjects[$filePath] = $func($filePath);
         }
-        return $this->image_objects[$file_path];
+
+        return $this->_imageObjects[$filePath];
     }
 
-    protected function gd_set_image_object($file_path, $image) {
-        $this->gd_destroy_image_object($file_path);
-        $this->image_objects[$file_path] = $image;
+
+    protected function _gdSetImageObject($filePath, $image)
+    {
+        $this->_gdDestroyImageObject($filePath);
+        $this->_imageObjects[$filePath] = $image;
     }
 
-    protected function gd_destroy_image_object($file_path) {
-        $image = (isset($this->image_objects[$file_path])) ? $this->image_objects[$file_path] : null ;
+
+    protected function _gdDestroyImageObject($filePath)
+    {
+        $image = (isset($this->_imageObjects[$filePath])) ? $this->_imageObjects[$filePath] : null;
+
         return $image && imagedestroy($image);
     }
 
-    protected function gd_imageflip($image, $mode) {
+
+    protected function _gdImageflip($image, $mode)
+    {
         if (function_exists('imageflip')) {
             return imageflip($image, $mode);
         }
-        $new_width = $src_width = imagesx($image);
-        $new_height = $src_height = imagesy($image);
-        $new_img = imagecreatetruecolor($new_width, $new_height);
+        $newWidth = $src_width = imagesx($image);
+        $newHeight = $src_height = imagesy($image);
+        $new_img = imagecreatetruecolor($newWidth, $newHeight);
         $src_x = 0;
         $src_y = 0;
         switch ($mode) {
             case '1': // flip on the horizontal axis
-                $src_y = $new_height - 1;
-                $src_height = -$new_height;
+                $src_y = $newHeight - 1;
+                $src_height = -$newHeight;
                 break;
             case '2': // flip on the vertical axis
-                $src_x  = $new_width - 1;
-                $src_width = -$new_width;
+                $src_x = $newWidth - 1;
+                $src_width = -$newWidth;
                 break;
             case '3': // flip on both axes
-                $src_y = $new_height - 1;
-                $src_height = -$new_height;
-                $src_x  = $new_width - 1;
-                $src_width = -$new_width;
+                $src_y = $newHeight - 1;
+                $src_height = -$newHeight;
+                $src_x = $newWidth - 1;
+                $src_width = -$newWidth;
                 break;
             default:
                 return $image;
         }
         imagecopyresampled(
-            $new_img,
-            $image,
-            0,
-            0,
-            $src_x,
-            $src_y,
-            $new_width,
-            $new_height,
-            $src_width,
-            $src_height
+            $new_img, $image, 0, 0, $src_x, $src_y, $newWidth, $newHeight, $src_width, $src_height
         );
+
         return $new_img;
     }
 
-    protected function gd_orient_image($file_path, $src_img) {
+    /**
+     *
+     * @param type $filePath
+     * @param type $srcImg
+     * @return boolean
+     */
+    protected function _gdOrientImage($filePath, $srcImg)
+    {
         if (!function_exists('exif_read_data')) {
             return false;
         }
-        $exif = @exif_read_data($file_path);
+        $exif = @exif_read_data($filePath);
         if ($exif === false) {
             return false;
         }
-        $orientation = (int)@$exif['Orientation'];
+        $orientation = (int) @$exif['Orientation'];
         if ($orientation < 2 || $orientation > 8) {
             return false;
         }
         switch ($orientation) {
             case 2:
-                $new_img = $this->gd_imageflip(
-                    $src_img,
-                    defined('IMG_FLIP_VERTICAL') ? IMG_FLIP_VERTICAL : 2
+                $new_img = $this->_gdImageflip(
+                    $srcImg, defined('IMG_FLIP_VERTICAL') ? IMG_FLIP_VERTICAL : 2
                 );
                 break;
             case 3:
-                $new_img = imagerotate($src_img, 180, 0);
+                $new_img = imagerotate($srcImg, 180, 0);
                 break;
             case 4:
-                $new_img = $this->gd_imageflip(
-                    $src_img,
-                    defined('IMG_FLIP_HORIZONTAL') ? IMG_FLIP_HORIZONTAL : 1
+                $new_img = $this->_gdImageflip(
+                    $srcImg, defined('IMG_FLIP_HORIZONTAL') ? IMG_FLIP_HORIZONTAL : 1
                 );
                 break;
             case 5:
-                $tmp_img = $this->gd_imageflip(
-                    $src_img,
-                    defined('IMG_FLIP_HORIZONTAL') ? IMG_FLIP_HORIZONTAL : 1
+                $tmp_img = $this->_gdImageflip(
+                    $srcImg, defined('IMG_FLIP_HORIZONTAL') ? IMG_FLIP_HORIZONTAL : 1
                 );
                 $new_img = imagerotate($tmp_img, 270, 0);
                 imagedestroy($tmp_img);
                 break;
             case 6:
-                $new_img = imagerotate($src_img, 270, 0);
+                $new_img = imagerotate($srcImg, 270, 0);
                 break;
             case 7:
-                $tmp_img = $this->gd_imageflip(
-                    $src_img,
-                    defined('IMG_FLIP_VERTICAL') ? IMG_FLIP_VERTICAL : 2
+                $tmp_img = $this->_gdImageflip(
+                    $srcImg, defined('IMG_FLIP_VERTICAL') ? IMG_FLIP_VERTICAL : 2
                 );
                 $new_img = imagerotate($tmp_img, 270, 0);
                 imagedestroy($tmp_img);
                 break;
             case 8:
-                $new_img = imagerotate($src_img, 90, 0);
+                $new_img = imagerotate($srcImg, 90, 0);
                 break;
             default:
                 return false;
         }
-        $this->gd_set_image_object($file_path, $new_img);
+        $this->_gdSetImageObject($filePath, $new_img);
+
         return true;
     }
 
-    protected function gd_create_scaled_image($file_name, $version, $options) {
+
+    protected function _gdCreateScaledImage($fileName, $version, $options)
+    {
         if (!function_exists('imagecreatetruecolor')) {
             error_log('Function not found: imagecreatetruecolor');
+
             return false;
         }
-        list($file_path, $new_file_path) =
-            $this->get_scaled_image_file_paths($file_name, $version);
-        $type = strtolower(substr(strrchr($file_name, '.'), 1));
+        list($file_path, $new_file_path) = $this->_getScaledImageFilePaths($fileName, $version);
+        $type = strtolower(substr(strrchr($fileName, '.'), 1));
         switch ($type) {
             case 'jpg':
             case 'jpeg':
@@ -703,20 +1022,16 @@ class UploadHandler
             default:
                 return false;
         }
-        $src_img = $this->gd_get_image_object(
-            $file_path,
-            $src_func,
-            !empty($options['no_cache'])
+        $src_img = $this->_gdGetImageObject(
+            $file_path, $src_func, !empty($options['no_cache'])
         );
         $image_oriented = false;
-        if (!empty($options['auto_orient']) && $this->gd_orient_image(
-                $file_path,
-                $src_img
+        if (!empty($options['auto_orient']) && $this->_gdOrientImage(
+                $file_path, $src_img
             )) {
             $image_oriented = true;
-            $src_img = $this->gd_get_image_object(
-                $file_path,
-                $src_func
+            $src_img = $this->_gdGetImageObject(
+                $file_path, $src_func
             );
         }
         $max_width = $img_width = imagesx($src_img);
@@ -728,8 +1043,7 @@ class UploadHandler
             $max_height = $options['max_height'];
         }
         $scale = min(
-            $max_width / $img_width,
-            $max_height / $img_height
+            $max_width / $img_width, $max_height / $img_height
         );
         if ($scale >= 1) {
             if ($image_oriented) {
@@ -738,6 +1052,7 @@ class UploadHandler
             if ($file_path !== $new_file_path) {
                 return copy($file_path, $new_file_path);
             }
+
             return true;
         }
         if (empty($options['crop'])) {
@@ -769,47 +1084,50 @@ class UploadHandler
                 break;
         }
         $success = imagecopyresampled(
-            $new_img,
-            $src_img,
-            $dst_x,
-            $dst_y,
-            0,
-            0,
-            $new_width,
-            $new_height,
-            $img_width,
-            $img_height
-        ) && $write_func($new_img, $new_file_path, $image_quality);
-        $this->gd_set_image_object($file_path, $new_img);
+                $new_img, $src_img, $dst_x, $dst_y, 0, 0, $new_width, $new_height, $img_width,
+                $img_height
+            ) && $write_func($new_img, $new_file_path, $image_quality);
+        $this->_gdSetImageObject($file_path, $new_img);
+
         return $success;
     }
 
-    protected function imagick_get_image_object($file_path, $no_cache = false) {
-        if (empty($this->image_objects[$file_path]) || $no_cache) {
-            $this->imagick_destroy_image_object($file_path);
+
+    protected function _imagickGetImageObject($filePath, $noCache = false)
+    {
+        if (empty($this->_imageObjects[$filePath]) || $noCache) {
+            $this->_imagickDestroyImageObject($filePath);
             $image = new \Imagick();
-            if (!empty($this->options['imagick_resource_limits'])) {
-                foreach ($this->options['imagick_resource_limits'] as $type => $limit) {
+            if (!empty($this->_options['imagick_resource_limits'])) {
+                foreach ($this->_options['imagick_resource_limits'] as $type => $limit) {
                     $image->setResourceLimit($type, $limit);
                 }
             }
-            $image->readImage($file_path);
-            $this->image_objects[$file_path] = $image;
+            $image->readImage($filePath);
+            $this->_imageObjects[$filePath] = $image;
         }
-        return $this->image_objects[$file_path];
+
+        return $this->_imageObjects[$filePath];
     }
 
-    protected function imagick_set_image_object($file_path, $image) {
-        $this->imagick_destroy_image_object($file_path);
-        $this->image_objects[$file_path] = $image;
+
+    protected function _imagickSetImageObject($filePath, $image)
+    {
+        $this->_imagickDestroyImageObject($filePath);
+        $this->_imageObjects[$filePath] = $image;
     }
 
-    protected function imagick_destroy_image_object($file_path) {
-        $image = (isset($this->image_objects[$file_path])) ? $this->image_objects[$file_path] : null ;
+
+    protected function _imagickDestroyImageObject($filePath)
+    {
+        $image = (isset($this->_imageObjects[$filePath])) ? $this->_imageObjects[$filePath] : null;
+
         return $image && $image->destroy();
     }
 
-    protected function imagick_orient_image($image) {
+
+    protected function _imagickOrientImage($image)
+    {
         $orientation = $image->getImageOrientation();
         $background = new \ImagickPixel('none');
         switch ($orientation) {
@@ -843,25 +1161,25 @@ class UploadHandler
         return true;
     }
 
-    protected function imagick_create_scaled_image($file_name, $version, $options) {
-        list($file_path, $new_file_path) =
-            $this->get_scaled_image_file_paths($file_name, $version);
-        $image = $this->imagick_get_image_object(
-            $file_path,
-            !empty($options['crop']) || !empty($options['no_cache'])
+
+    protected function _imagickCreateScaledImage($fileName, $version, $options)
+    {
+        list($file_path, $new_file_path) = $this->_getScaledImageFilePaths($fileName, $version);
+        $image = $this->_imagickGetImageObject(
+            $file_path, !empty($options['crop']) || !empty($options['no_cache'])
         );
         if ($image->getImageFormat() === 'GIF') {
             // Handle animated GIFs:
             $images = $image->coalesceImages();
             foreach ($images as $frame) {
                 $image = $frame;
-                $this->imagick_set_image_object($file_name, $image);
+                $this->_imagickSetImageObject($fileName, $image);
                 break;
             }
         }
         $image_oriented = false;
         if (!empty($options['auto_orient'])) {
-            $image_oriented = $this->imagick_orient_image($image);
+            $image_oriented = $this->_imagickOrientImage($image);
         }
         $new_width = $max_width = $img_width = $image->getImageWidth();
         $new_height = $max_height = $img_height = $image->getImageHeight();
@@ -875,6 +1193,7 @@ class UploadHandler
             if ($file_path !== $new_file_path) {
                 return copy($file_path, $new_file_path);
             }
+
             return true;
         }
         $crop = !empty($options['crop']);
@@ -890,24 +1209,20 @@ class UploadHandler
             }
         }
         $success = $image->resizeImage(
-            $new_width,
-            $new_height,
+            $new_width, $new_height,
             isset($options['filter']) ? $options['filter'] : \imagick::FILTER_LANCZOS,
             isset($options['blur']) ? $options['blur'] : 1,
             $new_width && $new_height // fit image into constraints if not to be cropped
         );
         if ($success && $crop) {
             $success = $image->cropImage(
-                $max_width,
-                $max_height,
-                $x,
-                $y
+                $max_width, $max_height, $x, $y
             );
             if ($success) {
                 $success = $image->setImagePage($max_width, $max_height, 0, 0);
             }
         }
-        $type = strtolower(substr(strrchr($file_name, '.'), 1));
+        $type = strtolower(substr(strrchr($fileName, '.'), 1));
         switch ($type) {
             case 'jpg':
             case 'jpeg':
@@ -920,23 +1235,26 @@ class UploadHandler
         if (!empty($options['strip'])) {
             $image->stripImage();
         }
+
         return $success && $image->writeImage($new_file_path);
     }
 
-    protected function imagemagick_create_scaled_image($file_name, $version, $options) {
-        list($file_path, $new_file_path) =
-            $this->get_scaled_image_file_paths($file_name, $version);
+
+    protected function _imagemagickCreateScaledImage($fileName, $version, $options)
+    {
+        list($file_path, $new_file_path) = $this->_getScaledImageFilePaths($fileName, $version);
         $resize = @$options['max_width']
             .(empty($options['max_height']) ? '' : 'X'.$options['max_height']);
         if (!$resize && empty($options['auto_orient'])) {
             if ($file_path !== $new_file_path) {
                 return copy($file_path, $new_file_path);
             }
+
             return true;
         }
-        $cmd = $this->options['convert_bin'];
-        if (!empty($this->options['convert_params'])) {
-            $cmd .= ' '.$this->options['convert_params'];
+        $cmd = $this->_options['convert_bin'];
+        if (!empty($this->_options['convert_params'])) {
+            $cmd .= ' '.$this->_options['convert_params'];
         }
         $cmd .= ' '.escapeshellarg($file_path);
         if (!empty($options['auto_orient'])) {
@@ -962,220 +1280,280 @@ class UploadHandler
         exec($cmd, $output, $error);
         if ($error) {
             error_log(implode('\n', $output));
+
             return false;
         }
+
         return true;
     }
 
-    protected function get_image_size($file_path) {
-        if ($this->options['image_library']) {
+
+    protected function _getImageSize($filePath)
+    {
+        if ($this->_options['image_library']) {
             if (extension_loaded('imagick')) {
                 $image = new \Imagick();
                 try {
-                    if (@$image->pingImage($file_path)) {
+                    if (@$image->pingImage($filePath)) {
                         $dimensions = array($image->getImageWidth(), $image->getImageHeight());
                         $image->destroy();
+
                         return $dimensions;
                     }
+
                     return false;
                 } catch (\Exception $e) {
                     error_log($e->getMessage());
                 }
             }
-            if ($this->options['image_library'] === 2) {
-                $cmd = $this->options['identify_bin'];
-                $cmd .= ' -ping '.escapeshellarg($file_path);
+            if ($this->_options['image_library'] === 2) {
+                $cmd = $this->_options['identify_bin'];
+                $cmd .= ' -ping '.escapeshellarg($filePath);
                 exec($cmd, $output, $error);
                 if (!$error && !empty($output)) {
                     // image.jpg JPEG 1920x1080 1920x1080+0+0 8-bit sRGB 465KB 0.000u 0:00.000
-                    $infos = preg_split('/\s+/', substr($output[0], strlen($file_path)));
+                    $infos = preg_split('/\s+/', substr($output[0], strlen($filePath)));
                     $dimensions = preg_split('/x/', $infos[2]);
+
                     return $dimensions;
                 }
+
                 return false;
             }
         }
         if (!function_exists('getimagesize')) {
             error_log('Function not found: getimagesize');
+
             return false;
         }
-        return @getimagesize($file_path);
+
+        return @getimagesize($filePath);
     }
 
-    protected function create_scaled_image($file_name, $version, $options) {
-        if ($this->options['image_library'] === 2) {
-            return $this->imagemagick_create_scaled_image($file_name, $version, $options);
+
+    protected function _createScaledImage($fileName, $version, $options)
+    {
+        if ($this->_options['image_library'] === 2) {
+            return $this->_imagemagickCreateScaledImage($fileName, $version, $options);
         }
-        if ($this->options['image_library'] && extension_loaded('imagick')) {
-            return $this->imagick_create_scaled_image($file_name, $version, $options);
+        if ($this->_options['image_library'] && extension_loaded('imagick')) {
+            return $this->_imagickCreateScaledImage($fileName, $version, $options);
         }
-        return $this->gd_create_scaled_image($file_name, $version, $options);
+
+        return $this->_gdCreateScaledImage($fileName, $version, $options);
     }
 
-    protected function destroy_image_object($file_path) {
-        if ($this->options['image_library'] && extension_loaded('imagick')) {
-            return $this->imagick_destroy_image_object($file_path);
+
+    protected function _destroyImageObject($filePath)
+    {
+        if ($this->_options['image_library'] && extension_loaded('imagick')) {
+            return $this->_imagickDestroyImageObject($filePath);
         }
     }
 
-    protected function is_valid_image_file($file_path) {
-        if (!preg_match($this->options['image_file_types'], $file_path)) {
+
+    protected function _isValidImageFile($filePath)
+    {
+        if (!preg_match($this->_options['image_file_types'], $filePath)) {
             return false;
         }
         if (function_exists('exif_imagetype')) {
-            return @exif_imagetype($file_path);
+            return @exif_imagetype($filePath);
         }
-        $image_info = $this->get_image_size($file_path);
+        $image_info = $this->_getImageSize($filePath);
+
         return $image_info && $image_info[0] && $image_info[1];
     }
 
-    protected function handle_image_file($file_path, $file) {
+
+    protected function _handleImageFile($filePath, $file)
+    {
         $failed_versions = array();
-        foreach ($this->options['image_versions'] as $version => $options) {
-            if ($this->create_scaled_image($file->name, $version, $options)) {
+        foreach ($this->_options['image_versions'] as $version => $options) {
+            if ($this->_createScaledImage($file->name, $version, $options)) {
                 if (!empty($version)) {
-                    $file->{$version.'Url'} = $this->get_download_url(
-                        $file->name,
-                        $version
+                    $file->{$version.'Url'} = $this->_getDownloadUrl(
+                        $file->name, $version
                     );
                 } else {
-                    $file->size = $this->get_file_size($file_path, true);
+                    $file->size = $this->_getFileSize($filePath, true);
                 }
             } else {
                 $failed_versions[] = $version ? $version : 'original';
             }
         }
         if (count($failed_versions)) {
-            $file->error = $this->get_error_message('image_resize')
-                    .' ('.implode($failed_versions, ', ').')';
+            $file->error = $this->_getErrorMessage('image_resize')
+                .' ('.implode($failed_versions, ', ').')';
         }
         // Free memory:
-        $this->destroy_image_object($file_path);
+        $this->_destroyImageObject($filePath);
     }
 
-    protected function handle_file_upload($uploaded_file, $name, $size, $type, $error,
-            $index = null, $content_range = null) {
+
+    protected function _handleFileUpload($uploadedFile, $name, $size, $type, $error,
+        $index = null, $contentRange = null)
+    {
         $file = new \stdClass();
-        $file->name = $this->get_file_name($uploaded_file, $name, $size, $type, $error,
-            $index, $content_range);
-        $file->size = $this->fix_integer_overflow((int)$size);
+        $file->name = $this->_getFileName($uploadedFile, $name, $size, $type, $error, $index,
+            $contentRange);
+        $file->size = $this->_fixIntegerOverflow((int) $size);
         $file->type = $type;
-        if ($this->validate($uploaded_file, $file, $error, $index)) {
-            $this->handle_form_data($file, $index);
-            $upload_dir = $this->get_upload_path();
+        if ($this->_validate($uploadedFile, $file, $error, $index)) {
+            $this->_handleFormData($file, $index);
+            $upload_dir = $this->_geUploadPath();
             if (!is_dir($upload_dir)) {
-                mkdir($upload_dir, $this->options['mkdir_mode'], true);
+                mkdir($upload_dir, $this->_options['mkdir_mode'], true);
             }
-            $file_path = $this->get_upload_path($file->name);
-            $append_file = $content_range && is_file($file_path) &&
-                $file->size > $this->get_file_size($file_path);
-            if ($uploaded_file && is_uploaded_file($uploaded_file)) {
+            $file_path = $this->_geUploadPath($file->name);
+            $append_file = $contentRange && is_file($file_path) &&
+                $file->size > $this->_getFileSize($file_path);
+            if ($uploadedFile && is_uploaded_file($uploadedFile)) {
                 // multipart/formdata uploads (POST method uploads)
                 if ($append_file) {
                     file_put_contents(
-                        $file_path,
-                        fopen($uploaded_file, 'r'),
-                        FILE_APPEND
+                        $file_path, fopen($uploadedFile, 'r'), FILE_APPEND
                     );
                 } else {
-                    move_uploaded_file($uploaded_file, $file_path);
+                    move_uploaded_file($uploadedFile, $file_path);
                 }
             } else {
                 // Non-multipart uploads (PUT method support)
                 file_put_contents(
-                    $file_path,
-                    fopen($this->options['input_stream'], 'r'),
+                    $file_path, fopen($this->_options['input_stream'], 'r'),
                     $append_file ? FILE_APPEND : 0
                 );
             }
-            $file_size = $this->get_file_size($file_path, $append_file);
+            $file_size = $this->_getFileSize($file_path, $append_file);
             if ($file_size === $file->size) {
-                $file->url = $this->get_download_url($file->name);
-                if ($this->is_valid_image_file($file_path)) {
-                    $this->handle_image_file($file_path, $file);
+                $file->url = $this->_getDownloadUrl($file->name);
+                if ($this->_isValidImageFile($file_path)) {
+                    $this->_handleImageFile($file_path, $file);
                 }
             } else {
                 $file->size = $file_size;
-                if (!$content_range && $this->options['discard_aborted_uploads']) {
+                if (!$contentRange && $this->_options['discard_aborted_uploads']) {
                     unlink($file_path);
-                    $file->error = $this->get_error_message('abort');
+                    $file->error = $this->_getErrorMessage('abort');
                 }
             }
-            $this->set_additional_file_properties($file);
+            $this->_setAdditionalFileProperties($file);
         }
+
         return $file;
     }
 
-    protected function readfile($file_path) {
-        $file_size = $this->get_file_size($file_path);
-        $chunk_size = $this->options['readfile_chunk_size'];
-        if ($chunk_size && $file_size > $chunk_size) {
-            $handle = fopen($file_path, 'rb');
-            while (!feof($handle)) {
+
+    protected function _readfile( $filePath )
+    {
+        $file_size = $this->_getFileSize($filePath);
+        $chunk_size = $this->_options['readfile_chunk_size'];
+        if ( $chunk_size && $file_size > $chunk_size ) {
+            $handle = fopen($filePath, 'rb');
+            while ( !feof($handle) ) {
                 echo fread($handle, $chunk_size);
                 @ob_flush();
                 @flush();
             }
             fclose($handle);
+
             return $file_size;
         }
-        return readfile($file_path);
+
+        return readfile($filePath);
     }
 
-    protected function body($str) {
+
+    /**
+     * Print http body contents by given string.
+     *
+     * @param string $str
+     */
+    protected function _body( $str )
+    {
         echo $str;
     }
 
-    protected function header($str) {
+
+    /**
+     * Outputs http header.
+     *
+     * @param string $str http header string
+     */
+    protected function _header( $str )
+    {
         header($str);
     }
 
-    protected function get_upload_data($id) {
+
+    protected function _getUploadData( $id )
+    {
         return @$_FILES[$id];
     }
 
-    protected function get_post_param($id) {
+
+    protected function _getPostParam( $id )
+    {
         return @$_POST[$id];
     }
 
-    protected function get_query_param($id) {
+
+    protected function _getQueryParam( $id )
+    {
         return @$_GET[$id];
     }
 
-    protected function get_server_var($id) {
+
+    protected function _getServerVar( $id )
+    {
         return @$_SERVER[$id];
     }
 
-    protected function handle_form_data($file, $index) {
+
+    protected function _handleFormData( $file, $index )
+    {
         // Handle form data, e.g. $_POST['description'][$index]
     }
 
-    protected function get_version_param() {
-        return $this->basename(stripslashes($this->get_query_param('version')));
+
+    protected function _getVersionParam()
+    {
+        return $this->_basename(stripslashes($this->_getQueryParam('version')));
     }
 
-    protected function get_singular_param_name() {
-        return substr($this->options['param_name'], 0, -1);
+
+    protected function _getSingularParamName()
+    {
+        return substr($this->_options['param_name'], 0, -1);
     }
 
-    protected function get_file_name_param() {
-        $name = $this->get_singular_param_name();
-        return $this->basename(stripslashes($this->get_query_param($name)));
+
+    protected function _getFileNameParam()
+    {
+        $name = $this->_getSingularParamName();
+
+        return $this->_basename(stripslashes($this->_getQueryParam($name)));
     }
 
-    protected function get_file_names_params() {
-        $params = $this->get_query_param($this->options['param_name']);
-        if (!$params) {
+
+    protected function _getFileNamesParams()
+    {
+        $params = $this->_getQueryParam($this->_options['param_name']);
+        if ( !$params ) {
             return null;
         }
-        foreach ($params as $key => $value) {
-            $params[$key] = $this->basename(stripslashes($value));
+        foreach ( $params as $key => $value ) {
+            $params[$key] = $this->_basename(stripslashes($value));
         }
+
         return $params;
     }
 
-    protected function get_file_type($file_path) {
-        switch (strtolower(pathinfo($file_path, PATHINFO_EXTENSION))) {
+
+    protected function _getFileType( $filePath )
+    {
+        switch ( strtolower(pathinfo($filePath, PATHINFO_EXTENSION)) )
+        {
             case 'jpeg':
             case 'jpg':
                 return 'image/jpeg';
@@ -1188,8 +1566,23 @@ class UploadHandler
         }
     }
 
-    protected function download() {
-        switch ($this->options['download_via_php']) {
+
+    /**
+     * Output header including a file download on success.
+     *
+     * @todo this stuff is too complicated. nosniff may be already set in ab .htaccess or
+     * other server configs.
+     * This is probably confusion in other methodes too.
+     *      1. collect headers you want to set in order
+     *          e.g.: _header[ str|order ] = str (you may want to manage headers before executing)
+     *      2. dispatch() / output() / show() example methode name to use the collected data and
+     *         pipes it out.
+     *
+     * @return http headers for a download or headers including error messages
+     */
+    protected function _download()
+    {
+        switch ($this->_options['download_via_php']) {
             case 1:
                 $redirect_header = null;
                 break;
@@ -1200,194 +1593,64 @@ class UploadHandler
                 $redirect_header = 'X-Accel-Redirect';
                 break;
             default:
-                return $this->header('HTTP/1.1 403 Forbidden');
+                return $this->_header('HTTP/1.1 403 Forbidden');
         }
-        $file_name = $this->get_file_name_param();
-        if (!$this->is_valid_file_object($file_name)) {
-            return $this->header('HTTP/1.1 404 Not Found');
+        $file_name = $this->_getFileNameParam();
+        if (!$this->_isValidFileObject($file_name)) {
+            return $this->_header('HTTP/1.1 404 Not Found');
         }
         if ($redirect_header) {
-            return $this->header(
-                $redirect_header.': '.$this->get_download_url(
-                    $file_name,
-                    $this->get_version_param(),
-                    true
-                )
+            return $this->_header(
+                    $redirect_header.': '.$this->_getDownloadUrl(
+                        $file_name, $this->_getVersionParam(), true
+                    )
             );
         }
-        $file_path = $this->get_upload_path($file_name, $this->get_version_param());
+        $filePath = $this->_geUploadPath($file_name, $this->_getVersionParam());
+
         // Prevent browsers from MIME-sniffing the content-type:
-        $this->header('X-Content-Type-Options: nosniff');
-        if (!preg_match($this->options['inline_file_types'], $file_name)) {
-            $this->header('Content-Type: application/octet-stream');
-            $this->header('Content-Disposition: attachment; filename="'.$file_name.'"');
+        $this->_header('X-Content-Type-Options: nosniff');
+        if (!preg_match($this->_options['inline_file_types'], $file_name)) {
+            $this->_header('Content-Type: application/octet-stream');
+            $this->_header('Content-Disposition: attachment; filename="'.$file_name.'"');
         } else {
-            $this->header('Content-Type: '.$this->get_file_type($file_path));
-            $this->header('Content-Disposition: inline; filename="'.$file_name.'"');
+            $this->_header('Content-Type: '.$this->_getFileType($filePath));
+            $this->_header('Content-Disposition: inline; filename="'.$file_name.'"');
         }
-        $this->header('Content-Length: '.$this->get_file_size($file_path));
-        $this->header('Last-Modified: '.gmdate('D, d M Y H:i:s T', filemtime($file_path)));
-        $this->readfile($file_path);
+        $this->_header('Content-Length: '.$this->_getFileSize($filePath));
+        $this->_header('Last-Modified: '.gmdate('D, d M Y H:i:s T', filemtime($filePath)));
+        $this->_readfile($filePath);
     }
 
-    protected function send_content_type_header() {
-        $this->header('Vary: Accept');
-        if (strpos($this->get_server_var('HTTP_ACCEPT'), 'application/json') !== false) {
-            $this->header('Content-type: application/json');
+
+    protected function _sendContentTypeHeader()
+    {
+        $this->_header('Vary: Accept');
+        if (strpos($this->_getServerVar('HTTP_ACCEPT'), 'application/json') !== false) {
+            $this->_header('Content-type: application/json');
         } else {
-            $this->header('Content-type: text/plain');
+            $this->_header('Content-type: text/plain');
         }
     }
 
-    protected function send_access_control_headers() {
-        $this->header('Access-Control-Allow-Origin: '.$this->options['access_control_allow_origin']);
-        $this->header('Access-Control-Allow-Credentials: '
-            .($this->options['access_control_allow_credentials'] ? 'true' : 'false'));
-        $this->header('Access-Control-Allow-Methods: '
-            .implode(', ', $this->options['access_control_allow_methods']));
-        $this->header('Access-Control-Allow-Headers: '
-            .implode(', ', $this->options['access_control_allow_headers']));
+
+    protected function _sendAccessControlHeaders()
+    {
+        $this->_header('Access-Control-Allow-Origin: ' . $this->_options['access_control_allow_origin']);
+        $this->_header('Access-Control-Allow-Credentials: '
+            . ($this->_options['access_control_allow_credentials'] ? 'true' : 'false'));
+        $this->_header('Access-Control-Allow-Methods: '
+            . implode(', ', $this->_options['access_control_allow_methods']));
+        $this->_header('Access-Control-Allow-Headers: '
+            . implode(', ', $this->_options['access_control_allow_headers']));
     }
 
-    public function generate_response($content, $print_response = true) {
-        $this->response = $content;
-        if ($print_response) {
-            $json = json_encode($content);
-            $redirect = stripslashes($this->get_post_param('redirect'));
-            if ($redirect && preg_match($this->options['redirect_allow_target'], $redirect)) {
-                $this->header('Location: '.sprintf($redirect, rawurlencode($json)));
-                return;
-            }
-            $this->head();
-            if ($this->get_server_var('HTTP_CONTENT_RANGE')) {
-                $files = isset($content[$this->options['param_name']]) ?
-                    $content[$this->options['param_name']] : null;
-                if ($files && is_array($files) && is_object($files[0]) && $files[0]->size) {
-                    $this->header('Range: 0-'.(
-                        $this->fix_integer_overflow((int)$files[0]->size) - 1
-                    ));
-                }
-            }
-            $this->body($json);
-        }
-        return $content;
+
+    protected function _basename( $filePath, $suffix = null )
+    {
+        $splited = preg_split('/\//', rtrim($filePath, '/ '));
+
+        return substr(basename('X' . $splited[count($splited) - 1], $suffix), 1);
     }
 
-    public function get_response () {
-        return $this->response;
-    }
-
-    public function head() {
-        $this->header('Pragma: no-cache');
-        $this->header('Cache-Control: no-store, no-cache, must-revalidate');
-        $this->header('Content-Disposition: inline; filename="files.json"');
-        // Prevent Internet Explorer from MIME-sniffing the content-type:
-        $this->header('X-Content-Type-Options: nosniff');
-        if ($this->options['access_control_allow_origin']) {
-            $this->send_access_control_headers();
-        }
-        $this->send_content_type_header();
-    }
-
-    public function get($print_response = true) {
-        if ($print_response && $this->get_query_param('download')) {
-            return $this->download();
-        }
-        $file_name = $this->get_file_name_param();
-        if ($file_name) {
-            $response = array(
-                $this->get_singular_param_name() => $this->get_file_object($file_name)
-            );
-        } else {
-            $response = array(
-                $this->options['param_name'] => $this->get_file_objects()
-            );
-        }
-        return $this->generate_response($response, $print_response);
-    }
-
-    public function post($print_response = true) {
-        if ($this->get_query_param('_method') === 'DELETE') {
-            return $this->delete($print_response);
-        }
-        $upload = $this->get_upload_data($this->options['param_name']);
-        // Parse the Content-Disposition header, if available:
-        $content_disposition_header = $this->get_server_var('HTTP_CONTENT_DISPOSITION');
-        $file_name = $content_disposition_header ?
-            rawurldecode(preg_replace(
-                '/(^[^"]+")|("$)/',
-                '',
-                $content_disposition_header
-            )) : null;
-        // Parse the Content-Range header, which has the following form:
-        // Content-Range: bytes 0-524287/2000000
-        $content_range_header = $this->get_server_var('HTTP_CONTENT_RANGE');
-        $content_range = $content_range_header ?
-            preg_split('/[^0-9]+/', $content_range_header) : null;
-        $size =  $content_range ? $content_range[3] : null;
-        $files = array();
-        if ($upload) {
-            if (is_array($upload['tmp_name'])) {
-                // param_name is an array identifier like "files[]",
-                // $upload is a multi-dimensional array:
-                foreach ($upload['tmp_name'] as $index => $value) {
-                    $files[] = $this->handle_file_upload(
-                        $upload['tmp_name'][$index],
-                        $file_name ? $file_name : $upload['name'][$index],
-                        $size ? $size : $upload['size'][$index],
-                        $upload['type'][$index],
-                        $upload['error'][$index],
-                        $index,
-                        $content_range
-                    );
-                }
-            } else {
-                // param_name is a single object identifier like "file",
-                // $upload is a one-dimensional array:
-                $files[] = $this->handle_file_upload(
-                    isset($upload['tmp_name']) ? $upload['tmp_name'] : null,
-                    $file_name ? $file_name : (isset($upload['name']) ?
-                            $upload['name'] : null),
-                    $size ? $size : (isset($upload['size']) ?
-                            $upload['size'] : $this->get_server_var('CONTENT_LENGTH')),
-                    isset($upload['type']) ?
-                            $upload['type'] : $this->get_server_var('CONTENT_TYPE'),
-                    isset($upload['error']) ? $upload['error'] : null,
-                    null,
-                    $content_range
-                );
-            }
-        }
-        $response = array($this->options['param_name'] => $files);
-        return $this->generate_response($response, $print_response);
-    }
-
-    public function delete($print_response = true) {
-        $file_names = $this->get_file_names_params();
-        if (empty($file_names)) {
-            $file_names = array($this->get_file_name_param());
-        }
-        $response = array();
-        foreach ($file_names as $file_name) {
-            $file_path = $this->get_upload_path($file_name);
-            $success = is_file($file_path) && $file_name[0] !== '.' && unlink($file_path);
-            if ($success) {
-                foreach ($this->options['image_versions'] as $version => $options) {
-                    if (!empty($version)) {
-                        $file = $this->get_upload_path($file_name, $version);
-                        if (is_file($file)) {
-                            unlink($file);
-                        }
-                    }
-                }
-            }
-            $response[$file_name] = $success;
-        }
-        return $this->generate_response($response, $print_response);
-    }
-
-    protected function basename($filepath, $suffix = null) {
-        $splited = preg_split('/\//', rtrim ($filepath, '/ '));
-        return substr(basename('X'.$splited[count($splited)-1], $suffix), 1);
-    }
 }
