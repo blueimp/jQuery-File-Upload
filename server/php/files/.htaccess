@@ -1,3 +1,6 @@
+# To enable the Headers module, execute the following command and reload Apache:
+# sudo a2enmod headers
+
 # The following directives prevent the execution of script files
 # in the context of the website.
 # They also force the content-type application/octet-stream and
