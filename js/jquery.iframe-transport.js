@@ -197,7 +197,7 @@
                 return iframe && $(iframe[0].body).text();
             },
             'iframe json': function (iframe) {
-                return iframe && $.parseJSON($(iframe[0].body).text());
+                return iframe && JSON.parse($(iframe[0].body).text());
             },
             'iframe html': function (iframe) {
                 return iframe && $(iframe[0].body).html();
