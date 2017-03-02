@@ -36,7 +36,7 @@
   "license": "MIT",
   "optionalDependencies": {
     "blueimp-canvas-to-blob": "3.5.0",
-    "blueimp-load-image": "2.9.0",
+    "blueimp-load-image": "2.12.2",
     "blueimp-tmpl": "3.6.0"
   },
   "devDependencies": {
