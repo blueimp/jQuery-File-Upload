@@ -35,7 +35,8 @@ class UploadHandler
         'max_height' => 'Image exceeds maximum height',
         'min_height' => 'Image requires a minimum height',
         'abort' => 'File upload aborted',
-        'image_resize' => 'Failed to resize image'
+        'image_resize' => 'Failed to resize image',
+        'max_files_upload_allowed' => 'Maximum number of file uploads exceeded'
     );
 
     protected $image_objects = array();
@@ -97,6 +98,8 @@ class UploadHandler
             'min_file_size' => 1,
             // The maximum number of files for the upload directory:
             'max_number_of_files' => null,
+            // The maximum number of files allowed for upload
+            'max_files_upload_allowed' => 1,
             // Defines which files are handled as image files:
             'image_file_types' => '/\.(gif|jpe?g|png)$/i',
             // Use exif_imagetype on all files to correct file extensions:
@@ -403,6 +406,15 @@ class UploadHandler
             $file->error = $this->get_error_message('max_number_of_files');
             return false;
         }
+        //Check max_files_upload_allowed here
+        if (is_int($this->options['max_files_upload_allowed']) && (
+                $this->getUploadFilesCount() > $this->options['max_files_upload_allowed'] &&
+                $this->options['max_files_upload_allowed'] > 0)
+            ) {
+                    $file->error = $this->get_error_message('max_files_upload_allowed');
+            return false;
+        }
+
         $max_width = @$this->options['max_width'];
         $max_height = @$this->options['max_height'];
         $min_width = @$this->options['min_width'];
@@ -460,6 +472,11 @@ class UploadHandler
             $name,
             1
         );
+    }
+
+    protected function getUploadFilesCount() {
+      $file_upload_count = $this->get_upload_data($this->options['param_name']);
+      return count($file_upload_count['name']);
     }
 
     protected function get_unique_filename($file_path, $name, $size, $type, $error,
