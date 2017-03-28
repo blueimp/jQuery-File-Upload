@@ -49,6 +49,8 @@ class UploadHandler
             'input_stream' => 'php://input',
             'user_dirs' => false,
             'mkdir_mode' => 0755,
+            // intended for images only - if set to false, the original image will not be saved
+            'save_original' => true,
             'param_name' => 'files',
             // Set the following option to 'POST', if your server does not support
             // DELETE requests. This is a parameter sent to the client:
@@ -1103,6 +1105,11 @@ class UploadHandler
             }
             $this->set_additional_file_properties($file);
         }
+        
+        if (!$this->options['save_original']) {
+            @unlink($file_path);
+        }
+        
         return $file;
     }
 
