@@ -44,7 +44,7 @@
   "dependencies": {
     "jquery": ">=1.6",
     "blueimp-tmpl": ">=2.5.4",
-    "blueimp-load-image": ">=1.13.0",
+    "blueimp-load-image": ">=1.13.0 <=2.11.0",
     "blueimp-canvas-to-blob": ">=2.1.1"
   },
   "main": [
