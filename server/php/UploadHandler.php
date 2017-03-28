@@ -34,6 +34,9 @@ class UploadHandler
         'min_width' => 'Image requires a minimum width',
         'max_height' => 'Image exceeds maximum height',
         'min_height' => 'Image requires a minimum height',
+        'mime_not_allowed' => 'Uploaded file content not allowed',
+        'up_dir_make' => 'The web server does not have permission to create the upload directory',
+        'up_dir_write' => 'The web server does not have upload dir file save permission',
         'abort' => 'File upload aborted',
         'image_resize' => 'Failed to resize image'
     );
@@ -48,6 +51,13 @@ class UploadHandler
             'upload_url' => $this->get_full_url().'/files/',
             'input_stream' => 'php://input',
             'user_dirs' => false,
+            'mime_types_allowed' => array(
+                'image/gif',
+                'image/jpeg',
+                'image/png',
+                'video/webm',
+                'video/mp4',
+                ),
             'mkdir_mode' => 0755,
             'param_name' => 'files',
             // Set the following option to 'POST', if your server does not support
@@ -316,6 +326,11 @@ class UploadHandler
                     if (is_file($this->get_upload_path($file_name, $version))) {
                         $file->{$version.'Url'} = $this->get_download_url(
                             $file->name,
+                            $version
+                        );
+                    } else if (is_file($this->get_upload_path($file_name.'.png', $version))) {
+                        $file->{$version.'Url'} = $this->get_download_url(
+                            $file->name.'.png',
                             $version
                         );
                     }
@@ -1029,6 +1044,23 @@ class UploadHandler
         return $image_info && $image_info[0] && $image_info[1];
     }
 
+    protected function handle_video_file($file_path, $file) {
+        /*
+        if ffmpeg exists on the system
+        use ffmpeg to create a PNG thumbnail from the uploaded video
+        */
+        if (`which ffmpeg`) {
+            $thumbfile = $file->name . '.png';
+            shell_exec('ffmpeg -ss 3 -i "'.$file_path.'" -frames:v 1 files/thumbnail/"'.$thumbfile.'"');
+            if (file_exists('files/thumbnail/'.$thumbnail)) {
+                $file->{'thumbnailUrl'} = $this->get_download_url(
+                    $thumbfile,
+                    'thumbnail'
+                );
+            }
+        }
+    }
+
     protected function handle_image_file($file_path, $file) {
         $failed_versions = array();
         foreach ($this->options['image_versions'] as $version => $options) {
@@ -1062,11 +1094,41 @@ class UploadHandler
         $file->type = $type;
         if ($this->validate($uploaded_file, $file, $error, $index)) {
             $this->handle_form_data($file, $index);
+
+            $file_path = $this->get_upload_path($file->name);
+            $mime_type = $this->get_mime_type($uploaded_file);
+
+
+            $arrmime = explode('/', $mime_type);
+            $mimeTopLevel = '';
+            if ($arrmime) {
+                $mimeTopLevel = $arrmime[0];
+            }
+
+            if (!$this->options['mime_types_allowed']) {
+                // all mime types allowed
+            } else if (in_array($mime_type, $this->options['mime_types_allowed'])) {
+                // mime type is specifically allowed
+            } else {
+                unlink($uploaded_file);
+                $file->error = $this->get_error_message('mime_not_allowed');
+                return $file;
+            }
+
             $upload_dir = $this->get_upload_path();
             if (!is_dir($upload_dir)) {
-                mkdir($upload_dir, $this->options['mkdir_mode'], true);
+                if (!mkdir($upload_dir, $this->options['mkdir_mode'], true)) {
+                    unlink($uploaded_file);
+                    $file->error = $this->get_error_message('up_dir_make');
+                    return $file;
+                }
             }
-            $file_path = $this->get_upload_path($file->name);
+            if (!is_writable($upload_dir)) {
+                unlink($uploaded_file);
+                $file->error = $this->get_error_message('up_dir_write');
+                return $file;
+            }
+
             $append_file = $content_range && is_file($file_path) &&
                 $file->size > $this->get_file_size($file_path);
             if ($uploaded_file && is_uploaded_file($uploaded_file)) {
@@ -1091,8 +1153,19 @@ class UploadHandler
             $file_size = $this->get_file_size($file_path, $append_file);
             if ($file_size === $file->size) {
                 $file->url = $this->get_download_url($file->name);
-                if ($this->is_valid_image_file($file_path)) {
-                    $this->handle_image_file($file_path, $file);
+                
+                switch ($mimeTopLevel) {
+                    case 'video':
+                        $this->handle_video_file($file_path, $file);
+                        break;
+                    case 'image':
+                        if ($this->is_valid_image_file($file_path)) {
+                            $this->handle_image_file($file_path, $file);
+                        }
+                        break;
+                    default:
+                        # code...
+                        break;
                 }
             } else {
                 $file->size = $file_size;
@@ -1172,6 +1245,25 @@ class UploadHandler
             $params[$key] = $this->basename(stripslashes($value));
         }
         return $params;
+    }
+
+    protected function get_mime_type($tmpname) {
+        $mimetype = '';
+        if (function_exists('finfo_fopen')) {
+            //echo 'using finfo_fopen';
+            $finfo = new finfo();
+            $mimetype = $finfo->file($tmpname,FILEINFO_MIME_TYPE);
+        } elseif (function_exists('mime_content_type')) {
+            //echo 'using mime_content_type';
+            $mimetype = mime_content_type($tmpname);
+        } elseif (function_exists('getimagesize')) {
+            //echo 'using getimagesize';
+            $mimetype = getimagesize($tmpname);
+        } elseif (function_exists('exif_imagetype')) {
+            //echo 'using exif_imagetype';
+            $mimetype = exif_imagetype($tmpname);
+        }
+        return $mimetype;
     }
 
     protected function get_file_type($file_path) {
