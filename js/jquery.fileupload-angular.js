@@ -230,7 +230,9 @@
                     }
                 };
                 $scope.disabled = !$window.jQuery.support.fileInput;
-                $scope.queue = $scope.queue || [];
+                if ($scope.queue === undefined) {
+                    $scope.queue = [];
+                }
                 $scope.clear = function (files) {
                     var queue = this.queue,
                         i = queue.length,
