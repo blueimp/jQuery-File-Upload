@@ -231,6 +231,14 @@
                 };
                 $scope.disabled = !$window.jQuery.support.fileInput;
                 $scope.queue = $scope.queue || [];
+
+                var model = $attrs['file-model'];
+                var multiple = $attrs['multiple'];
+
+                if (model) {
+                    $scope[model] = multiple ? $scope.queue : $scope.queue[0];
+                }
+
                 $scope.clear = function (files) {
                     var queue = this.queue,
                         i = queue.length,
