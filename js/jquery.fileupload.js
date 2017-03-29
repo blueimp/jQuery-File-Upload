@@ -165,6 +165,10 @@
             bitrateInterval: 500,
             // By default, uploads are started automatically when adding files:
             autoUpload: true,
+            // By default, set Content-Disposition header on non-multipart
+            // file-uploads, might need to be set to false if this header is not
+            // allowed server-side
+            setContentDisposition: true,
 
             // Error and info messages:
             messages: {
@@ -451,7 +455,10 @@
             if (options.contentRange) {
                 options.headers['Content-Range'] = options.contentRange;
             }
-            if (!multipart || options.blob || !this._isInstanceOf('File', file)) {
+            if (
+                    options.setContentDisposition &&
+                    (!multipart || options.blob || !this._isInstanceOf('File', file))
+                ) {
                 options.headers['Content-Disposition'] = 'attachment; filename="' +
                     encodeURI(file.name) + '"';
             }
