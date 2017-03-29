@@ -429,13 +429,17 @@
             if (typeof bytes !== 'number') {
                 return '';
             }
-            if (bytes >= 1000000000) {
-                return (bytes / 1000000000).toFixed(2) + ' GB';
+
+            var prefixes = ['', 'k', 'M', 'G', 'T', 'P', 'E', 'Z', 'Y'],
+                result = bytes,
+                index = 0;
+
+            while (result > 1024 && index < prefixes.length) {
+                result = result / 1024;
+                index++;
             }
-            if (bytes >= 1000000) {
-                return (bytes / 1000000).toFixed(2) + ' MB';
-            }
-            return (bytes / 1000).toFixed(2) + ' KB';
+
+            return result.toFixed(2) + prefixes[index] + 'B';
         },
 
         _formatBitrate: function (bits) {
