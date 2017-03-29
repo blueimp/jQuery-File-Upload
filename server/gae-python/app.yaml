@@ -14,4 +14,4 @@ handlers:
   upload: static/(.*)
   expiration: '1d'
 - url: /.*
-  script: main.app
+  script: main.py
