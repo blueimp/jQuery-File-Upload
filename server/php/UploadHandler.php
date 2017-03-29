@@ -946,7 +946,7 @@ class UploadHandler
             // Handle animated GIFs:
             $cmd .= ' -coalesce';
             if (empty($options['crop'])) {
-                $cmd .= ' -resize '.escapeshellarg($resize.'>');
+                $cmd .= ' -resize '.escapeshellarg($resize.'\>');
             } else {
                 $cmd .= ' -resize '.escapeshellarg($resize.'^');
                 $cmd .= ' -gravity center';
