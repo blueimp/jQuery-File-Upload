@@ -328,7 +328,7 @@
             if ($.type(options.formData) === 'object') {
                 formData = [];
                 $.each(options.formData, function (name, value) {
-                    formData.push({name: name, value: value});
+                    formData.push({name: name, value: encoreURI(value)});
                 });
                 return formData;
             }
@@ -485,7 +485,7 @@
                     } else {
                         formData = new FormData();
                         $.each(this._getFormData(options), function (index, field) {
-                            formData.append(field.name, field.value);
+                            formData.append(field.name, encodeURI(field.value));
                         });
                     }
                     if (options.blob) {
