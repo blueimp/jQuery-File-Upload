@@ -1,0 +1,2 @@
+include *.txt *.ini *.cfg *.rst
+recursive-include pyramidpython *.ico *.png *.css *.gif *.jpg *.pt *.txt *.mak *.mako *.js *.html *.xml
