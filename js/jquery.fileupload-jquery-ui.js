@@ -35,6 +35,13 @@
 
     $.widget('blueimp.fileupload', $.blueimp.fileupload, {
 
+        if(true) {}
+        if(true) return
+        if(true)
+            console.log("cenas")
+        else
+            console.log("cesds");
+
         options: {
             processdone: function (e, data) {
                 data.context.find('.start').button('enable');
