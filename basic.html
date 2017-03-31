@@ -95,6 +95,21 @@
             </ul>
         </div>
     </div>
+    <div class="row">
+        <div class="col-md-12">
+            <h2>Upload using form submission</h2>
+            <div style="margin: 1.2em 0.7em;">
+            <form class="form-inline" name="fileuploadform" id="fileuploadform" method="POST" action="server/php" enctype="multipart/form-data">
+                <div class="form-group">
+                    <input type="file" name="fileuploadinput" id="fileuploadinput"/>
+                </div>
+                <button id="fileuploadsubmit" type="submit" class="btn btn-primary">Submit</button>
+                <span id="fileuploadformstatus"></span>
+            </form>
+            </div>
+        </div>
+        <div class="clearfix"></div>
+    </div>    
 </div>
 <script src="//ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
 <!-- The jQuery UI widget factory, can be omitted if jQuery UI is already included -->
@@ -130,6 +145,31 @@ $(function () {
         }
     }).prop('disabled', !$.support.fileInput)
         .parent().addClass($.support.fileInput ? undefined : 'disabled');
+        
+    //Options for upload on form submit
+    $('#fileuploadform').fileupload({
+        url: url,
+        dataType: 'json',
+        fileInput: null, // Important! This disables the default upload behavior
+        submit: function (e, data) {
+            $("#fileuploadformstatus").html("");
+        },
+        always: function (e, data) {
+                console.log(data);
+        },
+        done: function (e, data) {
+            $("#fileuploadformstatus").addClass("text-success").removeClass("text-danger").html("OK");
+        },
+        fail: function (e, data) {
+            $("#fileuploadformstatus").removeClass("text-success").addClass("text-danger").html(data.textStatus);
+        }
+    });
+    
+    $('#fileuploadform').on("submit", function(event) {
+        event.preventDefault(); // Stops the traditional form post
+        $(this).fileupload('add', {files: fileuploadinput.files});
+    });    
+    
 });
 </script>
 </body>
