@@ -165,6 +165,8 @@
             bitrateInterval: 500,
             // By default, uploads are started automatically when adding files:
             autoUpload: true,
+            // if true, submit file when form is submitted.
+            useSubmit: false,
 
             // Error and info messages:
             messages: {
@@ -451,11 +453,11 @@
             if (options.contentRange) {
                 options.headers['Content-Range'] = options.contentRange;
             }
-            if (!multipart || options.blob || !this._isInstanceOf('File', file)) {
+            if (file && (!multipart || options.blob || !this._isInstanceOf('File', file))) {
                 options.headers['Content-Disposition'] = 'attachment; filename="' +
                     encodeURI(file.name) + '"';
             }
-            if (!multipart) {
+            if (file && !multipart) {
                 options.contentType = file.type || 'application/octet-stream';
                 options.data = options.blob || file;
             } else if ($.support.xhrFormDataFileUpload) {
@@ -719,6 +721,7 @@
         // should be uploaded in chunks, but does not invoke any
         // upload requests:
         _chunkedUpload: function (options, testOnly) {
+            if (!options.files || options.files.length == 0) return false;
             options.uploadedBytes = options.uploadedBytes || 0;
             var that = this,
                 file = options.files[0],
@@ -1238,6 +1241,27 @@
             });
         },
 
+        _onSubmit: function (e) {
+            var that = this,
+                data = {
+                    form: $(e.target)
+                };
+            data.fileInput = $('input[type=file]', e.target);
+            if (!data.fileInput.val()) {
+              data.files = [];
+              this._onSend(e, data);
+            }
+            this._getFileInputFiles(data.fileInput).always(function (files) {
+                data.files = files;
+                if (that.options.replaceFileInput) {
+                    that._replaceFileInput(data.fileInput);
+                }
+                that._onAdd(e, data);
+            });
+          e.preventDefault();
+          return false;
+        },
+
         _onPaste: function (e) {
             var items = e.originalEvent && e.originalEvent.clipboardData &&
                     e.originalEvent.clipboardData.items,
@@ -1299,10 +1323,15 @@
                     paste: this._onPaste
                 });
             }
-            if ($.support.fileInput) {
+            if ($.support.fileInput && !this.options.useSubmit) {
                 this._on(this.options.fileInput, {
                     change: this._onChange
                 });
+            }
+            if (this.options.useSubmit) {
+              this._on(this.options.fileInput[0].form, {
+                submit: this._onSubmit
+              });
             }
         },
 
