@@ -1,11 +1,12 @@
 # jQuery File Upload Plugin
 
 ## Demo
-[Demo File Upload](https://blueimp.github.io/jQuery-File-Upload/)
+For demo, check this out -> [Demo File Upload](https://blueimp.github.io/jQuery-File-Upload/)
 
 ## Description
 File Upload widget with multiple file selection, drag&amp;drop support, progress bars, validation and preview images, audio and video for jQuery.  
-Supports cross-domain, chunked and resumable file uploads and client-side image resizing. Works with any server-side platform (PHP, Python, Ruby on Rails, Java, Node.js, Go etc.) that supports standard HTML form file uploads.
+Supports cross-domain, chunked and resumable file uploads and client-side image resizing. 
+Works with any server-side platform (PHP, Python, Ruby on Rails, Java, Node.js, Go etc.) that supports standard HTML form file uploads.
 
 ## Setup
 * [How to setup the plugin on your website](https://github.com/blueimp/jQuery-File-Upload/wiki/Setup)
@@ -95,7 +96,7 @@ The File Upload plugin has been tested with and supports the following mobile br
 ### Supported features
 For a detailed overview of the features supported by each browser version, please have a look at the [Extended browser support information](https://github.com/blueimp/jQuery-File-Upload/wiki/Browser-support).
 
-## Contributing
+## Contribution
 **Bug fixes** and **new features** can be proposed using [pull requests](https://github.com/blueimp/jQuery-File-Upload/pulls).
 Please read the [contribution guidelines](https://github.com/blueimp/jQuery-File-Upload/blob/master/CONTRIBUTING.md) before submitting a pull request.
 
