@@ -295,12 +295,31 @@
                         return;
                     }
                     if (data.dataType &&
-                            data.dataType.indexOf('json') === data.dataType.length - 4) {
+                        typeof JSON !== 'undefined' &&
+                        (data.dataType.indexOf('json') === data.dataType.length - 4||
+                         data.dataType.indexOf('plain') === data.dataType.length - 5 ||
+                         data.dataType.indexOf('html') === data.dataType.length - 4 )
+                        ) {
                         try {
                             data.result = angular.fromJson(data.jqXHR.responseText);
                         } catch (ignore) {}
                     }
-                }).on([
+                }).on('fileuploaddone', function (e, data) {
+                    if (data.errorThrown === 'abort') {
+                        return;
+                    }
+                    if (data.dataType &&
+                        typeof JSON !== 'undefined' &&
+                        (data.dataType.indexOf('json') === data.dataType.length - 4||
+                         data.dataType.indexOf('plain') === data.dataType.length - 5 ||
+                         data.dataType.indexOf('html') === data.dataType.length - 4 )
+                        ) {
+                        try {
+                            data.result = angular.fromJson(data.jqXHR.responseText);
+                        } catch (ignore) {}
+                    }
+                })
+                .on([
                     'fileuploadadd',
                     'fileuploadsubmit',
                     'fileuploadsend',
