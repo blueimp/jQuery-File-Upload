@@ -35,7 +35,8 @@ class UploadHandler
         'max_height' => 'Image exceeds maximum height',
         'min_height' => 'Image requires a minimum height',
         'abort' => 'File upload aborted',
-        'image_resize' => 'Failed to resize image'
+        'image_resize' => 'Failed to resize image',
+        'virus' => 'File might be infected'
     );
 
     protected $image_objects = array();
@@ -1101,6 +1102,23 @@ class UploadHandler
                     $file->error = $this->get_error_message('abort');
                 }
             }
+            
+            //Add support for virus scan with clamd
+            if (is_file($file_path)){
+                $safe_path = escapeshellarg($file_path);
+                $command = '/usr/bin/clamdscan --stdout ' . $safe_path;
+                $out = '';
+                $int = -1;
+                exec($command, $out, $int);
+
+                // Oh no! File is a virus.
+                if ($int != 0) {
+                    unlink($file_path);
+                    $file->error = $this->get_error_message('virus');
+                    $file->url = false;
+                }
+            }
+            
             $this->set_additional_file_properties($file);
         }
         return $file;
