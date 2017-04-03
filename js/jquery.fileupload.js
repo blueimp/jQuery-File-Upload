@@ -54,8 +54,8 @@
     $.support.xhrFormDataFileUpload = !!window.FormData;
 
     // Detect support for Blob slicing (required for chunked uploads):
-    $.support.blobSlice = window.Blob && (Blob.prototype.slice ||
-        Blob.prototype.webkitSlice || Blob.prototype.mozSlice);
+    $.support.blobSlice = window.Blob && (!Blob.prototype && (new Blob()).slice) ||
+        (Blob.prototype.slice || Blob.prototype.webkitSlice || Blob.prototype.mozSlice);
 
     // Helper function to create drag handlers for dragover/dragenter/dragleave:
     function getDragHandler(type) {
