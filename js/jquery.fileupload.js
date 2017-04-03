@@ -298,6 +298,7 @@
 
         _BitrateTimer: function () {
             this.timestamp = ((Date.now) ? Date.now() : (new Date()).getTime());
+            this.timestamp0 = this.timestamp;
             this.loaded = 0;
             this.bitrate = 0;
             this.getBitrate = function (now, loaded, interval) {
@@ -308,6 +309,10 @@
                     this.timestamp = now;
                 }
                 return this.bitrate;
+            };
+            this.getAvgBitrate = function (now, loaded) {
+                var timeDiff = now - this.timestamp0;
+                return loaded * (1000 / timeDiff) * 8;
             };
         },
 
@@ -389,6 +394,10 @@
                     now,
                     this._progress.loaded,
                     data.bitrateInterval
+                );
+                this._progress.avgbitrate = this._bitrateTimer.getAvgBitrate(
+                    now,
+                    this._progress.loaded
                 );
                 data._progress.loaded = data.loaded = loaded;
                 data._progress.bitrate = data.bitrate = data._bitrateTimer.getBitrate(
@@ -828,7 +837,7 @@
                 this._bitrateTimer = new this._BitrateTimer();
                 // Reset the global progress values:
                 this._progress.loaded = this._progress.total = 0;
-                this._progress.bitrate = 0;
+                this._progress.bitrate = this._progress.avgbitrate = 0;
             }
             // Make sure the container objects for the .response() and
             // .progress() methods on the data object are available
