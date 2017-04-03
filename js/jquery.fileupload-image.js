@@ -164,7 +164,7 @@
                     file = data.files[data.index],
                     dfd = $.Deferred();
                 if (($.type(options.maxFileSize) === 'number' &&
-                            file.size > options.maxFileSize) ||
+                            file.size < options.maxFileSize) ||
                         (options.fileTypes &&
                             !options.fileTypes.test(file.type)) ||
                         !loadImage(
