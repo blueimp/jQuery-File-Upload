@@ -135,6 +135,7 @@
                                 $(this).find('.error').text(error);
                             }
                         });
+                        that._trigger('adderror', e, data);		//	Added custom event to check whether any error has occured while adding the file.
                     }
                 });
             },
