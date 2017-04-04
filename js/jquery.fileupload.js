@@ -799,15 +799,23 @@
                         }
                     })
                     .fail(function (jqXHR, textStatus, errorThrown) {
+                        var defaultPrevented;
+
                         o.jqXHR = jqXHR;
                         o.textStatus = textStatus;
                         o.errorThrown = errorThrown;
-                        that._trigger('chunkfail', null, o);
+
+                        defaultPrevented = that._trigger('chunkfail', null, o);
                         that._trigger('chunkalways', null, o);
-                        dfd.rejectWith(
-                            o.context,
-                            [jqXHR, textStatus, errorThrown]
-                        );
+
+                        if (defaultPrevented === false) {
+                            upload();
+                        } else {
+                            dfd.rejectWith(
+                                o.context,
+                                [jqXHR, textStatus, errorThrown]
+                            );
+                        }
                     });
             };
             this._enhancePromise(promise);
