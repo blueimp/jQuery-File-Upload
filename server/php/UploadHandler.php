@@ -1093,6 +1093,11 @@ class UploadHandler
                 $file->url = $this->get_download_url($file->name);
                 if ($this->is_valid_image_file($file_path)) {
                     $this->handle_image_file($file_path, $file);
+                }else{
+                // Handle unsupported file types
+                }
+                 	unlink($file_path);
+                    $file->error = 'extension';
                 }
             } else {
                 $file->size = $file_size;
