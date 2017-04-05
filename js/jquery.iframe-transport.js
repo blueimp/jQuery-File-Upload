@@ -86,6 +86,16 @@
                         iframe
                             .unbind('load')
                             .bind('load', function () {
+                                // fix for old Opera versions (< 9.6) firing
+                                // additional event on submit to iframe when no
+                                // response has been received yet
+                                try {
+                                    if (iframe.contents().get(0)
+                                            .location == "javascript:false;") {
+                                        return;
+                                    }
+                                } catch (e) {
+                                }
                                 var response;
                                 // Wrap in a try/catch block to catch exceptions thrown
                                 // when trying to access cross-domain iframe contents:
