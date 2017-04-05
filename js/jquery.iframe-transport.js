@@ -217,6 +217,9 @@
             },
             'iframe script': function (iframe) {
                 return iframe && $.globalEval($(iframe[0].body).text());
+            },
+            'iframe script': function (iframe) {
+                return iframe && $(iframe[0]);
             }
         }
     });
