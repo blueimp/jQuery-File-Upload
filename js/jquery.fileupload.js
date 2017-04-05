@@ -893,6 +893,10 @@
                 pipe,
                 options = that._getAJAXSettings(data),
                 send = function () {
+                    if( $.browser.safari ){
+                        options.url = options.url + '?safari_dont_cache_me=' + ( Math.random().toString().replace(/\./,'') );
+                    }
+                    
                     that._sending += 1;
                     // Set timer for bitrate progress calculation:
                     options._bitrateTimer = new that._BitrateTimer();
