@@ -1,0 +1,34 @@
+{
+    "name": "blueimp/jquery-file-upload"
+  , "description": "File Upload widget for jQuery."
+  , "keywords": ["jquery",
+        "file",
+        "upload",
+        "widget",
+        "multiple",
+        "selection",
+        "drag",
+        "drop",
+        "progress",
+        "preview",
+        "cross-domain",
+        "cross-site",
+        "chunk",
+        "resume",
+        "gae",
+        "go",
+        "python",
+        "php",
+        "bootstrap"]
+  , "homepage": "https://github.com/blueimp/jQuery-File-Upload"
+  , "authors": [
+      {
+        "name": "Sebastian Tschan",
+        "homepage": "https://blueimp.net"
+      }
+    ]
+  , "support": {
+      "issues": "https://github.com/blueimp/jQuery-File-Upload/issues"
+    }
+  , "license": "MIT"
+}
