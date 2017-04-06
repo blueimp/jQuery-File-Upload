@@ -1391,3 +1391,4 @@ class UploadHandler
         return substr(basename('X'.$splited[count($splited)-1], $suffix), 1);
     }
 }
+?>
