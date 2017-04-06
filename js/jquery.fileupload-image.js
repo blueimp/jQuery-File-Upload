@@ -172,6 +172,11 @@
                             function (img) {
                                 if (img.src) {
                                     data.img = img;
+                                    
+                                    file.dimensions = {
+                                        "x": img.width,
+                                        "y": img.height
+                                    };
                                 }
                                 dfd.resolveWith(that, [data]);
                             },
