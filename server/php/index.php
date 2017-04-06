@@ -11,5 +11,6 @@
  */
 
 error_reporting(E_ALL | E_STRICT);
+ini_set('memory_limit', '64M'); // increase to handle large files
 require('UploadHandler.php');
 $upload_handler = new UploadHandler();
