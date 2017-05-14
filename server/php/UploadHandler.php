@@ -35,7 +35,8 @@ class UploadHandler
         'max_height' => 'Image exceeds maximum height',
         'min_height' => 'Image requires a minimum height',
         'abort' => 'File upload aborted',
-        'image_resize' => 'Failed to resize image'
+        'image_resize' => 'Failed to resize image',
+        'finfo_disabled' => 'Enable the fileinfo extension in php.ini to enable mime type matching'
     );
 
     protected $image_objects = array();
@@ -90,7 +91,7 @@ class UploadHandler
             // Defines which files can be displayed inline when downloaded:
             'inline_file_types' => '/\.(gif|jpe?g|png)$/i',
             // Defines which files (based on their names) are accepted for upload:
-            'accept_file_types' => '/.+$/i',
+            'accept_file_types' => array(),
             // The php.ini settings upload_max_filesize and post_max_size
             // take precedence over the following max_file_size setting:
             'max_file_size' => null,
@@ -375,10 +376,29 @@ class UploadHandler
             $file->error = $this->get_error_message('post_max_size');
             return false;
         }
-        if (!preg_match($this->options['accept_file_types'], $file->name)) {
+        
+        if ( is_array( $this->options['accept_file_types'] ) ) {
+          // check file contents for mime/type and not extension
+          if ( extension_loaded( 'fileinfo' ) ) {
+            $finfo = finfo_open(FILEINFO_MIME_TYPE);
+            if ( !empty( $this->options['accept_file_types'] ) )
+            {
+              if ( !in_array( finfo_file($finfo, $uploaded_file ), $this->options['accept_file_types'] ) ) {
+                  $file->error = $this->get_error_message('accept_file_types');
+                  return false;
+              }
+            } //empty array means all types allowed
+          }else{
+             $file->error = $this->get_error_message('finfo_disabled');
+          }
+        }elseif ( is_string( $this->options['accept_file_types'] ) )
+        {
+          if (!preg_match($this->options['accept_file_types'], $file->name)) {
             $file->error = $this->get_error_message('accept_file_types');
             return false;
-        }
+          }
+        } 
+        
         if ($uploaded_file && is_uploaded_file($uploaded_file)) {
             $file_size = $this->get_file_size($uploaded_file);
         } else {
