@@ -381,8 +381,7 @@ class UploadHandler
           // check file contents for mime/type and not extension
           if ( extension_loaded( 'fileinfo' ) ) {
             $finfo = finfo_open(FILEINFO_MIME_TYPE);
-            if ( !empty( $this->options['accept_file_types'] ) )
-            {
+            if ( !empty( $this->options['accept_file_types'] ) ) {
               if ( !in_array( finfo_file($finfo, $uploaded_file ), $this->options['accept_file_types'] ) ) {
                   $file->error = $this->get_error_message('accept_file_types');
                   return false;
@@ -390,9 +389,9 @@ class UploadHandler
             } //empty array means all types allowed
           }else{
              $file->error = $this->get_error_message('finfo_disabled');
+             return false;
           }
-        }elseif ( is_string( $this->options['accept_file_types'] ) )
-        {
+        }elseif ( is_string( $this->options['accept_file_types'] ) ) {
           if (!preg_match($this->options['accept_file_types'], $file->name)) {
             $file->error = $this->get_error_message('accept_file_types');
             return false;
