@@ -27,9 +27,16 @@
 <link rel="stylesheet" href="css/style.css">
 <!-- blueimp Gallery styles -->
 <link rel="stylesheet" href="//blueimp.github.io/Gallery/css/blueimp-gallery.min.css">
+    
+    
 <!-- CSS to style the file input field as button and adjust the Bootstrap progress bars -->
 <link rel="stylesheet" href="css/jquery.fileupload.css">
 <link rel="stylesheet" href="css/jquery.fileupload-ui.css">
+
+<!-- cropper css styles -->
+<link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/cropper/3.0.0-rc.1/cropper.min.css">
+<link rel="stylesheet" href="css/jquery.fileupload-image-editor.css">
+
 <!-- CSS adjustments for browsers with JavaScript disabled -->
 <noscript><link rel="stylesheet" href="css/jquery.fileupload-noscript.css"></noscript>
 <noscript><link rel="stylesheet" href="css/jquery.fileupload-ui-noscript.css"></noscript>
@@ -57,18 +64,18 @@
 </div>
 <div class="container">
     <h1>jQuery File Upload Demo</h1>
-    <h2 class="lead">Basic Plus UI version</h2>
+    <h2 class="lead">Basic Plus UI Plus Editor version</h2>
     <ul class="nav nav-tabs">
         <li><a href="basic.html">Basic</a></li>
         <li><a href="basic-plus.html">Basic Plus</a></li>
-        <li class="active"><a href="index.html">Basic Plus UI</a></li>
-        <li><a href="basic-plus-editor.html">Basic Plus UI Plus Editor</a></li>
+        <li><a href="index.html">Basic Plus UI</a></li>
+        <li class="active"><a href="basic-plus-editor.html">Basic Plus UI Plus Editor</a></li>
         <li><a href="angularjs.html">AngularJS</a></li>
         <li><a href="jquery-ui.html">jQuery UI</a></li>
     </ul>
     <br>
     <blockquote>
-        <p>File Upload widget with multiple file selection, drag&amp;drop support, progress bars, validation and preview images, audio and video for jQuery.<br>
+        <p>File Upload widget with multiple file selection, drag&amp;drop support, progress bars, validation and preview and edit images, audio and video for jQuery.<br>
         Supports cross-domain, chunked and resumable file uploads and client-side image resizing.<br>
         Works with any server-side platform (PHP, Python, Ruby on Rails, Java, Node.js, Go etc.) that supports standard HTML form file uploads.</p>
     </blockquote>
@@ -142,6 +149,78 @@
     <a class="play-pause"></a>
     <ol class="indicator"></ol>
 </div>
+
+<div id="upload-image-editor" class="modal fade" role="dialog">
+    <div class="modal-dialog">
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">Edit image</h4>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-md-12">
+                        <input class="form-control filename" placeholder="Filename">
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="cropper-img-container">
+                            <img class="cropper-img"/>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-12 docs-buttons">
+                        <div class="btn-group">
+                            <button type="button" class="btn btn-primary" data-method="setDragMode" data-option="move" title="Move">
+                                <span class="docs-tooltip" data-toggle="tooltip" data-animation="false" title="">
+                                    <span class="glyphicon glyphicon-move"></span>
+                                </span>
+                            </button>
+                            <button type="button" class="btn btn-primary" data-method="setDragMode" data-option="crop" title="Crop">
+                                <span class="docs-tooltip" data-toggle="tooltip" data-animation="false" title="">
+                                    <span class="glyphicon glyphicon-edit"></span>
+                                </span>
+                            </button>
+                        </div>
+                        <div class="btn-group">
+                            <button type="button" class="btn btn-primary" data-method="zoom" data-option="0.1" title="Zoom In">
+                                <span class="docs-tooltip" data-toggle="tooltip" data-animation="false" title="" data-original-title="">
+                                    <span class="glyphicon glyphicon-zoom-in"></span>
+                                </span>
+                            </button>
+                            <button type="button" class="btn btn-primary" data-method="zoom" data-option="-0.1" title="Zoom Out">
+                                <span class="docs-tooltip" data-toggle="tooltip" data-animation="false" title="" data-original-title="">
+                                    <span class="glyphicon glyphicon-zoom-out"></span>
+                                </span>
+                            </button>
+                        </div>
+                        <div class="btn-group">
+                            <button type="button" class="btn btn-primary" data-method="rotate" data-option="-45" title="Rotate Left">
+                                <span class="docs-tooltip" data-toggle="tooltip" data-animation="false" title="" data-original-title="">
+                                    <span class="glyphicon glyphicon-chevron-left"></span>
+                                </span>
+                            </button>
+                            <button type="button" class="btn btn-primary" data-method="rotate" data-option="45" title="Rotate Right">
+                                <span class="docs-tooltip" data-toggle="tooltip" data-animation="false" title="" data-original-title="">
+                                    <span class="glyphicon glyphicon-chevron-right"></span>
+                                </span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-success save">Save</button>
+            </div>
+        </div>
+    </div>
+</div>
+
 <!-- The template to display files available for upload -->
 <script id="template-upload" type="text/x-tmpl">
 {% for (var i=0, file; file=o.files[i]; i++) { %}
@@ -230,6 +309,9 @@
 <script src="//netdna.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js"></script>
 <!-- blueimp Gallery script -->
 <script src="//blueimp.github.io/Gallery/js/jquery.blueimp-gallery.min.js"></script>
+<!-- cropper script -->
+<script src="//cdnjs.cloudflare.com/ajax/libs/cropper/3.0.0-rc.1/cropper.min.js"></script>
+
 <!-- The Iframe Transport is required for browsers without support for XHR file uploads -->
 <script src="js/jquery.iframe-transport.js"></script>
 <!-- The basic File Upload plugin -->
@@ -238,6 +320,8 @@
 <script src="js/jquery.fileupload-process.js"></script>
 <!-- The File Upload image preview & resize plugin -->
 <script src="js/jquery.fileupload-image.js"></script>
+<!-- The File Upload image preview & resize plugin -->
+<script src="js/jquery.fileupload-image-editor.js"></script>
 <!-- The File Upload audio preview plugin -->
 <script src="js/jquery.fileupload-audio.js"></script>
 <!-- The File Upload video preview plugin -->
