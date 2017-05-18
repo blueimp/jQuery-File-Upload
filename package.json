@@ -45,7 +45,7 @@
   },
   "scripts": {
     "bower-version-update": "./bower-version-update.js",
-    "lint": "jshint *.js js/*.js js/cors/*.js",
+    "lint": "jshint .",
     "test": "npm run lint",
     "preversion": "npm test",
     "version": "npm run bower-version-update && git add bower.json",
