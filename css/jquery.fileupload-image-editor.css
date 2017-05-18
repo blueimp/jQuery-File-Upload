@@ -1,0 +1,10 @@
+.cropper-img-container{
+    min-height:350px;
+    width:100%;
+}
+.cropper-img{
+    max-width: 100%;
+}
+.preview{
+    cursor: pointer;
+}
