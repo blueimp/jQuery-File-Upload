@@ -34,10 +34,13 @@
     "url": "git://github.com/blueimp/jQuery-File-Upload.git"
   },
   "license": "MIT",
-  "optionalDependencies": {
-    "blueimp-canvas-to-blob": "3.5.0",
-    "blueimp-load-image": "2.12.2",
-    "blueimp-tmpl": "3.6.0"
+  "dependencies": {
+    "jquery": ">=1.6",
+    "jquery-ui": ">=1.9",
+    "jquery.iframe-transport": ">=1.0.0",
+    "blueimp-canvas-to-blob": ">=2.1.1",
+    "blueimp-load-image": ">=1.13.0",
+    "blueimp-tmpl": ">=2.5.4"  
   },
   "devDependencies": {
     "bower-json": "0.8.1",
