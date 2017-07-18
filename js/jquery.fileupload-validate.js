@@ -57,7 +57,7 @@
         options: {
             /*
             // The regular expression for allowed file types, matches
-            // against either file type or file name:
+            // against either file type and file name:
             acceptFileTypes: /(\.|\/)(gif|jpe?g|png)$/i,
             // The maximum allowed file size in bytes:
             maxFileSize: 10000000, // 10 MB
@@ -98,7 +98,7 @@
                             options.maxNumberOfFiles) {
                     file.error = settings.i18n('maxNumberOfFiles');
                 } else if (options.acceptFileTypes &&
-                        !(options.acceptFileTypes.test(file.type) ||
+                        !(options.acceptFileTypes.test(file.type) &&
                         options.acceptFileTypes.test(file.name))) {
                     file.error = settings.i18n('acceptFileTypes');
                 } else if (fileSize > options.maxFileSize) {
