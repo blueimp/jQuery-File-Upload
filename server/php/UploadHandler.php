@@ -871,7 +871,7 @@ class UploadHandler
         if (!empty($options['max_height'])) {
             $new_height = $max_height = $options['max_height'];
         }
-        if (!($image_oriented || $max_width < $img_width || $max_height < $img_height)) {
+        if (!($image_oriented || $max_width < $img_width || $max_height < $img_height || !empty($options['strip']) )) {
             if ($file_path !== $new_file_path) {
                 return copy($file_path, $new_file_path);
             }
