@@ -18,11 +18,11 @@
         // Register as an anonymous AMD module:
         define([
             'jquery',
-            'load-image',
-            'load-image-meta',
-            'load-image-scale',
-            'load-image-exif',
-            'canvas-to-blob',
+            'blueimp-load-image/js/load-image',
+            'blueimp-load-image/js/load-image-meta',
+            'blueimp-load-image/js/load-image-scale',
+            'blueimp-load-image/js/load-image-exif',
+            'blueimp-canvas-to-blob',
             './jquery.fileupload-process'
         ], factory);
     } else if (typeof exports === 'object') {
