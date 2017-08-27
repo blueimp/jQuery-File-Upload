@@ -30,6 +30,7 @@
             require('jquery'),
             require('blueimp-tmpl'),
             require('./jquery.fileupload-image'),
+            require('./jquery.fileupload-audio'),
             require('./jquery.fileupload-video'),
             require('./jquery.fileupload-validate')
         );
