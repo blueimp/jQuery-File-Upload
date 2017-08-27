@@ -132,6 +132,7 @@ class UploadHandler
             'identify_bin' => 'identify',
             'image_versions' => array(
                 // The empty image version key defines options for the original image:
+                // Keep in mind that these options are inherited by all other image versions!
                 '' => array(
                     // Automatically rotate images based on EXIF meta data:
                     'auto_orient' => true
@@ -871,7 +872,13 @@ class UploadHandler
         if (!empty($options['max_height'])) {
             $new_height = $max_height = $options['max_height'];
         }
-        if (!($image_oriented || $max_width < $img_width || $max_height < $img_height || !empty($options['strip']) )) {
+	    
+        $image_strip = false;
+        if( !empty($options["strip"]) ) {
+            $image_strip = $options["strip"];
+        } 
+		
+        if ( !$image_oriented && ($max_width >= $img_width) && ($max_height >= $img_height) && !image_strip && empty($options["jpeg_quality"]) ) {        
             if ($file_path !== $new_file_path) {
                 return copy($file_path, $new_file_path);
             }
@@ -917,7 +924,7 @@ class UploadHandler
                 }
                 break;
         }
-        if (!empty($options['strip'])) {
+        if ( $image_strip ) {
             $image->stripImage();
         }
         return $success && $image->writeImage($new_file_path);
