@@ -53,8 +53,8 @@
   "ignore": [
     "/*.*",
     "/cors",
-    "css/demo-ie8.css",
-    "css/demo.css",
+    "css/jquery-ui-demo-ie8.css",
+    "css/jquery-ui-demo.css",
     "css/style.css",
     "js/app.js",
     "js/main.js",
