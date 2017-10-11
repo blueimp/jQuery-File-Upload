@@ -558,6 +558,25 @@ $(function () {
         });
     });
 
+    test('dropfail', function () {
+        var fu = $('#fileupload').fileupload(),
+            fuo = fu.data('blueimp-fileupload') || fu.data('fileupload');
+        expect(1);
+        fu.fileupload({
+            dropfail: function () {
+                ok(true, 'Triggers dropfail callback');
+            },
+            add: $.noop
+        });
+        var originalEvent = {dataTransfer: {}};
+        Object.defineProperty(originalEvent.dataTransfer, 'files', { get: function () { throw new Error('Access is denied.'); } });
+        fuo._onDrop({
+            data: {fileupload: fuo},
+            originalEvent: originalEvent,
+            preventDefault: $.noop
+        });
+    });
+
     test('dragover', function () {
         var fu = $('#fileupload').fileupload(),
             fuo = fu.data('blueimp-fileupload') || fu.data('fileupload');

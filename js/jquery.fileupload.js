@@ -273,6 +273,9 @@
             // Callback for completed (success, abort or error) chunk upload requests:
             // chunkalways: function (e, data) {}, // .bind('fileuploadchunkalways', func);
 
+            // Callback for failed drop operations:
+            // dropfail: function (e, data) {}, // .bind('fileuploaddropfail', func);
+
             // The plugin options are used as settings object for the ajax calls.
             // The following are jQuery ajax settings required for the file uploads:
             processData: false,
@@ -1261,10 +1264,10 @@
 
         _onDrop: function (e) {
             e.dataTransfer = e.originalEvent && e.originalEvent.dataTransfer;
+            if (this._verifyCanAccessFiles(e)) {
             var that = this,
                 dataTransfer = e.dataTransfer,
                 data = {};
-            if (dataTransfer && dataTransfer.files && dataTransfer.files.length) {
                 e.preventDefault();
                 this._getDroppedFiles(dataTransfer).always(function (files) {
                     data.files = files;
@@ -1277,6 +1280,17 @@
                     }
                 });
             }
+        },
+
+        _verifyCanAccessFiles: function (e) {
+            try {
+                return e.dataTransfer && e.dataTransfer.files && e.dataTransfer.files.length;
+            }
+            catch (error) {
+                this._trigger('dropfail', e, { errorThrown: error });
+            }
+
+            return false;
         },
 
         _onDragOver: getDragHandler('dragover'),
