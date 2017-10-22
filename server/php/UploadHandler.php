@@ -14,6 +14,7 @@ class UploadHandler
 {
 
     protected $options;
+    protected $success_callback;
 
     // PHP File Upload error message codes:
     // http://php.net/manual/en/features.file-upload.errors.php
@@ -40,7 +41,7 @@ class UploadHandler
 
     protected $image_objects = array();
 
-    public function __construct($options = null, $initialize = true, $error_messages = null) {
+    public function __construct($options = null, $initialize = true, $error_messages = null, $success_callback=null) {
         $this->response = array();
         $this->options = array(
             'script_url' => $this->get_full_url().'/'.$this->basename($this->get_server_var('SCRIPT_NAME')),
@@ -164,6 +165,8 @@ class UploadHandler
         if ($options) {
             $this->options = $options + $this->options;
         }
+        $this->success_callback = $success_callback;
+
         if ($error_messages) {
             $this->error_messages = $error_messages + $this->error_messages;
         }
@@ -1107,6 +1110,10 @@ class UploadHandler
                 }
             }
             $this->set_additional_file_properties($file);
+
+            if (!empty($this->success_callback) && is_callable($this->success_callback)) {
+                call_user_func($this->success_callback, $file);
+            }
         }
         return $file;
     }
