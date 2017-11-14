@@ -39,7 +39,7 @@ Supports cross-domain, chunked and resumable file uploads and client-side image 
 * **Multiple plugin instances:**  
   Allows to use multiple plugin instances on the same webpage.
 * **Customizable and extensible:**  
-  Provides an API to set individual options and define callBack methods for various upload events.
+  Provides an API to set individual options and define callback methods for various upload events.
 * **Multipart and file contents stream uploads:**  
   Files can be uploaded as standard "multipart/form-data" or file contents stream (HTTP PUT file upload).
 * **Compatible with any server-side application platform:**  
@@ -60,7 +60,7 @@ Supports cross-domain, chunked and resumable file uploads and client-side image 
 * [Bootstrap](http://getbootstrap.com/) v. 3.2.0+
 * [Glyphicons](http://glyphicons.com/)
 
-The user interface of all versions except the jQuery UI version is built with [Bootstrap](http://getbootstrap.com/) and icons from [Glyphicons](http://glyphicons.com/).
+The user interface of all versions, except the jQuery UI version, are built with [Bootstrap](http://getbootstrap.com/) and icons from [Glyphicons](http://glyphicons.com/).
 
 ### Cross-domain requirements
 [Cross-domain File Uploads](https://github.com/blueimp/jQuery-File-Upload/wiki/Cross-domain-uploads) using the [Iframe Transport plugin](https://github.com/blueimp/jQuery-File-Upload/blob/master/js/jquery.iframe-transport.js) require a redirect back to the origin server to retrieve the upload results. The [example implementation](https://github.com/blueimp/jQuery-File-Upload/blob/master/js/main.js) makes use of [result.html](https://github.com/blueimp/jQuery-File-Upload/blob/master/cors/result.html) as a static redirect page for the origin server.
