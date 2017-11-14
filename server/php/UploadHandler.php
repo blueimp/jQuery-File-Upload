@@ -868,8 +868,9 @@ class UploadHandler
         $image_oriented = false;
         if (!empty($options['auto_orient'])) {
             $image_oriented = $this->imagick_orient_image($image);
-        }
-	$image_resize = false; 
+        } 
+	    
+        $image_resize = false; 
         $new_width = $max_width = $img_width = $image->getImageWidth();
         $new_height = $max_height = $img_height = $image->getImageHeight(); 
 		  
