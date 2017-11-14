@@ -131,8 +131,8 @@ class UploadHandler
             // Command or path for to the ImageMagick identify binary:
             'identify_bin' => 'identify',
             'image_versions' => array(
-                // The empty image version key defines options for the original image:
-                // Keep in mind: these image manipulations are inherited by all other image versions! 
+                // The empty image version key defines options for the original image.
+                // Keep in mind: these image manipulations are inherited by all other image versions from this point onwards. 
                 // Also note that the property 'no_cache' is not inherited, since it's not a manipulation.
                 '' => array(
                     // Automatically rotate images based on EXIF meta data:
