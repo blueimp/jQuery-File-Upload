@@ -870,17 +870,17 @@ class UploadHandler
         if (!empty($options['auto_orient'])) {
             $image_oriented = $this->imagick_orient_image($image);
         }
-		$image_resize = false; 
+	$image_resize = false; 
         $new_width = $max_width = $img_width = $image->getImageWidth();
         $new_height = $max_height = $img_height = $image->getImageHeight(); 
 		  
-		// use isset(). User might be setting max_width = 0 (auto in regular resizing). Value 0 would be considered empty when you use empty()
+        // use isset(). User might be setting max_width = 0 (auto in regular resizing). Value 0 would be considered empty when you use empty()
         if (isset($options['max_width'])) {
-			$image_resize = true; 
+            $image_resize = true; 
             $new_width = $max_width = $options['max_width']; 
         }
         if (isset($options['max_height'])) {
-			$image_resize = true;
+            $image_resize = true;
             $new_height = $max_height = $options['max_height'];
         }
         
