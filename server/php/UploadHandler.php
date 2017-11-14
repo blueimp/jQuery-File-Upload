@@ -132,18 +132,13 @@ class UploadHandler
             'identify_bin' => 'identify',
             'image_versions' => array(
                 // The empty image version key defines options for the original image:
-                // Keep in mind that these options are inherited by all other image versions!
+                // Warning: these image manipulations are inherited by all other image versions! 
+                // Keep in mind that this does not apply to 'no_cache'.
                 '' => array(
                     // Automatically rotate images based on EXIF meta data:
                     'auto_orient' => true
                 ),
-                // Uncomment the following to create medium sized images:
-                /*
-                'medium' => array(
-                    'max_width' => 800,
-                    'max_height' => 600
-                ),
-                */
+                // You can add an array. The key is the name of the version, the array contains the options to apply.
                 'thumbnail' => array(
                     // Uncomment the following to use a defined directory for the thumbnails
                     // instead of a subdirectory based on the version identifier.
@@ -154,7 +149,13 @@ class UploadHandler
                     //'upload_url' => $this->get_full_url().'/thumb/',
                     // Uncomment the following to force the max
                     // dimensions and e.g. create square thumbnails:
-                    //'crop' => true,
+                    // 'auto_orient' => true,
+                    // 'crop' => true,
+                    // 'jpeg_quality' => 70,
+                    // 'no_cache' => true, (there's a caching option, but this remembers thumbnail sizes from a previous action!)
+                    // 'max_width' => 0, (this would mean width is adjusted automatically - keeping aspect ratio to a set max_height)
+                    // 'max_heigh' => 200,
+                    // 'strip' => true, (this strips EXIF tags, such as geolocation)
                     'max_width' => 80,
                     'max_height' => 80
                 )
@@ -864,15 +865,21 @@ class UploadHandler
         if (!empty($options['auto_orient'])) {
             $image_oriented = $this->imagick_orient_image($image);
         }
+		$image_resize = false; 
         $new_width = $max_width = $img_width = $image->getImageWidth();
-        $new_height = $max_height = $img_height = $image->getImageHeight();
-        if (!empty($options['max_width'])) {
-            $new_width = $max_width = $options['max_width'];
+        $new_height = $max_height = $img_height = $image->getImageHeight(); 
+		  
+		// use isset(). User might be setting max_width = 0 (auto in regular resizing). Value 0 would be considered empty when you use empty()
+        if (isset($options['max_width'])) {
+			$image_resize = true; 
+            $new_width = $max_width = $options['max_width']; 
         }
-        if (!empty($options['max_height'])) {
+        if (isset($options['max_height'])) {
+			$image_resize = true;
             $new_height = $max_height = $options['max_height'];
         }
-        $image_strip = false;
+        
+        $image_strip = ( isset($options['strip']) ? $options['strip'] : false);
         if( !empty($options["strip"]) ) {
             $image_strip = $options["strip"];
         } 
@@ -882,7 +889,7 @@ class UploadHandler
             }
             return true;
         }
-        $crop = !empty($options['crop']);
+        $crop = ( isset($options['crop']) ? $options['crop'] : false);
         if ($crop) {
             $x = 0;
             $y = 0;
