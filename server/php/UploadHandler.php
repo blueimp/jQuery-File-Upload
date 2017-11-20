@@ -138,13 +138,14 @@ class UploadHandler
                     // Automatically rotate images based on EXIF meta data:
                     'auto_orient' => true
                 ),
-                // You can add an array. The key is the name of the version (example: 'medium'). 
+                // You can add arrays to generate different versions.
+                // The name of the key is the name of the version (example: 'medium'). 
                 // the array contains the options to apply.
                 /*
                 'medium' => array(
                     'max_width' => 800,
                     'max_height' => 600
-                ), 
+                ),
 		*/
                 'thumbnail' => array(
                     // Uncomment the following to use a defined directory for the thumbnails
