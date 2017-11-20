@@ -142,8 +142,8 @@ class UploadHandler
                 // the array contains the options to apply.
                 /*
                 'medium' => array(
-                    'max_width' => 200,
-                    'max_height' => 160
+                    'max_width' => 800,
+                    'max_height' => 600
                 ), 
 		*/
                 'thumbnail' => array(
