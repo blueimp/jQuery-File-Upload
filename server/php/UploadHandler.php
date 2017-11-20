@@ -131,19 +131,22 @@ class UploadHandler
             // Command or path for to the ImageMagick identify binary:
             'identify_bin' => 'identify',
             'image_versions' => array(
-                // The empty image version key defines options for the original image:
-                // Keep in mind that these options are inherited by all other image versions!
+                // The empty image version key defines options for the original image.
+                // Keep in mind: these image manipulations are inherited by all other image versions from this point onwards. 
+                // Also note that the property 'no_cache' is not inherited, since it's not a manipulation.
                 '' => array(
                     // Automatically rotate images based on EXIF meta data:
                     'auto_orient' => true
                 ),
-                // Uncomment the following to create medium sized images:
+                // You can add arrays to generate different versions.
+                // The name of the key is the name of the version (example: 'medium'). 
+                // the array contains the options to apply.
                 /*
                 'medium' => array(
                     'max_width' => 800,
                     'max_height' => 600
                 ),
-                */
+		*/
                 'thumbnail' => array(
                     // Uncomment the following to use a defined directory for the thumbnails
                     // instead of a subdirectory based on the version identifier.
@@ -154,9 +157,13 @@ class UploadHandler
                     //'upload_url' => $this->get_full_url().'/thumb/',
                     // Uncomment the following to force the max
                     // dimensions and e.g. create square thumbnails:
-                    //'crop' => true,
-                    'max_width' => 80,
-                    'max_height' => 80
+                    // 'auto_orient' => true,
+                    // 'crop' => true,
+                    // 'jpeg_quality' => 70,
+                    // 'no_cache' => true, (there's a caching option, but this remembers thumbnail sizes from a previous action!)
+                    // 'strip' => true, (this strips EXIF tags, such as geolocation)
+                    'max_width' => 80, // either specify width, or set to 0. Then width is automatically adjusted - keeping aspect ratio to a specified max_height.
+                    'max_height' => 80 // either specify height, or set to 0. Then height is automatically adjusted - keeping aspect ratio to a specified max_width.
                 )
             ),
             'print_response' => true
@@ -863,26 +870,32 @@ class UploadHandler
         $image_oriented = false;
         if (!empty($options['auto_orient'])) {
             $image_oriented = $this->imagick_orient_image($image);
-        }
+        } 
+	    
+        $image_resize = false; 
         $new_width = $max_width = $img_width = $image->getImageWidth();
-        $new_height = $max_height = $img_height = $image->getImageHeight();
-        if (!empty($options['max_width'])) {
-            $new_width = $max_width = $options['max_width'];
+        $new_height = $max_height = $img_height = $image->getImageHeight(); 
+		  
+        // use isset(). User might be setting max_width = 0 (auto in regular resizing). Value 0 would be considered empty when you use empty()
+        if (isset($options['max_width'])) {
+            $image_resize = true; 
+            $new_width = $max_width = $options['max_width']; 
         }
-        if (!empty($options['max_height'])) {
+        if (isset($options['max_height'])) {
+            $image_resize = true;
             $new_height = $max_height = $options['max_height'];
         }
-        $image_strip = false;
-        if( !empty($options["strip"]) ) {
-            $image_strip = $options["strip"];
-        } 
+        
+        $image_strip = (isset($options['strip']) ? $options['strip'] : false);
+ 
         if ( !$image_oriented && ($max_width >= $img_width) && ($max_height >= $img_height) && !$image_strip && empty($options["jpeg_quality"]) ) {        
             if ($file_path !== $new_file_path) {
                 return copy($file_path, $new_file_path);
             }
             return true;
         }
-        $crop = !empty($options['crop']);
+        $crop = (isset($options['crop']) ? $options['crop'] : false);
+        
         if ($crop) {
             $x = 0;
             $y = 0;
