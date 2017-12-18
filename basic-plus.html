@@ -25,6 +25,7 @@
 <link rel="stylesheet" href="css/style.css">
 <!-- CSS to style the file input field as button and adjust the Bootstrap progress bars -->
 <link rel="stylesheet" href="css/jquery.fileupload.css">
+<link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/cookieconsent2/3.0.3/cookieconsent.min.css">
 </head>
 <body>
 <div class="navbar navbar-default navbar-fixed-top">
@@ -48,8 +49,15 @@
     </div>
 </div>
 <div class="container">
-    <h1>jQuery File Upload Demo</h1>
-    <h2 class="lead">Basic Plus version</h2>
+    <div class="clearfix">
+        <div class="pull-left">
+            <h1>jQuery File Upload Demo</h1>
+            <h2 class="lead">Basic Plus version</h2>
+        </div>
+        <p class="pull-right">
+            <script async type="text/javascript" src="//cdn.carbonads.com/carbon.js?zoneid=1673&serve=C6AILKT&placement=blueimpgithubio" id="_carbonads_js"></script>
+        </p>
+    </div>
     <ul class="nav nav-tabs">
         <li><a href="basic.html">Basic</a></li>
         <li class="active"><a href="basic-plus.html">Basic Plus</a></li>
@@ -222,5 +230,7 @@ $(function () {
         .parent().addClass($.support.fileInput ? undefined : 'disabled');
 });
 </script>
+<script src="//cdnjs.cloudflare.com/ajax/libs/cookieconsent2/3.0.3/cookieconsent.min.js"></script>
+<script>window.addEventListener('load',function(){window.cookieconsent.initialise({palette:{popup:{background:'#428bca'},button:{background:'#fff'}}})})</script>
 </body>
 </html>
