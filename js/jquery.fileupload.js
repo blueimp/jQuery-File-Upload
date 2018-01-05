@@ -43,7 +43,7 @@
             '|(Kindle/(1\\.0|2\\.[05]|3\\.0))'
     ).test(window.navigator.userAgent) ||
         // Feature detection for all other devices:
-        $('<input type="file">').prop('disabled'));
+        $('<input type="file"/>').prop('disabled'));
 
     // The FileReader API is not actually used, but works as feature detection,
     // as some Safari versions (5?) support XHR file uploads via the FormData API,
