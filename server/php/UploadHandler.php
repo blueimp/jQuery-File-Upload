@@ -356,15 +356,23 @@ class UploadHandler
     }
 
     public function get_config_bytes($val) {
-        $val = trim($val);
-        $last = strtolower($val[strlen($val)-1]);
-        $val = (int)$val;
-        switch ($last) {
+        $str = trim($val);
+        $last = strtolower($str[strlen($str)-1]);
+        $val;
+        if(is_numeric($last)) {
+            $val = (int) $str;
+        } else {
+            $val = (int) substr($str, 0, -1);
+        }
+        switch($last) {
             case 'g':
+            case 'G':
                 $val *= 1024;
             case 'm':
+            case 'M':
                 $val *= 1024;
             case 'k':
+            case'K':
                 $val *= 1024;
         }
         return $this->fix_integer_overflow($val);
