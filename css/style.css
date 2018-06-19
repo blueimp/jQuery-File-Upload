@@ -13,3 +13,23 @@
 body {
   padding-top: 60px;
 }
+
+#carbonads {
+  box-sizing: border-box;
+  max-width: 300px;
+  min-height: 130px;
+  padding: 15px 15px 15px 160px;
+  margin: 0;
+  border-radius: 4px;
+  font-size: 13px;
+  line-height: 1.4;
+  background-color: rgba(0, 0, 0, 0.05);
+}
+#carbonads .carbon-img {
+  float: left;
+  margin-left: -145px;
+}
+#carbonads .carbon-poweredby {
+  display: block;
+  color: #777 !important;
+}
