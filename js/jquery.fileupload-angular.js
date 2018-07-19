@@ -315,6 +315,7 @@
                     'fileuploadpaste',
                     'fileuploaddrop',
                     'fileuploaddragover',
+                    'fileuploadbeforechunksend',
                     'fileuploadchunksend',
                     'fileuploadchunkdone',
                     'fileuploadchunkfail',
