@@ -1180,8 +1180,6 @@
         _getSingleFileInputFiles: function (fileInput) {
             fileInput = $(fileInput);
             
-            // FileSystemEntries doesn't seem to work correctly on Safari
-            // See https://stackoverflow.com/questions/49918319/jquery-file-upload-cannot-upload-file-in-safari-11
             var entries = fileInput.prop('webkitEntries') || fileInput.prop('entries'),
                 files,
                 value;
@@ -1230,7 +1228,7 @@
                     form: $(e.target.form)
                 };
             this._getFileInputFiles(data.fileInput).always(function (files) {
-                data.files = files;
+                data.files = $.makeArray(files);
                 if (that.options.replaceFileInput) {
                     that._replaceFileInput(data);
                 }
