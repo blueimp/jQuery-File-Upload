@@ -1144,10 +1144,10 @@
                 $.map(entries, function (entry) {
                     return that._handleFileTreeEntry(entry, path);
                 })
-            ).then(function () {
+            ).then(function (entries) {
                 return Array.prototype.concat.apply(
                     [],
-                    arguments
+                    entries
                 );
             });
         },
@@ -1213,10 +1213,10 @@
             return $.when.apply(
                 $,
                 $.map(fileInput, this._getSingleFileInputFiles)
-            ).then(function () {
+            ).then(function (files) {
                 return Array.prototype.concat.apply(
                     [],
-                    arguments
+                    files
                 );
             });
         },
