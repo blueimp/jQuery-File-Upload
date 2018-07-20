@@ -1179,9 +1179,8 @@
 
         _getSingleFileInputFiles: function (fileInput) {
             fileInput = $(fileInput);
-            
             var entries = fileInput.prop('webkitEntries') ||
-                fileInput.prop('entries'),
+                    fileInput.prop('entries'),
                 files,
                 value;
             if (entries && entries.length) {
