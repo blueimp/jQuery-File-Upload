@@ -1179,16 +1179,9 @@
 
         _getSingleFileInputFiles: function (fileInput) {
             fileInput = $(fileInput);
-            var entries = fileInput.prop('webkitEntries') ||
-                    fileInput.prop('entries'),
-                files,
-                value;
-            if (entries && entries.length) {
-                return this._handleFileTreeEntries(entries);
-            }
-            files = $.makeArray(fileInput.prop('files'));
+            var files = $.makeArray(fileInput.prop('files'));
             if (!files.length) {
-                value = fileInput.prop('value');
+                var value = fileInput.prop('value');
                 if (!value) {
                     return $.Deferred().resolve([]).promise();
                 }
