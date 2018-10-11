@@ -9,7 +9,8 @@
  * Licensed under the MIT license:
  * https://opensource.org/licenses/MIT
  */
-
-error_reporting(E_ALL | E_STRICT);
-require('UploadHandler.php');
-$upload_handler = new UploadHandler();
+/* Fix for CVE-2018-9206
+ *error_reporting(E_ALL | E_STRICT);
+ *require('UploadHandler.php');
+ *$upload_handler = new UploadHandler();
+ */
