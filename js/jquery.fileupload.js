@@ -812,6 +812,9 @@
                             o.context,
                             [jqXHR, textStatus, errorThrown]
                         );
+                    }).always(function(){
+                        // Remove progress listener to ease gc of chunks
+                        $(o.xhr().upload).unbind('progress');
                     });
             };
             this._enhancePromise(promise);
