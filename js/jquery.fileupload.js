@@ -261,6 +261,9 @@
             // Callback for dragover events of the dropZone(s):
             // dragover: function (e) {}, // .bind('fileuploaddragover', func);
 
+            // Callback before the start of each chunk upload request (before form data initialization):
+            // chunkbeforesend: function (e, data) {}, // .bind('fileuploadchunkbeforesend', func);
+
             // Callback for the start of each chunk upload request:
             // chunksend: function (e, data) {}, // .bind('fileuploadchunksend', func);
 
