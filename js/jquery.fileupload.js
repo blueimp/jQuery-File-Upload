@@ -434,6 +434,13 @@
             }
         },
 
+        _deinitProgressListener: function (options) {
+            var xhr = options.xhr ? options.xhr() : $.ajaxSettings.xhr();
+            if (xhr.upload) {
+                $(xhr.upload).unbind('progress');
+            }
+        },
+
         _isInstanceOf: function (type, obj) {
             // Cross-frame instanceof check
             return Object.prototype.toString.call(obj) === '[object ' + type + ']';
@@ -812,6 +819,9 @@
                             o.context,
                             [jqXHR, textStatus, errorThrown]
                         );
+                    })
+                    .always(function () {
+                        that._deinitProgressListener(o);
                     });
             };
             this._enhancePromise(promise);
@@ -913,6 +923,7 @@
                     }).fail(function (jqXHR, textStatus, errorThrown) {
                         that._onFail(jqXHR, textStatus, errorThrown, options);
                     }).always(function (jqXHRorResult, textStatus, jqXHRorError) {
+                        that._deinitProgressListener(options);
                         that._onAlways(
                             jqXHRorResult,
                             textStatus,
