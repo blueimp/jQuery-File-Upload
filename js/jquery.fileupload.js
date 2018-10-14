@@ -773,6 +773,8 @@
                 // Expose the chunk bytes position range:
                 o.contentRange = 'bytes ' + ub + '-' +
                     (ub + o.chunkSize - 1) + '/' + fs;
+                // Trigger chunkbeforesend to allow form data to be updated for this chunk
+                that._trigger('chunkbeforesend', null, o);
                 // Process the upload data (the blob and potential form data):
                 that._initXHRData(o);
                 // Add progress listeners for this chunk upload:
