@@ -1,5 +1,9 @@
 # jQuery File Upload Plugin
 
+## ⚠️ Versions Before 9.22.1 are Vulnerable
+
+A serious exploit, [CVE-2018-9206](https://nvd.nist.gov/vuln/detail/CVE-2018-9206), exists in versions released before October 2018. [[MISC](http://www.vapidlabs.com/advisory.php?v=204)]
+
 ## Demo
 [Demo File Upload](https://blueimp.github.io/jQuery-File-Upload/)
 
