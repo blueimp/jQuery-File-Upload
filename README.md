@@ -3,7 +3,7 @@
 ## ⚠️ Security Notice
 Security related releases:
 
-* [v9.22.1](https://github.com/blueimp/jQuery-File-Upload/releases/tag/v9.22.1) Fixes a [Remote code execution vulnerability in the PHP component](VULNERABILITIES.md#remote-code-execution-vulnerability-in-the-php-component).
+* [v9.24.1](https://github.com/blueimp/jQuery-File-Upload/releases/tag/v9.24.1) Fixes a [Remote code execution vulnerability in the PHP component](VULNERABILITIES.md#remote-code-execution-vulnerability-in-the-php-component).
 * v[9.10.1](https://github.com/blueimp/jQuery-File-Upload/releases/tag/9.10.1) Fixes an [Open redirect vulnerability in the GAE components](VULNERABILITIES.md#open-redirect-vulnerability-in-the-gae-components).
 * Commit [4175032](https://github.com/blueimp/jQuery-File-Upload/commit/41750323a464e848856dc4c5c940663498beb74a) (*fixed in all tagged releases*) Fixes a [Cross-site scripting vulnerability in the Iframe Transport](VULNERABILITIES.md#cross-site-scripting-vulnerability-in-the-iframe-transport).
 
