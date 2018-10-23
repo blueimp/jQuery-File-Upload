@@ -89,8 +89,25 @@ class UploadHandler
             'readfile_chunk_size' => 10 * 1024 * 1024, // 10 MiB
             // Defines which files can be displayed inline when downloaded:
             'inline_file_types' => '/\.(gif|jpe?g|png)$/i',
-            // Defines which files (based on their names) are accepted for upload:
-            'accept_file_types' => '/.+$/i',
+            // Defines which files (based on their names) are accepted for upload.
+            // By default, only allows file uploads with image file extensions.
+            // Only change this setting after making sure that any allowed file
+            // types cannot be executed by the webserver in the files directory,
+            // e.g. PHP scripts, nor executed by the browser when downloaded,
+            // e.g. HTML files with embedded JavaScript code.
+            // Please also read the SECURITY.md document in this repository.
+            'accept_file_types' => '/\.(gif|jpe?g|png)$/i',
+            // Replaces dots in filenames with the given string.
+            // Can be disabled by setting it to false or an empty string.
+            // Note that this is a security feature for servers that support
+            // multiple file extensions, e.g. the Apache AddHandler Directive:
+            // https://httpd.apache.org/docs/current/mod/mod_mime.html#addhandler
+            // Before disabling it, make sure that files uploaded with multiple
+            // extensions cannot be executed by the webserver, e.g.
+            // "example.php.png" with embedded PHP code, nor executed by the
+            // browser when downloaded, e.g. "example.html.gif" with embedded
+            // JavaScript code.
+            'replace_dots_in_filenames' => '-',
             // The php.ini settings upload_max_filesize and post_max_size
             // take precedence over the following max_file_size setting:
             'max_file_size' => null,
@@ -527,6 +544,16 @@ class UploadHandler
         // into different directories or replacing hidden system files.
         // Also remove control characters and spaces (\x00..\x20) around the filename:
         $name = trim($this->basename(stripslashes($name)), ".\x00..\x20");
+        // Replace dots in filenames to avoid security issues with servers
+        // that interpret multiple file extensions, e.g. "example.php.png":
+        $replacement = $this->options['replace_dots_in_filenames'];
+        if (!empty($replacement)) {
+            $parts = explode('.', $name);
+            if (count($parts) > 2) {
+                $ext = array_pop($parts);
+                $name = implode($replacement, $parts).'.'.$ext;
+            }
+        }
         // Use a timestamp for empty filenames:
         if (!$name) {
             $name = str_replace('.', '-', microtime(true));
