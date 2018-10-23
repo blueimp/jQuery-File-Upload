@@ -27,7 +27,7 @@ The provided [.htaccess](server/php/files/.htaccess) file includes instructions 
 2. Configure your Webserver to not execute files in the upload directory, e.g. with the [sample Apache configuration](SECURITY.md#apache-config)
 
 **Further information:**
-* Commits containing the security fix: [aeb47e5](https://github.com/blueimp/jQuery-File-Upload/commit/aeb47e51c67df8a504b7726595576c1c66b5dc2f), [3e82856](https://github.com/blueimp/jQuery-File-Upload/commit/3e828564324cf5aea2b0d0c7f3a7a17996cb9a9a)
+* Commits containing the security fix: [aeb47e5](https://github.com/blueimp/jQuery-File-Upload/commit/aeb47e51c67df8a504b7726595576c1c66b5dc2f), [ad4aefd](https://github.com/blueimp/jQuery-File-Upload/commit/ad4aefd96e4056deab6fea2690f0d8cf56bb2d7d)
 * [Full disclosure post on Hacker News](https://news.ycombinator.com/item?id=18267309).
 * [CVE-2018-9206](https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2018-9206)
 * [OWASP - Unrestricted File Upload](https://www.owasp.org/index.php/Unrestricted_File_Upload)
