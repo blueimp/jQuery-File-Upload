@@ -38,6 +38,10 @@ class UploadHandler
         'image_resize' => 'Failed to resize image'
     );
 
+    protected const IMAGETYPE_GIF = 1;
+    protected const IMAGETYPE_JPEG = 2;
+    protected const IMAGETYPE_PNG = 3;
+
     protected $image_objects = array();
 
     public function __construct($options = null, $initialize = true, $error_messages = null) {
@@ -114,9 +118,7 @@ class UploadHandler
             'min_file_size' => 1,
             // The maximum number of files for the upload directory:
             'max_number_of_files' => null,
-            // Defines which files are handled as image files:
-            'image_file_types' => '/\.(gif|jpe?g|png)$/i',
-            // Use exif_imagetype on all files to correct file extensions:
+            // Reads first file bytes to identify and correct file extensions:
             'correct_image_extensions' => false,
             // Image resolution restrictions:
             'max_width' => null,
@@ -163,7 +165,7 @@ class UploadHandler
                     'max_width' => 800,
                     'max_height' => 600
                 ),
-		*/
+		        */
                 'thumbnail' => array(
                     // Uncomment the following to use a defined directory for the thumbnails
                     // instead of a subdirectory based on the version identifier.
@@ -433,9 +435,8 @@ class UploadHandler
         $min_width = @$this->options['min_width'];
         $min_height = @$this->options['min_height'];
         if (($max_width || $max_height || $min_width || $min_height)
-           && preg_match($this->options['image_file_types'], $file->name)) {
+            && $this->is_valid_image_file($uploaded_file)) {
             list($img_width, $img_height) = $this->get_image_size($uploaded_file);
-
             // If we are auto rotating the image by default, do the checks on
             // the correct orientation
             if (
@@ -449,7 +450,6 @@ class UploadHandler
                 $img_height = $tmp;
                 unset($tmp);
             }
-
         }
         if (!empty($img_width)) {
             if ($max_width && $img_width > $max_width) {
@@ -511,16 +511,15 @@ class UploadHandler
                 preg_match('/^image\/(gif|jpe?g|png)/', $type, $matches)) {
             $name .= '.'.$matches[1];
         }
-        if ($this->options['correct_image_extensions'] &&
-                function_exists('exif_imagetype')) {
-            switch (@exif_imagetype($file_path)){
-                case IMAGETYPE_JPEG:
+        if ($this->options['correct_image_extensions']) {
+            switch ($this->imagetype($file_path)) {
+                case self::IMAGETYPE_JPEG:
                     $extensions = array('jpg', 'jpeg');
                     break;
-                case IMAGETYPE_PNG:
+                case self::IMAGETYPE_PNG:
                     $extensions = array('png');
                     break;
-                case IMAGETYPE_GIF:
+                case self::IMAGETYPE_GIF:
                     $extensions = array('gif');
                     break;
             }
@@ -1063,15 +1062,27 @@ class UploadHandler
         }
     }
 
+    protected function imagetype($file_path) {
+        $fp = fopen($file_path, 'r');
+        $data = fread($fp, 4);
+        fclose($fp);
+        // GIF: 47 49 46
+        if (substr($data, 0, 3) === 'GIF') {
+            return self::IMAGETYPE_GIF;
+        }
+        // JPG: FF D8
+        if (bin2hex(substr($data, 0, 2)) === 'ffd8') {
+            return self::IMAGETYPE_JPEG;
+        }
+        // PNG: 89 50 4E 47
+        if (bin2hex(@$data[0]).substr($data, 1, 4) === '89PNG') {
+            return self::IMAGETYPE_PNG;
+        }
+        return false;
+    }
+
     protected function is_valid_image_file($file_path) {
-        if (!preg_match($this->options['image_file_types'], $file_path)) {
-            return false;
-        }
-        if (function_exists('exif_imagetype')) {
-            return @exif_imagetype($file_path);
-        }
-        $image_info = $this->get_image_size($file_path);
-        return $image_info && $image_info[0] && $image_info[1];
+        return !!$this->imagetype($file_path);
     }
 
     protected function handle_image_file($file_path, $file) {
