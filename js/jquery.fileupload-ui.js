@@ -302,7 +302,7 @@
                 }
                 var $this = $(this),
                     progress = Math.floor(data.loaded / data.total * 100),
-                    globalProgressNode = $this.find('.fileupload-progress'),
+                    globalProgressNode = $this.closest('.fileupload-buttonbar').find('.fileupload-progress'),
                     extendedProgressNode = globalProgressNode
                         .find('.progress-extended');
                 if (extendedProgressNode.length) {
@@ -327,7 +327,7 @@
                 var that = $(this).data('blueimp-fileupload') ||
                         $(this).data('fileupload');
                 that._resetFinishedDeferreds();
-                that._transition($(this).find('.fileupload-progress')).done(
+                that._transition($(this).closest('.fileupload-buttonbar').find('.fileupload-progress')).done(
                     function () {
                         that._trigger('started', e);
                     }
@@ -345,7 +345,7 @@
                     .done(function () {
                         that._trigger('stopped', e);
                     });
-                that._transition($(this).find('.fileupload-progress')).done(
+                that._transition($(this).closest('.fileupload-buttonbar').find('.fileupload-progress')).done(
                     function () {
                         $(this).find('.progress')
                             .attr('aria-valuenow', '0')
@@ -577,7 +577,7 @@
         },
 
         _initButtonBarEventHandlers: function () {
-            var fileUploadButtonBar = this.element.find('.fileupload-buttonbar'),
+            var fileUploadButtonBar = this.options.fileInput.closest('.fileupload-buttonbar'),
                 filesList = this.options.filesContainer;
             this._on(fileUploadButtonBar.find('.start'), {
                 click: function (e) {
@@ -613,12 +613,12 @@
 
         _destroyButtonBarEventHandlers: function () {
             this._off(
-                this.element.find('.fileupload-buttonbar')
+                this.options.fileInput.closest('.fileupload-buttonbar')
                     .find('.start, .cancel, .delete'),
                 'click'
             );
             this._off(
-                this.element.find('.fileupload-buttonbar .toggle'),
+                this.options.fileInput.closest('.fileupload-buttonbar .toggle'),
                 'change.'
             );
         },
@@ -640,13 +640,13 @@
         },
 
         _enableFileInputButton: function () {
-            this.element.find('.fileinput-button input')
+            this.options.fileInput.closest('.fileupload-buttonbar').find('.fileinput-button input')
                 .prop('disabled', false)
                 .parent().removeClass('disabled');
         },
 
         _disableFileInputButton: function () {
-            this.element.find('.fileinput-button input')
+            this.options.fileInput.closest('.fileupload-buttonbar').find('.fileinput-button input')
                 .prop('disabled', true)
                 .parent().addClass('disabled');
         },
@@ -669,7 +669,7 @@
         _initFilesContainer: function () {
             var options = this.options;
             if (options.filesContainer === undefined) {
-                options.filesContainer = this.element.find('.files');
+                options.filesContainer = this.options.fileInput.closest('.fileupload-buttonbar').find('.files');
             } else if (!(options.filesContainer instanceof $)) {
                 options.filesContainer = $(options.filesContainer);
             }
@@ -696,14 +696,14 @@
             }
             this._super();
             if (wasDisabled) {
-                this.element.find('input, button').prop('disabled', false);
+                this.options.fileInput.closest('.fileupload-buttonbar').find('input, button').prop('disabled', false);
                 this._enableFileInputButton();
             }
         },
 
         disable: function () {
             if (!this.options.disabled) {
-                this.element.find('input, button').prop('disabled', true);
+                this.options.fileInput.closest('.fileupload-buttonbar').find('input, button').prop('disabled', true);
                 this._disableFileInputButton();
             }
             this._super();

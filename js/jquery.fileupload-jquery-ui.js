@@ -50,7 +50,7 @@
             },
             progressall: function (e, data) {
                 var $this = $(this);
-                $this.find('.fileupload-progress')
+                $this.closest('.fileupload-buttonbar').find('.fileupload-progress')
                     .find('.progress').progressbar(
                         'option',
                         'value',
@@ -120,8 +120,8 @@
 
         _create: function () {
             this._super();
-            this.element
-                .find('.fileupload-buttonbar')
+            this.options.fileInput
+                .closest('.fileupload-buttonbar')
                 .find('.fileinput-button').each(function () {
                     var input = $(this).find('input:file').detach();
                     $(this)
@@ -138,8 +138,8 @@
         },
 
         _destroy: function () {
-            this.element
-                .find('.fileupload-buttonbar')
+            this.options.fileInput
+                .closest('.fileupload-buttonbar')
                 .find('.fileinput-button').each(function () {
                     var input = $(this).find('input:file').detach();
                     $(this)
