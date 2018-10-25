@@ -113,7 +113,7 @@ location ^~ /path/to/project/server/php/files {
 ```
 
 ## Secure image processing configurations
-The following configuration mitigates [potential image processing vulnerabilities with ImageMagick](VULNERABILITIES.md#potential-vulnerabilities-with-php+imagemagick) by limiting the attack vectors to a small subset of image types (`GIF/JPEG/PNG`).
+The following configuration mitigates [potential image processing vulnerabilities with ImageMagick](VULNERABILITIES.md#potential-vulnerabilities-with-php-imagemagick) by limiting the attack vectors to a small subset of image types (`GIF/JPEG/PNG`).
 
 Please also consider using alternative, safer image processing libraries like [libvips](https://github.com/libvips/libvips) or [imageflow](https://github.com/imazen/imageflow).
 
