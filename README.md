@@ -1,25 +1,23 @@
 # jQuery File Upload Plugin
 
+## Description
+File Upload widget with multiple file selection, drag&amp;drop support, progress bars, validation and preview images, audio and video for jQuery.  
+Supports cross-domain, chunked and resumable file uploads and client-side image resizing. Works with any server-side platform (PHP, Python, Ruby on Rails, Java, Node.js, Go etc.) that supports standard HTML form file uploads.
+
+## Demo
+[Demo File Upload](https://blueimp.github.io/jQuery-File-Upload/)
+
 ## ⚠️ Security Notice
 Security related releases:
 
+* [v9.25.1](https://github.com/blueimp/jQuery-File-Upload/releases/tag/v9.25.1) Mitigates some [Potential vulnerabilities with PHP+ImageMagick](VULNERABILITIES.md#potential-vulnerabilities-with-php+imagemagick).
 * [v9.24.1](https://github.com/blueimp/jQuery-File-Upload/releases/tag/v9.24.1) Fixes a [Remote code execution vulnerability in the PHP component](VULNERABILITIES.md#remote-code-execution-vulnerability-in-the-php-component).
 * v[9.10.1](https://github.com/blueimp/jQuery-File-Upload/releases/tag/9.10.1) Fixes an [Open redirect vulnerability in the GAE components](VULNERABILITIES.md#open-redirect-vulnerability-in-the-gae-components).
 * Commit [4175032](https://github.com/blueimp/jQuery-File-Upload/commit/41750323a464e848856dc4c5c940663498beb74a) (*fixed in all tagged releases*) Fixes a [Cross-site scripting vulnerability in the Iframe Transport](VULNERABILITIES.md#cross-site-scripting-vulnerability-in-the-iframe-transport).
 
 Please read the [SECURITY](SECURITY.md) document for instructions on how to securely configure your Webserver for file uploads.
 
-## Demo
-[Demo File Upload](https://blueimp.github.io/jQuery-File-Upload/)
-
-## Description
-File Upload widget with multiple file selection, drag&amp;drop support, progress bars, validation and preview images, audio and video for jQuery.  
-Supports cross-domain, chunked and resumable file uploads and client-side image resizing. Works with any server-side platform (PHP, Python, Ruby on Rails, Java, Node.js, Go etc.) that supports standard HTML form file uploads.
-
 ## Setup
-⚠️ **Notice:**  
-Please read the [Security recommendations](SECURITY.md) before setting up the project.
-
 * [How to setup the plugin on your website](https://github.com/blueimp/jQuery-File-Upload/wiki/Setup)
 * [How to use only the basic plugin (minimal setup guide).](https://github.com/blueimp/jQuery-File-Upload/wiki/Basic-plugin)
 
@@ -27,7 +25,7 @@ Please read the [Security recommendations](SECURITY.md) before setting up the pr
 * **Multiple file upload:**  
   Allows to select multiple files at once and upload them simultaneously.
 * **Drag & Drop support:**  
-  Allows to upload files by dragging them from your desktop or filemanager and dropping them on your browser window.
+  Allows to upload files by dragging them from your desktop or file manager and dropping them on your browser window.
 * **Upload progress bar:**  
   Shows a progress bar indicating the upload progress for individual files and for all uploads combined.
 * **Cancelable uploads:**  

@@ -1,7 +1,21 @@
 # ⚠️ List of fixed vulnerabilities
 
+## Potential vulnerabilities with PHP+ImageMagick
+> Mitigated: 2018-10-25 (GMT)
+
+The sample [PHP upload handler](server/php/UploadHandler.php) before [v9.25.1](https://github.com/blueimp/jQuery-File-Upload/releases/tag/v9.25.1) did not validate file signatures before invoking [ImageMagick](https://www.imagemagick.org/) (via [Imagick](http://php.net/manual/en/book.imagick.php)).  
+Verifying those [magic bytes](https://en.wikipedia.org/wiki/List_of_file_signatures) mitigates potential vulnerabilities when handling input files other than `GIF/JPEG/PNG`.
+
+Please also configure ImageMagick to only enable the coders required for `GIF/JPEG/PNG` processing, e.g. with the sample [ImageMagick config](SECURITY.md#imagemagick-config).
+
+**Further information:**
+* Commit containing the mitigation: [fe44d34](https://github.com/blueimp/jQuery-File-Upload/commit/fe44d34be43be32c6b8d507932f318dababb25dd)
+* [ImageTragick](https://imagetragick.com/)
+* [CERT Vulnerability Note VU#332928](https://www.kb.cert.org/vuls/id/332928)
+* [ImageMagick CVE entries](https://cve.mitre.org/cgi-bin/cvekey.cgi?keyword=imagemagick)
+
 ## Remote code execution vulnerability in the PHP component
-> Fixed: 2018-10-23
+> Fixed: 2018-10-23 (GMT)
 
 The sample [PHP upload handler](server/php/UploadHandler.php) before [v9.24.1](https://github.com/blueimp/jQuery-File-Upload/releases/tag/v9.24.1) allowed to upload all file types by default.  
 This opens up a remote code execution vulnerability, unless the server is configured to not execute (PHP) files in the upload directory (`server/php/files`).  
@@ -33,7 +47,7 @@ The provided [.htaccess](server/php/files/.htaccess) file includes instructions 
 * [OWASP - Unrestricted File Upload](https://www.owasp.org/index.php/Unrestricted_File_Upload)
 
 ## Open redirect vulnerability in the GAE components
-> Fixed: 2015-06-12
+> Fixed: 2015-06-12 (GMT)
 
 The sample Google App Engine upload handlers before v[9.10.1](https://github.com/blueimp/jQuery-File-Upload/releases/tag/9.10.1) accepted any URL as redirect target, making it possible to use the Webserver's domain for phishing attacks.
 
@@ -42,7 +56,7 @@ The sample Google App Engine upload handlers before v[9.10.1](https://github.com
 * [OWASP - Unvalidated Redirects and Forwards Cheat Sheet](https://www.owasp.org/index.php/Unvalidated_Redirects_and_Forwards_Cheat_Sheet)
 
 ## Cross-site scripting vulnerability in the Iframe Transport
-> Fixed: 2012-08-09
+> Fixed: 2012-08-09 (GMT)
 
 The [redirect page](cors/result.html) for the [Iframe Transport](js/jquery.iframe-transport.js) before commit [4175032](https://github.com/blueimp/jQuery-File-Upload/commit/41750323a464e848856dc4c5c940663498beb74a) (*fixed in all tagged releases*) allowed executing arbitrary JavaScript in the context of the Webserver.
 

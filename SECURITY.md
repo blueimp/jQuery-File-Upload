@@ -3,6 +3,8 @@ For an in-depth understanding of the potential security risks of providing file 
 
 To securely setup the project to serve uploaded files, please refer to the sample [Secure file upload serving configurations](#secure-file-upload-serving-configurations).
 
+To mitigate potential vulnerabilities in image processing libraries, please refer to the [Secure image processing configurations](#secure-image-processing-configurations).
+
 By default, all sample upload handlers allow only upload of image files, which mitigates some attack vectors, but should not be relied on as the only protection.
 
 Please also have a look at the [list of fixed vulnerabilities](VULNERABILITIES.md) in jQuery File Upload, which relates mostly to the sample server-side upload handlers and how they have been configured.
@@ -108,4 +110,24 @@ location ^~ /path/to/project/server/php/files {
         add_header X-Content-Type-Options 'nosniff';
     }
 }
+```
+
+## Secure image processing configurations
+The following configuration mitigates [potential image processing vulnerabilities with ImageMagick](VULNERABILITIES.md#potential-vulnerabilities-with-php+imagemagick) by limiting the attack vectors to a small subset of image types (`GIF/JPEG/PNG`).
+
+Please also consider using alternative, safer image processing libraries like [libvips](https://github.com/libvips/libvips) or [imageflow](https://github.com/imazen/imageflow).
+
+## ImageMagick config
+It is recommended to disable all non-required ImageMagick coders via [policy.xml](https://wiki.debian.org/imagemagick/security).  
+To do so, locate the ImageMagick `policy.xml` configuration file and add the following policies:
+
+```xml
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- ... -->
+<policymap>
+  <!-- ... -->
+  <policy domain="delegate" rights="none" pattern="*" />
+  <policy domain="coder" rights="none" pattern="*" />
+  <policy domain="coder" rights="read | write" pattern="{GIF,JPEG,PNG}" />
+</policymap>
 ```
