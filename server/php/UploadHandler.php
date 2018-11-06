@@ -38,9 +38,9 @@ class UploadHandler
         'image_resize' => 'Failed to resize image'
     );
 
-    protected const IMAGETYPE_GIF = 1;
-    protected const IMAGETYPE_JPEG = 2;
-    protected const IMAGETYPE_PNG = 3;
+    const IMAGETYPE_GIF = 1;
+    const IMAGETYPE_JPEG = 2;
+    const IMAGETYPE_PNG = 3;
 
     protected $image_objects = array();
 
