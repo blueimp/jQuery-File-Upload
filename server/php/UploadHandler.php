@@ -1087,6 +1087,9 @@ class UploadHandler
     }
 
     protected function is_valid_image_file($file_path) {
+        if (!preg_match('/\.(gif|jpe?g|png)$/i', $file_path)) {
+            return false;
+        }
         return !!$this->imagetype($file_path);
     }
 
