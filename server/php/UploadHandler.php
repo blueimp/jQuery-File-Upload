@@ -1075,8 +1075,8 @@ class UploadHandler
         if ($data === 'GIF8') {
             return self::IMAGETYPE_GIF;
         }
-        // JPG: FF D8
-        if (bin2hex(substr($data, 0, 2)) === 'ffd8') {
+        // JPG: FF D8 FF
+        if (bin2hex(substr($data, 0, 3)) === 'ffd8ff') {
             return self::IMAGETYPE_JPEG;
         }
         // PNG: 89 50 4E 47
