@@ -1071,8 +1071,8 @@ class UploadHandler
         $fp = fopen($file_path, 'r');
         $data = fread($fp, 4);
         fclose($fp);
-        // GIF: 47 49 46
-        if (substr($data, 0, 3) === 'GIF') {
+        // GIF: 47 49 46 38
+        if ($data === 'GIF8') {
             return self::IMAGETYPE_GIF;
         }
         // JPG: FF D8
