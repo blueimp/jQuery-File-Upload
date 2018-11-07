@@ -1047,13 +1047,18 @@ class UploadHandler
     }
 
     protected function create_scaled_image($file_name, $version, $options) {
-        if ($this->options['image_library'] === 2) {
-            return $this->imagemagick_create_scaled_image($file_name, $version, $options);
+        try {
+            if ($this->options['image_library'] === 2) {
+                return $this->imagemagick_create_scaled_image($file_name, $version, $options);
+            }
+            if ($this->options['image_library'] && extension_loaded('imagick')) {
+                return $this->imagick_create_scaled_image($file_name, $version, $options);
+            }
+            return $this->gd_create_scaled_image($file_name, $version, $options);
+        } catch (\Exception $e) {
+            error_log($e->getMessage());
+            return false;
         }
-        if ($this->options['image_library'] && extension_loaded('imagick')) {
-            return $this->imagick_create_scaled_image($file_name, $version, $options);
-        }
-        return $this->gd_create_scaled_image($file_name, $version, $options);
     }
 
     protected function destroy_image_object($file_path) {
