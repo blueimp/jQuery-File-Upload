@@ -707,28 +707,26 @@ class UploadHandler
         return true;
     }
 
-    protected function gd_create_scaled_image($file_name, $version, $options) {
+    protected function gd_create_scaled_image($file_name, $version, $options, $file_real_image_type) {
         if (!function_exists('imagecreatetruecolor')) {
             error_log('Function not found: imagecreatetruecolor');
             return false;
         }
         list($file_path, $new_file_path) =
             $this->get_scaled_image_file_paths($file_name, $version);
-        $type = strtolower(substr(strrchr($file_name, '.'), 1));
-        switch ($type) {
-            case 'jpg':
-            case 'jpeg':
+        switch ($file_real_image_type) {
+            case self::IMAGETYPE_JPEG:
                 $src_func = 'imagecreatefromjpeg';
                 $write_func = 'imagejpeg';
                 $image_quality = isset($options['jpeg_quality']) ?
                     $options['jpeg_quality'] : 75;
                 break;
-            case 'gif':
+            case self::IMAGETYPE_GIF:
                 $src_func = 'imagecreatefromgif';
                 $write_func = 'imagegif';
                 $image_quality = null;
                 break;
-            case 'png':
+            case self::IMAGETYPE_PNG:
                 $src_func = 'imagecreatefrompng';
                 $write_func = 'imagepng';
                 $image_quality = isset($options['png_quality']) ?
@@ -793,11 +791,11 @@ class UploadHandler
             $new_img = imagecreatetruecolor($max_width, $max_height);
         }
         // Handle transparency in GIF and PNG images:
-        switch ($type) {
-            case 'gif':
-            case 'png':
+        switch ($file_real_image_type) {
+            case self::IMAGETYPE_GIF:
+            case self::IMAGETYPE_PNG:
                 imagecolortransparent($new_img, imagecolorallocate($new_img, 0, 0, 0));
-            case 'png':
+            case self::IMAGETYPE_PNG:
                 imagealphablending($new_img, false);
                 imagesavealpha($new_img, true);
                 break;
@@ -877,7 +875,7 @@ class UploadHandler
         return true;
     }
 
-    protected function imagick_create_scaled_image($file_name, $version, $options) {
+    protected function imagick_create_scaled_image($file_name, $version, $options, $file_real_image_type) {
         list($file_path, $new_file_path) =
             $this->get_scaled_image_file_paths($file_name, $version);
         $image = $this->imagick_get_image_object(
@@ -951,10 +949,8 @@ class UploadHandler
                 $success = $image->setImagePage($max_width, $max_height, 0, 0);
             }
         }
-        $type = strtolower(substr(strrchr($file_name, '.'), 1));
-        switch ($type) {
-            case 'jpg':
-            case 'jpeg':
+        switch ($file_real_image_type) {
+            case self::IMAGETYPE_JPEG:
                 if (!empty($options['jpeg_quality'])) {
                     $image->setImageCompression(\imagick::COMPRESSION_JPEG);
                     $image->setImageCompressionQuality($options['jpeg_quality']);
@@ -1046,15 +1042,15 @@ class UploadHandler
         return @getimagesize($file_path);
     }
 
-    protected function create_scaled_image($file_name, $version, $options) {
+    protected function create_scaled_image($file_name, $version, $options, $file_real_image_type) {
         try {
             if ($this->options['image_library'] === 2) {
-                return $this->imagemagick_create_scaled_image($file_name, $version, $options);
+                return $this->imagemagick_create_scaled_image($file_name, $version, $options, $file_real_image_type);
             }
             if ($this->options['image_library'] && extension_loaded('imagick')) {
-                return $this->imagick_create_scaled_image($file_name, $version, $options);
+                return $this->imagick_create_scaled_image($file_name, $version, $options, $file_real_image_type);
             }
-            return $this->gd_create_scaled_image($file_name, $version, $options);
+            return $this->gd_create_scaled_image($file_name, $version, $options, $file_real_image_type);
         } catch (\Exception $e) {
             error_log($e->getMessage());
             return false;
@@ -1096,7 +1092,7 @@ class UploadHandler
     protected function handle_image_file($file_path, $file) {
         $failed_versions = array();
         foreach ($this->options['image_versions'] as $version => $options) {
-            if ($this->create_scaled_image($file->name, $version, $options)) {
+            if ($this->create_scaled_image($file->name, $version, $options, $file->realImageType)) {
                 if (!empty($version)) {
                     $file->{$version.'Url'} = $this->get_download_url(
                         $file->name,
@@ -1124,6 +1120,8 @@ class UploadHandler
             $index, $content_range);
         $file->size = $this->fix_integer_overflow((int)$size);
         $file->type = $type;
+		$file->realImageType = $this->imagetype($uploaded_file);
+		
         if ($this->validate($uploaded_file, $file, $error, $index)) {
             $this->handle_form_data($file, $index);
             $upload_dir = $this->get_upload_path();
