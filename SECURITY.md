@@ -128,6 +128,6 @@ To do so, locate the ImageMagick `policy.xml` configuration file and add the fol
   <!-- ... -->
   <policy domain="delegate" rights="none" pattern="*" />
   <policy domain="coder" rights="none" pattern="*" />
-  <policy domain="coder" rights="read | write" pattern="{GIF,JPEG,PNG}" />
+  <policy domain="coder" rights="read | write" pattern="{GIF,JPEG,JPG,PNG}" />
 </policymap>
 ```
