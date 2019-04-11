@@ -1219,6 +1219,18 @@
                     file.size = file.fileSize;
                 });
             }
+
+            // Fix for iOS 9 not correctly grabbing names of images from Photo Library
+            // https://apple.stackexchange.com/questions/118154
+            if (files.length > 1 && files[0].name === files[1].name && files[0].name === 'image.jpeg') {
+                var newFiles = []
+                $.each(files, function (index, file) {
+                    var newFile = new Blob( [ file ], { type: file.type } );
+                    newFile.name = 'image' + index + '.jpeg';
+                    newFiles.push(newFile)
+                });
+                files = newFiles
+            }
             return $.Deferred().resolve(files).promise();
         },
 
