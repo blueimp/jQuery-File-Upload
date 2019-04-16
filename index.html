@@ -149,7 +149,9 @@
             <span class="preview"></span>
         </td>
         <td>
-            <p class="name">{%=file.name%}</p>
+            {% if (window.orientation === undefined || !o.options.loadImageFileTypes.test(file.type)) { %}
+                <p class="name">{%=file.name%}</p>
+            {% } %}
             <strong class="error text-danger"></strong>
         </td>
         <td>
@@ -185,13 +187,15 @@
             </span>
         </td>
         <td>
-            <p class="name">
-                {% if (file.url) { %}
-                    <a href="{%=file.url%}" title="{%=file.name%}" download="{%=file.name%}" {%=file.thumbnailUrl?'data-gallery':''%}>{%=file.name%}</a>
-                {% } else { %}
-                    <span>{%=file.name%}</span>
-                {% } %}
-            </p>
+            {% if (window.orientation === undefined || !file.thumbnailUrl) { %}
+                <p class="name">
+                    {% if (file.url) { %}
+                        <a href="{%=file.url%}" title="{%=file.name%}" download="{%=file.name%}" {%=file.thumbnailUrl?'data-gallery':''%}>{%=file.name%}</a>
+                    {% } else { %}
+                        <span>{%=file.name%}</span>
+                    {% } %}
+                </p>
+            {% } %}
             {% if (file.error) { %}
                 <div><span class="label label-danger">Error</span> {%=file.error%}</div>
             {% } %}
