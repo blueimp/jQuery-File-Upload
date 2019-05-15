@@ -377,7 +377,7 @@ class UploadHandler
     public function get_config_bytes($val) {
         $val = trim($val);
         $last = strtolower($val[strlen($val)-1]);
-        $val = (int)$val;
+        $val = (int)substr($val, 0, -1);
         switch ($last) {
             case 'g':
                 $val *= 1024;
@@ -795,9 +795,10 @@ class UploadHandler
         // Handle transparency in GIF and PNG images:
         switch ($type) {
             case 'gif':
+                imagecolortransparent($new_img, imagecolorallocate($new_img, 0, 0, 0));
+                break;
             case 'png':
                 imagecolortransparent($new_img, imagecolorallocate($new_img, 0, 0, 0));
-            case 'png':
                 imagealphablending($new_img, false);
                 imagesavealpha($new_img, true);
                 break;
