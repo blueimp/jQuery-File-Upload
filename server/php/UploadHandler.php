@@ -377,7 +377,11 @@ class UploadHandler
     public function get_config_bytes($val) {
         $val = trim($val);
         $last = strtolower($val[strlen($val)-1]);
-        $val = (int)substr($val, 0, -1);
+        if (false == preg_match("/[0-9]$/", $val)) {
+            $val = (int)substr($val, 0, -1);
+        } else {
+            $val = (int)$val;
+        }
         switch ($last) {
             case 'g':
                 $val *= 1024;
@@ -430,7 +434,6 @@ class UploadHandler
             $file->error = $this->get_error_message('max_number_of_files');
             return false;
         }
-        $img_height = 0;
         $max_width = @$this->options['max_width'];
         $max_height = @$this->options['max_height'];
         $min_width = @$this->options['min_width'];
@@ -452,7 +455,7 @@ class UploadHandler
                 unset($tmp);
             }
         }
-        if (!empty($img_width)) {
+        if (!empty($img_width) && !empty($img_height)) {
             if ($max_width && $img_width > $max_width) {
                 $file->error = $this->get_error_message('max_width');
                 return false;
@@ -832,6 +835,7 @@ class UploadHandler
             try {
                 $image->readImage($file_path);
             } catch (ImagickException $e) {
+                error_log($e->getMessage());
                 return null;
             }
             $this->image_objects[$file_path] = $image;
@@ -1272,23 +1276,20 @@ class UploadHandler
                 $redirect_header = 'X-Accel-Redirect';
                 break;
             default:
-                $this->header('HTTP/1.1 403 Forbidden');
-                return;
+                return $this->header('HTTP/1.1 403 Forbidden');
         }
         $file_name = $this->get_file_name_param();
         if (!$this->is_valid_file_object($file_name)) {
-            $this->header('HTTP/1.1 404 Not Found');
-            return;
+            return $this->header('HTTP/1.1 404 Not Found');
         }
         if ($redirect_header) {
-            $this->header(
+            return $this->header(
                 $redirect_header.': '.$this->get_download_url(
                     $file_name,
                     $this->get_version_param(),
                     true
                 )
             );
-            return;
         }
         $file_path = $this->get_upload_path($file_name, $this->get_version_param());
         // Prevent browsers from MIME-sniffing the content-type:
@@ -1330,8 +1331,7 @@ class UploadHandler
             $json = json_encode($content);
             $redirect = stripslashes($this->get_post_param('redirect'));
             if ($redirect && preg_match($this->options['redirect_allow_target'], $redirect)) {
-                $this->header('Location: '.sprintf($redirect, rawurlencode($json)));
-                return null;
+                return $this->header('Location: '.sprintf($redirect, rawurlencode($json)));
             }
             $this->head();
             if ($this->get_server_var('HTTP_CONTENT_RANGE')) {
@@ -1339,8 +1339,8 @@ class UploadHandler
                     $content[$this->options['param_name']] : null;
                 if ($files && is_array($files) && is_object($files[0]) && $files[0]->size) {
                     $this->header('Range: 0-'.(
-                            $this->fix_integer_overflow((int)$files[0]->size) - 1
-                        ));
+                        $this->fix_integer_overflow((int)$files[0]->size) - 1
+                    ));
                 }
             }
             $this->body($json);
@@ -1366,8 +1366,7 @@ class UploadHandler
 
     public function get($print_response = true) {
         if ($print_response && $this->get_query_param('download')) {
-            $this->download();
-            return null;
+            return $this->download();
         }
         $file_name = $this->get_file_name_param();
         if ($file_name) {
