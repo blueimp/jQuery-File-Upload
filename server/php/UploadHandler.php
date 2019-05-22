@@ -377,10 +377,10 @@ class UploadHandler
     public function get_config_bytes($val) {
         $val = trim($val);
         $last = strtolower($val[strlen($val)-1]);
-        if (false == preg_match("/[0-9]$/", $val)) {
-            $val = (int)substr($val, 0, -1);
-        } else {
+        if (is_numeric($val)) {
             $val = (int)$val;
+        } else {
+            $val = (int)substr($val, 0, -1);
         }
         switch ($last) {
             case 'g':
@@ -908,12 +908,9 @@ class UploadHandler
         if (!empty($options['auto_orient'])) {
             $image_oriented = $this->imagick_orient_image($image);
         }
-
         $image_resize = false;
         $new_width = $max_width = $img_width = $image->getImageWidth();
         $new_height = $max_height = $img_height = $image->getImageHeight();
-        $x = $y = 0;
-
         // use isset(). User might be setting max_width = 0 (auto in regular resizing). Value 0 would be considered empty when you use empty()
         if (isset($options['max_width'])) {
             $image_resize = true;
@@ -923,9 +920,7 @@ class UploadHandler
             $image_resize = true;
             $new_height = $max_height = $options['max_height'];
         }
-
         $image_strip = (isset($options['strip']) ? $options['strip'] : false);
-
         if ( !$image_oriented && ($max_width >= $img_width) && ($max_height >= $img_height) && !$image_strip && empty($options["jpeg_quality"]) ) {
             if ($file_path !== $new_file_path) {
                 return copy($file_path, $new_file_path);
