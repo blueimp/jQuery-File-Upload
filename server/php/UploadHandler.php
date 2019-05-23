@@ -43,9 +43,9 @@ class UploadHandler
     const IMAGETYPE_PNG = 3;
 
     protected $image_objects = array();
+    protected $response = array();
 
     public function __construct($options = null, $initialize = true, $error_messages = null) {
-        $this->response = array();
         $this->options = array(
             'script_url' => $this->get_full_url().'/'.$this->basename($this->get_server_var('SCRIPT_NAME')),
             'upload_dir' => dirname($this->get_server_var('SCRIPT_FILENAME')).'/files/',
@@ -75,12 +75,12 @@ class UploadHandler
             ),
             // By default, allow redirects to the referer protocol+host:
             'redirect_allow_target' => '/^'.preg_quote(
-              parse_url($this->get_server_var('HTTP_REFERER'), PHP_URL_SCHEME)
-                .'://'
-                .parse_url($this->get_server_var('HTTP_REFERER'), PHP_URL_HOST)
-                .'/', // Trailing slash to not match subdomains by mistake
-              '/' // preg_quote delimiter param
-            ).'/',
+                    parse_url($this->get_server_var('HTTP_REFERER'), PHP_URL_SCHEME)
+                    .'://'
+                    .parse_url($this->get_server_var('HTTP_REFERER'), PHP_URL_HOST)
+                    .'/', // Trailing slash to not match subdomains by mistake
+                    '/' // preg_quote delimiter param
+                ).'/',
             // Enable to provide file downloads via GET requests to the PHP script:
             //     1. Set to 1 to download files via readfile method through PHP
             //     2. Set to 2 to send a X-Sendfile header for lighttpd/Apache
@@ -151,21 +151,21 @@ class UploadHandler
             'identify_bin' => 'identify',
             'image_versions' => array(
                 // The empty image version key defines options for the original image.
-                // Keep in mind: these image manipulations are inherited by all other image versions from this point onwards. 
+                // Keep in mind: these image manipulations are inherited by all other image versions from this point onwards.
                 // Also note that the property 'no_cache' is not inherited, since it's not a manipulation.
                 '' => array(
                     // Automatically rotate images based on EXIF meta data:
                     'auto_orient' => true
                 ),
                 // You can add arrays to generate different versions.
-                // The name of the key is the name of the version (example: 'medium'). 
+                // The name of the key is the name of the version (example: 'medium').
                 // the array contains the options to apply.
                 /*
                 'medium' => array(
                     'max_width' => 800,
                     'max_height' => 600
                 ),
-		        */
+                */
                 'thumbnail' => array(
                     // Uncomment the following to use a defined directory for the thumbnails
                     // instead of a subdirectory based on the version identifier.
@@ -223,13 +223,13 @@ class UploadHandler
     protected function get_full_url() {
         $https = !empty($_SERVER['HTTPS']) && strcasecmp($_SERVER['HTTPS'], 'on') === 0 ||
             !empty($_SERVER['HTTP_X_FORWARDED_PROTO']) &&
-                strcasecmp($_SERVER['HTTP_X_FORWARDED_PROTO'], 'https') === 0;
+            strcasecmp($_SERVER['HTTP_X_FORWARDED_PROTO'], 'https') === 0;
         return
             ($https ? 'https://' : 'http://').
             (!empty($_SERVER['REMOTE_USER']) ? $_SERVER['REMOTE_USER'].'@' : '').
             (isset($_SERVER['HTTP_HOST']) ? $_SERVER['HTTP_HOST'] : ($_SERVER['SERVER_NAME'].
-            ($https && $_SERVER['SERVER_PORT'] === 443 ||
-            $_SERVER['SERVER_PORT'] === 80 ? '' : ':'.$_SERVER['SERVER_PORT']))).
+                ($https && $_SERVER['SERVER_PORT'] === 443 ||
+                $_SERVER['SERVER_PORT'] === 80 ? '' : ':'.$_SERVER['SERVER_PORT']))).
             substr($_SERVER['SCRIPT_NAME'],0, strrpos($_SERVER['SCRIPT_NAME'], '/'));
     }
 
@@ -377,7 +377,11 @@ class UploadHandler
     public function get_config_bytes($val) {
         $val = trim($val);
         $last = strtolower($val[strlen($val)-1]);
-        $val = (int)$val;
+        if (is_numeric($val)) {
+            $val = (int)$val;
+        } else {
+            $val = (int)substr($val, 0, -1);
+        }
         switch ($last) {
             case 'g':
                 $val *= 1024;
@@ -414,7 +418,7 @@ class UploadHandler
         if ($this->options['max_file_size'] && (
                 $file_size > $this->options['max_file_size'] ||
                 $file->size > $this->options['max_file_size'])
-            ) {
+        ) {
             $file->error = $this->get_error_message('max_file_size');
             return false;
         }
@@ -424,9 +428,9 @@ class UploadHandler
             return false;
         }
         if (is_int($this->options['max_number_of_files']) &&
-                ($this->count_file_objects() >= $this->options['max_number_of_files']) &&
-                // Ignore additional chunks of existing files:
-                !is_file($this->get_upload_path($file->name))) {
+            ($this->count_file_objects() >= $this->options['max_number_of_files']) &&
+            // Ignore additional chunks of existing files:
+            !is_file($this->get_upload_path($file->name))) {
             $file->error = $this->get_error_message('max_number_of_files');
             return false;
         }
@@ -451,7 +455,7 @@ class UploadHandler
                 unset($tmp);
             }
         }
-        if (!empty($img_width)) {
+        if (!empty($img_width) && !empty($img_height)) {
             if ($max_width && $img_width > $max_width) {
                 $file->error = $this->get_error_message('max_width');
                 return false;
@@ -488,7 +492,7 @@ class UploadHandler
     }
 
     protected function get_unique_filename($file_path, $name, $size, $type, $error,
-            $index, $content_range) {
+        $index, $content_range) {
         while(is_dir($this->get_upload_path($name))) {
             $name = $this->upcount_name($name);
         }
@@ -505,10 +509,10 @@ class UploadHandler
     }
 
     protected function fix_file_extension($file_path, $name, $size, $type, $error,
-            $index, $content_range) {
+        $index, $content_range) {
         // Add missing file extension for known image types:
         if (strpos($name, '.') === false &&
-                preg_match('/^image\/(gif|jpe?g|png)/', $type, $matches)) {
+            preg_match('/^image\/(gif|jpe?g|png)/', $type, $matches)) {
             $name .= '.'.$matches[1];
         }
         if ($this->options['correct_image_extensions']) {
@@ -538,7 +542,7 @@ class UploadHandler
     }
 
     protected function trim_file_name($file_path, $name, $size, $type, $error,
-            $index, $content_range) {
+        $index, $content_range) {
         // Remove path information and dots around the filename, to prevent uploading
         // into different directories or replacing hidden system files.
         // Also remove control characters and spaces (\x00..\x20) around the filename:
@@ -561,7 +565,7 @@ class UploadHandler
     }
 
     protected function get_file_name($file_path, $name, $size, $type, $error,
-            $index, $content_range) {
+        $index, $content_range) {
         $name = $this->trim_file_name($file_path, $name, $size, $type, $error,
             $index, $content_range);
         return $this->get_unique_filename(
@@ -795,25 +799,26 @@ class UploadHandler
         // Handle transparency in GIF and PNG images:
         switch ($type) {
             case 'gif':
+                imagecolortransparent($new_img, imagecolorallocate($new_img, 0, 0, 0));
+                break;
             case 'png':
                 imagecolortransparent($new_img, imagecolorallocate($new_img, 0, 0, 0));
-            case 'png':
                 imagealphablending($new_img, false);
                 imagesavealpha($new_img, true);
                 break;
         }
         $success = imagecopyresampled(
-            $new_img,
-            $src_img,
-            $dst_x,
-            $dst_y,
-            0,
-            0,
-            $new_width,
-            $new_height,
-            $img_width,
-            $img_height
-        ) && $write_func($new_img, $new_file_path, $image_quality);
+                $new_img,
+                $src_img,
+                $dst_x,
+                $dst_y,
+                0,
+                0,
+                $new_width,
+                $new_height,
+                $img_width,
+                $img_height
+            ) && $write_func($new_img, $new_file_path, $image_quality);
         $this->gd_set_image_object($file_path, $new_img);
         return $success;
     }
@@ -827,7 +832,12 @@ class UploadHandler
                     $image->setResourceLimit($type, $limit);
                 }
             }
-            $image->readImage($file_path);
+            try {
+                $image->readImage($file_path);
+            } catch (ImagickException $e) {
+                error_log($e->getMessage());
+                return null;
+            }
             $this->image_objects[$file_path] = $image;
         }
         return $this->image_objects[$file_path];
@@ -884,6 +894,7 @@ class UploadHandler
             $file_path,
             !empty($options['crop']) || !empty($options['no_cache'])
         );
+        if (is_null($image)) return false;
         if ($image->getImageFormat() === 'GIF') {
             // Handle animated GIFs:
             $images = $image->coalesceImages();
@@ -896,32 +907,28 @@ class UploadHandler
         $image_oriented = false;
         if (!empty($options['auto_orient'])) {
             $image_oriented = $this->imagick_orient_image($image);
-        } 
-	    
-        $image_resize = false; 
+        }
+        $image_resize = false;
         $new_width = $max_width = $img_width = $image->getImageWidth();
-        $new_height = $max_height = $img_height = $image->getImageHeight(); 
-		  
+        $new_height = $max_height = $img_height = $image->getImageHeight();
         // use isset(). User might be setting max_width = 0 (auto in regular resizing). Value 0 would be considered empty when you use empty()
         if (isset($options['max_width'])) {
-            $image_resize = true; 
-            $new_width = $max_width = $options['max_width']; 
+            $image_resize = true;
+            $new_width = $max_width = $options['max_width'];
         }
         if (isset($options['max_height'])) {
             $image_resize = true;
             $new_height = $max_height = $options['max_height'];
         }
-        
         $image_strip = (isset($options['strip']) ? $options['strip'] : false);
- 
-        if ( !$image_oriented && ($max_width >= $img_width) && ($max_height >= $img_height) && !$image_strip && empty($options["jpeg_quality"]) ) {        
+        if ( !$image_oriented && ($max_width >= $img_width) && ($max_height >= $img_height) && !$image_strip && empty($options["jpeg_quality"]) ) {
             if ($file_path !== $new_file_path) {
                 return copy($file_path, $new_file_path);
             }
             return true;
         }
         $crop = (isset($options['crop']) ? $options['crop'] : false);
-        
+
         if ($crop) {
             $x = 0;
             $y = 0;
@@ -1111,14 +1118,14 @@ class UploadHandler
         }
         if (count($failed_versions)) {
             $file->error = $this->get_error_message('image_resize')
-                    .' ('.implode($failed_versions, ', ').')';
+                .' ('.implode($failed_versions, ', ').')';
         }
         // Free memory:
         $this->destroy_image_object($file_path);
     }
 
     protected function handle_file_upload($uploaded_file, $name, $size, $type, $error,
-            $index = null, $content_range = null) {
+        $index = null, $content_range = null) {
         $file = new \stdClass();
         $file->name = $this->get_file_name($uploaded_file, $name, $size, $type, $error,
             $index, $content_range);
@@ -1319,8 +1326,7 @@ class UploadHandler
             $json = json_encode($content);
             $redirect = stripslashes($this->get_post_param('redirect'));
             if ($redirect && preg_match($this->options['redirect_allow_target'], $redirect)) {
-                $this->header('Location: '.sprintf($redirect, rawurlencode($json)));
-                return;
+                return $this->header('Location: '.sprintf($redirect, rawurlencode($json)));
             }
             $this->head();
             if ($this->get_server_var('HTTP_CONTENT_RANGE')) {
@@ -1411,11 +1417,11 @@ class UploadHandler
                 $files[] = $this->handle_file_upload(
                     isset($upload['tmp_name']) ? $upload['tmp_name'] : null,
                     $file_name ? $file_name : (isset($upload['name']) ?
-                            $upload['name'] : null),
+                        $upload['name'] : null),
                     $size ? $size : (isset($upload['size']) ?
-                            $upload['size'] : $this->get_server_var('CONTENT_LENGTH')),
+                        $upload['size'] : $this->get_server_var('CONTENT_LENGTH')),
                     isset($upload['type']) ?
-                            $upload['type'] : $this->get_server_var('CONTENT_TYPE'),
+                        $upload['type'] : $this->get_server_var('CONTENT_TYPE'),
                     isset($upload['error']) ? $upload['error'] : null,
                     null,
                     $content_range
