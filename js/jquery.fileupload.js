@@ -1222,14 +1222,28 @@
 
             // Fix for iOS 9 not correctly grabbing names of images from Photo Library
             // https://apple.stackexchange.com/questions/118154
-            if (files.length > 1 && files[0].name === files[1].name && files[0].name === 'image.jpeg') {
-                var newFiles = []
+            var allDuplicateNames = true;
+            $.each(files, function (index, file) {
+              if (files[0].name !== file.name) {
+                allDuplicateNames = false;
+              }
+            });
+
+            if (this.options.dedupeFilenames || allDuplicateNames) {
+                var newFiles = [];
+                var fileNames = {};
+
                 $.each(files, function (index, file) {
+                    var occurrences = (fileNames[file.name] || 0) + 1;
+                    fileNames[file.name] = occurrences;
                     var newFile = new Blob( [ file ], { type: file.type } );
-                    newFile.name = 'image' + index + '.jpeg';
-                    newFiles.push(newFile)
+                    var extension = file.name.match(/\.\w*$/)
+                    var uniqueId = (occurrences > 1 ? (occurrences - 1) : '')
+                    var newName = file.name.replace(/\.\w*$/, '') + uniqueId + extension
+                    newFile.name = newName
+                    newFiles.push(newFile);
                 });
-                files = newFiles
+                files = newFiles;
             }
             return $.Deferred().resolve(files).promise();
         },
