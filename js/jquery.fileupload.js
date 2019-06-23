@@ -165,6 +165,15 @@
             bitrateInterval: 500,
             // By default, uploads are started automatically when adding files:
             autoUpload: true,
+            // By default, duplicate file names are expected to be handled on
+            // the server-side. If this is not possible (e.g. when uploading
+            // files directly to Amazon S3), the following option can be set to
+            // an empty object or an object mapping existing filenames, e.g.:
+            // { "image.jpg": true, "image (1).jpg": true }
+            // If it is set, all files will be uploaded with unique filenames,
+            // adding increasing number suffixes if necessary, e.g.:
+            // "image (2).jpg"
+            uniqueFilenames: undefined,
 
             // Error and info messages:
             messages: {
@@ -449,6 +458,23 @@
             return Object.prototype.toString.call(obj) === '[object ' + type + ']';
         },
 
+        _getUniqueFilename: function (name, map) {
+            name = String(name);
+            if (map[name]) {
+                name = name.replace(
+                    /(?: \(([\d]+)\))?(\.[^.]+)?$/,
+                    function (_, p1, p2) {
+                        var index = p1 ? Number(p1) + 1 : 1;
+                        var ext = p2 || '';
+                        return ' (' + index + ')' + ext;
+                    }
+                );
+                return this._getUniqueFilename(name, map);
+            }
+            map[name] = true;
+            return name;
+        },
+
         _initXHRData: function (options) {
             var that = this,
                 formData,
@@ -510,11 +536,18 @@
                             // dummy objects:
                             if (that._isInstanceOf('File', file) ||
                                     that._isInstanceOf('Blob', file)) {
+                                var fileName = file.uploadName || file.name;
+                                if (options.uniqueFilenames) {
+                                    fileName = that._getUniqueFilename(
+                                        fileName,
+                                        options.uniqueFilenames
+                                    );
+                                }
                                 formData.append(
                                     ($.type(options.paramName) === 'array' &&
                                         options.paramName[index]) || paramName,
                                     file,
-                                    file.uploadName || file.name
+                                    fileName
                                 );
                             }
                         });
