@@ -80,7 +80,7 @@ The XDomainRequest object allows GET and POST requests only and doesn't support 
 
 ### Custom Backends
 
-You can add support for various backends by adhering to the specification [outlined here](https://github.com/blueimp/jQuery-File-Upload/wiki/JSON-Response).
+You can add support for various backends by adhering to the specification [outlined here](https://github.com/blueimp/jQuery-File-Upload/wiki/Setup#using-jquery-file-upload-ui-version-with-a-custom-server-side-upload-handler).
 
 ## Browsers
 
