@@ -1,3 +1,17 @@
 .DS_Store
 *.pyc
 node_modules
+
+\.idea/inspectionProfiles/Project_Default\.xml
+
+\.idea/jQuery-File-Upload\.iml
+
+\.idea/jsLinters/jshint\.xml
+
+\.idea/misc\.xml
+
+\.idea/modules\.xml
+
+\.idea/vcs\.xml
+
+\.idea/workspace\.xml
