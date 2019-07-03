@@ -79,13 +79,13 @@
                     iframe = $(
                         '<iframe src="' + initialIframeSrc +
                             '" name="iframe-transport-' + counter + '"></iframe>'
-                    ).bind('load', function () {
+                    ).on('load', function () {
                         var fileInputClones,
                             paramNames = $.isArray(options.paramName) ?
                                     options.paramName : [options.paramName];
                         iframe
                             .off('load')
-                            .bind('load', function () {
+                            .on('load', function () {
                                 var response;
                                 // Wrap in a try/catch block to catch exceptions thrown
                                 // when trying to access cross-domain iframe contents:

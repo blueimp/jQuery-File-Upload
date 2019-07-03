@@ -81,12 +81,12 @@
                         '<iframe style="display:none;" src="' +
                             options.postMessage + '" name="' +
                             message.id + '"></iframe>'
-                    ).bind('load', function () {
+                    ).on('load', function () {
                         $.each(names, function (i, name) {
                             message[name] = options[name];
                         });
                         message.dataType = message.dataType.replace('postmessage ', '');
-                        $(window).bind(eventName, function (e) {
+                        $(window).on(eventName, function (e) {
                             e = e.originalEvent;
                             var data = e.data,
                                 ev;
