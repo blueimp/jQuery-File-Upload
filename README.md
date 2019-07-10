@@ -96,11 +96,15 @@ The File Upload plugin is regularly tested with the latest browser versions and 
 ### Mobile browsers
 The File Upload plugin has been tested with and supports the following mobile browsers:
 
-* Apple Safari on iOS 6.0+
-* Google Chrome on iOS 6.0+
+* Apple Safari on iOS 6.0+ (see Caveats below)
+* Google Chrome on iOS 6.0+ (see Caveats below)
 * Google Chrome on Android 4.0+
 * Default Browser on Android 2.3+
 * Opera Mobile 12.0+
+
+### Caveats
+
+- iOS 9 has a [known bug](https://apple.stackexchange.com/questions/118154) where photos chosen from the Photo Library are all given the name `image.jpeg`, which is problematic when uploading multiple files at a time. Ideally your server should be responsible for deduplicating file uploads ([example](https://github.com/blueimp/jQuery-File-Upload/blob/master/server/php/UploadHandler.php#L490)). If you don't have control, as in the case of direct uploads to S3, you can pass an option `uniqueFilenames: {}` as part of the options object, which tells the uploader to deduplicate filenames. More details [here](https://github.com/blueimp/jQuery-File-Upload/commit/d419f43478aeafe95a794815f80a3016f58eb3b7).
 
 ### Supported features
 For a detailed overview of the features supported by each browser version, please have a look at the [Extended browser support information](https://github.com/blueimp/jQuery-File-Upload/wiki/Browser-support).
