@@ -162,14 +162,14 @@ $(function () {
     }).on('fileuploadadd', function (e, data) {
         data.context = $('<div/>').appendTo('#files');
         $.each(data.files, function (index, file) {
-            var node = $('<p/>')
-                    .append($('<span/>').text(file.name));
-            if (!index) {
-                node
-                    .append('<br>')
-                    .append(uploadButton.clone(true).data(data));
+            $('<p/>')
+                .append($('<span/>').text(file.name))
+                .appendTo(data.context);
+            if (index === data.files.length - 1) {
+                $('<p/>')
+                    .append(uploadButton.clone(true).data(data))
+                    .appendTo(data.context);
             }
-            node.appendTo(data.context);
         });
     }).on('fileuploadprocessalways', function (e, data) {
         var index = data.index,
