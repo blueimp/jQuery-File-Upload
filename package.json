@@ -40,15 +40,12 @@
     "blueimp-tmpl": "3.6.0"
   },
   "devDependencies": {
-    "bower-json": "0.8.1",
     "jshint": "2.9.3"
   },
   "scripts": {
-    "bower-version-update": "./bower-version-update.js",
-    "lint": "jshint *.js js/*.js js/cors/*.js",
+    "lint": "jshint js/*.js js/cors/*.js",
     "test": "npm run lint",
     "preversion": "npm test",
-    "version": "npm run bower-version-update && git add bower.json",
     "postversion": "git push --tags origin master && npm publish"
   },
   "main": "js/jquery.fileupload.js"
