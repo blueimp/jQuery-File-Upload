@@ -1,0 +1,10 @@
+version: '3.7'
+services:
+  apache:
+    build: server/php
+    network_mode: bridge
+    ports:
+      - 127.0.0.1:80:80
+      - ${SERVER_HOST:-127.0.0.1}:${SERVER_PORT-}:80
+    volumes:
+      - .:/var/www/html

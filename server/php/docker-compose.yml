@@ -1,9 +1,0 @@
-version: '2.3'
-services:
-  apache:
-    build: ./
-    network_mode: bridge
-    ports:
-      - "80:80"
-    volumes:
-      - "../../:/var/www/html"
