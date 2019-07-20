@@ -34,19 +34,78 @@
     "url": "git://github.com/blueimp/jQuery-File-Upload.git"
   },
   "license": "MIT",
+  "peerDependencies": {
+    "jquery": ">=1.6"
+  },
   "optionalDependencies": {
-    "blueimp-canvas-to-blob": "3.5.0",
-    "blueimp-load-image": "2.12.2",
-    "blueimp-tmpl": "3.6.0"
+    "blueimp-canvas-to-blob": "3",
+    "blueimp-load-image": "2",
+    "blueimp-tmpl": "3"
   },
   "devDependencies": {
-    "jshint": "2.9.3"
+    "eslint": "6",
+    "eslint-config-blueimp": "1",
+    "eslint-config-prettier": "6",
+    "eslint-plugin-jsdoc": "15",
+    "eslint-plugin-prettier": "3",
+    "prettier": "1",
+    "stylelint": "10",
+    "stylelint-config-prettier": "5",
+    "stylelint-config-recommended": "2"
+  },
+  "stylelint": {
+    "extends": [
+      "stylelint-config-recommended",
+      "stylelint-config-prettier"
+    ],
+    "ignoreFiles": [
+      "css/*.min.css"
+    ]
+  },
+  "eslintConfig": {
+    "extends": [
+      "blueimp",
+      "plugin:jsdoc/recommended",
+      "plugin:prettier/recommended"
+    ],
+    "env": {
+      "browser": true
+    }
+  },
+  "eslintIgnore": [
+    "js/*.min.js",
+    "js/vendor"
+  ],
+  "prettier": {
+    "proseWrap": "always",
+    "singleQuote": true
   },
   "scripts": {
-    "lint": "jshint js/*.js js/cors/*.js",
+    "lint": "stylelint '**/*.css' && eslint .",
     "test": "npm run lint",
     "preversion": "npm test",
     "postversion": "git push --tags origin master && npm publish"
   },
+  "files": [
+    "css/jquery.fileupload-noscript.css",
+    "css/jquery.fileupload-ui-noscript.css",
+    "css/jquery.fileupload-ui.css",
+    "css/jquery.fileupload.css",
+    "img/loading.gif",
+    "img/progressbar.gif",
+    "js/cors/jquery.postmessage-transport.js",
+    "js/cors/jquery.xdr-transport.js",
+    "js/vendor/jquery.ui.widget.js",
+    "js/jquery.fileupload-angular.js",
+    "js/jquery.fileupload-audio.js",
+    "js/jquery.fileupload-image.js",
+    "js/jquery.fileupload-jquery-ui.js",
+    "js/jquery.fileupload-process.js",
+    "js/jquery.fileupload-ui.js",
+    "js/jquery.fileupload-validate.js",
+    "js/jquery.fileupload-video.js",
+    "js/jquery.fileupload.js",
+    "js/jquery.iframe-transport.js"
+  ],
   "main": "js/jquery.fileupload.js"
 }

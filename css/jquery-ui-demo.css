@@ -14,13 +14,13 @@ body {
   max-width: 750px;
   margin: 0 auto;
   padding: 1em;
-  font-family: "Lucida Grande", "Lucida Sans Unicode", Arial, sans-serif;
+  font-family: 'Lucida Grande', 'Lucida Sans Unicode', Arial, sans-serif;
   font-size: 1em;
   line-height: 1.4em;
   background: #222;
   color: #fff;
   -webkit-text-size-adjust: 100%;
-      -ms-text-size-adjust: 100%;
+  -ms-text-size-adjust: 100%;
 }
 a {
   color: orange;
@@ -44,10 +44,10 @@ table {
 }
 
 .fileupload-progress {
-	margin: 10px 0;
+  margin: 10px 0;
 }
 .fileupload-progress .progress-extended {
-	margin-top: 5px;
+  margin-top: 5px;
 }
 .error {
   color: red;
@@ -62,6 +62,6 @@ table {
     display: inline-block;
   }
   .navigation li:not(:first-child):before {
-    content: "| ";
+    content: '| ';
   }
 }
