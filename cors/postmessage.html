@@ -1,4 +1,4 @@
-<!DOCTYPE HTML>
+<!DOCTYPE html>
 <!--
 /*
  * jQuery File Upload Plugin postMessage API
@@ -12,64 +12,76 @@
  */
 -->
 <html lang="en">
-<head>
-<meta charset="utf-8">
-<title>jQuery File Upload Plugin postMessage API</title>
-<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js" integrity="sha384-xBuQ/xzmlsLoJpyjoggmTEz8OWUFM0/RC5BsqQBDX2v5cMvDHcMakNTNrHIW2I5f" crossorigin="anonymous"></script>
-</head>
-<body>
-<script>
-/*jslint unparam: true, regexp: true */
-/*global $, Blob, FormData, location */
-'use strict';
-var origin = /^http:\/\/example.org/,
-    target = new RegExp('^(http(s)?:)?\\/\\/' + location.host + '\\/');
-$(window).on('message', function (e) {
-    e = e.originalEvent;
-    var s = e.data,
-        xhr = $.ajaxSettings.xhr(),
-        f;
-    if (!origin.test(e.origin)) {
-        throw new Error('Origin "' + e.origin + '" does not match ' + origin);
-    }
-    if (!target.test(e.data.url)) {
-        throw new Error('Target "' + e.data.url + '" does not match ' + target);
-    }
-    $(xhr.upload).on('progress', function (ev) {
-        ev = ev.originalEvent;
-        e.source.postMessage({
-            id: s.id,
-            type: ev.type,
-            timeStamp: ev.timeStamp,
-            lengthComputable: ev.lengthComputable,
-            loaded: ev.loaded,
-            total: ev.total
-        }, e.origin);
-    });
-    s.xhr = function () {
-        return xhr;
-    };
-    if (!(s.data instanceof Blob)) {
-        f = new FormData();
-        $.each(s.data, function (i, v) {
-            f.append(v.name, v.value);
+  <head>
+    <meta charset="utf-8" />
+    <title>jQuery File Upload Plugin postMessage API</title>
+    <script
+      src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"
+      integrity="sha384-xBuQ/xzmlsLoJpyjoggmTEz8OWUFM0/RC5BsqQBDX2v5cMvDHcMakNTNrHIW2I5f"
+      crossorigin="anonymous"
+    ></script>
+  </head>
+  <body>
+    <script>
+      /*jslint unparam: true, regexp: true */
+      /*global $, Blob, FormData, location */
+      'use strict';
+      var origin = /^http:\/\/example.org/,
+        target = new RegExp('^(http(s)?:)?\\/\\/' + location.host + '\\/');
+      $(window).on('message', function(e) {
+        e = e.originalEvent;
+        var s = e.data,
+          xhr = $.ajaxSettings.xhr(),
+          f;
+        if (!origin.test(e.origin)) {
+          throw new Error('Origin "' + e.origin + '" does not match ' + origin);
+        }
+        if (!target.test(e.data.url)) {
+          throw new Error(
+            'Target "' + e.data.url + '" does not match ' + target
+          );
+        }
+        $(xhr.upload).on('progress', function(ev) {
+          ev = ev.originalEvent;
+          e.source.postMessage(
+            {
+              id: s.id,
+              type: ev.type,
+              timeStamp: ev.timeStamp,
+              lengthComputable: ev.lengthComputable,
+              loaded: ev.loaded,
+              total: ev.total
+            },
+            e.origin
+          );
         });
-        s.data = f;
-    }
-    $.ajax(s).always(function (result, statusText, jqXHR) {
-        if (!jqXHR.done) {
+        s.xhr = function() {
+          return xhr;
+        };
+        if (!(s.data instanceof Blob)) {
+          f = new FormData();
+          $.each(s.data, function(i, v) {
+            f.append(v.name, v.value);
+          });
+          s.data = f;
+        }
+        $.ajax(s).always(function(result, statusText, jqXHR) {
+          if (!jqXHR.done) {
             jqXHR = result;
             result = null;
-        }
-        e.source.postMessage({
-            id: s.id,
-            status: jqXHR.status,
-            statusText: statusText,
-            result: result,
-            headers: jqXHR.getAllResponseHeaders()
-        }, e.origin);
-    });
-});
-</script>
-</body>
+          }
+          e.source.postMessage(
+            {
+              id: s.id,
+              status: jqXHR.status,
+              statusText: statusText,
+              result: result,
+              headers: jqXHR.getAllResponseHeaders()
+            },
+            e.origin
+          );
+        });
+      });
+    </script>
+  </body>
 </html>
