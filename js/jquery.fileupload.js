@@ -28,7 +28,7 @@
   'use strict';
 
   // Detect file input support, based on
-  // http://viljamis.com/blog/2012/file-upload-support-on-mobile/
+  // https://viljamis.com/2012/file-upload-support-on-mobile/
   $.support.fileInput = !(
     new RegExp(
       // Handle devices which give false positives for the feature detection:

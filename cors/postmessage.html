@@ -24,7 +24,7 @@
   <body>
     <script>
       'use strict';
-      var origin = /^http:\/\/example.org/,
+      var origin = /^https:\/\/example.org/,
         target = new RegExp('^(http(s)?:)?\\/\\/' + location.host + '\\/');
       $(window).on('message', function(e) {
         e = e.originalEvent;

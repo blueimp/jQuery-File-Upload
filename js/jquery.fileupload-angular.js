@@ -168,7 +168,7 @@
     .provider('formatFileSizeFilter', function() {
       var $config = {
         // Byte units following the IEC format
-        // http://en.wikipedia.org/wiki/Kilobyte
+        // https://en.wikipedia.org/wiki/Kilobyte
         units: [
           { size: 1000000000, suffix: ' GB' },
           { size: 1000000, suffix: ' MB' },
