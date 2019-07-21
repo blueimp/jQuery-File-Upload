@@ -10,10 +10,6 @@
  * https://opensource.org/licenses/MIT
  */
 
-.fileupload-buttonbar .btn,
-.fileupload-buttonbar .toggle {
-  margin-bottom: 5px;
-}
 .progress-animated .progress-bar,
 .progress-animated .bar {
   background: url('../img/progressbar.gif') !important;
@@ -35,8 +31,15 @@
 .files video {
   max-width: 300px;
 }
+.toggle[type='checkbox'] {
+  transform: scale(2);
+  margin-left: 10px;
+}
 
 @media (max-width: 767px) {
+  .fileupload-buttonbar .btn {
+    margin-bottom: 5px;
+  }
   .fileupload-buttonbar .delete,
   .fileupload-buttonbar .toggle,
   .files .toggle,
