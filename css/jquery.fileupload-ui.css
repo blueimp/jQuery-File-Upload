@@ -37,6 +37,7 @@
 }
 
 @media (max-width: 767px) {
+  .fileupload-buttonbar .delete,
   .fileupload-buttonbar .toggle,
   .files .toggle,
   .files .btn span {
