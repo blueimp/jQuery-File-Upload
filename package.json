@@ -85,10 +85,11 @@
   },
   "scripts": {
     "lint": "stylelint '**/*.css' && eslint .",
-    "preunit": "docker-compose up -d",
+    "preunit": "docker-compose up -d example",
     "unit": "mocha-chrome http://localhost/test",
-    "postunit": "docker-compose down -v",
-    "test": "npm run lint && npm run unit",
+    "wdio": "docker-compose run --rm wdio",
+    "test": "npm run lint && npm run unit && npm run wdio && npm run wdio -- firefox",
+    "posttest": "docker-compose down -v",
     "preversion": "npm test",
     "postversion": "git push --tags origin master && npm publish"
   },

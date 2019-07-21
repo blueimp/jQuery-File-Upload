@@ -1,42 +1,36 @@
-# jQuery File Upload Plugin
+# jQuery File Upload
+
+## Contents
+
+- [Description](#description)
+- [Demo](#demo)
+- [Features](#features)
+- [Security](#security)
+- [Setup](#setup)
+- [Requirements](#requirements)
+  - [Mandatory requirements](#mandatory-requirements)
+  - [Optional requirements](#optional-requirements)
+  - [Cross-domain requirements](#cross-domain-requirements)
+- [Browsers](#browsers)
+  - [Desktop browsers](#desktop-browsers)
+  - [Mobile browsers](#mobile-browsers)
+  - [Extended browser support information](#extended-browser-support-information)
+- [Testing](#testing)
+- [Support](#support)
+- [License](#license)
 
 ## Description
 
-File Upload widget with multiple file selection, drag&amp;drop support, progress
-bars, validation and preview images, audio and video for jQuery.  
-Supports cross-domain, chunked and resumable file uploads and client-side image
-resizing. Works with any server-side platform (PHP, Python, Ruby on Rails, Java,
-Node.js, Go etc.) that supports standard HTML form file uploads.
+> File Upload widget with multiple file selection, drag&amp;drop support,
+> progress bars, validation and preview images, audio and video for jQuery.  
+> Supports cross-domain, chunked and resumable file uploads and client-side
+> image resizing.  
+> Works with any server-side platform (PHP, Python, Ruby on Rails, Java,
+> Node.js, Go etc.) that supports standard HTML form file uploads.
 
 ## Demo
 
 [Demo File Upload](https://blueimp.github.io/jQuery-File-Upload/)
-
-## ⚠️ Security Notice
-
-Security related releases:
-
-- [v9.25.1](https://github.com/blueimp/jQuery-File-Upload/releases/tag/v9.25.1)
-  Mitigates some
-  [Potential vulnerabilities with PHP+ImageMagick](VULNERABILITIES.md#potential-vulnerabilities-with-php-imagemagick).
-- [v9.24.1](https://github.com/blueimp/jQuery-File-Upload/releases/tag/v9.24.1)
-  Fixes a
-  [Remote code execution vulnerability in the PHP component](VULNERABILITIES.md#remote-code-execution-vulnerability-in-the-php-component).
-- v[9.10.1](https://github.com/blueimp/jQuery-File-Upload/releases/tag/9.10.1)
-  Fixes an
-  [Open redirect vulnerability in the GAE components](VULNERABILITIES.md#open-redirect-vulnerability-in-the-gae-components).
-- Commit
-  [4175032](https://github.com/blueimp/jQuery-File-Upload/commit/41750323a464e848856dc4c5c940663498beb74a)
-  (_fixed in all tagged releases_) Fixes a
-  [Cross-site scripting vulnerability in the Iframe Transport](VULNERABILITIES.md#cross-site-scripting-vulnerability-in-the-iframe-transport).
-
-Please read the [SECURITY](SECURITY.md) document for instructions on how to
-securely configure your Webserver for file uploads.
-
-## Setup
-
-- [How to setup the plugin on your website](https://github.com/blueimp/jQuery-File-Upload/wiki/Setup)
-- [How to use only the basic plugin (minimal setup guide).](https://github.com/blueimp/jQuery-File-Upload/wiki/Basic-plugin)
 
 ## Features
 
@@ -85,6 +79,43 @@ securely configure your Webserver for file uploads.
   Works with any server-side platform (PHP, Python, Ruby on Rails, Java,
   Node.js, Go etc.) that supports standard HTML form file uploads.
 
+## Security
+
+⚠️ Please read the [VULNERABILITIES](VULNERABILITIES.md) document for a list of
+fixed vulnerabilities
+
+Please also read the [SECURITY](SECURITY.md) document for instructions on how to
+securely configure your Webserver for file uploads.
+
+## Setup
+
+jQuery File Upload can be installed via [NPM](https://www.npmjs.com/):
+
+```sh
+npm install blueimp-file-upload
+```
+
+This allows you to include [jquery.fileupload.js](js/jquery.fileupload.js) and
+its extensions via `node_modules`, e.g:
+
+```html
+<script src="node_modules/blueimp-file-upload/js/jquery.fileupload.js"></script>
+```
+
+The widget can then be initialized on a file upload form the following way:
+
+```js
+$('#fileupload').fileupload();
+```
+
+For further information, please refer to the following guides:
+
+- [Main documentation page](https://github.com/blueimp/jQuery-File-Upload/wiki)
+- [List of all available Options](https://github.com/blueimp/jQuery-File-Upload/wiki/Options)
+- [The plugin API](https://github.com/blueimp/jQuery-File-Upload/wiki/API)
+- [How to setup the plugin on your website](https://github.com/blueimp/jQuery-File-Upload/wiki/Setup)
+- [How to use only the basic plugin.](https://github.com/blueimp/jQuery-File-Upload/wiki/Basic-plugin)
+
 ## Requirements
 
 ### Mandatory requirements
@@ -131,11 +162,6 @@ file uploads. It is used on the
 [Demo](https://blueimp.github.io/jQuery-File-Upload/) to delete uploaded files
 from the cross-domain demo file upload service.
 
-### Custom Backends
-
-You can add support for various backends by adhering to the specification
-[outlined here](https://github.com/blueimp/jQuery-File-Upload/wiki/JSON-Response).
-
 ## Browsers
 
 ### Desktop browsers
@@ -160,23 +186,31 @@ browsers:
 - Default Browser on Android 2.3+
 - Opera Mobile 12.0+
 
-#### Known Operating System / Browser bugs
+### Extended browser support information
 
-- iOS 9 has a [known bug](https://apple.stackexchange.com/questions/118154)
-  where photos chosen from the Photo Library are all given the name
-  `image.jpeg`, which is problematic when uploading multiple files at a time.
-  Ideally your server should be responsible for deduplicating file uploads
-  ([example](https://github.com/blueimp/jQuery-File-Upload/blob/master/server/php/UploadHandler.php#L490)).
-  If you don't have control, as in the case of direct uploads to S3, you can
-  pass an option `uniqueFilenames: {}` as part of the options object, which
-  tells the uploader to deduplicate filenames. More details
-  [here](https://github.com/blueimp/jQuery-File-Upload/commit/d419f43478aeafe95a794815f80a3016f58eb3b7).
-
-### Supported features
-
-For a detailed overview of the features supported by each browser version,
-please have a look at the
+For a detailed overview of the features supported by each browser version and
+known operating system / browser bugs, please have a look at the
 [Extended browser support information](https://github.com/blueimp/jQuery-File-Upload/wiki/Browser-support).
+
+## Testing
+
+The project comes with three sets of tests:
+
+1. Code linting using [ESLint](https://eslint.org/).
+2. Unit tests using [Mocha](https://mochajs.org/).
+3. End-to-end tests using [blueimp/wdio](https://github.com/blueimp/wdio).
+
+To run the tests, follow these steps:
+
+1. Start [Docker](https://docs.docker.com/).
+2. Install development dependencies:
+   ```sh
+   npm install
+   ```
+3. Run the tests:
+   ```sh
+   npm test
+   ```
 
 ## Support
 

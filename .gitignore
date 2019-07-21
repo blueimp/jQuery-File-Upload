@@ -1,2 +1,3 @@
 *.pyc
+.env
 node_modules
