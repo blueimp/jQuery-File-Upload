@@ -1,4 +1,11 @@
-# ⚠️ List of fixed vulnerabilities
+# List of fixed vulnerabilities
+
+## Contents
+
+- [Potential vulnerabilities with PHP+ImageMagick](#potential-vulnerabilities-with-phpimagemagick)
+- [Remote code execution vulnerability in the PHP component](#remote-code-execution-vulnerability-in-the-php-component)
+- [Open redirect vulnerability in the GAE components](#open-redirect-vulnerability-in-the-gae-components)
+- [Cross-site scripting vulnerability in the Iframe Transport](#cross-site-scripting-vulnerability-in-the-iframe-transport)
 
 ## Potential vulnerabilities with PHP+ImageMagick
 

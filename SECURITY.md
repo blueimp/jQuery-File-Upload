@@ -1,5 +1,21 @@
 # File Upload Security
 
+## Contents
+
+- [Introduction](#introduction)
+- [Purpose of this project](#purpose-of-this-project)
+- [Mitigations against file upload risks](#mitigations-against-file-upload-risks)
+  - [Prevent code execution on the server](#prevent-code-execution-on-the-server)
+  - [Prevent code execution in the browser](#prevent-code-execution-in-the-browser)
+  - [Prevent distribution of malware](#prevent-distribution-of-malware)
+- [Secure file upload serving configurations](#secure-file-upload-serving-configurations)
+  - [Apache config](#apache-config)
+  - [NGINX config](#nginx-config)
+- [Secure image processing configurations](#secure-image-processing-configurations)
+- [ImageMagick config](#imagemagick-config)
+
+## Introduction
+
 For an in-depth understanding of the potential security risks of providing file
 uploads and possible mitigations, please refer to the
 [OWASP - Unrestricted File Upload](https://www.owasp.org/index.php/Unrestricted_File_Upload)
