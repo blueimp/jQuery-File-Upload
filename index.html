@@ -36,6 +36,11 @@
       body {
         padding-top: 60px;
       }
+      @media (max-width: 767px) {
+        .description {
+          display: none;
+        }
+      }
     </style>
     <!-- blueimp Gallery styles -->
     <link
@@ -97,7 +102,7 @@
     </div>
     <div class="container">
       <h1>jQuery File Upload Demo</h1>
-      <blockquote>
+      <blockquote class="description">
         <p>
           File Upload widget with multiple file selection, drag&amp;drop
           support, progress bars, validation and preview images, audio and video
