@@ -324,7 +324,7 @@ class UploadHandler
 
     protected function is_valid_file_object($file_name) {
         $file_path = $this->get_upload_path($file_name);
-        if ($file_name[0] !== '.' && is_file($file_path)) {
+        if (strlen($file_name) > 0 && $file_name[0] !== '.' && is_file($file_path)) {
             return true;
         }
         return false;
@@ -1440,7 +1440,7 @@ class UploadHandler
         $response = array();
         foreach ($file_names as $file_name) {
             $file_path = $this->get_upload_path($file_name);
-            $success = $file_name[0] !== '.' && is_file($file_path) && unlink($file_path);
+            $success = strlen($file_name) > 0 && $file_name[0] !== '.' && is_file($file_path) && unlink($file_path);
             if ($success) {
                 foreach ($this->options['image_versions'] as $version => $options) {
                     if (!empty($version)) {
