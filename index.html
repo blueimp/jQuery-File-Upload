@@ -254,6 +254,12 @@
                   <div class="progress progress-striped active" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"><div class="progress-bar progress-bar-success" style="width:0%;"></div></div>
               </td>
               <td>
+                  {% if (!o.options.autoUpload && o.options.edit && o.options.loadImageFileTypes.test(file.type)) { %}
+                    <button class="btn btn-success edit" data-index="{%=i%}" disabled>
+                        <i class="glyphicon glyphicon-edit"></i>
+                        <span>Edit</span>
+                    </button>
+                  {% } %}
                   {% if (!i && !o.options.autoUpload) { %}
                       <button class="btn btn-primary start" disabled>
                           <i class="glyphicon glyphicon-upload"></i>

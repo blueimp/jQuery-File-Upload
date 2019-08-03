@@ -121,7 +121,7 @@
             that._renderPreviews(data);
           })
           .done(function() {
-            data.context.find('.start').prop('disabled', false);
+            data.context.find('.edit,.start').prop('disabled', false);
             if (
               that._trigger('added', e, data) !== false &&
               (options.autoUpload || data.autoUpload) &&
@@ -498,7 +498,9 @@
 
     _renderPreviews: function(data) {
       data.context.find('.preview').each(function(index, elm) {
-        $(elm).append(data.files[index].preview);
+        $(elm)
+          .empty()
+          .append(data.files[index].preview);
       });
     },
 
@@ -511,6 +513,41 @@
         .find('a[download]')
         .each(this._enableDragToDesktop)
         .end();
+    },
+
+    _editHandler: function(e) {
+      e.preventDefault();
+      if (!this.options.edit) return;
+      var that = this,
+        button = $(e.currentTarget),
+        template = button.closest('.template-upload'),
+        data = template.data('data'),
+        index = button.data().index;
+      this.options.edit(data.files[index]).then(function(file) {
+        if (!file) return;
+        data.files[index] = file;
+        data.context.addClass('processing');
+        template.find('.edit,.start').prop('disabled', true);
+        $(that.element)
+          .fileupload('process', data)
+          .always(function() {
+            template
+              .find('.size')
+              .text(that._formatFileSize(data.files[index].size));
+            data.context.removeClass('processing');
+            that._renderPreviews(data);
+          })
+          .done(function() {
+            template.find('.edit,.start').prop('disabled', false);
+          })
+          .fail(function() {
+            template.find('.edit').prop('disabled', false);
+            var error = data.files[index].error;
+            if (error) {
+              template.find('.error').text(error);
+            }
+          });
+      });
     },
 
     _startHandler: function(e) {
@@ -632,6 +669,7 @@
     _initEventHandlers: function() {
       this._super();
       this._on(this.options.filesContainer, {
+        'click .edit': this._editHandler,
         'click .start': this._startHandler,
         'click .cancel': this._cancelHandler,
         'click .delete': this._deleteHandler
