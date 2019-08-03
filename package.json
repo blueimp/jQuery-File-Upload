@@ -61,7 +61,8 @@
     ],
     "ignoreFiles": [
       "css/*.min.css",
-      "test/vendor/*.css"
+      "css/vendor/*",
+      "test/vendor/*"
     ]
   },
   "eslintConfig": {
