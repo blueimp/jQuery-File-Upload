@@ -86,8 +86,7 @@
   },
   "scripts": {
     "lint": "stylelint '**/*.css' && eslint .",
-    "preunit": "docker-compose up -d example",
-    "unit": "mocha-chrome http://localhost/test",
+    "unit": "docker-compose run --rm mocha",
     "wdio": "docker-compose run --rm wdio",
     "test": "npm run lint && npm run unit && npm run wdio && npm run wdio -- firefox",
     "posttest": "docker-compose down -v",

@@ -7,6 +7,13 @@ services:
       - ${SERVER_HOST:-127.0.0.1}:${SERVER_PORT-}:80
     volumes:
       - .:/var/www/html
+  mocha:
+    build: test
+    command: http://example/test
+    volumes:
+      - .:/var/www/html
+    depends_on:
+      - example
   chromedriver:
     image: blueimp/chromedriver
     init: true
