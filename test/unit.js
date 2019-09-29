@@ -774,9 +774,6 @@
       form.fileupload({
         sequentialUploads: true,
         dataType: 'json',
-        start: function() {
-          events.push('start');
-        },
         send: function() {
           events.push('send');
         },
@@ -785,11 +782,9 @@
           completed++;
         },
         stop: function() {
-          events.push('stop');
           if (completed === 4) {
             expect(events.join(',')).to.equal(
               [
-                'start',
                 'send',
                 'complete',
                 'send',
@@ -797,8 +792,7 @@
                 'send',
                 'complete',
                 'send',
-                'complete',
-                'stop'
+                'complete'
               ].join(',')
             );
             done();
