@@ -25,6 +25,9 @@ class FileUpload {
   get downloads() {
     return $$('.files .template-download')
   }
+  get checked() {
+    return $$('.files .toggle:checked')
+  }
   /**
    * Opens the file upload form.
    *
@@ -59,6 +62,10 @@ class FileUpload {
    */
   delete(timeout) {
     this.toggle.click()
+    browser.waitUntil(
+      () => this.downloads.length === this.checked.length,
+      timeout
+    )
     this.remove.click()
     browser.waitUntil(() => !this.downloads.length, timeout)
     return this
