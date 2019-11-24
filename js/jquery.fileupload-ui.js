@@ -54,6 +54,8 @@
       // as the user clicks on the start buttons. To enable automatic
       // uploads, set the following option to true:
       autoUpload: false,
+      // The class to show/hide UI elements:
+      showElementClass: 'in',
       // The ID of the upload template:
       uploadTemplateId: 'template-upload',
       // The ID of the download template:
@@ -614,9 +616,9 @@
         };
         node
           .bind($.support.transition.end, transitionEndHandler)
-          .toggleClass('in');
+          .toggleClass(this.options.showElementClass);
       } else {
-        node.toggleClass('in');
+        node.toggleClass(this.options.showElementClass);
         dfd.resolveWith(node);
       }
       return dfd;
