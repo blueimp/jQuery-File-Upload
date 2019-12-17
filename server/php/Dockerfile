@@ -1,4 +1,4 @@
-FROM php:7-apache
+FROM php:7.4-apache
 
 # Enable the Apache Headers module:
 RUN ln -s /etc/apache2/mods-available/headers.load \
@@ -20,7 +20,7 @@ RUN DEBIAN_FRONTEND=noninteractive \
   && docker-php-ext-enable \
     imagick \
   && docker-php-ext-configure \
-    gd --with-jpeg-dir=/usr/include/ \
+    gd --with-jpeg=/usr/include/ \
   && docker-php-ext-install \
     gd \
   # Uninstall obsolete packages:
