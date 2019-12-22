@@ -8,8 +8,10 @@ services:
     volumes:
       - .:/var/www/html
   mocha:
-    build: test
+    image: blueimp/mocha-chrome
     command: http://example/test
+    environment:
+      - WAIT_FOR_HOSTS=example:80
     volumes:
       - .:/var/www/html
     depends_on:
