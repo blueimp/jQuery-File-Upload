@@ -48,7 +48,6 @@
     "eslint-config-prettier": "6",
     "eslint-plugin-jsdoc": "15",
     "eslint-plugin-prettier": "3",
-    "mocha-chrome": "2",
     "prettier": "1",
     "stylelint": "10",
     "stylelint-config-prettier": "5",
