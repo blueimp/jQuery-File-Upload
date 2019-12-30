@@ -1,6 +1,8 @@
 'use strict'
 
-exports.config = Object.assign({}, require('./chrome').config, {
+/* eslint-disable jsdoc/valid-types */
+/** @type WebdriverIO.Config */
+const config = {
   hostname: process.env.WINDOWS_HOST || 'host.docker.internal',
   port: 4445,
   capabilities: [
@@ -17,4 +19,6 @@ exports.config = Object.assign({}, require('./chrome').config, {
     stopDelay: 500
   },
   assetsDir: process.env.WINDOWS_ASSETS_DIR
-})
+}
+
+exports.config = Object.assign({}, require('./chrome').config, config)

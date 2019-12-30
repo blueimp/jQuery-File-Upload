@@ -1,6 +1,8 @@
 'use strict'
 
-exports.config = Object.assign({}, require('./chrome').config, {
+/* eslint-disable jsdoc/valid-types */
+/** @type WebdriverIO.Config */
+const config = {
   hostname: 'geckodriver',
   capabilities: [
     {
@@ -18,4 +20,6 @@ exports.config = Object.assign({}, require('./chrome').config, {
     startDelay: 500,
     stopDelay: 500
   }
-})
+}
+
+exports.config = Object.assign({}, require('./chrome').config, config)

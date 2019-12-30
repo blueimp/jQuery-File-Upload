@@ -1,6 +1,8 @@
 'use strict'
 
-exports.config = Object.assign({}, require('./hooks'), {
+/* eslint-disable jsdoc/valid-types */
+/** @type WebdriverIO.Config */
+const config = {
   hostname: 'chromedriver',
   path: '/',
   capabilities: [
@@ -33,4 +35,6 @@ exports.config = Object.assign({}, require('./hooks'), {
   },
   assetsDir: '/home/webdriver/assets/',
   baseUrl: 'http://example'
-})
+}
+
+exports.config = Object.assign({}, require('./hooks'), config)
