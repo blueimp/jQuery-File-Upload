@@ -87,7 +87,7 @@
     "lint": "stylelint '**/*.css' && eslint .",
     "unit": "docker-compose run --rm mocha",
     "wdio": "docker-compose run --rm wdio",
-    "test": "npm run lint && npm run unit && npm run wdio && npm run wdio -- firefox",
+    "test": "npm run lint && npm run unit && npm run wdio && npm run wdio -- firefox.js",
     "posttest": "docker-compose down -v",
     "preversion": "npm test",
     "postversion": "git push --tags origin master && npm publish"
