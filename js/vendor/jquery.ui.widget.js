@@ -39,7 +39,17 @@
   //>>docs: http://api.jqueryui.com/jQuery.widget/
   //>>demos: http://jqueryui.com/widget/
 
+  // Support: jQuery 1.9.x or older
+  // $.expr[ ":" ] is deprecated.
+  if ( !$.expr.pseudos ) {
+    $.expr.pseudos = $.expr[ ":" ];
+  }
 
+  // Support: jQuery 1.11.x or older
+  // $.unique has been renamed to $.uniqueSort
+  if ( !$.uniqueSort ) {
+    $.uniqueSort = $.unique;
+  }
 
   var widgetUuid = 0;
   var widgetHasOwnProperty = Array.prototype.hasOwnProperty;
@@ -81,7 +91,7 @@
     }
 
     // Create selector for plugin
-    $.expr[ ":" ][ fullName.toLowerCase() ] = function( elem ) {
+    $.expr.pseudos[ fullName.toLowerCase() ] = function( elem ) {
       return !!$.data( elem, fullName );
     };
 
@@ -533,7 +543,7 @@
           current = that.classesElementLookup[ classes[ i ] ] || $();
           if ( options.add ) {
             bindRemoveEvent();
-            current = $( $.unique( current.get().concat( options.element.get() ) ) );
+            current = $( $.uniqueSort( current.get().concat( options.element.get() ) ) );
           } else {
             current = $( current.not( options.element ).get() );
           }
