@@ -33,11 +33,12 @@
     />
     <!-- Generic page styles -->
     <style>
-      body {
-        padding-top: 60px;
+      #navigation {
+        margin: 10px 0;
       }
       @media (max-width: 767px) {
-        .description {
+        #title,
+        #description {
           display: none;
         }
       }
@@ -59,50 +60,23 @@
     /></noscript>
   </head>
   <body>
-    <div class="navbar navbar-default navbar-fixed-top">
-      <div class="container">
-        <div class="navbar-header">
-          <button
-            type="button"
-            class="navbar-toggle"
-            data-toggle="collapse"
-            data-target=".navbar-fixed-top .navbar-collapse"
-          >
-            <span class="icon-bar"></span>
-            <span class="icon-bar"></span>
-            <span class="icon-bar"></span>
-          </button>
-          <a
-            class="navbar-brand"
-            href="https://github.com/blueimp/jQuery-File-Upload"
-            >jQuery File Upload</a
-          >
-        </div>
-        <div class="navbar-collapse collapse">
-          <ul class="nav navbar-nav">
-            <li>
-              <a href="https://github.com/blueimp/jQuery-File-Upload/tags"
-                >Download</a
-              >
-            </li>
-            <li>
-              <a href="https://github.com/blueimp/jQuery-File-Upload"
-                >Source Code</a
-              >
-            </li>
-            <li>
-              <a href="https://github.com/blueimp/jQuery-File-Upload/wiki"
-                >Documentation</a
-              >
-            </li>
-            <li><a href="https://blueimp.net">&copy; Sebastian Tschan</a></li>
-          </ul>
-        </div>
-      </div>
-    </div>
     <div class="container">
-      <h1>jQuery File Upload Demo</h1>
-      <blockquote class="description">
+      <ul class="nav nav-tabs" id="navigation">
+        <li>
+          <a href="https://github.com/blueimp/jQuery-File-Upload">Project</a>
+        </li>
+        <li class="active">
+          <a href="#">Demo</a>
+        </li>
+        <li>
+          <a href="https://github.com/blueimp/jQuery-File-Upload/wiki">Wiki</a>
+        </li>
+        <li>
+          <a href="https://blueimp.net">Author</a>
+        </li>
+      </ul>
+      <h1 id="title">jQuery File Upload Demo</h1>
+      <blockquote id="description">
         <p>
           File Upload widget with multiple file selection, drag&amp;drop
           support, progress bars, validation and preview images, audio and video
@@ -334,12 +308,6 @@
     <script src="https://blueimp.github.io/JavaScript-Load-Image/js/load-image.all.min.js"></script>
     <!-- The Canvas to Blob plugin is included for image resizing functionality -->
     <script src="https://blueimp.github.io/JavaScript-Canvas-to-Blob/js/canvas-to-blob.min.js"></script>
-    <!-- Bootstrap JS is not required, but included for the responsive demo navigation -->
-    <script
-      src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"
-      integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa"
-      crossorigin="anonymous"
-    ></script>
     <!-- blueimp Gallery script -->
     <script src="https://blueimp.github.io/Gallery/js/jquery.blueimp-gallery.min.js"></script>
     <!-- The Iframe Transport is required for browsers without support for XHR file uploads -->
