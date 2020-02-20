@@ -76,7 +76,6 @@
   },
   "eslintIgnore": [
     "js/*.min.js",
-    "js/vendor",
     "test/vendor"
   ],
   "prettier": {
