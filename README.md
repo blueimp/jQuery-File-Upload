@@ -120,7 +120,7 @@ For further information, please refer to the following guides:
 
 ### Mandatory requirements
 
-- [jQuery](https://jquery.com/) v1.6+
+- [jQuery](https://jquery.com/) v1.7+
 - [jQuery UI widget factory](https://api.jqueryui.com/jQuery.widget/) v1.9+
   (included): Required for the basic File Upload plugin, but very lightweight
   without any other dependencies from the jQuery UI suite.

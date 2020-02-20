@@ -84,12 +84,12 @@
               message.id +
               '"></iframe>'
           )
-            .bind('load', function() {
+            .on('load', function() {
               $.each(names, function(i, name) {
                 message[name] = options[name];
               });
               message.dataType = message.dataType.replace('postmessage ', '');
-              $(window).bind(eventName, function(event) {
+              $(window).on(eventName, function(event) {
                 var e = event.originalEvent;
                 var data = e.data;
                 var ev;
@@ -107,7 +107,7 @@
                       data.headers
                     );
                     iframe.remove();
-                    $(window).unbind(eventName);
+                    $(window).off(eventName);
                   }
                 }
               });

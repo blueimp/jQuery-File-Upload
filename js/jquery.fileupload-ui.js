@@ -408,7 +408,7 @@
         url = link.prop('href'),
         name = link.prop('download'),
         type = 'application/octet-stream';
-      link.bind('dragstart', function(e) {
+      link.on('dragstart', function(e) {
         try {
           e.originalEvent.dataTransfer.setData(
             'DownloadURL',
@@ -610,12 +610,12 @@
           // Make sure we don't respond to other transition events
           // in the container element, e.g. from button elements:
           if (e.target === node[0]) {
-            node.unbind($.support.transition.end, transitionEndHandler);
+            node.off($.support.transition.end, transitionEndHandler);
             dfd.resolveWith(node);
           }
         };
         node
-          .bind($.support.transition.end, transitionEndHandler)
+          .on($.support.transition.end, transitionEndHandler)
           .toggleClass(this.options.showElementClass);
       } else {
         node.toggleClass(this.options.showElementClass);

@@ -35,7 +35,7 @@
   },
   "license": "MIT",
   "peerDependencies": {
-    "jquery": ">=1.6"
+    "jquery": ">=1.7"
   },
   "optionalDependencies": {
     "blueimp-canvas-to-blob": "3",
