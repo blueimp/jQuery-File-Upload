@@ -139,7 +139,6 @@ body {
 #mocha .test .html-error {
   overflow: auto;
   color: black;
-  line-height: 1.5;
   display: block;
   float: left;
   clear: left;

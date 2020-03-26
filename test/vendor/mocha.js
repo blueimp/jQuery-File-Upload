@@ -62,7 +62,7 @@ process.on = function(e, fn) {
   if (e === 'uncaughtException') {
     global.onerror = function(err, url, line) {
       fn(new Error(err + ' (' + url + ':' + line + ')'));
-      return !mocha.allowUncaught;
+      return !mocha.options.allowUncaught;
     };
     uncaughtExceptionHandlers.push(fn);
   }
@@ -131,7 +131,7 @@ mocha.setup = function(opts) {
     opts = {ui: opts};
   }
   for (var opt in opts) {
-    if (opts.hasOwnProperty(opt)) {
+    if (Object.prototype.hasOwnProperty.call(opts, opt)) {
       this[opt](opts[opt]);
     }
   }
@@ -1408,6 +1408,7 @@ var utils = require('./utils');
 var mocharc = require('./mocharc.json');
 var errors = require('./errors');
 var Suite = require('./suite');
+var esmUtils = utils.supportsEsModules() ? require('./esm-utils') : undefined;
 var createStatsCollector = require('./stats-collector');
 var createInvalidReporterError = errors.createInvalidReporterError;
 var createInvalidInterfaceError = errors.createInvalidInterfaceError;
@@ -1463,28 +1464,26 @@ exports.Test = require('./test');
  * @param {boolean} [options.allowUncaught] - Propagate uncaught errors?
  * @param {boolean} [options.asyncOnly] - Force `done` callback or promise?
  * @param {boolean} [options.bail] - Bail after first test failure?
- * @param {boolean} [options.checkLeaks] - If true, check leaks.
+ * @param {boolean} [options.checkLeaks] - Check for global variable leaks?
+ * @param {boolean} [options.color] - Color TTY output from reporter?
  * @param {boolean} [options.delay] - Delay root suite execution?
- * @param {boolean} [options.enableTimeouts] - Enable timeouts?
+ * @param {boolean} [options.diff] - Show diff on failure?
  * @param {string} [options.fgrep] - Test filter given string.
  * @param {boolean} [options.forbidOnly] - Tests marked `only` fail the suite?
  * @param {boolean} [options.forbidPending] - Pending tests fail the suite?
- * @param {boolean} [options.fullStackTrace] - Full stacktrace upon failure?
+ * @param {boolean} [options.fullTrace] - Full stacktrace upon failure?
  * @param {string[]} [options.global] - Variables expected in global scope.
  * @param {RegExp|string} [options.grep] - Test filter given regular expression.
  * @param {boolean} [options.growl] - Enable desktop notifications?
- * @param {boolean} [options.hideDiff] - Suppress diffs from failures?
- * @param {boolean} [options.ignoreLeaks] - Ignore global leaks?
+ * @param {boolean} [options.inlineDiffs] - Display inline diffs?
  * @param {boolean} [options.invert] - Invert test filter matches?
  * @param {boolean} [options.noHighlighting] - Disable syntax highlighting?
- * @param {string} [options.reporter] - Reporter name.
+ * @param {string|constructor} [options.reporter] - Reporter name or constructor.
  * @param {Object} [options.reporterOption] - Reporter settings object.
  * @param {number} [options.retries] - Number of times to retry failed tests.
  * @param {number} [options.slow] - Slow threshold value.
  * @param {number|string} [options.timeout] - Timeout threshold value.
  * @param {string} [options.ui] - Interface name.
- * @param {boolean} [options.color] - Color TTY output from reporter?
- * @param {boolean} [options.useInlineDiffs] - Use inline diffs?
  */
 function Mocha(options) {
   options = utils.assign({}, mocharc, options || {});
@@ -1493,31 +1492,15 @@ function Mocha(options) {
   // root suite
   this.suite = new exports.Suite('', new exports.Context(), true);
 
-  if ('useColors' in options) {
-    utils.deprecate(
-      'useColors is DEPRECATED and will be removed from a future version of Mocha. Instead, use the "color" option'
-    );
-    options.color = 'color' in options ? options.color : options.useColors;
-  }
-
   this.grep(options.grep)
     .fgrep(options.fgrep)
     .ui(options.ui)
-    .bail(options.bail)
-    .reporter(options.reporter, options.reporterOptions)
-    .useColors(options.color)
+    .reporter(
+      options.reporter,
+      options.reporterOption || options.reporterOptions // reporterOptions was previously the only way to specify options to reporter
+    )
     .slow(options.slow)
-    .useInlineDiffs(options.inlineDiffs)
-    .globals(options.globals);
-
-  if ('enableTimeouts' in options) {
-    utils.deprecate(
-      'enableTimeouts is DEPRECATED and will be removed from a future version of Mocha. Instead, use "timeout: false" to disable timeouts.'
-    );
-    if (options.enableTimeouts === false) {
-      this.timeout(0);
-    }
-  }
+    .global(options.global);
 
   // this guard exists because Suite#timeout does not consider `undefined` to be valid input
   if (typeof options.timeout !== 'undefined') {
@@ -1528,19 +1511,19 @@ function Mocha(options) {
     this.retries(options.retries);
   }
 
-  if ('diff' in options) {
-    this.hideDiff(!options.diff);
-  }
-
   [
     'allowUncaught',
     'asyncOnly',
+    'bail',
     'checkLeaks',
+    'color',
     'delay',
+    'diff',
     'forbidOnly',
     'forbidPending',
     'fullTrace',
     'growl',
+    'inlineDiffs',
     'invert'
   ].forEach(function(opt) {
     if (options[opt]) {
@@ -1553,16 +1536,13 @@ function Mocha(options) {
  * Enables or disables bailing on the first failure.
  *
  * @public
- * @see {@link https://mochajs.org/#-b---bail|CLI option}
+ * @see [CLI option](../#-bail-b)
  * @param {boolean} [bail=true] - Whether to bail on first error.
  * @returns {Mocha} this
  * @chainable
  */
 Mocha.prototype.bail = function(bail) {
-  if (!arguments.length) {
-    bail = true;
-  }
-  this.suite.bail(bail);
+  this.suite.bail(bail !== false);
   return this;
 };
 
@@ -1574,7 +1554,7 @@ Mocha.prototype.bail = function(bail) {
  * Useful for generic setup code that must be included within test suite.
  *
  * @public
- * @see {@link https://mochajs.org/#--file-file|CLI option}
+ * @see [CLI option](../#-file-filedirectoryglob)
  * @param {string} file - Pathname of file to be loaded.
  * @returns {Mocha} this
  * @chainable
@@ -1588,8 +1568,8 @@ Mocha.prototype.addFile = function(file) {
  * Sets reporter to `reporter`, defaults to "spec".
  *
  * @public
- * @see {@link https://mochajs.org/#-r---reporter-name|CLI option}
- * @see {@link https://mochajs.org/#reporters|Reporters}
+ * @see [CLI option](../#-reporter-name-r-name)
+ * @see [Reporters](../#reporters)
  * @param {String|Function} reporter - Reporter name or constructor.
  * @param {Object} [reporterOptions] - Options used to configure the reporter.
  * @returns {Mocha} this
@@ -1647,6 +1627,8 @@ Mocha.prototype.reporter = function(reporter, reporterOptions) {
     }
     this._reporter = _reporter;
   }
+  this.options.reporterOption = reporterOptions;
+  // alias option name is used in public reporters xunit/tap/progress
   this.options.reporterOptions = reporterOptions;
   return this;
 };
@@ -1655,8 +1637,8 @@ Mocha.prototype.reporter = function(reporter, reporterOptions) {
  * Sets test UI `name`, defaults to "bdd".
  *
  * @public
- * @see {@link https://mochajs.org/#-u---ui-name|CLI option}
- * @see {@link https://mochajs.org/#interfaces|Interface DSLs}
+ * @see [CLI option](../#-ui-name-u-name)
+ * @see [Interface DSLs](../#interfaces)
  * @param {string|Function} [ui=bdd] - Interface name or class.
  * @returns {Mocha} this
  * @chainable
@@ -1703,16 +1685,18 @@ Mocha.prototype.ui = function(ui) {
 };
 
 /**
- * Loads `files` prior to execution.
+ * Loads `files` prior to execution. Does not support ES Modules.
  *
  * @description
  * The implementation relies on Node's `require` to execute
  * the test interface functions and will be subject to its cache.
+ * Supports only CommonJS modules. To load ES modules, use Mocha#loadFilesAsync.
  *
  * @private
  * @see {@link Mocha#addFile}
  * @see {@link Mocha#run}
  * @see {@link Mocha#unloadFiles}
+ * @see {@link Mocha#loadFilesAsync}
  * @param {Function} [fn] - Callback invoked upon completion.
  */
 Mocha.prototype.loadFiles = function(fn) {
@@ -1725,6 +1709,49 @@ Mocha.prototype.loadFiles = function(fn) {
     suite.emit(EVENT_FILE_POST_REQUIRE, global, file, self);
   });
   fn && fn();
+};
+
+/**
+ * Loads `files` prior to execution. Supports Node ES Modules.
+ *
+ * @description
+ * The implementation relies on Node's `require` and `import` to execute
+ * the test interface functions and will be subject to its cache.
+ * Supports both CJS and ESM modules.
+ *
+ * @public
+ * @see {@link Mocha#addFile}
+ * @see {@link Mocha#run}
+ * @see {@link Mocha#unloadFiles}
+ * @returns {Promise}
+ * @example
+ *
+ * // loads ESM (and CJS) test files asynchronously, then runs root suite
+ * mocha.loadFilesAsync()
+ *   .then(() => mocha.run(failures => process.exitCode = failures ? 1 : 0))
+ *   .catch(() => process.exitCode = 1);
+ */
+Mocha.prototype.loadFilesAsync = function() {
+  var self = this;
+  var suite = this.suite;
+  this.loadAsync = true;
+
+  if (!esmUtils) {
+    return new Promise(function(resolve) {
+      self.loadFiles(resolve);
+    });
+  }
+
+  return esmUtils.loadFilesAsync(
+    this.files,
+    function(file) {
+      suite.emit(EVENT_FILE_PRE_REQUIRE, global, file, self);
+    },
+    function(file, resultModule) {
+      suite.emit(EVENT_FILE_REQUIRE, resultModule, file, self);
+      suite.emit(EVENT_FILE_POST_REQUIRE, global, file, self);
+    }
+  );
 };
 
 /**
@@ -1743,14 +1770,13 @@ Mocha.unloadFile = function(file) {
  * Unloads `files` from Node's `require` cache.
  *
  * @description
- * This allows files to be "freshly" reloaded, providing the ability
+ * This allows required files to be "freshly" reloaded, providing the ability
  * to reuse a Mocha instance programmatically.
+ * Note: does not clear ESM module files from the cache
  *
  * <strong>Intended for consumers &mdash; not used internally</strong>
  *
  * @public
- * @see {@link Mocha.unloadFile}
- * @see {@link Mocha#loadFiles}
  * @see {@link Mocha#run}
  * @returns {Mocha} this
  * @chainable
@@ -1794,7 +1820,7 @@ Mocha.prototype.fgrep = function(str) {
  * <strong>Previous filter value will be overwritten on each call!</strong>
  *
  * @public
- * @see {@link https://mochajs.org/#-g---grep-pattern|CLI option}
+ * @see [CLI option](../#-grep-regexp-g-regexp)
  * @see {@link Mocha#fgrep}
  * @see {@link Mocha#invert}
  * @param {RegExp|String} re - Regular expression used to select tests.
@@ -1845,32 +1871,32 @@ Mocha.prototype.invert = function() {
 /**
  * Enables or disables ignoring global leaks.
  *
+ * @deprecated since v7.0.0
  * @public
  * @see {@link Mocha#checkLeaks}
- * @param {boolean} ignoreLeaks - Whether to ignore global leaks.
+ * @param {boolean} [ignoreLeaks=false] - Whether to ignore global leaks.
  * @return {Mocha} this
  * @chainable
- * @example
- *
- * // Ignore global leaks
- * mocha.ignoreLeaks(true);
  */
 Mocha.prototype.ignoreLeaks = function(ignoreLeaks) {
-  this.options.ignoreLeaks = Boolean(ignoreLeaks);
+  utils.deprecate(
+    '"ignoreLeaks()" is DEPRECATED, please use "checkLeaks()" instead.'
+  );
+  this.options.checkLeaks = !ignoreLeaks;
   return this;
 };
 
 /**
- * Enables checking for global variables leaked while running tests.
+ * Enables or disables checking for global variables leaked while running tests.
  *
  * @public
- * @see {@link https://mochajs.org/#--check-leaks|CLI option}
- * @see {@link Mocha#ignoreLeaks}
+ * @see [CLI option](../#-check-leaks)
+ * @param {boolean} [checkLeaks=true] - Whether to check for global variable leaks.
  * @return {Mocha} this
  * @chainable
  */
-Mocha.prototype.checkLeaks = function() {
-  this.options.ignoreLeaks = false;
+Mocha.prototype.checkLeaks = function(checkLeaks) {
+  this.options.checkLeaks = checkLeaks !== false;
   return this;
 };
 
@@ -1878,11 +1904,13 @@ Mocha.prototype.checkLeaks = function() {
  * Displays full stack trace upon test failure.
  *
  * @public
+ * @see [CLI option](../#-full-trace)
+ * @param {boolean} [fullTrace=true] - Whether to print full stacktrace upon failure.
  * @return {Mocha} this
  * @chainable
  */
-Mocha.prototype.fullTrace = function() {
-  this.options.fullStackTrace = true;
+Mocha.prototype.fullTrace = function(fullTrace) {
+  this.options.fullTrace = fullTrace !== false;
   return this;
 };
 
@@ -1890,8 +1918,7 @@ Mocha.prototype.fullTrace = function() {
  * Enables desktop notification support if prerequisite software installed.
  *
  * @public
- * @see {@link Mocha#isGrowlCapable}
- * @see {@link Mocha#_growl}
+ * @see [CLI option](../#-growl-g)
  * @return {Mocha} this
  * @chainable
  */
@@ -1934,20 +1961,43 @@ Mocha.prototype._growl = growl.notify;
  * Specifies whitelist of variable names to be expected in global scope.
  *
  * @public
- * @see {@link https://mochajs.org/#--globals-names|CLI option}
+ * @see [CLI option](../#-global-variable-name)
  * @see {@link Mocha#checkLeaks}
- * @param {String[]|String} globals - Accepted global variable name(s).
+ * @param {String[]|String} global - Accepted global variable name(s).
  * @return {Mocha} this
  * @chainable
  * @example
  *
  * // Specify variables to be expected in global scope
- * mocha.globals(['jQuery', 'MyLib']);
+ * mocha.global(['jQuery', 'MyLib']);
  */
-Mocha.prototype.globals = function(globals) {
-  this.options.globals = (this.options.globals || [])
-    .concat(globals)
-    .filter(Boolean);
+Mocha.prototype.global = function(global) {
+  this.options.global = (this.options.global || [])
+    .concat(global)
+    .filter(Boolean)
+    .filter(function(elt, idx, arr) {
+      return arr.indexOf(elt) === idx;
+    });
+  return this;
+};
+// for backwards compability, 'globals' is an alias of 'global'
+Mocha.prototype.globals = Mocha.prototype.global;
+
+/**
+ * Enables or disables TTY color output by screen-oriented reporters.
+ *
+ * @deprecated since v7.0.0
+ * @public
+ * @see {@link Mocha#color}
+ * @param {boolean} colors - Whether to enable color output.
+ * @return {Mocha} this
+ * @chainable
+ */
+Mocha.prototype.useColors = function(colors) {
+  utils.deprecate('"useColors()" is DEPRECATED, please use "color()" instead.');
+  if (colors !== undefined) {
+    this.options.color = colors;
+  }
   return this;
 };
 
@@ -1955,14 +2005,13 @@ Mocha.prototype.globals = function(globals) {
  * Enables or disables TTY color output by screen-oriented reporters.
  *
  * @public
- * @param {boolean} colors - Whether to enable color output.
+ * @see [CLI option](../#-color-c-colors)
+ * @param {boolean} [color=true] - Whether to enable color output.
  * @return {Mocha} this
  * @chainable
  */
-Mocha.prototype.useColors = function(colors) {
-  if (colors !== undefined) {
-    this.options.useColors = colors;
-  }
+Mocha.prototype.color = function(color) {
+  this.options.color = color !== false;
   return this;
 };
 
@@ -1970,26 +2019,63 @@ Mocha.prototype.useColors = function(colors) {
  * Determines if reporter should use inline diffs (rather than +/-)
  * in test failure output.
  *
+ * @deprecated since v7.0.0
  * @public
- * @param {boolean} inlineDiffs - Whether to use inline diffs.
+ * @see {@link Mocha#inlineDiffs}
+ * @param {boolean} [inlineDiffs=false] - Whether to use inline diffs.
  * @return {Mocha} this
  * @chainable
  */
 Mocha.prototype.useInlineDiffs = function(inlineDiffs) {
-  this.options.useInlineDiffs = inlineDiffs !== undefined && inlineDiffs;
+  utils.deprecate(
+    '"useInlineDiffs()" is DEPRECATED, please use "inlineDiffs()" instead.'
+  );
+  this.options.inlineDiffs = inlineDiffs !== undefined && inlineDiffs;
+  return this;
+};
+
+/**
+ * Enables or disables reporter to use inline diffs (rather than +/-)
+ * in test failure output.
+ *
+ * @public
+ * @see [CLI option](../#-inline-diffs)
+ * @param {boolean} [inlineDiffs=true] - Whether to use inline diffs.
+ * @return {Mocha} this
+ * @chainable
+ */
+Mocha.prototype.inlineDiffs = function(inlineDiffs) {
+  this.options.inlineDiffs = inlineDiffs !== false;
   return this;
 };
 
 /**
  * Determines if reporter should include diffs in test failure output.
  *
+ * @deprecated since v7.0.0
  * @public
- * @param {boolean} hideDiff - Whether to hide diffs.
+ * @see {@link Mocha#diff}
+ * @param {boolean} [hideDiff=false] - Whether to hide diffs.
  * @return {Mocha} this
  * @chainable
  */
 Mocha.prototype.hideDiff = function(hideDiff) {
-  this.options.hideDiff = hideDiff !== undefined && hideDiff;
+  utils.deprecate('"hideDiff()" is DEPRECATED, please use "diff()" instead.');
+  this.options.diff = !(hideDiff === true);
+  return this;
+};
+
+/**
+ * Enables or disables reporter to include diff in test failure output.
+ *
+ * @public
+ * @see [CLI option](../#-diff)
+ * @param {boolean} [diff=true] - Whether to show diff on failure.
+ * @return {Mocha} this
+ * @chainable
+ */
+Mocha.prototype.diff = function(diff) {
+  this.options.diff = diff !== false;
   return this;
 };
 
@@ -2002,9 +2088,8 @@ Mocha.prototype.hideDiff = function(hideDiff) {
  * If the value is `0`, timeouts will be disabled.
  *
  * @public
- * @see {@link https://mochajs.org/#-t---timeout-ms|CLI option}
- * @see {@link https://mochajs.org/#--no-timeouts|CLI option}
- * @see {@link https://mochajs.org/#timeouts|Timeouts}
+ * @see [CLI option](../#-timeout-ms-t-ms)
+ * @see [Timeouts](../#timeouts)
  * @see {@link Mocha#enableTimeouts}
  * @param {number|string} msecs - Timeout threshold value.
  * @return {Mocha} this
@@ -2027,7 +2112,8 @@ Mocha.prototype.timeout = function(msecs) {
  * Sets the number of times to retry failed tests.
  *
  * @public
- * @see {@link https://mochajs.org/#retry-tests|Retry Tests}
+ * @see [CLI option](../#-retries-n)
+ * @see [Retry Tests](../#retry-tests)
  * @param {number} retry - Number of times to retry failed tests.
  * @return {Mocha} this
  * @chainable
@@ -2045,7 +2131,7 @@ Mocha.prototype.retries = function(n) {
  * Sets slowness threshold value.
  *
  * @public
- * @see {@link https://mochajs.org/#-s---slow-ms|CLI option}
+ * @see [CLI option](../#-slow-ms-s-ms)
  * @param {number} msecs - Slowness threshold value.
  * @return {Mocha} this
  * @chainable
@@ -2067,8 +2153,7 @@ Mocha.prototype.slow = function(msecs) {
  * Enables or disables timeouts.
  *
  * @public
- * @see {@link https://mochajs.org/#-t---timeout-ms|CLI option}
- * @see {@link https://mochajs.org/#--no-timeouts|CLI option}
+ * @see [CLI option](../#-timeout-ms-t-ms)
  * @param {boolean} enableTimeouts - Whether to enable timeouts.
  * @return {Mocha} this
  * @chainable
@@ -2084,11 +2169,13 @@ Mocha.prototype.enableTimeouts = function(enableTimeouts) {
  * Forces all tests to either accept a `done` callback or return a promise.
  *
  * @public
+ * @see [CLI option](../#-async-only-a)
+ * @param {boolean} [asyncOnly=true] - Wether to force `done` callback or promise.
  * @return {Mocha} this
  * @chainable
  */
-Mocha.prototype.asyncOnly = function() {
-  this.options.asyncOnly = true;
+Mocha.prototype.asyncOnly = function(asyncOnly) {
+  this.options.asyncOnly = asyncOnly !== false;
   return this;
 };
 
@@ -2105,14 +2192,16 @@ Mocha.prototype.noHighlighting = function() {
 };
 
 /**
- * Enables uncaught errors to propagate (in browser).
+ * Enables or disables uncaught errors to propagate.
  *
  * @public
+ * @see [CLI option](../#-allow-uncaught)
+ * @param {boolean} [allowUncaught=true] - Whether to propagate uncaught errors.
  * @return {Mocha} this
  * @chainable
  */
-Mocha.prototype.allowUncaught = function() {
-  this.options.allowUncaught = true;
+Mocha.prototype.allowUncaught = function(allowUncaught) {
+  this.options.allowUncaught = allowUncaught !== false;
   return this;
 };
 
@@ -2124,7 +2213,7 @@ Mocha.prototype.allowUncaught = function() {
  * Used to perform asynch operations before any suites are run.
  *
  * @public
- * @see {@link https://mochajs.org/#delayed-root-suite|delayed root suite}
+ * @see [delayed root suite](../#delayed-root-suite)
  * @returns {Mocha} this
  * @chainable
  */
@@ -2137,11 +2226,13 @@ Mocha.prototype.delay = function delay() {
  * Causes tests marked `only` to fail the suite.
  *
  * @public
+ * @see [CLI option](../#-forbid-only)
+ * @param {boolean} [forbidOnly=true] - Whether tests marked `only` fail the suite.
  * @returns {Mocha} this
  * @chainable
  */
-Mocha.prototype.forbidOnly = function() {
-  this.options.forbidOnly = true;
+Mocha.prototype.forbidOnly = function(forbidOnly) {
+  this.options.forbidOnly = forbidOnly !== false;
   return this;
 };
 
@@ -2149,11 +2240,13 @@ Mocha.prototype.forbidOnly = function() {
  * Causes pending tests and tests marked `skip` to fail the suite.
  *
  * @public
+ * @see [CLI option](../#-forbid-pending)
+ * @param {boolean} [forbidPending=true] - Whether pending tests fail the suite.
  * @returns {Mocha} this
  * @chainable
  */
-Mocha.prototype.forbidPending = function() {
-  this.options.forbidPending = true;
+Mocha.prototype.forbidPending = function(forbidPending) {
+  this.options.forbidPending = forbidPending !== false;
   return this;
 };
 
@@ -2187,14 +2280,17 @@ Object.defineProperty(Mocha.prototype, 'version', {
  * the cache first!
  *
  * @public
- * @see {@link Mocha#loadFiles}
  * @see {@link Mocha#unloadFiles}
  * @see {@link Runner#run}
  * @param {DoneCB} [fn] - Callback invoked when test execution completed.
- * @return {Runner} runner instance
+ * @returns {Runner} runner instance
+ * @example
+ *
+ * // exit with non-zero status if there were test failures
+ * mocha.run(failures => process.exitCode = failures ? 1 : 0);
  */
 Mocha.prototype.run = function(fn) {
-  if (this.files.length) {
+  if (this.files.length && !this.loadAsync) {
     this.loadFiles();
   }
   var suite = this.suite;
@@ -2203,8 +2299,8 @@ Mocha.prototype.run = function(fn) {
   var runner = new exports.Runner(suite, options.delay);
   createStatsCollector(runner);
   var reporter = new this._reporter(runner, options);
-  runner.ignoreLeaks = options.ignoreLeaks !== false;
-  runner.fullStackTrace = options.fullStackTrace;
+  runner.checkLeaks = options.checkLeaks === true;
+  runner.fullStackTrace = options.fullTrace;
   runner.asyncOnly = options.asyncOnly;
   runner.allowUncaught = options.allowUncaught;
   runner.forbidOnly = options.forbidOnly;
@@ -2212,17 +2308,17 @@ Mocha.prototype.run = function(fn) {
   if (options.grep) {
     runner.grep(options.grep, options.invert);
   }
-  if (options.globals) {
-    runner.globals(options.globals);
+  if (options.global) {
+    runner.globals(options.global);
   }
   if (options.growl) {
     this._growl(runner);
   }
-  if (options.useColors !== undefined) {
-    exports.reporters.Base.useColors = options.useColors;
+  if (options.color !== undefined) {
+    exports.reporters.Base.useColors = options.color;
   }
-  exports.reporters.Base.inlineDiffs = options.useInlineDiffs;
-  exports.reporters.Base.hideDiff = options.hideDiff;
+  exports.reporters.Base.inlineDiffs = options.inlineDiffs;
+  exports.reporters.Base.hideDiff = !options.diff;
 
   function done(failures) {
     fn = fn || utils.noop;
@@ -2237,16 +2333,17 @@ Mocha.prototype.run = function(fn) {
 };
 
 }).call(this,require('_process'),typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"../package.json":90,"./context":5,"./errors":6,"./growl":2,"./hook":7,"./interfaces":11,"./mocharc.json":15,"./reporters":21,"./runnable":33,"./runner":34,"./stats-collector":35,"./suite":36,"./test":37,"./utils":38,"_process":69,"escape-string-regexp":49,"path":42}],15:[function(require,module,exports){
+},{"../package.json":90,"./context":5,"./errors":6,"./esm-utils":42,"./growl":2,"./hook":7,"./interfaces":11,"./mocharc.json":15,"./reporters":21,"./runnable":33,"./runner":34,"./stats-collector":35,"./suite":36,"./test":37,"./utils":38,"_process":69,"escape-string-regexp":49,"path":42}],15:[function(require,module,exports){
 module.exports={
   "diff": true,
-  "extension": ["js"],
+  "extension": ["js", "cjs", "mjs"],
   "opts": "./test/mocha.opts",
   "package": "./package.json",
   "reporter": "spec",
   "slow": 75,
   "timeout": 2000,
-  "ui": "bdd"
+  "ui": "bdd",
+  "watch-ignore": ["node_modules", ".git"]
 }
 
 },{}],16:[function(require,module,exports){
@@ -2292,7 +2389,12 @@ exports = module.exports = Base;
  * Check if both stdio streams are associated with a tty.
  */
 
-var isatty = tty.isatty(1) && tty.isatty(2);
+var isatty = process.stdout.isTTY && process.stderr.isTTY;
+
+/**
+ * Save log references to avoid tests interfering (see GH-3604).
+ */
+var consoleLog = console.log;
 
 /**
  * Enable coloring by default, except in the browser interface.
@@ -2416,14 +2518,14 @@ exports.cursor = {
   }
 };
 
-function showDiff(err) {
+var showDiff = (exports.showDiff = function(err) {
   return (
     err &&
     err.showDiff !== false &&
     sameType(err.actual, err.expected) &&
     err.expected !== undefined
   );
-}
+});
 
 function stringifyDiffObjs(err) {
   if (!utils.isString(err.actual) || !utils.isString(err.expected)) {
@@ -2444,9 +2546,19 @@ function stringifyDiffObjs(err) {
  * @return {string} Diff
  */
 var generateDiff = (exports.generateDiff = function(actual, expected) {
-  return exports.inlineDiffs
-    ? inlineDiff(actual, expected)
-    : unifiedDiff(actual, expected);
+  try {
+    return exports.inlineDiffs
+      ? inlineDiff(actual, expected)
+      : unifiedDiff(actual, expected);
+  } catch (err) {
+    var msg =
+      '\n      ' +
+      color('diff added', '+ expected') +
+      ' ' +
+      color('diff removed', '- actual:  failed to generate Mocha diff') +
+      '\n';
+    return msg;
+  }
 });
 
 /**
@@ -2459,7 +2571,8 @@ var generateDiff = (exports.generateDiff = function(actual, expected) {
  *     Error property
  */
 exports.list = function(failures) {
-  console.log();
+  var multipleErr, multipleTest;
+  Base.consoleLog();
   failures.forEach(function(test, i) {
     // format
     var fmt =
@@ -2469,7 +2582,16 @@ exports.list = function(failures) {
 
     // msg
     var msg;
-    var err = test.err;
+    var err;
+    if (test.err && test.err.multiple) {
+      if (multipleTest !== test) {
+        multipleTest = test;
+        multipleErr = [test.err].concat(test.err.multiple);
+      }
+      err = multipleErr.shift();
+    } else {
+      err = test.err;
+    }
     var message;
     if (err.message && typeof err.message.toString === 'function') {
       message = err.message + '';
@@ -2520,7 +2642,7 @@ exports.list = function(failures) {
       testTitle += str;
     });
 
-    console.log(fmt, i + 1, testTitle, msg, stack);
+    Base.consoleLog(fmt, i + 1, testTitle, msg, stack);
   });
 };
 
@@ -2560,7 +2682,12 @@ function Base(runner, options) {
     if (showDiff(err)) {
       stringifyDiffObjs(err);
     }
-    test.err = err;
+    // more than one error per test
+    if (test.err && err instanceof Error) {
+      test.err.multiple = (test.err.multiple || []).concat(err);
+    } else {
+      test.err = err;
+    }
     failures.push(test);
   });
 }
@@ -2569,13 +2696,13 @@ function Base(runner, options) {
  * Outputs common epilogue used by many of the bundled reporters.
  *
  * @public
- * @memberof Mocha.reporters.Base
+ * @memberof Mocha.reporters
  */
 Base.prototype.epilogue = function() {
   var stats = this.stats;
   var fmt;
 
-  console.log();
+  Base.consoleLog();
 
   // passes
   fmt =
@@ -2583,26 +2710,26 @@ Base.prototype.epilogue = function() {
     color('green', ' %d passing') +
     color('light', ' (%s)');
 
-  console.log(fmt, stats.passes || 0, milliseconds(stats.duration));
+  Base.consoleLog(fmt, stats.passes || 0, milliseconds(stats.duration));
 
   // pending
   if (stats.pending) {
     fmt = color('pending', ' ') + color('pending', ' %d pending');
 
-    console.log(fmt, stats.pending);
+    Base.consoleLog(fmt, stats.pending);
   }
 
   // failures
   if (stats.failures) {
     fmt = color('fail', '  %d failing');
 
-    console.log(fmt, stats.failures);
+    Base.consoleLog(fmt, stats.failures);
 
     Base.list(this.failures);
-    console.log();
+    Base.consoleLog();
   }
 
-  console.log();
+  Base.consoleLog();
 };
 
 /**
@@ -2755,6 +2882,8 @@ function sameType(a, b) {
   return objToString.call(a) === objToString.call(b);
 }
 
+Base.consoleLog = consoleLog;
+
 Base.abstract = true;
 
 }).call(this,require('_process'))
@@ -2805,41 +2934,45 @@ function Doc(runner, options) {
       return;
     }
     ++indents;
-    console.log('%s<section class="suite">', indent());
+    Base.consoleLog('%s<section class="suite">', indent());
     ++indents;
-    console.log('%s<h1>%s</h1>', indent(), utils.escape(suite.title));
-    console.log('%s<dl>', indent());
+    Base.consoleLog('%s<h1>%s</h1>', indent(), utils.escape(suite.title));
+    Base.consoleLog('%s<dl>', indent());
   });
 
   runner.on(EVENT_SUITE_END, function(suite) {
     if (suite.root) {
       return;
     }
-    console.log('%s</dl>', indent());
+    Base.consoleLog('%s</dl>', indent());
     --indents;
-    console.log('%s</section>', indent());
+    Base.consoleLog('%s</section>', indent());
     --indents;
   });
 
   runner.on(EVENT_TEST_PASS, function(test) {
-    console.log('%s  <dt>%s</dt>', indent(), utils.escape(test.title));
+    Base.consoleLog('%s  <dt>%s</dt>', indent(), utils.escape(test.title));
     var code = utils.escape(utils.clean(test.body));
-    console.log('%s  <dd><pre><code>%s</code></pre></dd>', indent(), code);
+    Base.consoleLog('%s  <dd><pre><code>%s</code></pre></dd>', indent(), code);
   });
 
   runner.on(EVENT_TEST_FAIL, function(test, err) {
-    console.log(
+    Base.consoleLog(
       '%s  <dt class="error">%s</dt>',
       indent(),
       utils.escape(test.title)
     );
     var code = utils.escape(utils.clean(test.body));
-    console.log(
+    Base.consoleLog(
       '%s  <dd class="error"><pre><code>%s</code></pre></dd>',
       indent(),
       code
     );
-    console.log('%s  <dd class="error">%s</dd>', indent(), utils.escape(err));
+    Base.consoleLog(
+      '%s  <dd class="error">%s</dd>',
+      indent(),
+      utils.escape(err)
+    );
   });
 }
 
@@ -2917,7 +3050,7 @@ function Dot(runner, options) {
   });
 
   runner.once(EVENT_RUN_END, function() {
-    console.log();
+    process.stdout.write('\n');
     self.epilogue();
   });
 }
@@ -3291,8 +3424,8 @@ function hideSuitesWithout(classname) {
  */
 function unhide() {
   var els = document.getElementsByClassName('suite hidden');
-  for (var i = 0; i < els.length; ++i) {
-    els[i].className = els[i].className.replace('suite hidden', 'suite');
+  while (els.length > 0) {
+    els[0].className = els[0].className.replace('suite hidden', 'suite');
   }
 }
 
@@ -3677,7 +3810,7 @@ function Landing(runner, options) {
 
   runner.once(EVENT_RUN_END, function() {
     cursor.show();
-    console.log();
+    process.stdout.write('\n');
     self.epilogue();
   });
 }
@@ -3735,7 +3868,7 @@ function List(runner, options) {
   var n = 0;
 
   runner.on(EVENT_RUN_BEGIN, function() {
-    console.log();
+    Base.consoleLog();
   });
 
   runner.on(EVENT_TEST_BEGIN, function(test) {
@@ -3744,7 +3877,7 @@ function List(runner, options) {
 
   runner.on(EVENT_TEST_PENDING, function(test) {
     var fmt = color('checkmark', '  -') + color('pending', ' %s');
-    console.log(fmt, test.fullTitle());
+    Base.consoleLog(fmt, test.fullTitle());
   });
 
   runner.on(EVENT_TEST_PASS, function(test) {
@@ -3753,12 +3886,12 @@ function List(runner, options) {
       color('pass', ' %s: ') +
       color(test.speed, '%dms');
     cursor.CR();
-    console.log(fmt, test.fullTitle(), test.duration);
+    Base.consoleLog(fmt, test.fullTitle(), test.duration);
   });
 
   runner.on(EVENT_TEST_FAIL, function(test) {
     cursor.CR();
-    console.log(color('fail', '  %d) %s'), ++n, test.fullTitle());
+    Base.consoleLog(color('fail', '  %d) %s'), ++n, test.fullTitle());
   });
 
   runner.once(EVENT_RUN_END, self.epilogue.bind(self));
@@ -4286,7 +4419,7 @@ function Progress(runner, options) {
 
   // tests started
   runner.on(EVENT_RUN_BEGIN, function() {
-    console.log();
+    process.stdout.write('\n');
     cursor.hide();
   });
 
@@ -4319,7 +4452,7 @@ function Progress(runner, options) {
   // and the failures if any
   runner.once(EVENT_RUN_END, function() {
     cursor.show();
-    console.log();
+    process.stdout.write('\n');
     self.epilogue();
   });
 }
@@ -4381,24 +4514,24 @@ function Spec(runner, options) {
   }
 
   runner.on(EVENT_RUN_BEGIN, function() {
-    console.log();
+    Base.consoleLog();
   });
 
   runner.on(EVENT_SUITE_BEGIN, function(suite) {
     ++indents;
-    console.log(color('suite', '%s%s'), indent(), suite.title);
+    Base.consoleLog(color('suite', '%s%s'), indent(), suite.title);
   });
 
   runner.on(EVENT_SUITE_END, function() {
     --indents;
     if (indents === 1) {
-      console.log();
+      Base.consoleLog();
     }
   });
 
   runner.on(EVENT_TEST_PENDING, function(test) {
     var fmt = indent() + color('pending', '  - %s');
-    console.log(fmt, test.title);
+    Base.consoleLog(fmt, test.title);
   });
 
   runner.on(EVENT_TEST_PASS, function(test) {
@@ -4408,19 +4541,19 @@ function Spec(runner, options) {
         indent() +
         color('checkmark', '  ' + Base.symbols.ok) +
         color('pass', ' %s');
-      console.log(fmt, test.title);
+      Base.consoleLog(fmt, test.title);
     } else {
       fmt =
         indent() +
         color('checkmark', '  ' + Base.symbols.ok) +
         color('pass', ' %s') +
         color(test.speed, ' (%dms)');
-      console.log(fmt, test.title, test.duration);
+      Base.consoleLog(fmt, test.title, test.duration);
     }
   });
 
   runner.on(EVENT_TEST_FAIL, function(test) {
-    console.log(indent() + color('fail', '  %d) %s'), ++n, test.title);
+    Base.consoleLog(indent() + color('fail', '  %d) %s'), ++n, test.title);
   });
 
   runner.once(EVENT_RUN_END, self.epilogue.bind(self));
@@ -4877,7 +5010,7 @@ XUnit.prototype.write = function(line) {
   } else if (typeof process === 'object' && process.stdout) {
     process.stdout.write(line + '\n');
   } else {
-    console.log(line);
+    Base.consoleLog(line);
   }
 };
 
@@ -4898,9 +5031,9 @@ XUnit.prototype.test = function(test) {
   if (test.state === STATE_FAILED) {
     var err = test.err;
     var diff =
-      Base.hideDiff || !err.actual || !err.expected
-        ? ''
-        : '\n' + Base.generateDiff(err.actual, err.expected);
+      !Base.hideDiff && Base.showDiff(err)
+        ? '\n' + Base.generateDiff(err.actual, err.expected)
+        : '';
     this.write(
       tag(
         'testcase',
@@ -5090,7 +5223,8 @@ Runnable.prototype.enableTimeouts = function(enabled) {
  * @public
  */
 Runnable.prototype.skip = function() {
-  throw new Pending('sync skip');
+  this.pending = true;
+  throw new Pending('sync skip; aborting execution');
 };
 
 /**
@@ -5289,8 +5423,17 @@ Runnable.prototype.run = function(fn) {
     fn(err);
   }
 
-  // for .resetTimeout()
+  // for .resetTimeout() and Runner#uncaught()
   this.callback = done;
+
+  if (this.fn && typeof this.fn.call !== 'function') {
+    done(
+      new TypeError(
+        'A runnable must be passed a function as its second argument.'
+      )
+    );
+    return;
+  }
 
   // explicit async with `done` argument
   if (this.async) {
@@ -5298,30 +5441,23 @@ Runnable.prototype.run = function(fn) {
 
     // allows skip() to be used in an explicit async context
     this.skip = function asyncSkip() {
-      done(new Pending('async skip call'));
-      // halt execution.  the Runnable will be marked pending
-      // by the previous call, and the uncaught handler will ignore
-      // the failure.
+      this.pending = true;
+      done();
+      // halt execution, the uncaught handler will ignore the failure.
       throw new Pending('async skip; aborting execution');
     };
 
-    if (this.allowUncaught) {
-      return callFnAsync(this.fn);
-    }
     try {
       callFnAsync(this.fn);
     } catch (err) {
+      // handles async runnables which actually run synchronously
       emitted = true;
+      if (err instanceof Pending) {
+        return; // done() is already called in this.skip()
+      } else if (this.allowUncaught) {
+        throw err;
+      }
       done(Runnable.toValueOrError(err));
-    }
-    return;
-  }
-
-  if (this.allowUncaught) {
-    if (this.isPending()) {
-      done();
-    } else {
-      callFn(this.fn);
     }
     return;
   }
@@ -5335,6 +5471,11 @@ Runnable.prototype.run = function(fn) {
     }
   } catch (err) {
     emitted = true;
+    if (err instanceof Pending) {
+      return done();
+    } else if (this.allowUncaught) {
+      throw err;
+    }
     done(Runnable.toValueOrError(err));
   }
 
@@ -5479,8 +5620,9 @@ var sQuote = utils.sQuote;
 var stackFilter = utils.stackTraceFilter();
 var stringify = utils.stringify;
 var type = utils.type;
-var createInvalidExceptionError = require('./errors')
-  .createInvalidExceptionError;
+var errors = require('./errors');
+var createInvalidExceptionError = errors.createInvalidExceptionError;
+var createUnsupportedError = errors.createUnsupportedError;
 
 /**
  * Non-enumerable globals.
@@ -5589,6 +5731,11 @@ function Runner(suite, delay) {
   this.total = suite.total();
   this.failures = 0;
   this.on(constants.EVENT_TEST_END, function(test) {
+    if (test.retriedTest() && test.parent) {
+      var idx =
+        test.parent.tests && test.parent.tests.indexOf(test.retriedTest());
+      if (idx > -1) test.parent.tests[idx] = test;
+    }
     self.checkGlobals(test);
   });
   this.on(constants.EVENT_HOOK_END, function(hook) {
@@ -5596,7 +5743,7 @@ function Runner(suite, delay) {
   });
   this._defaultGrep = /.*/;
   this.grep(this._defaultGrep);
-  this.globals(this.globalProps().concat(extraGlobals()));
+  this.globals(this.globalProps());
 }
 
 /**
@@ -5699,7 +5846,7 @@ Runner.prototype.globals = function(arr) {
  * @private
  */
 Runner.prototype.checkGlobals = function(test) {
-  if (this.ignoreLeaks) {
+  if (!this.checkLeaks) {
     return;
   }
   var ok = this._globals;
@@ -5770,8 +5917,7 @@ Runner.prototype.fail = function(test, err) {
  * - Failed `before each` hook skips remaining tests in a
  *   suite and jumps to corresponding `after each` hook,
  *   which is run only once
- * - Failed `after` hook does not alter
- *   execution order
+ * - Failed `after` hook does not alter execution order
  * - Failed `after each` hook skips remaining tests in a
  *   suite and subsuites, but executes other `after each`
  *   hooks
@@ -5841,34 +5987,37 @@ Runner.prototype.hook = function(name, fn) {
       if (testError) {
         self.fail(self.test, testError);
       }
-      if (err) {
-        if (err instanceof Pending) {
-          if (name === HOOK_TYPE_AFTER_ALL) {
-            utils.deprecate(
-              'Skipping a test within an "after all" hook is DEPRECATED and will throw an exception in a future version of Mocha. ' +
-                'Use a return statement or other means to abort hook execution.'
-            );
+      // conditional skip
+      if (hook.pending) {
+        if (name === HOOK_TYPE_AFTER_EACH) {
+          // TODO define and implement use case
+          if (self.test) {
+            self.test.pending = true;
           }
-          if (name === HOOK_TYPE_BEFORE_EACH || name === HOOK_TYPE_AFTER_EACH) {
-            if (self.test) {
-              self.test.pending = true;
-            }
-          } else {
-            suite.tests.forEach(function(test) {
-              test.pending = true;
-            });
-            suite.suites.forEach(function(suite) {
-              suite.pending = true;
-            });
-            // a pending hook won't be executed twice.
-            hook.pending = true;
+        } else if (name === HOOK_TYPE_BEFORE_EACH) {
+          if (self.test) {
+            self.test.pending = true;
           }
+          self.emit(constants.EVENT_HOOK_END, hook);
+          hook.pending = false; // activates hook for next test
+          return fn(new Error('abort hookDown'));
+        } else if (name === HOOK_TYPE_BEFORE_ALL) {
+          suite.tests.forEach(function(test) {
+            test.pending = true;
+          });
+          suite.suites.forEach(function(suite) {
+            suite.pending = true;
+          });
         } else {
-          self.failHook(hook, err);
-
-          // stop executing hooks, notify callee of hook err
-          return fn(err);
+          hook.pending = false;
+          var errForbid = createUnsupportedError('`this.skip` forbidden');
+          self.failHook(hook, errForbid);
+          return fn(errForbid);
         }
+      } else if (err) {
+        self.failHook(hook, err);
+        // stop executing hooks, notify callee of hook err
+        return fn(err);
       }
       self.emit(constants.EVENT_HOOK_END, hook);
       delete hook.ctx.currentTest;
@@ -5980,6 +6129,9 @@ Runner.prototype.runTest = function(fn) {
     test.asyncOnly = true;
   }
   test.on('error', function(err) {
+    if (err instanceof Pending) {
+      return;
+    }
     self.fail(test, err);
   });
   if (this.allowUncaught) {
@@ -6075,6 +6227,7 @@ Runner.prototype.runTests = function(suite, fn) {
       return;
     }
 
+    // static skip, no hooks are executed
     if (test.isPending()) {
       if (self.forbidPending) {
         test.isPending = alwaysFalse;
@@ -6090,6 +6243,7 @@ Runner.prototype.runTests = function(suite, fn) {
     // execute test and hook(s)
     self.emit(constants.EVENT_TEST_BEGIN, (self.test = test));
     self.hookDown(HOOK_TYPE_BEFORE_EACH, function(err, errSuite) {
+      // conditional skip within beforeEach
       if (test.isPending()) {
         if (self.forbidPending) {
           test.isPending = alwaysFalse;
@@ -6099,7 +6253,13 @@ Runner.prototype.runTests = function(suite, fn) {
           self.emit(constants.EVENT_TEST_PENDING, test);
         }
         self.emit(constants.EVENT_TEST_END, test);
-        return next();
+        // skip inner afterEach hooks below errSuite level
+        var origSuite = self.suite;
+        self.suite = errSuite || self.suite;
+        return self.hookUp(HOOK_TYPE_AFTER_EACH, function(e, eSuite) {
+          self.suite = origSuite;
+          next(e, eSuite);
+        });
       }
       if (err) {
         return hookErr(err, errSuite, false);
@@ -6107,14 +6267,20 @@ Runner.prototype.runTests = function(suite, fn) {
       self.currentRunnable = self.test;
       self.runTest(function(err) {
         test = self.test;
-        if (err) {
-          var retry = test.currentRetry();
-          if (err instanceof Pending && self.forbidPending) {
+        // conditional skip within it
+        if (test.pending) {
+          if (self.forbidPending) {
+            test.isPending = alwaysFalse;
             self.fail(test, new Error('Pending test forbidden'));
-          } else if (err instanceof Pending) {
-            test.pending = true;
+            delete test.isPending;
+          } else {
             self.emit(constants.EVENT_TEST_PENDING, test);
-          } else if (retry < test.retries()) {
+          }
+          self.emit(constants.EVENT_TEST_END, test);
+          return self.hookUp(HOOK_TYPE_AFTER_EACH, next);
+        } else if (err) {
+          var retry = test.currentRetry();
+          if (retry < test.retries()) {
             var clonedTest = test.clone();
             clonedTest.currentRetry(retry + 1);
             tests.unshift(clonedTest);
@@ -6128,11 +6294,6 @@ Runner.prototype.runTests = function(suite, fn) {
             self.fail(test, err);
           }
           self.emit(constants.EVENT_TEST_END, test);
-
-          if (err instanceof Pending) {
-            return next();
-          }
-
           return self.hookUp(HOOK_TYPE_AFTER_EACH, next);
         }
 
@@ -6164,7 +6325,6 @@ Runner.prototype.runSuite = function(suite, fn) {
   var i = 0;
   var self = this;
   var total = this.grepTotal(suite);
-  var afterAllHookCalled = false;
 
   debug('run suite %s', suite.fullTitle());
 
@@ -6212,21 +6372,13 @@ Runner.prototype.runSuite = function(suite, fn) {
     self.suite = suite;
     self.nextSuite = next;
 
-    if (afterAllHookCalled) {
+    // remove reference to test
+    delete self.test;
+
+    self.hook(HOOK_TYPE_AFTER_ALL, function() {
+      self.emit(constants.EVENT_SUITE_END, suite);
       fn(errSuite);
-    } else {
-      // mark that the afterAll block has been called once
-      // and so can be skipped if there is an error in it.
-      afterAllHookCalled = true;
-
-      // remove reference to test
-      delete self.test;
-
-      self.hook(HOOK_TYPE_AFTER_ALL, function() {
-        self.emit(constants.EVENT_SUITE_END, suite);
-        fn(errSuite);
-      });
-    }
+    });
   }
 
   this.nextSuite = next;
@@ -6240,7 +6392,7 @@ Runner.prototype.runSuite = function(suite, fn) {
 };
 
 /**
- * Handle uncaught exceptions.
+ * Handle uncaught exceptions within runner.
  *
  * @param {Error} err
  * @private
@@ -6249,6 +6401,11 @@ Runner.prototype.uncaught = function(err) {
   if (err instanceof Pending) {
     return;
   }
+  // browser does not exit script when throwing in global.onerror()
+  if (this.allowUncaught && !process.browser) {
+    throw err;
+  }
+
   if (err) {
     debug('uncaught exception %O', err);
   } else {
@@ -6284,43 +6441,37 @@ Runner.prototype.uncaught = function(err) {
 
   runnable.clearTimeout();
 
-  // Ignore errors if already failed or pending
-  // See #3226
-  if (runnable.isFailed() || runnable.isPending()) {
+  if (runnable.isFailed()) {
+    // Ignore error if already failed
+    return;
+  } else if (runnable.isPending()) {
+    // report 'pending test' retrospectively as failed
+    runnable.isPending = alwaysFalse;
+    this.fail(runnable, err);
+    delete runnable.isPending;
     return;
   }
+
   // we cannot recover gracefully if a Runnable has already passed
   // then fails asynchronously
-  var alreadyPassed = runnable.isPassed();
-  // this will change the state to "failed" regardless of the current value
-  this.fail(runnable, err);
-  if (!alreadyPassed) {
-    // recover from test
-    if (runnable.type === constants.EVENT_TEST_BEGIN) {
-      this.emit(constants.EVENT_TEST_END, runnable);
-      this.hookUp(HOOK_TYPE_AFTER_EACH, this.next);
-      return;
-    }
+  if (runnable.isPassed()) {
+    this.fail(runnable, err);
+    this.abort();
+  } else {
     debug(runnable);
-
-    // recover from hooks
-    var errSuite = this.suite;
-
-    // XXX how about a less awful way to determine this?
-    // if hook failure is in afterEach block
-    if (runnable.fullTitle().indexOf('after each') > -1) {
-      return this.hookErr(err, errSuite, true);
-    }
-    // if hook failure is in beforeEach block
-    if (runnable.fullTitle().indexOf('before each') > -1) {
-      return this.hookErr(err, errSuite, false);
-    }
-    // if hook failure is in after or before blocks
-    return this.nextSuite(errSuite);
+    return runnable.callback(err);
   }
+};
 
-  // bail
-  this.emit(constants.EVENT_RUN_END);
+/**
+ * Handle uncaught exceptions after runner's end event.
+ *
+ * @param {Error} err
+ * @private
+ */
+Runner.prototype.uncaughtEnd = function uncaughtEnd(err) {
+  if (err instanceof Pending) return;
+  throw err;
 };
 
 /**
@@ -6370,10 +6521,12 @@ Runner.prototype.run = function(fn) {
   this.on(constants.EVENT_RUN_END, function() {
     debug(constants.EVENT_RUN_END);
     process.removeListener('uncaughtException', uncaught);
+    process.on('uncaughtException', self.uncaughtEnd);
     fn(self.failures);
   });
 
   // uncaught exception
+  process.removeListener('uncaughtException', self.uncaughtEnd);
   process.on('uncaughtException', uncaught);
 
   if (this._delay) {
@@ -6382,7 +6535,9 @@ Runner.prototype.run = function(fn) {
     this.emit(constants.EVENT_DELAY_BEGIN, rootSuite);
     rootSuite.once(EVENT_ROOT_SUITE_RUN, start);
   } else {
-    start();
+    Runner.immediately(function() {
+      start();
+    });
   }
 
   return this;
@@ -6469,30 +6624,6 @@ function thrown2Error(err) {
   return new Error(
     'the ' + type(err) + ' ' + stringify(err) + ' was thrown, throw an Error :)'
   );
-}
-
-/**
- * Array of globals dependent on the environment.
- *
- * @return {Array}
- * @deprecated
- * @todo remove; long since unsupported
- * @private
- */
-function extraGlobals() {
-  if (typeof process === 'object' && typeof process.version === 'string') {
-    var parts = process.version.split('.');
-    var nodeVersion = parts.reduce(function(a, v) {
-      return (a << 8) | v;
-    });
-
-    // 'errno' was renamed to process._errno in v0.9.11.
-    if (nodeVersion < 0x00090b) {
-      return ['errno'];
-    }
-  }
-
-  return [];
 }
 
 Runner.constants = constants;
@@ -7274,6 +7405,18 @@ function Test(title, fn) {
  */
 utils.inherits(Test, Runnable);
 
+/**
+ * Set or get retried test
+ *
+ * @private
+ */
+Test.prototype.retriedTest = function(n) {
+  if (!arguments.length) {
+    return this._retriedTest;
+  }
+  this._retriedTest = n;
+};
+
 Test.prototype.clone = function() {
   var test = new Test(this.title, this.fn);
   test.timeout(this.timeout());
@@ -7281,6 +7424,7 @@ Test.prototype.clone = function() {
   test.enableTimeouts(this.enableTimeouts());
   test.retries(this.retries());
   test.currentRetry(this.currentRetry());
+  test.retriedTest(this.retriedTest() || this);
   test.globals(this.globals());
   test.parent = this.parent;
   test.file = this.file;
@@ -7343,80 +7487,6 @@ exports.escape = function(html) {
  */
 exports.isString = function(obj) {
   return typeof obj === 'string';
-};
-
-/**
- * Watch the given `files` for changes
- * and invoke `fn(file)` on modification.
- *
- * @private
- * @param {Array} files
- * @param {Function} fn
- */
-exports.watch = function(files, fn) {
-  var options = {interval: 100};
-  var debug = require('debug')('mocha:watch');
-  files.forEach(function(file) {
-    debug('file %s', file);
-    fs.watchFile(file, options, function(curr, prev) {
-      if (prev.mtime < curr.mtime) {
-        fn(file);
-      }
-    });
-  });
-};
-
-/**
- * Predicate to screen `pathname` for further consideration.
- *
- * @description
- * Returns <code>false</code> for pathname referencing:
- * <ul>
- *   <li>'npm' package installation directory
- *   <li>'git' version control directory
- * </ul>
- *
- * @private
- * @param {string} pathname - File or directory name to screen
- * @return {boolean} whether pathname should be further considered
- * @example
- * ['node_modules', 'test.js'].filter(considerFurther); // => ['test.js']
- */
-function considerFurther(pathname) {
-  var ignore = ['node_modules', '.git'];
-
-  return !~ignore.indexOf(pathname);
-}
-
-/**
- * Lookup files in the given `dir`.
- *
- * @description
- * Filenames are returned in _traversal_ order by the OS/filesystem.
- * **Make no assumption that the names will be sorted in any fashion.**
- *
- * @private
- * @param {string} dir
- * @param {string[]} [exts=['js']]
- * @param {Array} [ret=[]]
- * @return {Array}
- */
-exports.files = function(dir, exts, ret) {
-  ret = ret || [];
-  exts = exts || ['js'];
-
-  fs.readdirSync(dir)
-    .filter(considerFurther)
-    .forEach(function(dirent) {
-      var pathname = path.join(dir, dirent);
-      if (fs.lstatSync(pathname).isDirectory()) {
-        exports.files(pathname, exts, ret);
-      } else if (hasMatchingExtname(pathname, exts)) {
-        ret.push(pathname);
-      }
-    });
-
-  return ret;
 };
 
 /**
@@ -7854,32 +7924,41 @@ function isHiddenOnUnix(pathname) {
  *
  * @public
  * @memberof Mocha.utils
- * @todo Fix extension handling
  * @param {string} filepath - Base path to start searching from.
- * @param {string[]} extensions - File extensions to look for.
- * @param {boolean} recursive - Whether to recurse into subdirectories.
+ * @param {string[]} [extensions=[]] - File extensions to look for.
+ * @param {boolean} [recursive=false] - Whether to recurse into subdirectories.
  * @return {string[]} An array of paths.
  * @throws {Error} if no files match pattern.
  * @throws {TypeError} if `filepath` is directory and `extensions` not provided.
  */
 exports.lookupFiles = function lookupFiles(filepath, extensions, recursive) {
+  extensions = extensions || [];
+  recursive = recursive || false;
   var files = [];
   var stat;
 
   if (!fs.existsSync(filepath)) {
-    if (fs.existsSync(filepath + '.js')) {
-      filepath += '.js';
+    var pattern;
+    if (glob.hasMagic(filepath)) {
+      // Handle glob as is without extensions
+      pattern = filepath;
     } else {
-      // Handle glob
-      files = glob.sync(filepath);
-      if (!files.length) {
-        throw createNoFilesMatchPatternError(
-          'Cannot find any files matching pattern ' + exports.dQuote(filepath),
-          filepath
-        );
-      }
-      return files;
+      // glob pattern e.g. 'filepath+(.js|.ts)'
+      var strExtensions = extensions
+        .map(function(v) {
+          return '.' + v;
+        })
+        .join('|');
+      pattern = filepath + '+(' + strExtensions + ')';
     }
+    files = glob.sync(pattern, {nodir: true});
+    if (!files.length) {
+      throw createNoFilesMatchPatternError(
+        'Cannot find any files matching pattern ' + exports.dQuote(filepath),
+        filepath
+      );
+    }
+    return files;
   }
 
   // Handle file
@@ -7910,7 +7989,7 @@ exports.lookupFiles = function lookupFiles(filepath, extensions, recursive) {
       // ignore error
       return;
     }
-    if (!extensions) {
+    if (!extensions.length) {
       throw createMissingArgumentError(
         util.format(
           'Argument %s required when argument %s is a directory',
@@ -8006,7 +8085,8 @@ exports.stackTraceFilter = function() {
   function isMochaInternal(line) {
     return (
       ~line.indexOf('node_modules' + slash + 'mocha' + slash) ||
-      ~line.indexOf(slash + 'mocha.js')
+      ~line.indexOf(slash + 'mocha.js') ||
+      ~line.indexOf(slash + 'mocha.min.js')
     );
   }
 
@@ -8188,8 +8268,30 @@ exports.defineConstants = function(obj) {
   return Object.freeze(exports.createMap(obj));
 };
 
+/**
+ * Whether current version of Node support ES modules
+ *
+ * @description
+ * Versions prior to 10 did not support ES Modules, and version 10 has an old incompatibile version of ESM.
+ * This function returns whether Node.JS has ES Module supports that is compatible with Mocha's needs,
+ * which is version >=12.11.
+ *
+ * @returns {Boolean} whether the current version of Node.JS supports ES Modules in a way that is compatible with Mocha
+ */
+exports.supportsEsModules = function() {
+  if (!process.browser && process.versions && process.versions.node) {
+    var versionFields = process.versions.node.split('.');
+    var major = +versionFields[0];
+    var minor = +versionFields[1];
+
+    if (major >= 13 || (major === 12 && minor >= 11)) {
+      return true;
+    }
+  }
+};
+
 }).call(this,require('_process'),require("buffer").Buffer)
-},{"./errors":6,"_process":69,"buffer":43,"debug":45,"fs":42,"glob":42,"he":54,"object.assign":65,"path":42,"util":89}],39:[function(require,module,exports){
+},{"./errors":6,"_process":69,"buffer":43,"fs":42,"glob":42,"he":54,"object.assign":65,"path":42,"util":89}],39:[function(require,module,exports){
 'use strict'
 
 exports.byteLength = byteLength
@@ -18069,7 +18171,7 @@ function hasOwnProperty(obj, prop) {
 },{"./support/isBuffer":88,"_process":69,"inherits":56}],90:[function(require,module,exports){
 module.exports={
   "name": "mocha",
-  "version": "6.1.4",
+  "version": "7.1.1",
   "homepage": "https://mochajs.org/",
   "notifyLogo": "https://ibin.co/4QuRuGjXvl36.png"
 }
