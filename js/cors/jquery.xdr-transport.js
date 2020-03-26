@@ -14,7 +14,7 @@
 
 /* global define, require, XDomainRequest */
 
-(function(factory) {
+(function (factory) {
   'use strict';
   if (typeof define === 'function' && define.amd) {
     // Register as an anonymous AMD module:
@@ -26,10 +26,10 @@
     // Browser globals:
     factory(window.jQuery);
   }
-})(function($) {
+})(function ($) {
   'use strict';
   if (window.XDomainRequest && !$.support.cors) {
-    $.ajaxTransport(function(s) {
+    $.ajaxTransport(function (s) {
       if (s.crossDomain && s.async) {
         if (s.timeout) {
           s.xdrTimeout = s.timeout;
@@ -37,7 +37,7 @@
         }
         var xdr;
         return {
-          send: function(headers, completeCallback) {
+          send: function (headers, completeCallback) {
             var addParamChar = /\?/.test(s.url) ? '&' : '?';
             /**
              * Callback wrapper function
@@ -65,7 +65,7 @@
               s.type = 'POST';
             }
             xdr.open(s.type, s.url);
-            xdr.onload = function() {
+            xdr.onload = function () {
               callback(
                 200,
                 'OK',
@@ -73,18 +73,18 @@
                 'Content-Type: ' + xdr.contentType
               );
             };
-            xdr.onerror = function() {
+            xdr.onerror = function () {
               callback(404, 'Not Found');
             };
             if (s.xdrTimeout) {
-              xdr.ontimeout = function() {
+              xdr.ontimeout = function () {
                 callback(0, 'timeout');
               };
               xdr.timeout = s.xdrTimeout;
             }
             xdr.send((s.hasContent && s.data) || null);
           },
-          abort: function() {
+          abort: function () {
             if (xdr) {
               xdr.onerror = $.noop();
               xdr.abort();

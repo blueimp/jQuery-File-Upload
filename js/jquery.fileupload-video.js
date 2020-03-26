@@ -11,7 +11,7 @@
 
 /* global define, require */
 
-(function(factory) {
+(function (factory) {
   'use strict';
   if (typeof define === 'function' && define.amd) {
     // Register as an anonymous AMD module:
@@ -27,7 +27,7 @@
     // Browser globals:
     factory(window.jQuery, window.loadImage);
   }
-})(function($, loadImage) {
+})(function ($, loadImage) {
   'use strict';
 
   // Prepend to the default processQueue:
@@ -63,7 +63,7 @@
       // as video element if the browser supports playing it.
       // Accepts the options fileTypes (regular expression)
       // and maxFileSize (integer) to limit the files to load:
-      loadVideo: function(data, options) {
+      loadVideo: function (data, options) {
         if (options.disabled) {
           return data;
         }
@@ -90,7 +90,7 @@
       },
 
       // Sets the video element as a property of the file object:
-      setVideo: function(data, options) {
+      setVideo: function (data, options) {
         if (data.video && !options.disabled) {
           data.files[data.index][options.name || 'preview'] = data.video;
         }

@@ -48,7 +48,7 @@
     "eslint-config-prettier": "6",
     "eslint-plugin-jsdoc": "22",
     "eslint-plugin-prettier": "3",
-    "prettier": "1",
+    "prettier": "2",
     "stylelint": "13",
     "stylelint-config-prettier": "8",
     "stylelint-config-recommended": "3"
@@ -79,8 +79,10 @@
     "test/vendor"
   ],
   "prettier": {
+    "arrowParens": "avoid",
     "proseWrap": "always",
-    "singleQuote": true
+    "singleQuote": true,
+    "trailingComma": "none"
   },
   "scripts": {
     "lint": "stylelint '**/*.css' && eslint .",

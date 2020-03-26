@@ -11,7 +11,7 @@
 
 /* global define, require */
 
-(function(factory) {
+(function (factory) {
   'use strict';
   if (typeof define === 'function' && define.amd) {
     // Register as an anonymous AMD module:
@@ -39,7 +39,7 @@
     // Browser globals:
     factory(window.jQuery, window.loadImage);
   }
-})(function($, loadImage) {
+})(function ($, loadImage) {
   'use strict';
 
   // Prepend to the default processQueue:
@@ -150,7 +150,7 @@
       // as img element, if the browser supports the File API.
       // Accepts the options fileTypes (regular expression)
       // and maxFileSize (integer) to limit the files to load:
-      loadImage: function(data, options) {
+      loadImage: function (data, options) {
         if (options.disabled) {
           return data;
         }
@@ -164,7 +164,7 @@
           (options.fileTypes && !options.fileTypes.test(file.type)) ||
           !loadImage(
             file,
-            function(img) {
+            function (img) {
               if (img.src) {
                 data.img = img;
               }
@@ -183,7 +183,7 @@
       // Also stores the resized image as preview property.
       // Accepts the options maxWidth, maxHeight, minWidth,
       // minHeight, canvas and crop:
-      resizeImage: function(data, options) {
+      resizeImage: function (data, options) {
         if (options.disabled || !(data.canvas || data.img)) {
           return data;
         }
@@ -193,7 +193,7 @@
           // eslint-disable-next-line new-cap
           dfd = $.Deferred(),
           img = (options.canvas && data.canvas) || data.img,
-          resolve = function(newImg) {
+          resolve = function (newImg) {
             if (
               newImg &&
               (newImg.width !== img.width ||
@@ -233,7 +233,7 @@
 
       // Saves the processed image given as data.canvas
       // inplace at data.index of data.files:
-      saveImage: function(data, options) {
+      saveImage: function (data, options) {
         if (!data.canvas || options.disabled) {
           return data;
         }
@@ -243,7 +243,7 @@
           dfd = $.Deferred();
         if (data.canvas.toBlob) {
           data.canvas.toBlob(
-            function(blob) {
+            function (blob) {
               if (!blob.name) {
                 if (file.type === blob.type) {
                   blob.name = file.name;
@@ -272,7 +272,7 @@
         return dfd.promise();
       },
 
-      loadImageMetaData: function(data, options) {
+      loadImageMetaData: function (data, options) {
         if (options.disabled) {
           return data;
         }
@@ -281,7 +281,7 @@
           dfd = $.Deferred();
         loadImage.parseMetaData(
           data.files[data.index],
-          function(result) {
+          function (result) {
             $.extend(data, result);
             dfd.resolveWith(that, [data]);
           },
@@ -290,7 +290,7 @@
         return dfd.promise();
       },
 
-      saveImageMetaData: function(data, options) {
+      saveImageMetaData: function (data, options) {
         if (
           !(
             data.imageHead &&
@@ -318,14 +318,14 @@
 
       // Sets the resized version of the image as a property of the
       // file object, must be called after "saveImage":
-      setImage: function(data, options) {
+      setImage: function (data, options) {
         if (data.preview && !options.disabled) {
           data.files[data.index][options.name || 'preview'] = data.preview;
         }
         return data;
       },
 
-      deleteImageReferences: function(data, options) {
+      deleteImageReferences: function (data, options) {
         if (!options.disabled) {
           delete data.img;
           delete data.canvas;
