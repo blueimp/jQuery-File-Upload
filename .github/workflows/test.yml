@@ -69,7 +69,7 @@ jobs:
       - name: docker-compose build
         run: docker-compose build example
       - name: wdio firefox
-        run: docker-compose run --rm wdio firefox.js
+        run: docker-compose run --rm wdio conf/firefox.js
       - name: docker-compose logs
         if: always()
         run: docker-compose logs example

@@ -1,5 +1,12 @@
 #!/bin/sh
 
+if [ "$1" = -t ]; then
+  BIN='/Applications/Safari Technology Preview.app/Contents/MacOS/safaridriver'
+  shift
+else
+  BIN=safaridriver
+fi
+
 SCREEN='Capture screen'
 
 if [ -z "$1" ]; then
@@ -14,7 +21,7 @@ else
 fi
 
 echo 'Starting safaridriver on 127.0.0.1:4444 ...' >&2
-safaridriver -p 4444 & pid=$!
+"$BIN" -p 4444 & pid=$!
 
 # shellcheck disable=SC2064
 trap "kill $pid; exit" INT TERM

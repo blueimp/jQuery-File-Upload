@@ -37,4 +37,4 @@ const config = {
   baseUrl: 'http://example'
 }
 
-exports.config = Object.assign({}, require('./hooks'), config)
+exports.config = Object.assign({}, require('../hooks'), config)
