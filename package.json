@@ -46,12 +46,12 @@
     "eslint": "6",
     "eslint-config-blueimp": "1",
     "eslint-config-prettier": "6",
-    "eslint-plugin-jsdoc": "15",
+    "eslint-plugin-jsdoc": "22",
     "eslint-plugin-prettier": "3",
     "prettier": "1",
-    "stylelint": "10",
-    "stylelint-config-prettier": "5",
-    "stylelint-config-recommended": "2"
+    "stylelint": "13",
+    "stylelint-config-prettier": "8",
+    "stylelint-config-recommended": "3"
   },
   "stylelint": {
     "extends": [
