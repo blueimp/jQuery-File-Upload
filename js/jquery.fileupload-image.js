@@ -207,7 +207,7 @@
           },
           thumbnail;
         if (data.exif) {
-          if (options.orientation === true) {
+          if (options.orientation === true && !loadImage.orientation) {
             options.orientation = data.exif.get('Orientation');
           }
           if (options.thumbnail) {
