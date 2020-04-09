@@ -125,7 +125,7 @@
       imageMaxHeight: 1080,
       // Defines the image orientation (1-8) or takes the orientation
       // value from Exif data if set to true:
-      imageOrientation: false,
+      imageOrientation: true,
       // Define if resized images should be cropped or only scaled:
       imageCrop: false,
       // Disable the resize image functionality by default:
@@ -301,19 +301,20 @@
         ) {
           return data;
         }
-        var file = data.files[data.index],
-          blob = new Blob(
-            [
-              data.imageHead,
-              // Resized images always have a head size of 20 bytes,
-              // including the JPEG marker and a minimal JFIF header:
-              this._blobSlice.call(file, 20)
-            ],
-            { type: file.type }
-          );
-        blob.name = file.name;
-        data.files[data.index] = blob;
-        return data;
+        var that = this,
+          file = data.files[data.index],
+          // eslint-disable-next-line new-cap
+          dfd = $.Deferred();
+        if (options.orientation === true || loadImage.orientation) {
+          // Reset Exif Orientation data:
+          loadImage.writeExifData(data.imageHead, data, 'Orientation', 1);
+        }
+        loadImage.replaceHead(file, data.imageHead, function (blob) {
+          blob.name = file.name;
+          data.files[data.index] = blob;
+          dfd.resolveWith(that, [data]);
+        });
+        return dfd.promise();
       },
 
       // Sets the resized version of the image as a property of the
