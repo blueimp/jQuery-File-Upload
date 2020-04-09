@@ -10,8 +10,8 @@ describe('File Upload', () => {
 
   it('uploads files', () => {
     FileUpload.open().upload([
-      assetsDir + 'black-80x60.gif',
-      assetsDir + 'white-1x2.jpg'
+      assetsDir + 'black+white-60x40.gif',
+      assetsDir + 'black+white-3x2.jpg'
     ])
     browser.saveAndDiffScreenshot('Files uploaded')
   })
