@@ -207,7 +207,7 @@
           },
           thumbnail;
         if (data.exif) {
-          if (options.orientation === true && !loadImage.orientation) {
+          if (options.orientation === true) {
             options.orientation = data.exif.get('Orientation');
           }
           if (options.thumbnail) {
@@ -216,6 +216,10 @@
               loadImage(thumbnail, resolve, options);
               return dfd.promise();
             }
+          }
+          // Prevent orienting browser oriented images:
+          if (loadImage.orientation) {
+            data.orientation = data.orientation || options.orientation;
           }
           // Prevent orienting the same image twice:
           if (data.orientation) {
@@ -305,7 +309,7 @@
           file = data.files[data.index],
           // eslint-disable-next-line new-cap
           dfd = $.Deferred();
-        if (options.orientation === true || loadImage.orientation) {
+        if (data.orientation && data.exifOffsets) {
           // Reset Exif Orientation data:
           loadImage.writeExifData(data.imageHead, data, 'Orientation', 1);
         }
