@@ -46,11 +46,18 @@
   $.blueimp.fileupload.prototype.options.processQueue.unshift(
     {
       action: 'loadImageMetaData',
+      maxMetaDataSize: '@',
       disableImageHead: '@',
+      disableMetaDataParsers: '@',
       disableExif: '@',
       disableExifThumbnail: '@',
-      disableExifSub: '@',
-      disableExifGps: '@',
+      disableExifOffsets: '@',
+      includeExifTags: '@',
+      excludeExifTags: '@',
+      disableIptc: '@',
+      disableIptcOffsets: '@',
+      includeIptcTags: '@',
+      excludeIptcTags: '@',
       disabled: '@disableImageMetaDataLoad'
     },
     {
