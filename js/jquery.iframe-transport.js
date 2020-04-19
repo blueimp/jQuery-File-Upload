@@ -153,19 +153,25 @@
               // Remove the HTML5 form attribute from the input(s):
               options.fileInput.removeAttr('form');
             }
-            form.submit();
-            // Insert the file input fields at their original location
-            // by replacing the clones with the originals:
-            if (fileInputClones && fileInputClones.length) {
-              options.fileInput.each(function (index, input) {
-                var clone = $(fileInputClones[index]);
-                // Restore the original name and form properties:
-                $(input)
-                  .prop('name', clone.prop('name'))
-                  .attr('form', clone.attr('form'));
-                clone.replaceWith(input);
-              });
-            }
+            window.setTimeout(function () {
+              // Submitting the form in a setTimeout call fixes an issue with
+              // Safari 13 not triggering the iframe load event after resetting
+              // the load event handler, see also:
+              // https://github.com/blueimp/jQuery-File-Upload/issues/3633
+              form.submit();
+              // Insert the file input fields at their original location
+              // by replacing the clones with the originals:
+              if (fileInputClones && fileInputClones.length) {
+                options.fileInput.each(function (index, input) {
+                  var clone = $(fileInputClones[index]);
+                  // Restore the original name and form properties:
+                  $(input)
+                    .prop('name', clone.prop('name'))
+                    .attr('form', clone.attr('form'));
+                  clone.replaceWith(input);
+                });
+              }
+            }, 0);
           });
           form.append(iframe).appendTo(document.body);
         },
