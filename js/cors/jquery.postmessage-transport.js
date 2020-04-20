@@ -61,7 +61,7 @@
   $.ajaxTransport('postmessage', function (options) {
     if (options.postMessage && window.postMessage) {
       var iframe,
-        loc = $('<a>').prop('href', options.postMessage)[0],
+        loc = $('<a></a>').prop('href', options.postMessage)[0],
         target = loc.protocol + '//' + loc.host,
         xhrUpload = options.xhr().upload;
       // IE always includes the port for the host property of a link
