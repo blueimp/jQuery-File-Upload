@@ -18,7 +18,7 @@
 
 For an in-depth understanding of the potential security risks of providing file
 uploads and possible mitigations, please refer to the
-[OWASP - Unrestricted File Upload](https://www.owasp.org/index.php/Unrestricted_File_Upload)
+[OWASP - Unrestricted File Upload](https://owasp.org/www-community/vulnerabilities/Unrestricted_File_Upload)
 documentation.
 
 To securely setup the project to serve uploaded files, please refer to the
