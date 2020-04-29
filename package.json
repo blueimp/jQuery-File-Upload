@@ -39,7 +39,7 @@
   },
   "optionalDependencies": {
     "blueimp-canvas-to-blob": "3",
-    "blueimp-load-image": "4",
+    "blueimp-load-image": "5",
     "blueimp-tmpl": "3"
   },
   "devDependencies": {

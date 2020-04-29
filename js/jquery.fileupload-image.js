@@ -212,15 +212,17 @@
             data.preview = newImg;
             dfd.resolveWith(that, [data]);
           },
-          thumbnail;
+          thumbnail,
+          thumbnailBlob;
         if (data.exif) {
           if (options.orientation === true) {
             options.orientation = data.exif.get('Orientation');
           }
           if (options.thumbnail) {
             thumbnail = data.exif.get('Thumbnail');
-            if (thumbnail) {
-              loadImage(thumbnail, resolve, options);
+            thumbnailBlob = thumbnail && thumbnail.get('Blob');
+            if (thumbnailBlob) {
+              loadImage(thumbnailBlob, resolve, options);
               return dfd.promise();
             }
           }
