@@ -46,7 +46,7 @@
     "eslint": "6",
     "eslint-config-blueimp": "1",
     "eslint-config-prettier": "6",
-    "eslint-plugin-jsdoc": "22",
+    "eslint-plugin-jsdoc": "24",
     "eslint-plugin-prettier": "3",
     "prettier": "2",
     "stylelint": "13",
