@@ -84,7 +84,7 @@ is disabled by default since Apache `v2.3.9` via
   [ad4aefd](https://github.com/blueimp/jQuery-File-Upload/commit/ad4aefd96e4056deab6fea2690f0d8cf56bb2d7d)
 - [Full disclosure post on Hacker News](https://news.ycombinator.com/item?id=18267309).
 - [CVE-2018-9206](https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2018-9206)
-- [OWASP - Unrestricted File Upload](https://www.owasp.org/index.php/Unrestricted_File_Upload)
+- [OWASP - Unrestricted File Upload](https://owasp.org/www-community/vulnerabilities/Unrestricted_File_Upload)
 
 ## Open redirect vulnerability in the GAE components
 
@@ -99,7 +99,7 @@ domain for phishing attacks.
 
 - Commit containing the security fix:
   [f74d2a8](https://github.com/blueimp/jQuery-File-Upload/commit/f74d2a8c3e3b1e8e336678d2899facd5bcdb589f)
-- [OWASP - Unvalidated Redirects and Forwards Cheat Sheet](https://www.owasp.org/index.php/Unvalidated_Redirects_and_Forwards_Cheat_Sheet)
+- [OWASP - Unvalidated Redirects and Forwards Cheat Sheet](https://cheatsheetseries.owasp.org/cheatsheets/Unvalidated_Redirects_and_Forwards_Cheat_Sheet.html)
 
 ## Cross-site scripting vulnerability in the Iframe Transport
 
@@ -115,4 +115,4 @@ context of the Webserver.
 
 - Commit containing the security fix:
   [4175032](https://github.com/blueimp/jQuery-File-Upload/commit/41750323a464e848856dc4c5c940663498beb74a)
-- [OWASP - Cross-site Scripting (XSS)](<https://www.owasp.org/index.php/Cross-site_Scripting_(XSS)>)
+- [OWASP - Cross-site Scripting (XSS)](https://owasp.org/www-community/attacks/xss/)
