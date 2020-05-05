@@ -36,7 +36,7 @@ class FileUpload {
    */
   open(timeout) {
     browser.url('/')
-    this.fileinput.waitForExist(timeout)
+    this.fileinput.waitForExist({ timeout })
     return this
   }
   /**
@@ -48,10 +48,10 @@ class FileUpload {
    */
   upload(files, timeout) {
     this.fileinput.addValue(files.join('\n'))
-    browser.waitUntil(() => !this.processing.length, timeout)
+    browser.waitUntil(() => !this.processing.length, { timeout })
     this.start.click()
-    browser.waitUntil(() => !!this.downloads.length, timeout)
-    browser.waitUntil(() => !this.uploads.length, timeout)
+    browser.waitUntil(() => !!this.downloads.length, { timeout })
+    browser.waitUntil(() => !this.uploads.length, { timeout })
     return this
   }
   /**
@@ -62,12 +62,11 @@ class FileUpload {
    */
   delete(timeout) {
     this.toggle.click()
-    browser.waitUntil(
-      () => this.downloads.length === this.checked.length,
+    browser.waitUntil(() => this.downloads.length === this.checked.length, {
       timeout
-    )
+    })
     this.remove.click()
-    browser.waitUntil(() => !this.downloads.length, timeout)
+    browser.waitUntil(() => !this.downloads.length, { timeout })
     return this
   }
 }
