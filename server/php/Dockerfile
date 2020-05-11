@@ -11,28 +11,34 @@ RUN ln -s /etc/apache2/mods-available/rewrite.load \
 # Install GD, Imagick and ImageMagick as image conversion options:
 RUN DEBIAN_FRONTEND=noninteractive \
   apt-get update && apt-get install -y --no-install-recommends \
-    libpng-dev \
-    libjpeg-dev \
-    libmagickwand-dev \
-    imagemagick \
+  libpng-dev \
+  libjpeg-dev \
+  libmagickwand-dev \
+  imagemagick \
   && pecl install \
-    imagick \
+  imagick \
   && docker-php-ext-enable \
-    imagick \
+  imagick \
   && docker-php-ext-configure \
-    gd --with-jpeg=/usr/include/ \
+  gd --with-jpeg=/usr/include/ \
   && docker-php-ext-install \
-    gd \
+  gd \
   # Uninstall obsolete packages:
   && apt-get autoremove -y \
-    libpng-dev \
-    libjpeg-dev \
-    libmagickwand-dev \
+  libpng-dev \
+  libjpeg-dev \
+  libmagickwand-dev \
   # Remove obsolete files:
   && apt-get clean \
   && rm -rf \
-    /tmp/* \
-    /usr/share/doc/* \
-    /var/cache/* \
-    /var/lib/apt/lists/* \
-    /var/tmp/*
+  /tmp/* \
+  /usr/share/doc/* \
+  /var/cache/* \
+  /var/lib/apt/lists/* \
+  /var/tmp/*
+
+# Use the default development configuration:
+RUN mv "$PHP_INI_DIR/php.ini-development" "$PHP_INI_DIR/php.ini"
+
+# Add a custom configuration file:
+COPY php.ini "$PHP_INI_DIR/conf.d/"
