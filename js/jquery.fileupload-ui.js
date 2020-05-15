@@ -626,13 +626,13 @@
       this._on(fileUploadButtonBar.find('.start'), {
         click: function (e) {
           e.preventDefault();
-          filesList.find('.start').click();
+          filesList.find('.start').trigger('click');
         }
       });
       this._on(fileUploadButtonBar.find('.cancel'), {
         click: function (e) {
           e.preventDefault();
-          filesList.find('.cancel').click();
+          filesList.find('.cancel').trigger('click');
         }
       });
       this._on(fileUploadButtonBar.find('.delete'), {
@@ -642,7 +642,7 @@
             .find('.toggle:checked')
             .closest('.template-download')
             .find('.delete')
-            .click();
+            .trigger('click');
           fileUploadButtonBar.find('.toggle').prop('checked', false);
         }
       });
