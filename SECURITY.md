@@ -54,7 +54,7 @@ In some cases this can be acceptable, but for most projects you will want to
 extend the sample upload handlers to integrate user authentication, or implement
 your own.
 
-It is also up to you to configure your Webserver to securely serve the uploaded
+It is also up to you to configure your web server to securely serve the uploaded
 files, e.g. using the
 [sample server configurations](#secure-file-upload-serving-configurations).
 
@@ -69,7 +69,7 @@ uploaded files as static content.
 
 The recommended way to do this is to configure the upload directory path to
 point outside of the web application root.  
-Then the Webserver can be configured to serve files from the upload directory
+Then the web server can be configured to serve files from the upload directory
 with their default static files handler only.
 
 Limiting file uploads to a whitelist of safe file types (e.g. image files) also
@@ -122,36 +122,54 @@ understand what they are doing and that you have implemented them correctly.
 > Always test your own setup and make sure that it is secure!
 
 e.g. try uploading PHP scripts (as "example.php", "example.php.png" and
-"example.png") to see if they get executed by your Webserver.
+"example.png") to see if they get executed by your web server, e.g. the content
+of the following sample:
+
+```php
+GIF89ad <?php echo mime_content_type(__FILE__); phpinfo();
+```
 
 ### Apache config
 
-Add the following directive to the Apache config, replacing the directory path
-with the absolute path to the upload directory:
+Add the following directive to the Apache config (e.g.
+/etc/apache2/apache2.conf), replacing the directory path with the absolute path
+to the upload directory:
 
 ```ApacheConf
 <Directory "/path/to/project/server/php/files">
-  # To enable the Headers module, execute the following command and reload Apache:
+  # Some of the directives require the Apache Headers module. If it is not
+  # already enabled, please execute the following command and reload Apache:
   # sudo a2enmod headers
+  #
+  # Please note that the order of directives across configuration files matters,
+  # see also:
+  # https://httpd.apache.org/docs/current/sections.html#merging
 
-  # The following directives prevent the execution of script files
-  # in the context of the website.
-  # They also force the content-type application/octet-stream and
-  # force browsers to display a download dialog for non-image files.
-  SetHandler default-handler
-  ForceType application/octet-stream
-  Header set Content-Disposition attachment
+  # The following directive matches all files and forces them to be handled as
+  # static content, which prevents the server from parsing and executing files
+  # that are associated with a dynamic runtime, e.g. PHP files.
+  # It also forces their Content-Type header to "application/octet-stream" and
+  # adds a "Content-Disposition: attachment" header to force a download dialog,
+  # which prevents browsers from interpreting files in the context of the
+  # web server, e.g. HTML files containing JavaScript.
+  # Lastly it also prevents browsers from MIME-sniffing the Content-Type,
+  # preventing them from interpreting a file as a different Content-Type than
+  # the one sent by the webserver.
+  <FilesMatch ".*">
+    SetHandler default-handler
+    ForceType application/octet-stream
+    Header set Content-Disposition attachment
+    Header set X-Content-Type-Options nosniff
+  </FilesMatch>
 
-  # The following unsets the forced type and Content-Disposition headers
-  # for known image files:
-  <FilesMatch "(?i)\.(gif|jpe?g|png)$">
+  # The following directive matches known image files and unsets the forced
+  # Content-Type so they can be served with their original mime type.
+  # It also unsets the Content-Disposition header to allow displaying them
+  # inline in the browser.
+  <FilesMatch ".+\.(?i:(gif|jpe?g|png))$">
     ForceType none
     Header unset Content-Disposition
   </FilesMatch>
-
-  # The following directive prevents browsers from MIME-sniffing the content-type.
-  # This is an important complement to the ForceType directive above:
-  Header set X-Content-Type-Options nosniff
 </Directory>
 ```
 
