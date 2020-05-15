@@ -301,6 +301,16 @@
       timeout: 0
     },
 
+    // jQuery versions before 1.8 require promise.pipe if the return value is
+    // used, as promise.then in older versions has a different behavior, see:
+    // https://blog.jquery.com/2012/08/09/jquery-1-8-released/
+    // https://bugs.jquery.com/ticket/11010
+    // https://github.com/blueimp/jQuery-File-Upload/pull/3435
+    _promisePipe: (function () {
+      var parts = $.fn.jquery.split('.');
+      return Number(parts[0]) > 1 || Number(parts[1]) > 7 ? 'then' : 'pipe';
+    })(),
+
     // A list of options that require reinitializing event listeners and/or
     // special initialization code:
     _specialOptions: [
@@ -732,16 +742,15 @@
         };
       data.process = function (resolveFunc, rejectFunc) {
         if (resolveFunc || rejectFunc) {
-          data._processQueue = this._processQueue = (
-            this._processQueue || getPromise([this])
-          )
-            .then(function () {
+          data._processQueue = this._processQueue = (this._processQueue ||
+            getPromise([this]))
+            [that._promisePipe](function () {
               if (data.errorThrown) {
                 return $.Deferred().rejectWith(that, [data]).promise();
               }
               return getPromise(arguments);
             })
-            .then(resolveFunc, rejectFunc);
+            [that._promisePipe](resolveFunc, rejectFunc);
         }
         return this._processQueue || getPromise([this]);
       };
@@ -1052,9 +1061,9 @@
         if (this.options.limitConcurrentUploads > 1) {
           slot = $.Deferred();
           this._slots.push(slot);
-          pipe = slot.then(send);
+          pipe = slot[that._promisePipe](send);
         } else {
-          this._sequence = this._sequence.then(send, send);
+          this._sequence = this._sequence[that._promisePipe](send, send);
           pipe = this._sequence;
         }
         // Return the piped Promise object, enhanced with an abort method,
@@ -1254,7 +1263,7 @@
             return that._handleFileTreeEntry(entry, path);
           })
         )
-        .then(function () {
+        [this._promisePipe](function () {
           return Array.prototype.concat.apply([], arguments);
         });
     },
@@ -1322,7 +1331,7 @@
       }
       return $.when
         .apply($, $.map(fileInput, this._getSingleFileInputFiles))
-        .then(function () {
+        [this._promisePipe](function () {
           return Array.prototype.concat.apply([], arguments);
         });
     },
