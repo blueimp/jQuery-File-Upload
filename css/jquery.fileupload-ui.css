@@ -31,6 +31,15 @@
 .files video {
   max-width: 300px;
 }
+.files .name {
+  word-wrap: break-word;
+  overflow-wrap: anywhere;
+  -webkit-hyphens: auto;
+  hyphens: auto;
+}
+.files button {
+  margin-bottom: 5px;
+}
 .toggle[type='checkbox'] {
   transform: scale(2);
   margin-left: 10px;
@@ -46,16 +55,14 @@
   .files .btn span {
     display: none;
   }
-  .files .name {
-    width: 80px;
-    word-wrap: break-word;
-  }
   .files audio,
   .files video {
     max-width: 80px;
   }
-  .files img,
-  .files canvas {
-    max-width: 100%;
+}
+
+@media (max-width: 480px) {
+  .files .image td:nth-child(2) {
+    display: none;
   }
 }
