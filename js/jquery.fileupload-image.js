@@ -52,7 +52,6 @@
       disableImageHead: '@',
       disableMetaDataParsers: '@',
       disableExif: '@',
-      disableExifThumbnail: '@',
       disableExifOffsets: '@',
       includeExifTags: '@',
       excludeExifTags: '@',
