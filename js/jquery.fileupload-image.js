@@ -215,31 +215,23 @@
           },
           thumbnail,
           thumbnailBlob;
-        if (data.exif) {
-          if (options.orientation === true) {
+        if (data.exif && options.thumbnail) {
+          thumbnail = data.exif.get('Thumbnail');
+          thumbnailBlob = thumbnail && thumbnail.get('Blob');
+          if (thumbnailBlob) {
             options.orientation = data.exif.get('Orientation');
-          }
-          if (options.thumbnail) {
-            thumbnail = data.exif.get('Thumbnail');
-            thumbnailBlob = thumbnail && thumbnail.get('Blob');
-            if (thumbnailBlob) {
-              loadImage(thumbnailBlob, resolve, options);
-              return dfd.promise();
-            }
-          }
-          // Prevent orienting browser oriented images:
-          if (loadImage.orientation) {
-            data.orientation = data.orientation || options.orientation;
-          }
-          // Prevent orienting the same image twice:
-          if (data.orientation) {
-            delete options.orientation;
-          } else {
-            data.orientation = options.orientation;
+            loadImage(thumbnailBlob, resolve, options);
+            return dfd.promise();
           }
         }
+        if (data.orientation) {
+          // Prevent orienting the same image twice:
+          delete options.orientation;
+        } else {
+          data.orientation = options.orientation;
+        }
         if (img) {
-          resolve(loadImage.scale(img, options));
+          resolve(loadImage.scale(img, options, data));
           return dfd.promise();
         }
         return data;
@@ -319,7 +311,7 @@
           file = data.files[data.index],
           // eslint-disable-next-line new-cap
           dfd = $.Deferred();
-        if (data.orientation && data.exifOffsets) {
+        if (data.orientation === true && data.exifOffsets) {
           // Reset Exif Orientation data:
           loadImage.writeExifData(data.imageHead, data, 'Orientation', 1);
         }
