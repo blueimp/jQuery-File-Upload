@@ -228,7 +228,7 @@
           // Prevent orienting the same image twice:
           delete options.orientation;
         } else {
-          data.orientation = options.orientation;
+          data.orientation = options.orientation || loadImage.orientation;
         }
         if (img) {
           resolve(loadImage.scale(img, options, data));
