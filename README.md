@@ -21,8 +21,8 @@
 
 ## Description
 
-> File Upload widget with multiple file selection, drag&amp;drop support,
-> progress bars, validation and preview images, audio and video for jQuery.  
+> File Upload widget with multiple file selection, drag&drop support, progress
+> bars, validation and preview images, audio and video for jQuery.  
 > Supports cross-domain, chunked and resumable file uploads and client-side
 > image resizing.  
 > Works with any server-side platform (PHP, Python, Ruby on Rails, Java,
@@ -85,7 +85,7 @@
 fixed vulnerabilities
 
 Please also read the [SECURITY](SECURITY.md) document for instructions on how to
-securely configure your Webserver for file uploads.
+securely configure your Web server for file uploads.
 
 ## Setup
 
@@ -131,12 +131,11 @@ For further information, please refer to the following guides:
 ### Optional requirements
 
 - [JavaScript Templates engine](https://github.com/blueimp/JavaScript-Templates)
-  v3+: Used to render the selected and uploaded files for the Basic Plus UI and
-  jQuery UI versions.
+  v3+: Used to render the selected and uploaded files.
 - [JavaScript Load Image library](https://github.com/blueimp/JavaScript-Load-Image)
   v2+: Required for the image previews and resizing functionality.
 - [JavaScript Canvas to Blob polyfill](https://github.com/blueimp/JavaScript-Canvas-to-Blob)
-  v3+:Required for the image previews and resizing functionality.
+  v3+:Required for the resizing functionality.
 - [blueimp Gallery](https://github.com/blueimp/Gallery) v2+: Used to display the
   uploaded images in a lightbox.
 - [Bootstrap](https://getbootstrap.com/) v3+: Used for the demo design.
