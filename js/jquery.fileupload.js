@@ -844,11 +844,11 @@
         ]);
       }
       // The chunk upload method:
-      upload = function () {
+      upload = function (blob) {
         // Clone the options object for each chunk upload:
-        var o = $.extend({}, options),
+        var o = $.extend({}, options, { upload: upload }),
           currentLoaded = o._progress.loaded;
-        o.blob = slice.call(
+        o.blob = blob || slice.call(
           file,
           ub,
           ub + ($.type(mcs) === 'function' ? mcs(o) : mcs),
