@@ -849,12 +849,14 @@
         var o = $.extend({}, options, { upload: upload }),
           currentLoaded = o._progress.loaded;
         
-        o.blob = blob || slice.call(
-          file,
-          ub,
-          ub + ($.type(mcs) === 'function' ? mcs(o) : mcs),
-          file.type
-        );
+        o.blob =
+          blob ||
+          slice.call(
+            file,
+            ub,
+            ub + ($.type(mcs) === 'function' ? mcs(o) : mcs),
+            file.type
+          );
         
         // Store the current chunk size, as the blob itself
         // will be dereferenced after data processing:
