@@ -8144,7 +8144,7 @@ exports.isPromise = function isPromise(value) {
  * Clamps a numeric value to an inclusive range.
  *
  * @param {number} value - Value to be clamped.
- * @param {numer[]} range - Two element array specifying [min, max] range.
+ * @param {number[]} range - Two element array specifying [min, max] range.
  * @returns {number} clamped value
  */
 exports.clamp = function clamp(value, range) {
