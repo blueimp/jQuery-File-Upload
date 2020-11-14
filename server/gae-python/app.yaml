@@ -3,13 +3,16 @@ api_version: 1
 threadsafe: true
 
 libraries:
-- name: PIL
-  version: latest
+  - name: PIL
+    version: latest
 
 handlers:
-- url: /(favicon\.ico|robots\.txt)
-  static_files: static/\1
-  upload: static/(.*)
-  expiration: '1d'
-- url: /.*
-  script: main.app
+  - url: /(favicon\.ico|robots\.txt)
+    static_files: static/\1
+    upload: static/(.*)
+    expiration: '1d'
+  - url: /.*
+    script: main.app
+
+automatic_scaling:
+  max_instances: 1
