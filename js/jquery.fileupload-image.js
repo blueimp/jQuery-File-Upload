@@ -217,7 +217,13 @@
           thumbnailBlob;
         if (data.exif && options.thumbnail) {
           thumbnail = data.exif.get('Thumbnail');
-          thumbnailBlob = thumbnail && thumbnail.get('Blob');
+          if (typeof thumbnail === 'string') {
+            thumbnailBlob = thumbnail;
+          } else if (typeof thumbnail === 'object' && typeof thumbnail.get === 'function') {
+            thumbnailBlob = thumbnail.get('Blob');
+          } else {
+            thumbnailBlob = false;
+          }
           if (thumbnailBlob) {
             options.orientation = data.exif.get('Orientation');
             loadImage(thumbnailBlob, resolve, options);
