@@ -7,7 +7,7 @@
  * https://blueimp.net
  *
  * Licensed under the MIT license:
- * https://opensource.org/licenses/MIT
+ * http://www.opensource.org/licenses/MIT
  */
 
 .fileinput-button {
@@ -20,9 +20,8 @@
   top: 0;
   right: 0;
   margin: 0;
-  height: 100%;
   opacity: 0;
-  filter: alpha(opacity=0);
+  -ms-filter: 'alpha(opacity=0)';
   font-size: 200px !important;
   direction: ltr;
   cursor: pointer;
@@ -31,6 +30,8 @@
 /* Fixes for IE < 8 */
 @media screen\9 {
   .fileinput-button input {
-    font-size: 150% !important;
+    filter: alpha(opacity=0);
+    font-size: 100%;
+    height: 100%;
   }
 }
