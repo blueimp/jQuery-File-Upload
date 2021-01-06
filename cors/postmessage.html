@@ -1,4 +1,4 @@
-<!DOCTYPE HTML>
+<!DOCTYPE html>
 <!--
 /*
  * jQuery File Upload Plugin postMessage API
@@ -8,68 +8,78 @@
  * https://blueimp.net
  *
  * Licensed under the MIT license:
- * http://www.opensource.org/licenses/MIT
+ * https://opensource.org/licenses/MIT
  */
 -->
 <html lang="en">
-<head>
-<meta charset="utf-8">
-<title>jQuery File Upload Plugin postMessage API</title>
-<script src="//ajax.googleapis.com/ajax/libs/jquery/1.10.1/jquery.min.js"></script>
-</head>
-<body>
-<script>
-/*jslint unparam: true, regexp: true */
-/*global $, Blob, FormData, location */
-'use strict';
-var origin = /^http:\/\/example.org/,
-    target = new RegExp('^(http(s)?:)?\\/\\/' + location.host + '\\/');
-$(window).on('message', function (e) {
-    e = e.originalEvent;
-    var s = e.data,
-        xhr = $.ajaxSettings.xhr(),
-        f;
-    if (!origin.test(e.origin)) {
-        throw new Error('Origin "' + e.origin + '" does not match ' + origin);
-    }
-    if (!target.test(e.data.url)) {
-        throw new Error('Target "' + e.data.url + '" does not match ' + target);
-    }
-    $(xhr.upload).on('progress', function (ev) {
-        ev = ev.originalEvent;
-        e.source.postMessage({
-            id: s.id,
-            type: ev.type,
-            timeStamp: ev.timeStamp,
-            lengthComputable: ev.lengthComputable,
-            loaded: ev.loaded,
-            total: ev.total
-        }, e.origin);
-    });
-    s.xhr = function () {
-        return xhr;
-    };
-    if (!(s.data instanceof Blob)) {
-        f = new FormData();
-        $.each(s.data, function (i, v) {
-            f.append(v.name, v.value);
+  <head>
+    <meta charset="utf-8" />
+    <title>jQuery File Upload Plugin postMessage API</title>
+    <script
+      src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"
+      integrity="sha384-nvAa0+6Qg9clwYCGGPpDQLVpLNn0fRaROjHqs13t4Ggj3Ez50XnGQqc/r8MhnRDZ"
+      crossorigin="anonymous"
+    ></script>
+  </head>
+  <body>
+    <script>
+      'use strict';
+      var origin = /^https:\/\/example.org/,
+        target = new RegExp('^(http(s)?:)?\\/\\/' + location.host + '\\/');
+      $(window).on('message', function (e) {
+        e = e.originalEvent;
+        var s = e.data,
+          xhr = $.ajaxSettings.xhr(),
+          f;
+        if (!origin.test(e.origin)) {
+          throw new Error('Origin "' + e.origin + '" does not match ' + origin);
+        }
+        if (!target.test(e.data.url)) {
+          throw new Error(
+            'Target "' + e.data.url + '" does not match ' + target
+          );
+        }
+        $(xhr.upload).on('progress', function (ev) {
+          ev = ev.originalEvent;
+          e.source.postMessage(
+            {
+              id: s.id,
+              type: ev.type,
+              timeStamp: ev.timeStamp,
+              lengthComputable: ev.lengthComputable,
+              loaded: ev.loaded,
+              total: ev.total
+            },
+            e.origin
+          );
         });
-        s.data = f;
-    }
-    $.ajax(s).always(function (result, statusText, jqXHR) {
-        if (!jqXHR.done) {
+        s.xhr = function () {
+          return xhr;
+        };
+        if (!(s.data instanceof Blob)) {
+          f = new FormData();
+          $.each(s.data, function (i, v) {
+            f.append(v.name, v.value);
+          });
+          s.data = f;
+        }
+        $.ajax(s).always(function (result, statusText, jqXHR) {
+          if (!jqXHR.done) {
             jqXHR = result;
             result = null;
-        }
-        e.source.postMessage({
-            id: s.id,
-            status: jqXHR.status,
-            statusText: statusText,
-            result: result,
-            headers: jqXHR.getAllResponseHeaders()
-        }, e.origin);
-    });
-});
-</script>
-</body>
+          }
+          e.source.postMessage(
+            {
+              id: s.id,
+              status: jqXHR.status,
+              statusText: statusText,
+              result: result,
+              headers: jqXHR.getAllResponseHeaders()
+            },
+            e.origin
+          );
+        });
+      });
+    </script>
+  </body>
 </html>
