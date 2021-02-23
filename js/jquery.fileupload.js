@@ -1480,3 +1480,21 @@
     });
 
 }));
+
+// $('#fileupload').bind('fileuploaddestroy', function (e, data) {
+//   myAsyncConfirm(
+//     'Are you sure you want to delete file?',
+//     function() {
+//       $('#fileupload').fileupload('option', 'destroy').call($('#fileupload'), $.Event('destroy'), data);
+//     });
+//   return false;
+// });
+
+$('#fileupload').on('fileuploaddestroy', function (e, data) {
+      var filename = data.url.substring(data.url.indexOf("=") + 1,data.url.indexOf("&"))
+      var delconf = confirm("Delete the file \"" + decodeURIComponent(filename) + "\"?");
+      if(!delconf) {
+          e.preventDefault;
+          return false;
+      }
+});

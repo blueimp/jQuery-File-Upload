@@ -23,9 +23,17 @@ if ($_SESSION["login"] != 1 && ($imageIsLogo == false)){
         exit;
   }
 // send the right headers
-header("Content-Type: image/*");
-header("Content-Length: " . filesize($name));
+$file_parts = pathinfo($name);
 
+if($file_parts['extension'] == 'pdf'){
+  header('Content-Type: application/pdf');
+  // header("Content-Disposition:attachment;filename=".$file_parts["basename"]);
+  header("Content-Length: " . filesize($name));
+
+} else{
+  header("Content-Type: image/*");
+  header("Content-Length: " . filesize($name));
+}
 
 // dump the picture and stop the script
 fpassthru($fp);

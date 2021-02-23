@@ -166,6 +166,8 @@ class UploadHandler
                     // Uncomment the following to force the max
                     // dimensions and e.g. create square thumbnails:
                     //'crop' => true,
+                    'jpeg_quality' => 70,
+                    'strip' => true,
                     'max_width' => 80,
                     'max_height' => 80
                 )
@@ -1428,11 +1430,23 @@ class UploadHandler
             $file_path = $this->get_upload_path($file_name);
             $success = is_file($file_path) && $file_name[0] !== '.' && unlink($file_path);
             if ($success) {
+                    $fav_file_name = 'favorite.json';
+                    $fav_file_path = $this->get_upload_path($fav_file_name);
+                    $fav_file_content = file_get_contents($fav_file_path);
+                    // if image set as favourite is deleted, empty favourite.json
+                    if (strpos($file_name, $fav_file_content) !== false) {
+                        $fp_fav = fopen($fav_file_path,"w+");
+                        fwrite($fp_fav,'');
+                        fclose($fp_fav);
+                        // $response['fav_file_content'] = $fav_file_content;
+                        // $response['fav_file_delete_success'] = true;
+                    }
                 foreach ($this->options['image_versions'] as $version => $options) {
                     if (!empty($version)) {
                         $file = $this->get_upload_path($file_name, $version);
                         if (is_file($file)) {
                             unlink($file);
+
                         }
                     }
                 }

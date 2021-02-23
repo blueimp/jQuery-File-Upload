@@ -128,11 +128,11 @@
             imageMaxHeight: 1080,
             // Defines the image orientation (1-8) or takes the orientation
             // value from Exif data if set to true:
-            imageOrientation: false,
+            imageOrientation: true,
             // Define if resized images should be cropped or only scaled:
             imageCrop: false,
             // Disable the resize image functionality by default:
-            disableImageResize: true,
+            disableImageResize: false,
             // The maximum width of the preview images:
             previewMaxWidth: 80,
             // The maximum height of the preview images:
@@ -146,6 +146,9 @@
             previewCrop: false,
             // Define if preview images should be resized as canvas elements:
             previewCanvas: true
+
+            // disable fetching thumbnail image from EXIF data due to orientation issues.
+            // disableExifThumbnail: true,
         },
 
         processActions: {

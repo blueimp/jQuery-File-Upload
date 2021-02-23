@@ -84,6 +84,7 @@ mysqli_query($con,"UPDATE login_usernamen SET active='$now_db' WHERE id=".$_SESS
 <!-- CSS to style the file input field as button and adjust the Bootstrap progress bars -->
 <link rel="stylesheet" href="css/jquery.fileupload.css">
 <link rel="stylesheet" href="css/jquery.fileupload-ui.css">
+<!-- <link rel="stylesheet" href="../css/style.css"> -->
 <style media="screen">
 div.popup {
   padding: 20px;
@@ -146,14 +147,14 @@ div.popupContent {
     <form id="fileupload" method="POST" enctype="multipart/form-data">
         <!-- The fileupload-buttonbar contains buttons to add/delete files and start/cancel the upload -->
         <div class="row fileupload-buttonbar">
-            <div class="col-lg-7">
+            <div class="col-md-3">
                 <!-- The fileinput-button span is used to style the file input field as button -->
-                <span class="btn btn-success fileinput-button">
+                <span class="btn btn-success fileinput-button button fit center">
                     <i class="glyphicon glyphicon-plus"></i>
                     <span><?php echo iconv('ISO-8859-1', 'UTF-8', htmlPrint($texts->attachFile->addFile));?></span>
                     <input type="file" name="files[]" multiple>
                 </span>
-                <button type="submit" class="btn btn-primary start">
+                <!-- <button type="submit" class="btn btn-primary start">
                     <i class="glyphicon glyphicon-upload"></i>
                     <span><?php echo iconv('ISO-8859-1', 'UTF-8', htmlPrint($texts->attachFile->startUpload));?></span>
                 </button>
@@ -165,12 +166,12 @@ div.popupContent {
                     <i class="glyphicon glyphicon-trash"></i>
                     <span><?php echo iconv('ISO-8859-1', 'UTF-8', htmlPrint($texts->attachFile->delete));?></span>
                 </button>
-                <input type="checkbox" class="toggle">
+                <input type="checkbox" class="toggle"> -->
                 <!-- The global file processing state -->
                 <span class="fileupload-process"></span>
             </div>
             <!-- The global progress state -->
-            <div class="col-lg-5 fileupload-progress fade">
+            <div class="col-md-3 fileupload-progress fade">
                 <!-- The global progress bar -->
                 <div class="progress progress-striped active" role="progressbar" aria-valuemin="0" aria-valuemax="100">
                     <div class="progress-bar progress-bar-success" style="width:0%;"></div>
@@ -253,7 +254,7 @@ div.popupContent {
             <span class="size">{%=o.formatFileSize(file.size)%}</span>
         </td>
         <td>
-      <button class="btn btn-warning fav">
+      <button class="btn btn-warning fav" {% if (!(/\.(gif|jpe?g|tiff?|png|webp|bmp)$/i).test(file.name)) { %} style="pointer-events: auto; display:none;" disabled title="Only Images can be set as Favourite." {% } %}>
           <i class="glyphicon glyphicon-star"></i>
           <span><?php echo iconv('ISO-8859-1', 'UTF-8', htmlPrint($texts->attachFile->favorite));?></span>
       </button>
@@ -264,7 +265,7 @@ div.popupContent {
                     <i class="glyphicon glyphicon-trash"></i>
                     <span><?php echo iconv('ISO-8859-1', 'UTF-8', htmlPrint($texts->attachFile->delete));?></span>
                 </button>
-                <input type="checkbox" name="delete" value="1" class="toggle">
+                <!-- <input type="checkbox" name="delete" value="1" class="toggle"> -->
             {% } else { %}
                 <button class="btn btn-warning cancel">
                     <i class="glyphicon glyphicon-ban-circle"></i>
@@ -318,7 +319,7 @@ div.popupContent {
  //echo $_SESSION['server_name'].'/Basis.php?c='.$_SESSION['category'].'&id='.$_SESSION['primarykey'];
  echo $_SESSION['server_name']."/Basis.php?c=".$_SESSION['category']."&id=".$_SESSION['primarykey'];
  ?>
-   " style="font-size: 30px"><?php echo iconv('ISO-8859-1', 'UTF-8', htmlPrint($texts->general->back_button));?></a>
+   " class="button fit alt"><?php echo iconv('ISO-8859-1', 'UTF-8', htmlPrint($texts->general->back_button));?></a>
 </center>
 
 
