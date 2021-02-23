@@ -1,6 +1,6 @@
 {
   "name": "blueimp-file-upload",
-  "version": "10.31.0",
+  "version": "9.14.1",
   "title": "jQuery File Upload",
   "description": "File Upload widget with multiple file selection, drag&drop support, progress bar, validation and preview images, audio and video for jQuery. Supports cross-domain, chunked and resumable file uploads. Works with any server-side platform (Google App Engine, PHP, Python, Ruby on Rails, Java, etc.) that supports standard HTML form file uploads.",
   "keywords": [
@@ -34,83 +34,22 @@
     "url": "git://github.com/blueimp/jQuery-File-Upload.git"
   },
   "license": "MIT",
-  "peerDependencies": {
-    "jquery": ">=1.7"
-  },
   "optionalDependencies": {
-    "blueimp-canvas-to-blob": "3",
-    "blueimp-load-image": "5",
-    "blueimp-tmpl": "3"
+    "blueimp-canvas-to-blob": "3.5.0",
+    "blueimp-load-image": "2.9.0",
+    "blueimp-tmpl": "3.6.0"
   },
   "devDependencies": {
-    "eslint": "7",
-    "eslint-config-blueimp": "2",
-    "eslint-config-prettier": "6",
-    "eslint-plugin-jsdoc": "29",
-    "eslint-plugin-prettier": "3",
-    "prettier": "2",
-    "stylelint": "13",
-    "stylelint-config-prettier": "8",
-    "stylelint-config-recommended": "3"
-  },
-  "stylelint": {
-    "extends": [
-      "stylelint-config-recommended",
-      "stylelint-config-prettier"
-    ],
-    "ignoreFiles": [
-      "css/*.min.css",
-      "css/vendor/*",
-      "test/vendor/*"
-    ]
-  },
-  "eslintConfig": {
-    "extends": [
-      "blueimp",
-      "plugin:jsdoc/recommended",
-      "plugin:prettier/recommended"
-    ],
-    "env": {
-      "browser": true
-    }
-  },
-  "eslintIgnore": [
-    "js/*.min.js",
-    "test/vendor"
-  ],
-  "prettier": {
-    "arrowParens": "avoid",
-    "proseWrap": "always",
-    "singleQuote": true,
-    "trailingComma": "none"
+    "bower-json": "0.8.1",
+    "jshint": "2.9.3"
   },
   "scripts": {
-    "lint": "stylelint '**/*.css' && eslint .",
-    "unit": "docker-compose run --rm mocha",
-    "wdio": "docker-compose run --rm wdio",
-    "test": "npm run lint && npm run unit && npm run wdio && npm run wdio -- conf/firefox.js",
-    "posttest": "docker-compose down -v",
+    "bower-version-update": "./bower-version-update.js",
+    "lint": "jshint *.js js/*.js js/cors/*.js",
+    "test": "npm run lint",
     "preversion": "npm test",
+    "version": "npm run bower-version-update && git add bower.json",
     "postversion": "git push --tags origin master && npm publish"
   },
-  "files": [
-    "css/jquery.fileupload-noscript.css",
-    "css/jquery.fileupload-ui-noscript.css",
-    "css/jquery.fileupload-ui.css",
-    "css/jquery.fileupload.css",
-    "img/loading.gif",
-    "img/progressbar.gif",
-    "js/cors/jquery.postmessage-transport.js",
-    "js/cors/jquery.xdr-transport.js",
-    "js/vendor/jquery.ui.widget.js",
-    "js/jquery.fileupload-audio.js",
-    "js/jquery.fileupload-image.js",
-    "js/jquery.fileupload-process.js",
-    "js/jquery.fileupload-ui.js",
-    "js/jquery.fileupload-validate.js",
-    "js/jquery.fileupload-video.js",
-    "js/jquery.fileupload.js",
-    "js/jquery.iframe-transport.js"
-  ],
   "main": "js/jquery.fileupload.js"
 }

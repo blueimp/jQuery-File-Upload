@@ -7,12 +7,16 @@
  * https://blueimp.net
  *
  * Licensed under the MIT license:
- * https://opensource.org/licenses/MIT
+ * http://www.opensource.org/licenses/MIT
  */
 
+.fileupload-buttonbar .btn,
+.fileupload-buttonbar .toggle {
+  margin-bottom: 5px;
+}
 .progress-animated .progress-bar,
 .progress-animated .bar {
-  background: url('../img/progressbar.gif') !important;
+  background: url("../img/progressbar.gif") !important;
   filter: none;
 }
 .fileupload-process {
@@ -24,45 +28,30 @@
   display: block;
   width: 32px;
   height: 32px;
-  background: url('../img/loading.gif') center no-repeat;
+  background: url("../img/loading.gif") center no-repeat;
   background-size: contain;
 }
 .files audio,
 .files video {
   max-width: 300px;
 }
-.files .name {
-  word-wrap: break-word;
-  overflow-wrap: anywhere;
-  -webkit-hyphens: auto;
-  hyphens: auto;
-}
-.files button {
-  margin-bottom: 5px;
-}
-.toggle[type='checkbox'] {
-  transform: scale(2);
-  margin-left: 10px;
-}
 
 @media (max-width: 767px) {
-  .fileupload-buttonbar .btn {
-    margin-bottom: 5px;
-  }
-  .fileupload-buttonbar .delete,
   .fileupload-buttonbar .toggle,
   .files .toggle,
   .files .btn span {
     display: none;
   }
+  .files .name {
+    width: 80px;
+    word-wrap: break-word;
+  }
   .files audio,
   .files video {
     max-width: 80px;
   }
-}
-
-@media (max-width: 480px) {
-  .files .image td:nth-child(2) {
-    display: none;
+  .files img,
+  .files canvas {
+    max-width: 100%;
   }
 }

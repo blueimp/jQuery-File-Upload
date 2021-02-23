@@ -1,0 +1,21 @@
+@charset "UTF-8";
+/*
+ * jQuery File Upload Demo CSS Fixes for IE<9
+ * https://github.com/blueimp/jQuery-File-Upload
+ *
+ * Copyright 2013, Sebastian Tschan
+ * https://blueimp.net
+ *
+ * Licensed under the MIT license:
+ * http://www.opensource.org/licenses/MIT
+ */
+
+.navigation {
+  list-style: none;
+  padding: 0;
+  margin: 1em 0;
+}
+.navigation li {
+  display: inline;
+  margin-right: 10px;
+}
