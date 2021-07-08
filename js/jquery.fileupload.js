@@ -455,7 +455,7 @@
     _initProgressListener: function (options) {
       var that = this,
         xhr = options.xhr ? options.xhr() : $.ajaxSettings.xhr();
-      // Accesss to the native XHR object is required to add event listeners
+      // Access to the native XHR object is required to add event listeners
       // for the upload progress event:
       if (xhr.upload) {
         $(xhr.upload).on('progress', function (e) {
@@ -1172,7 +1172,7 @@
       data.fileInputClone = inputClone;
       $('<form></form>').append(inputClone)[0].reset();
       // Detaching allows to insert the fileInput on another form
-      // without loosing the file input value:
+      // without losing the file input value:
       input.after(inputClone).detach();
       // If the fileInput had focus before it was detached,
       // restore focus to the inputClone.
