@@ -305,7 +305,7 @@ module.exports = {
    *
    * Set it to zero if you want to disable truncating altogether.
    *
-   * This is especially userful when doing assertions on arrays: having this
+   * This is especially useful when doing assertions on arrays: having this
    * set to a reasonable large value makes the failure messages readily
    * inspectable.
    *
