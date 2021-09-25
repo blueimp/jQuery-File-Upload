@@ -57,7 +57,7 @@
             */
 
       // Function returning the current number of files,
-      // has to be overriden for maxNumberOfFiles validation:
+      // has to be overridden for maxNumberOfFiles validation:
       getNumberOfFiles: $.noop,
 
       // Error and info messages:
