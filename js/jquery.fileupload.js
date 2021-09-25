@@ -489,15 +489,14 @@
       name = String(name);
       if (map[name]) {
         // eslint-disable-next-line no-param-reassign
-        name = name.replace(/(?: \(([\d]+)\))?(\.[^.]+)?$/, function (
-          _,
-          p1,
-          p2
-        ) {
-          var index = p1 ? Number(p1) + 1 : 1;
-          var ext = p2 || '';
-          return ' (' + index + ')' + ext;
-        });
+        name = name.replace(
+          /(?: \(([\d]+)\))?(\.[^.]+)?$/,
+          function (_, p1, p2) {
+            var index = p1 ? Number(p1) + 1 : 1;
+            var ext = p2 || '';
+            return ' (' + index + ')' + ext;
+          }
+        );
         return this._getUniqueFilename(name, map);
       }
       map[name] = true;

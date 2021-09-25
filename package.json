@@ -45,13 +45,13 @@
   "devDependencies": {
     "eslint": "7",
     "eslint-config-blueimp": "2",
-    "eslint-config-prettier": "6",
-    "eslint-plugin-jsdoc": "29",
-    "eslint-plugin-prettier": "3",
+    "eslint-config-prettier": "8",
+    "eslint-plugin-jsdoc": "36",
+    "eslint-plugin-prettier": "4",
     "prettier": "2",
     "stylelint": "13",
     "stylelint-config-prettier": "8",
-    "stylelint-config-recommended": "3"
+    "stylelint-config-recommended": "5"
   },
   "stylelint": {
     "extends": [

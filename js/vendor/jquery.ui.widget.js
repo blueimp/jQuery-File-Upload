@@ -660,9 +660,8 @@
           ) {
             return;
           }
-          return (typeof handler === 'string'
-            ? instance[handler]
-            : handler
+          return (
+            typeof handler === 'string' ? instance[handler] : handler
           ).apply(instance, arguments);
         }
 
@@ -699,9 +698,8 @@
     _delay: function (handler, delay) {
       var instance = this;
       function handlerProxy() {
-        return (typeof handler === 'string'
-          ? instance[handler]
-          : handler
+        return (
+          typeof handler === 'string' ? instance[handler] : handler
         ).apply(instance, arguments);
       }
       return setTimeout(handlerProxy, delay || 0);
@@ -737,9 +735,8 @@
 
       data = data || {};
       event = $.Event(event);
-      event.type = (type === this.widgetEventPrefix
-        ? type
-        : this.widgetEventPrefix + type
+      event.type = (
+        type === this.widgetEventPrefix ? type : this.widgetEventPrefix + type
       ).toLowerCase();
 
       // The original event may come from any element
