@@ -81,7 +81,8 @@
       crop: '@',
       orientation: '@',
       forceResize: '@',
-      disabled: '@disableImageResize'
+      disabled: '@disableImageResize',
+      imageSmoothingQuality: '@imageSmoothingQuality'
     },
     {
       action: 'saveImage',
