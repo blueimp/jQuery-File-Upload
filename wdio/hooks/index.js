@@ -5,11 +5,21 @@
 const cmds = require('wdio-screen-commands')
 
 /* eslint-disable jsdoc/valid-types */
-/** @type WebdriverIO.HookFunctions */
+/** @type WebdriverIO.HookFunctionExtension */
 const config = {
   before: async () => {
+    // Add browser commands:
     browser.addCommand('saveScreenshotByName', cmds.saveScreenshotByName)
     browser.addCommand('saveAndDiffScreenshot', cmds.saveAndDiffScreenshot)
+    // Add element commands:
+    browser.addCommand('saveScreenshotByName', cmds.saveScreenshotByName, true)
+    browser.addCommand(
+      'saveAndDiffScreenshot',
+      cmds.saveAndDiffScreenshot,
+      true
+    )
+    if (browser.config.appium)
+      await browser.updateSettings(browser.config.appium)
     if (browser.config.maximizeWindow) await browser.maximizeWindow()
   },
   beforeTest: async test => {

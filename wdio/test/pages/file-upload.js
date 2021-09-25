@@ -32,42 +32,47 @@ class FileUpload {
    * Opens the file upload form.
    *
    * @param {number} [timeout] Wait timeout
-   * @returns {FileUpload} FileUpload object
    */
-  open(timeout) {
-    browser.url('/')
-    this.fileinput.waitForExist({ timeout })
-    return this
+  async open(timeout) {
+    await browser.url('/')
+    await this.fileinput.waitForExist({ timeout })
   }
   /**
    * Uploads files.
    *
    * @param {Array<string>} files Files to upload
    * @param {number} [timeout] Wait timeout
-   * @returns {FileUpload} FileUpload object
    */
-  upload(files, timeout) {
-    this.fileinput.addValue(files.join('\n'))
-    browser.waitUntil(() => !this.processing.length, { timeout })
-    this.start.click()
-    browser.waitUntil(() => !!this.downloads.length, { timeout })
-    browser.waitUntil(() => !this.uploads.length, { timeout })
-    return this
+  async upload(files, timeout) {
+    await this.fileinput.addValue(files.join('\n'))
+    await browser.waitUntil(async () => !(await this.processing.length), {
+      timeout
+    })
+    await this.start.click()
+    await browser.waitUntil(async () => !!(await this.downloads.length), {
+      timeout
+    })
+    await browser.waitUntil(async () => !(await this.uploads.length), {
+      timeout
+    })
   }
   /**
    * Deletes uploaded files.
    *
    * @param {number} [timeout] Wait timeout
-   * @returns {FileUpload} FileUpload object
    */
-  delete(timeout) {
-    this.toggle.click()
-    browser.waitUntil(() => this.downloads.length === this.checked.length, {
+  async delete(timeout) {
+    await this.toggle.click()
+    await browser.waitUntil(
+      async () => (await this.downloads.length) === (await this.checked.length),
+      {
+        timeout
+      }
+    )
+    await this.remove.click()
+    await browser.waitUntil(async () => !(await this.downloads.length), {
       timeout
     })
-    this.remove.click()
-    browser.waitUntil(() => !this.downloads.length, { timeout })
-    return this
   }
 }
 

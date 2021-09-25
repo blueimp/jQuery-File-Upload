@@ -4,7 +4,6 @@ services:
     build: server/php
     ports:
       - 127.0.0.1:80:80
-      - ${SERVER_HOST:-127.0.0.1}:${SERVER_PORT-}:80
     volumes:
       - .:/var/www/html
   mocha:
@@ -16,7 +15,6 @@ services:
       - example
   chromedriver:
     image: blueimp/chromedriver
-    init: true
     tmpfs: /tmp
     environment:
       - DISABLE_X11=false
@@ -28,7 +26,6 @@ services:
       - 127.0.0.1:5900:5900
   geckodriver:
     image: blueimp/geckodriver
-    init: true
     tmpfs: /tmp
     shm_size: 2g
     environment:
@@ -41,18 +38,17 @@ services:
       - 127.0.0.1:5901:5900
   wdio:
     image: blueimp/wdio
-    init: true
     read_only: true
     tmpfs:
       - /tmp
     environment:
-      - WAIT_FOR_HOSTS= chromedriver:4444 geckodriver:4444 example:80
+      - WAIT_FOR_HOSTS=chromedriver:4444 geckodriver:4444 example:80
       - WINDOWS_HOST
       - MACOS_ASSETS_DIR=$PWD/wdio/assets/
       - WINDOWS_ASSETS_DIR
     volumes:
-      - ./wdio:/opt:ro
-      - ./wdio/reports:/opt/reports
+      - ./wdio:/app:ro
+      - ./wdio/reports:/app/reports
     depends_on:
       - chromedriver
       - geckodriver

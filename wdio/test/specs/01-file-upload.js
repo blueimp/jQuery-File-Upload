@@ -8,16 +8,18 @@ const assetsDir = browser.config.assetsDir
 describe('File Upload', () => {
   if (!assetsDir) return
 
-  it('uploads files', () => {
-    FileUpload.open().upload([
+  it('uploads files', async () => {
+    await FileUpload.open()
+    await FileUpload.upload([
       assetsDir + 'black+white-60x40.gif',
       assetsDir + 'black+white-3x2.jpg'
     ])
-    browser.saveAndDiffScreenshot('Files uploaded')
+    await browser.saveAndDiffScreenshot('Files uploaded')
   })
 
-  it('deletes files', () => {
-    FileUpload.open().delete()
-    browser.saveAndDiffScreenshot('Files deleted')
+  it('deletes files', async () => {
+    await FileUpload.open()
+    await FileUpload.delete()
+    await browser.saveAndDiffScreenshot('Files deleted')
   })
 })
