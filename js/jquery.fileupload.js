@@ -1297,8 +1297,7 @@
     _getSingleFileInputFiles: function (fileInput) {
       // eslint-disable-next-line no-param-reassign
       fileInput = $(fileInput);
-      var entries =
-          fileInput.prop('webkitEntries') || fileInput.prop('entries'),
+      var entries = fileInput.prop('entries'),
         files,
         value;
       if (entries && entries.length) {
