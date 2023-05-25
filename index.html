@@ -34,6 +34,8 @@
     <!--[if gte IE 9]><!-->
     <!-- Carbon Ads styles -->
     <link rel="stylesheet" href="css/vendor/carbon.css" />
+    <!-- Pintura Image Editor styles -->
+    <link rel="stylesheet" href="css/vendor/pintura.min.css" />
     <!--<![endif]-->
     <!-- Generic page styles -->
     <style>
@@ -163,6 +165,39 @@
           id="_carbonads_js"
         ></script>
       </p>
+      <!-- Pintura Image Editor info -->
+      <div class="panel panel-default">
+        <div class="panel-heading">
+          <h3 class="panel-title">
+            <a href="https://pqina.nl/pintura/?aff=DZedB"
+              ><img
+                src="img/vendor/pintura-logo.svg"
+                alt="Pintura"
+                style="max-width: 150px;"
+            /></a>
+          </h3>
+        </div>
+        <div class="panel-body">
+          <p>
+            <a href="https://pqina.nl/pintura/?aff=DZedB">Pintura Image Editor</a>
+            integrates smoothly with
+            <a href="https://github.com/blueimp/jQuery-File-Upload"
+              >jQuery File Upload</a
+            >
+            and creates a super fast image editing experience for your users.
+          </p>
+          <ul>
+            <li>Five Minute Install</li>
+            <li>Set Crop Masks and Guides</li>
+            <li>Define Aspect Ratio Options</li>
+            <li>Rotate, Resize, and Flip Images</li>
+            <li>Add Markup and Annotations</li>
+            <li>Color Adjustment Controls</li>
+            <li>Apply Filter Effects</li>
+          </ul>
+          <p><a href="https://pqina.nl/pintura/?aff=DZedB">Learn more</a></p>
+        </div>
+      </div>
       <!--<![endif]-->
       <div class="panel panel-default">
         <div class="panel-heading">
@@ -368,5 +403,21 @@
     <!--[if (gte IE 8)&(lt IE 10)]>
       <script src="js/cors/jquery.xdr-transport.js"></script>
     <![endif]-->
+    <script type="module">
+      // import Pintura Image Editor functionality:
+      import { openDefaultEditor } from './js/vendor/pintura.min.js';
+      $(function () {
+        $('#fileupload').fileupload('option', {
+          // When editing a file use Pintura Image Editor:
+          edit: function (file) {
+            return new Promise((resolve, reject) => {
+              const editor = openDefaultEditor({ src: file });
+              editor.on('process', ({ dest }) => { resolve(dest); });
+              editor.on('close', () => { resolve(file); });
+            });
+          }
+        });
+      });
+    </script>       
   </body>
 </html>
